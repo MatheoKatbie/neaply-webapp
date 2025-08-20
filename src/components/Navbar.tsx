@@ -51,29 +51,12 @@ export default function Navbar() {
                     <div className="hidden md:flex flex-1 justify-center">
                         <div className="flex items-baseline space-x-6">
                             <Link
-                                href="/browse"
+                                href="/marketplace"
                                 className="font-inter text-gray-700 hover:text-black px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-gray-100"
                             >
-                                Browse
+                                Marketplace
                             </Link>
-                            <Link
-                                href="/categories"
-                                className="font-inter text-gray-700 hover:text-black px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-gray-100"
-                            >
-                                Categories
-                            </Link>
-                            <Link
-                                href="/trending"
-                                className="font-inter text-gray-700 hover:text-black px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-gray-100"
-                            >
-                                Trending
-                            </Link>
-                            <Link
-                                href="/about"
-                                className="font-inter text-gray-700 hover:text-black px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-gray-100"
-                            >
-                                About
-                            </Link>
+
                         </div>
                     </div>
 
@@ -97,7 +80,7 @@ export default function Navbar() {
                                 {user.isSeller && (
                                     <button
                                         className="font-inter inline-flex items-center justify-center h-10 px-5 bg-black border border-black text-white rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-800 hover:shadow-lg cursor-pointer"
-                                        onClick={() => router.push('/become-seller')}
+                                        onClick={() => router.push('/dashboard/seller')}
                                     >
                                         Seller Dashboard
                                     </button>
@@ -203,33 +186,13 @@ export default function Navbar() {
                     <div className="md:hidden">
                         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-md rounded-2xl mt-2 border border-gray-200 shadow-lg">
                             <Link
-                                href="/browse"
+                                href="/marketplace"
                                 className="font-inter text-gray-700 hover:text-black block px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100"
                                 onClick={() => setIsMenuOpen(false)}
                             >
-                                Browse
+                                Marketplace
                             </Link>
-                            <Link
-                                href="/categories"
-                                className="font-inter text-gray-700 hover:text-black block px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Categories
-                            </Link>
-                            <Link
-                                href="/trending"
-                                className="font-inter text-gray-700 hover:text-black block px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Trending
-                            </Link>
-                            <Link
-                                href="/about"
-                                className="font-inter text-gray-700 hover:text-black block px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                About
-                            </Link>
+
                             <div className="pt-4 space-y-2">
                                 {loading ? (
                                     <div className="space-y-2">
@@ -254,7 +217,7 @@ export default function Navbar() {
                                             <button
                                                 className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-black border border-black text-white rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-800"
                                                 onClick={() => {
-                                                    router.push('/become-seller');
+                                                    router.push('/dashboard/seller');
                                                     setIsMenuOpen(false);
                                                 }}
                                             >

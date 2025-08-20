@@ -67,6 +67,7 @@ export async function middleware(req: NextRequest) {
         '/auth/callback',
         '/auth/reset-password',
         '/',
+        '/marketplace',
     ]
 
     const { pathname } = req.nextUrl

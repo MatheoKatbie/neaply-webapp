@@ -150,7 +150,8 @@ model WorkflowVersion {
   changelogMd   String?
   n8nMinVersion String?
   n8nMaxVersion String?
-  jsonFileUrl   String
+  jsonFileUrl   String? // Optional, for uploaded files
+  jsonContent   Json? // Direct JSON content storage
   extraAssets   Json?
   isLatest      Boolean  @default(false)
   createdAt     DateTime @default(now())
