@@ -18,7 +18,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <>
       {shouldShowNavbar && <Navbar />}
-      <main className={shouldShowNavbar ? '' : ''}>{children}</main>
+      <main className={shouldShowNavbar ? 'py-10' : ''}>{children}</main>
     </>
   )
 }
