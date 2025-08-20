@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { LoginFormData } from '@/types/auth'
 import VantaBackground from '@/components/VantaBackground'
 
-export default function LoginPage() {
+// Component that uses searchParams - needs to be wrapped in Suspense
+function LoginContent() {
     const { signIn, signInWithProvider, loading, error } = useAuth()
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -199,5 +200,14 @@ export default function LoginPage() {
                 </div>
             </div>
         </>
+    )
+}
+
+// Main component with Suspense boundary
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <LoginContent />
+        </Suspense>
     )
 }
