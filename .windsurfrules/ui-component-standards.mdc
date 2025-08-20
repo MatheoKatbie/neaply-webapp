@@ -1,0 +1,244 @@
+---
+description: UI component standards using Radix UI, Tailwind CSS, and design system
+globs: **/components/**,**/ui/**
+---
+
+# UI Component Standards
+
+FlowMarket uses a design system built with Radix UI primitives, Tailwind CSS, and class-variance-authority for consistent styling.
+
+## Component Architecture
+
+### Base Components Location
+All reusable UI components are in [src/components/ui/](mdc:src/components/ui/):
+- [button.tsx](mdc:src/components/ui/button.tsx) - Button component with variants
+- [card.tsx](mdc:src/components/ui/card.tsx) - Card layouts
+- [form.tsx](mdc:src/components/ui/form.tsx) - Form components
+- [input.tsx](mdc:src/components/ui/input.tsx) - Input fields
+- [tabs.tsx](mdc:src/components/ui/tabs.tsx) - Tab navigation
+
+### Component Pattern
+Use this pattern for all UI components:
+
+```typescript
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
+
+// Define variants using class-variance-authority
+const componentVariants = cva(
+  "base-classes-here", // base styles
+  {
+    variants: {
+      variant: {
+        default: "default-styles",
+        secondary: "secondary-styles",
+      },
+      size: {
+        default: "default-size",
+        sm: "small-size",
+        lg: "large-size",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+// Component interface
+interface ComponentProps
+  extends React.ComponentProps<"button"> // or appropriate HTML element
+  , VariantProps<typeof componentVariants> {
+  asChild?: boolean
+}
+
+function Component({ className, variant, size, asChild = false, ...props }: ComponentProps) {
+  const Comp = asChild ? Slot : "button" // or appropriate element
+  
+  return (
+    <Comp
+      className={cn(componentVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
+}
+
+export { Component, componentVariants }
+```
+
+## Design System
+
+### Typography
+Use these font classes consistently:
+```typescript
+// Primary font (Inter)
+className="font-inter text-sm font-medium"
+
+// Display font (Space Grotesk) - for headings/brand
+className="font-space-grotesk text-xl font-bold"
+```
+
+### Colors & Theming
+Follow the established color palette:
+```typescript
+// Primary actions
+className="bg-black text-white hover:bg-gray-800"
+
+// Secondary actions  
+className="bg-transparent border border-black text-black hover:bg-black hover:text-white"
+
+// Destructive actions
+className="bg-red-500 text-white hover:bg-red-600"
+className="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+
+// Text colors
+className="text-gray-700 hover:text-black"
+```
+
+### Spacing & Layout
+Use consistent spacing scale:
+```typescript
+// Padding/Margin
+className="px-4 py-2"    // Small
+className="px-5 py-3"    // Medium  
+className="px-6 py-4"    // Large
+
+// Gaps
+className="space-x-3"    // Horizontal
+className="space-y-2"    // Vertical
+className="gap-4"        // Grid/Flex gap
+```
+
+### Border Radius
+Use rounded corners consistently:
+```typescript
+className="rounded-full"    // Pills/buttons
+className="rounded-lg"      // Cards
+className="rounded-md"      // Small elements
+```
+
+## Component Examples
+
+### Button Usage
+```typescript
+import { Button } from "@/components/ui/button"
+
+// Default button
+<Button>Click me</Button>
+
+// Variants
+<Button variant="destructive">Delete</Button>
+<Button variant="outline">Cancel</Button>
+<Button variant="ghost">Subtle</Button>
+
+// Sizes
+<Button size="sm">Small</Button>
+<Button size="lg">Large</Button>
+
+// As child (polymorphic)
+<Button asChild>
+  <Link href="/somewhere">Navigate</Link>
+</Button>
+```
+
+### Form Components
+```typescript
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+<div className="space-y-2">
+  <Label htmlFor="email">Email</Label>
+  <Input 
+    id="email"
+    type="email" 
+    placeholder="Enter your email"
+    className="w-full"
+  />
+</div>
+```
+
+### Card Layouts
+```typescript
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+
+<Card>
+  <CardHeader>
+    <CardTitle>Card Title</CardTitle>
+  </CardHeader>
+  <CardContent>
+    Card content goes here
+  </CardContent>
+</Card>
+```
+
+## Layout Components
+
+### Navbar Pattern
+The [src/components/Navbar.tsx](mdc:src/components/Navbar.tsx) demonstrates:
+- Responsive navigation (desktop/mobile)
+- Authentication state handling
+- Modern glass-morphism design
+- Mobile menu toggle
+
+### Background Components
+[src/components/VantaBackground.tsx](mdc:src/components/VantaBackground.tsx) shows animated background integration.
+
+## Responsive Design
+
+### Mobile-First Approach
+Always start with mobile styles, then add desktop:
+```typescript
+className="w-full md:w-auto"           // Width
+className="flex-col md:flex-row"       // Direction
+className="space-y-2 md:space-y-0 md:space-x-4"  // Spacing
+```
+
+### Responsive Navigation
+```typescript
+// Desktop navigation
+className="hidden md:flex"
+
+// Mobile navigation  
+className="md:hidden"
+
+// Mobile menu
+className="md:hidden absolute top-full left-0 w-full"
+```
+
+## Animation & Transitions
+
+### Hover Effects
+```typescript
+className="transition-all duration-300 hover:bg-gray-800 hover:shadow-lg"
+```
+
+### Loading States
+```typescript
+className="animate-pulse bg-gray-200 rounded"
+```
+
+### Focus States
+```typescript
+className="focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+```
+
+## Accessibility
+
+Always include:
+- Proper semantic HTML elements
+- ARIA labels where needed
+- Keyboard navigation support
+- Focus management
+- Screen reader friendly text
+
+```typescript
+<button 
+  aria-label="Close menu"
+  className="sr-only md:not-sr-only"
+>
+  Close
+</button>
+```
