@@ -1,0 +1,377 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/**
+ * ============================
+ * Enums
+ * ============================
+ */
+enum WorkflowStatus {
+  draft
+  published
+  unlisted
+  disabled
+}
+
+enum ReviewStatus {
+  published
+  hidden
+  reported
+}
+
+enum OrderStatus {
+  pending
+  paid
+  failed
+  refunded
+  cancelled
+}
+
+enum PaymentStatus {
+  succeeded
+  failed
+  refunded
+  partial_refund
+}
+
+enum SellerProfileStatus {
+  active
+  suspended
+  pending
+}
+
+enum PayoutStatus {
+  pending
+  paid
+  failed
+}
+
+enum ReportStatus {
+  open
+  reviewing
+  resolved
+  dismissed
+}
+
+enum CompatibilityStatus {
+  compatible
+  unknown
+  incompatible
+}
+
+/**
+ * ============================
+ * Users & Sellers
+ * ============================
+ */
+model User {
+  id           BigInt   @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  displayName  String
+  avatarUrl    String?
+  isSeller     Boolean  @default(false)
+  isAdmin      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sellerProfile SellerProfile?
+  workflows     Workflow[]
+  orders        Order[]
+  reviews       Review[]
+  favorites     Favorite[]
+  payouts       Payout[]
+  auditLogs     AuditLog[]
+  reports       Report[]       @relation("UserReports")
+
+  @@index([email])
+}
+
+model SellerProfile {
+  userId       BigInt              @id
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeName    String              @unique
+  slug         String              @unique
+  bio          String?
+  websiteUrl   String?
+  supportEmail String?
+  payoutMethod Json?
+  status       SellerProfileStatus @default(active)
+}
+
+/**
+ * ============================
+ * Catalog: Workflows & Versions
+ * ============================
+ */
+model Workflow {
+  id             BigInt         @id @default(autoincrement())
+  sellerId       BigInt
+  seller         User           @relation(fields: [sellerId], references: [id], onDelete: Restrict)
+  title          String
+  slug           String         @unique
+  shortDesc      String
+  longDescMd     String?
+  heroImageUrl   String?
+  status         WorkflowStatus @default(draft)
+  basePriceCents Int            @default(0)
+  currency       String         @default("EUR")
+  salesCount     Int            @default(0)
+  ratingAvg      Decimal        @default(0.0)
+  ratingCount    Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  versions   WorkflowVersion[]
+  categories WorkflowCategory[]
+  tags       WorkflowTag[]
+  plans      PricingPlan[]
+  orderItems OrderItem[]
+  reviews    Review[]
+  favorites  Favorite[]
+  compat     WorkflowCompatibility[]
+  Report     Report[]
+
+  @@index([status, updatedAt])
+}
+
+model WorkflowVersion {
+  id            BigInt   @id @default(autoincrement())
+  workflowId    BigInt
+  workflow      Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  semver        String
+  changelogMd   String?
+  n8nMinVersion String?
+  n8nMaxVersion String?
+  jsonFileUrl   String
+  extraAssets   Json?
+  isLatest      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@unique([workflowId, semver])
+  @@index([workflowId, isLatest])
+}
+
+/**
+ * ============================
+ * Categories & Tags
+ * ============================
+ */
+model Category {
+  id        BigInt             @id @default(autoincrement())
+  name      String             @unique
+  slug      String             @unique
+  workflows WorkflowCategory[]
+}
+
+model WorkflowCategory {
+  workflowId BigInt
+  categoryId BigInt
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([workflowId, categoryId])
+}
+
+model Tag {
+  id        BigInt        @id @default(autoincrement())
+  name      String        @unique
+  slug      String        @unique
+  workflows WorkflowTag[]
+}
+
+model WorkflowTag {
+  workflowId BigInt
+  tagId      BigInt
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([workflowId, tagId])
+}
+
+/**
+ * ============================
+ * Monetization (one-time only)
+ * ============================
+ */
+model PricingPlan {
+  id         BigInt   @id @default(autoincrement())
+  workflowId BigInt
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  name       String // "Standard", "Pro", etc. (toujours one-time)
+  priceCents Int
+  currency   String   @default("EUR")
+  features   String[] // puces marketing
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+
+  orderItems OrderItem[]
+
+  @@index([workflowId, isActive, sortOrder])
+}
+
+/**
+ * ============================
+ * Favorites (wishlist)
+ * ============================
+ */
+model Favorite {
+  userId     BigInt
+  workflowId BigInt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([userId, workflowId])
+}
+
+/**
+ * ============================
+ * Orders & Payments (no licenses)
+ * ============================
+ */
+model Order {
+  id             BigInt      @id @default(autoincrement())
+  userId         BigInt
+  user           User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  status         OrderStatus
+  totalCents     Int
+  currency       String      @default("EUR")
+  provider       String? // stripe, paypal...
+  providerIntent String? // payment intent / session id
+  createdAt      DateTime    @default(now())
+  paidAt         DateTime?
+
+  items    OrderItem[]
+  payments Payment[]
+
+  @@index([userId, status, createdAt])
+}
+
+model OrderItem {
+  id             BigInt  @id @default(autoincrement())
+  orderId        BigInt
+  workflowId     BigInt
+  pricingPlanId  BigInt?
+  unitPriceCents Int
+  quantity       Int     @default(1)
+  subtotalCents  Int
+
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  workflow    Workflow     @relation(fields: [workflowId], references: [id], onDelete: Restrict)
+  pricingPlan PricingPlan? @relation(fields: [pricingPlanId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([workflowId])
+}
+
+model Payment {
+  id             BigInt        @id @default(autoincrement())
+  orderId        BigInt
+  order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider       String // stripe, paypal...
+  providerCharge String
+  amountCents    Int
+  currency       String
+  status         PaymentStatus
+  processedAt    DateTime      @default(now())
+  rawPayload     Json?
+}
+
+/**
+ * ============================
+ * Reviews (1 par acheteur)
+ * ============================
+ */
+model Review {
+  id         BigInt       @id @default(autoincrement())
+  workflowId BigInt
+  userId     BigInt
+  rating     Int
+  title      String?
+  bodyMd     String?
+  status     ReviewStatus @default(published)
+  createdAt  DateTime     @default(now())
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowId, userId]) // un avis par utilisateur
+  @@index([workflowId, status, createdAt])
+}
+
+/**
+ * ============================
+ * Payouts (reversements vendeurs)
+ * ============================
+ */
+model Payout {
+  id            BigInt       @id @default(autoincrement())
+  sellerId      BigInt
+  seller        User         @relation(fields: [sellerId], references: [id], onDelete: Restrict)
+  amountCents   Int
+  currency      String       @default("EUR")
+  periodStart   DateTime
+  periodEnd     DateTime
+  status        PayoutStatus
+  providerBatch String?
+  createdAt     DateTime     @default(now())
+  paidAt        DateTime?
+
+  @@index([sellerId, status, periodStart, periodEnd])
+}
+
+/**
+ * ============================
+ * Moderation & Audit
+ * ============================
+ */
+model Report {
+  id         BigInt       @id @default(autoincrement())
+  reporterId BigInt?
+  workflowId BigInt
+  reason     String
+  status     ReportStatus @default(open)
+  createdAt  DateTime     @default(now())
+
+  reporter User?    @relation("UserReports", fields: [reporterId], references: [id], onDelete: SetNull)
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId, status, createdAt])
+}
+
+model AuditLog {
+  id         BigInt   @id @default(autoincrement())
+  userId     BigInt?
+  action     String // "workflow.publish", "order.refund", etc.
+  entityType String // "workflow","order","user",...
+  entityId   BigInt?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt])
+}
+
+/**
+ * ============================
+ * Compatibility (n8n)
+ * ============================
+ */
+model WorkflowCompatibility {
+  workflowId BigInt
+  n8nVersion String
+  status     CompatibilityStatus
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@id([workflowId, n8nVersion])
+}
