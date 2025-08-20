@@ -1,0 +1,418 @@
+---
+description: API route patterns and conventions for Next.js App Router
+globs: **/api/**,**/route.ts
+---
+
+# API Route Patterns
+
+FlowMarket uses Next.js 15 App Router API routes with consistent patterns for authentication, error handling, and data validation.
+
+## File Structure
+
+API routes follow App Router conventions:
+```
+src/app/api/
+├── user/
+│   └── route.ts          # GET /api/user - user operations
+├── workflows/
+│   ├── route.ts          # GET/POST /api/workflows
+│   └── [id]/
+│       └── route.ts      # GET/PUT/DELETE /api/workflows/[id]
+└── auth/
+    ├── login/route.ts    # POST /api/auth/login
+    └── register/route.ts # POST /api/auth/register
+```
+
+## Route Handler Pattern
+
+Use this template for all API routes:
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+
+// Input validation schema
+const createWorkflowSchema = z.object({
+  title: z.string().min(1).max(200),
+  shortDesc: z.string().min(10).max(500),
+  basePriceCents: z.number().min(0),
+})
+
+export async function GET(req: NextRequest) {
+  try {
+    // Authentication check
+    const session = await getServerSession()
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { status: 401 }
+      )
+    }
+
+    // Query parameters
+    const { searchParams } = new URL(req.url)
+    const limit = parseInt(searchParams.get('limit') ?? '20')
+    const offset = parseInt(searchParams.get('offset') ?? '0')
+
+    // Database operation
+    const workflows = await prisma.workflow.findMany({
+      take: limit,
+      skip: offset,
+      where: { sellerId: session.user.id },
+      include: { 
+        categories: { include: { category: true } },
+        _count: { select: { reviews: true } }
+      }
+    })
+
+    return NextResponse.json({ 
+      data: workflows,
+      pagination: { limit, offset, total: workflows.length }
+    })
+
+  } catch (error) {
+    console.error('API Error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    // Authentication check
+    const session = await getServerSession()
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized' }, 
+        { status: 401 }
+      )
+    }
+
+    // Parse and validate request body
+    const body = await req.json()
+    const validatedData = createWorkflowSchema.parse(body)
+
+    // Business logic
+    const workflow = await prisma.workflow.create({
+      data: {
+        ...validatedData,
+        sellerId: session.user.id,
+        slug: generateSlug(validatedData.title),
+        status: 'draft'
+      },
+      include: {
+        seller: { select: { displayName: true, avatarUrl: true } }
+      }
+    })
+
+    return NextResponse.json({ 
+      data: workflow,
+      message: 'Workflow created successfully'
+    }, { status: 201 })
+
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { 
+          error: 'Validation failed',
+          details: error.errors
+        },
+        { status: 400 }
+      )
+    }
+
+    console.error('API Error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+// Helper function for server-side auth
+async function getServerSession() {
+  const cookieStore = cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    }
+  )
+  
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
+}
+```
+
+## Authentication Patterns
+
+### Protected Routes
+Always check authentication for protected endpoints:
+
+```typescript
+export async function GET(req: NextRequest) {
+  const session = await getServerSession()
+  
+  if (!session) {
+    return NextResponse.json(
+      { error: 'Authentication required' }, 
+      { status: 401 }
+    )
+  }
+  
+  // Continue with authenticated logic
+}
+```
+
+### Optional Authentication
+For endpoints where auth is optional:
+
+```typescript
+export async function GET(req: NextRequest) {
+  const session = await getServerSession()
+  
+  // Adjust query based on auth status
+  const where = session 
+    ? { sellerId: session.user.id } 
+    : { status: 'published' }
+    
+  const workflows = await prisma.workflow.findMany({ where })
+  return NextResponse.json({ data: workflows })
+}
+```
+
+### Role-Based Access
+Check user roles for admin/seller endpoints:
+
+```typescript
+export async function DELETE(req: NextRequest) {
+  const session = await getServerSession()
+  
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Check if user is admin or resource owner
+  const workflow = await prisma.workflow.findUnique({
+    where: { id: workflowId },
+    select: { sellerId: true }
+  })
+
+  const isOwner = workflow?.sellerId === session.user.id
+  const isAdmin = session.user.user_metadata?.isAdmin === true
+
+  if (!isOwner && !isAdmin) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  // Proceed with deletion
+}
+```
+
+## Error Handling
+
+### Standard Error Responses
+Use consistent error response format:
+
+```typescript
+// 400 - Bad Request
+return NextResponse.json(
+  { 
+    error: 'Validation failed',
+    details: validationErrors 
+  },
+  { status: 400 }
+)
+
+// 401 - Unauthorized
+return NextResponse.json(
+  { error: 'Authentication required' },
+  { status: 401 }
+)
+
+// 403 - Forbidden
+return NextResponse.json(
+  { error: 'Insufficient permissions' },
+  { status: 403 }
+)
+
+// 404 - Not Found
+return NextResponse.json(
+  { error: 'Resource not found' },
+  { status: 404 }
+)
+
+// 500 - Server Error
+return NextResponse.json(
+  { error: 'Internal server error' },
+  { status: 500 }
+)
+```
+
+### Validation Errors
+Handle Zod validation errors specifically:
+
+```typescript
+try {
+  const validatedData = schema.parse(body)
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    return NextResponse.json(
+      { 
+        error: 'Validation failed',
+        details: error.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message
+        }))
+      },
+      { status: 400 }
+    )
+  }
+  throw error // Re-throw non-validation errors
+}
+```
+
+## Request/Response Patterns
+
+### Query Parameters
+Parse and validate query parameters:
+
+```typescript
+const { searchParams } = new URL(req.url)
+
+// Pagination
+const page = parseInt(searchParams.get('page') ?? '1')
+const limit = Math.min(parseInt(searchParams.get('limit') ?? '20'), 100)
+const offset = (page - 1) * limit
+
+// Filtering
+const category = searchParams.get('category')
+const status = searchParams.get('status') as WorkflowStatus | null
+const search = searchParams.get('q')
+```
+
+### Response Format
+Use consistent response structure:
+
+```typescript
+// Success with data
+return NextResponse.json({
+  data: results,
+  pagination: { page, limit, total, totalPages },
+  message: 'Optional success message'
+})
+
+// Success without data
+return NextResponse.json({
+  success: true,
+  message: 'Operation completed'
+})
+
+// Error response
+return NextResponse.json({
+  error: 'Error description',
+  details: 'Optional additional details'
+}, { status: errorCode })
+```
+
+## Dynamic Routes
+
+### Path Parameters
+Handle dynamic route parameters:
+
+```typescript
+// app/api/workflows/[id]/route.ts
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params
+  
+  // Validate ID format
+  if (!z.string().uuid().safeParse(id).success) {
+    return NextResponse.json(
+      { error: 'Invalid workflow ID' },
+      { status: 400 }
+    )
+  }
+
+  const workflow = await prisma.workflow.findUnique({
+    where: { id }
+  })
+
+  if (!workflow) {
+    return NextResponse.json(
+      { error: 'Workflow not found' },
+      { status: 404 }
+    )
+  }
+
+  return NextResponse.json({ data: workflow })
+}
+```
+
+## Database Operations
+
+### Transactions
+Use transactions for multi-step operations:
+
+```typescript
+export async function POST(req: NextRequest) {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const order = await tx.order.create({ data: orderData })
+      
+      await tx.workflow.update({
+        where: { id: workflowId },
+        data: { salesCount: { increment: 1 } }
+      })
+      
+      return order
+    })
+
+    return NextResponse.json({ data: result })
+  } catch (error) {
+    // Transaction automatically rolled back
+    throw error
+  }
+}
+```
+
+### Optimistic Updates
+Handle race conditions with optimistic locking:
+
+```typescript
+export async function PUT(req: NextRequest) {
+  const { version, ...updateData } = await req.json()
+  
+  try {
+    const updated = await prisma.workflow.update({
+      where: { 
+        id: workflowId,
+        updatedAt: version // Optimistic lock
+      },
+      data: updateData
+    })
+    
+    return NextResponse.json({ data: updated })
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Resource was updated by another user' },
+        { status: 409 }
+      )
+    }
+    throw error
+  }
+}
+```

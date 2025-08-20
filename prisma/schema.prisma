@@ -72,9 +72,9 @@ enum CompatibilityStatus {
  * ============================
  */
 model User {
-  id           BigInt   @id @default(autoincrement())
+  id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique
-  passwordHash String
+  passwordHash String? // Peut être null pour les utilisateurs OAuth
   displayName  String
   avatarUrl    String?
   isSeller     Boolean  @default(false)
@@ -95,7 +95,7 @@ model User {
 }
 
 model SellerProfile {
-  userId       BigInt              @id
+  userId       String              @id @db.Uuid
   user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   storeName    String              @unique
   slug         String              @unique
@@ -113,7 +113,7 @@ model SellerProfile {
  */
 model Workflow {
   id             BigInt         @id @default(autoincrement())
-  sellerId       BigInt
+  sellerId       String         @db.Uuid
   seller         User           @relation(fields: [sellerId], references: [id], onDelete: Restrict)
   title          String
   slug           String         @unique
@@ -223,7 +223,7 @@ model PricingPlan {
  * ============================
  */
 model Favorite {
-  userId     BigInt
+  userId     String   @db.Uuid
   workflowId BigInt
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
@@ -239,7 +239,7 @@ model Favorite {
  */
 model Order {
   id             BigInt      @id @default(autoincrement())
-  userId         BigInt
+  userId         String      @db.Uuid
   user           User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   status         OrderStatus
   totalCents     Int
@@ -293,7 +293,7 @@ model Payment {
 model Review {
   id         BigInt       @id @default(autoincrement())
   workflowId BigInt
-  userId     BigInt
+  userId     String       @db.Uuid
   rating     Int
   title      String?
   bodyMd     String?
@@ -314,7 +314,7 @@ model Review {
  */
 model Payout {
   id            BigInt       @id @default(autoincrement())
-  sellerId      BigInt
+  sellerId      String       @db.Uuid
   seller        User         @relation(fields: [sellerId], references: [id], onDelete: Restrict)
   amountCents   Int
   currency      String       @default("EUR")
@@ -335,7 +335,7 @@ model Payout {
  */
 model Report {
   id         BigInt       @id @default(autoincrement())
-  reporterId BigInt?
+  reporterId String?      @db.Uuid
   workflowId BigInt
   reason     String
   status     ReportStatus @default(open)
@@ -349,7 +349,7 @@ model Report {
 
 model AuditLog {
   id         BigInt   @id @default(autoincrement())
-  userId     BigInt?
+  userId     String?  @db.Uuid
   action     String // "workflow.publish", "order.refund", etc.
   entityType String // "workflow","order","user",...
   entityId   BigInt?

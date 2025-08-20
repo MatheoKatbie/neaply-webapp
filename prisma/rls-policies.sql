@@ -24,15 +24,15 @@ ALTER TABLE "WorkflowCompatibility" ENABLE ROW LEVEL SECURITY;
 
 -- Users can read their own profile
 CREATE POLICY "Users can view own profile" ON "User"
-    FOR SELECT USING (auth.uid()::text = id::text);
+    FOR SELECT USING (auth.uid() = id);
 
 -- Users can update their own profile
 CREATE POLICY "Users can update own profile" ON "User"
-    FOR UPDATE USING (auth.uid()::text = id::text);
+    FOR UPDATE USING (auth.uid() = id);
 
 -- Users can insert their own profile (during registration)
 CREATE POLICY "Users can insert own profile" ON "User"
-    FOR INSERT WITH CHECK (auth.uid()::text = id::text);
+    FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- ============================
 -- SellerProfile Policies
@@ -40,15 +40,15 @@ CREATE POLICY "Users can insert own profile" ON "User"
 
 -- Users can read their own seller profile
 CREATE POLICY "Users can view own seller profile" ON "SellerProfile"
-    FOR SELECT USING (auth.uid()::text = "userId"::text);
+    FOR SELECT USING (auth.uid() = "userId");
 
 -- Users can update their own seller profile
 CREATE POLICY "Users can update own seller profile" ON "SellerProfile"
-    FOR UPDATE USING (auth.uid()::text = "userId"::text);
+    FOR UPDATE USING (auth.uid() = "userId");
 
 -- Users can insert their own seller profile
 CREATE POLICY "Users can insert own seller profile" ON "SellerProfile"
-    FOR INSERT WITH CHECK (auth.uid()::text = "userId"::text);
+    FOR INSERT WITH CHECK (auth.uid() = "userId");
 
 -- Anyone can read public seller profiles
 CREATE POLICY "Anyone can view public seller profiles" ON "SellerProfile"
@@ -60,7 +60,7 @@ CREATE POLICY "Anyone can view public seller profiles" ON "SellerProfile"
 
 -- Sellers can manage their own workflows
 CREATE POLICY "Sellers can manage own workflows" ON "Workflow"
-    FOR ALL USING (auth.uid()::text = "sellerId"::text);
+    FOR ALL USING (auth.uid() = "sellerId");
 
 -- Anyone can view published workflows
 CREATE POLICY "Anyone can view published workflows" ON "Workflow"

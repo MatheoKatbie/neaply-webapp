@@ -1,0 +1,309 @@
+---
+description: Database schema patterns and Prisma usage for workflow marketplace
+globs: **/prisma/**,**/lib/prisma*,**/lib/userService*
+---
+
+# Database Schema & Prisma Patterns
+
+FlowMarket uses a comprehensive PostgreSQL schema via Prisma ORM designed for a workflow marketplace selling n8n workflows.
+
+## Core Schema Files
+
+- [prisma/schema.prisma](mdc:prisma/schema.prisma) - Main database schema
+- [src/lib/prisma.ts](mdc:src/lib/prisma.ts) - Prisma client configuration  
+- [src/lib/userService.ts](mdc:src/lib/userService.ts) - User data operations
+
+## Schema Overview
+
+### Core Entities
+
+**Users & Authentication:**
+```prisma
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String?  // Nullable for OAuth users
+  displayName  String
+  avatarUrl    String?
+  isSeller     Boolean  @default(false)
+  isAdmin      Boolean  @default(false)
+  // ... relationships
+}
+
+model SellerProfile {
+  userId       String              @id @db.Uuid
+  storeName    String              @unique
+  slug         String              @unique
+  bio          String?
+  status       SellerProfileStatus @default(active)
+  // ... more fields
+}
+```
+
+**Workflow Catalog:**
+```prisma
+model Workflow {
+  id             BigInt         @id @default(autoincrement())
+  sellerId       String         @db.Uuid
+  title          String
+  slug           String         @unique
+  status         WorkflowStatus @default(draft)
+  basePriceCents Int            @default(0)
+  currency       String         @default("EUR")
+  salesCount     Int            @default(0)
+  ratingAvg      Decimal        @default(0.0)
+  // ... versions, categories, reviews
+}
+
+model WorkflowVersion {
+  id            BigInt   @id @default(autoincrement())
+  workflowId    BigInt
+  semver        String
+  n8nMinVersion String?
+  n8nMaxVersion String?
+  jsonFileUrl   String
+  isLatest      Boolean  @default(false)
+  // ...
+}
+```
+
+**Commerce:**
+```prisma
+model Order {
+  id             BigInt      @id @default(autoincrement())
+  userId         String      @db.Uuid
+  status         OrderStatus
+  totalCents     Int
+  currency       String      @default("EUR")
+  // ... payment tracking
+}
+
+model PricingPlan {
+  id         BigInt   @id @default(autoincrement())
+  workflowId BigInt
+  name       String   // "Standard", "Pro", etc.
+  priceCents Int
+  features   String[] // Marketing features list
+  // ...
+}
+```
+
+## Prisma Client Usage
+
+### Client Setup
+Always use the singleton pattern from [src/lib/prisma.ts](mdc:src/lib/prisma.ts):
+
+```typescript
+import { prisma } from '@/lib/prisma'
+
+// ✅ Good - uses singleton
+const users = await prisma.user.findMany()
+
+// ❌ Bad - don't create new clients
+import { PrismaClient } from '@prisma/client'
+const newPrisma = new PrismaClient()
+```
+
+### Query Patterns
+
+**Include Relations:**
+```typescript
+// Get user with seller profile
+const userWithProfile = await prisma.user.findUnique({
+  where: { id: userId },
+  include: { 
+    sellerProfile: true,
+    workflows: {
+      where: { status: 'published' },
+      orderBy: { createdAt: 'desc' }
+    }
+  }
+})
+```
+
+**Complex Filtering:**
+```typescript
+// Search workflows with filters
+const workflows = await prisma.workflow.findMany({
+  where: {
+    status: 'published',
+    OR: [
+      { title: { contains: query, mode: 'insensitive' } },
+      { shortDesc: { contains: query, mode: 'insensitive' } }
+    ],
+    categories: {
+      some: {
+        category: { slug: { in: categoryFilters } }
+      }
+    }
+  },
+  include: {
+    seller: {
+      select: { displayName: true, avatarUrl: true }
+    },
+    categories: {
+      include: { category: true }
+    },
+    _count: {
+      select: { reviews: true }
+    }
+  },
+  orderBy: { salesCount: 'desc' }
+})
+```
+
+**Transactions:**
+```typescript
+// Purchase workflow - atomic transaction
+const purchase = await prisma.$transaction(async (tx) => {
+  // Create order
+  const order = await tx.order.create({
+    data: {
+      userId,
+      status: 'pending',
+      totalCents: priceCents,
+      items: {
+        create: {
+          workflowId,
+          pricingPlanId,
+          unitPriceCents: priceCents,
+          subtotalCents: priceCents
+        }
+      }
+    }
+  })
+
+  // Update workflow sales count
+  await tx.workflow.update({
+    where: { id: workflowId },
+    data: { salesCount: { increment: 1 } }
+  })
+
+  return order
+})
+```
+
+## Type Safety with Prisma
+
+### Generated Types
+Always use Prisma-generated types:
+
+```typescript
+import type { User, Workflow, Order, Prisma } from '@prisma/client'
+
+// For relations, use Prisma payload types
+type WorkflowWithSeller = Prisma.WorkflowGetPayload<{
+  include: { seller: true }
+}>
+
+type UserWithProfile = Prisma.UserGetPayload<{
+  include: { sellerProfile: true }
+}>
+```
+
+### Partial Types
+For updates, use Prisma's update types:
+
+```typescript
+type UserUpdateData = Prisma.UserUpdateInput
+type WorkflowCreateData = Prisma.WorkflowCreateInput
+```
+
+## Enum Usage
+
+Use Prisma enums consistently:
+
+```typescript
+import { WorkflowStatus, OrderStatus, PaymentStatus } from '@prisma/client'
+
+// ✅ Good - use enum values
+const publishedWorkflows = await prisma.workflow.findMany({
+  where: { status: WorkflowStatus.published }
+})
+
+// ❌ Bad - string literals
+const publishedWorkflows = await prisma.workflow.findMany({
+  where: { status: 'published' }
+})
+```
+
+## Data Validation
+
+### Input Validation
+Always validate before database operations:
+
+```typescript
+import { z } from 'zod'
+
+const createWorkflowSchema = z.object({
+  title: z.string().min(1).max(200),
+  shortDesc: z.string().min(10).max(500),
+  basePriceCents: z.number().min(0),
+  currency: z.enum(['EUR', 'USD']),
+})
+
+const createWorkflow = async (data: unknown) => {
+  const validated = createWorkflowSchema.parse(data)
+  return await prisma.workflow.create({ data: validated })
+}
+```
+
+### UUID Validation
+For UUID fields, always validate format:
+
+```typescript
+const uuidSchema = z.string().uuid()
+
+const getUserById = async (id: string) => {
+  const validId = uuidSchema.parse(id)
+  return await prisma.user.findUnique({ where: { id: validId } })
+}
+```
+
+## Performance Patterns
+
+### Pagination
+Use cursor-based pagination for large datasets:
+
+```typescript
+const getWorkflows = async (cursor?: string, take = 20) => {
+  return await prisma.workflow.findMany({
+    take,
+    skip: cursor ? 1 : 0,
+    cursor: cursor ? { id: cursor } : undefined,
+    where: { status: 'published' },
+    orderBy: { createdAt: 'desc' }
+  })
+}
+```
+
+### Aggregations
+Use Prisma aggregations for counts and calculations:
+
+```typescript
+// Get workflow stats
+const stats = await prisma.workflow.aggregate({
+  where: { sellerId: userId },
+  _count: { id: true },
+  _sum: { salesCount: true },
+  _avg: { ratingAvg: true }
+})
+```
+
+### Indexing
+The schema includes strategic indexes:
+```prisma
+@@index([status, updatedAt])        // Workflow filtering
+@@index([userId, status, createdAt]) // User orders
+@@index([workflowId, isLatest])     // Latest versions
+```
+
+## Migrations
+
+Use descriptive migration names:
+```bash
+npx prisma migrate dev --name add_workflow_compatibility_table
+npx prisma migrate dev --name update_user_roles_enum
+```
+
+Always review generated SQL before applying to production.
