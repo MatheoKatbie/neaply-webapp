@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { LoginFormData } from '@/types/auth'
-import VantaBackground from '@/components/VantaBackground'
 
 // Component that uses searchParams - needs to be wrapped in Suspense
 function LoginContent() {
@@ -63,7 +62,6 @@ function LoginContent() {
 
     return (
         <>
-            <VantaBackground />
             <div className="min-h-screen flex items-center justify-center bg-transparent py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md w-full space-y-8">
                     <div className="text-center">

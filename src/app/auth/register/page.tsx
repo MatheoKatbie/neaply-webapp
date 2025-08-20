@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import type { RegisterFormData } from '@/types/auth'
-import VantaBackground from '@/components/VantaBackground'
 
 export default function RegisterPage() {
     const { signUp, signInWithProvider, error } = useAuth()
@@ -61,7 +60,6 @@ export default function RegisterPage() {
     if (registrationSuccess) {
         return (
             <>
-                <VantaBackground />
                 <div className="min-h-screen flex items-center justify-center bg-transparent py-12 px-4 sm:px-6 lg:px-8">
                     <div className="max-w-md w-full space-y-8">
                         <Card>
@@ -109,7 +107,6 @@ export default function RegisterPage() {
 
     return (
         <>
-            <VantaBackground />
             <div className="min-h-screen flex items-center justify-center bg-transparent py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md w-full space-y-8">
                     <div className="text-center">
