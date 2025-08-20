@@ -112,112 +112,152 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Features Section */}
-      <div ref={featuresRef} className="relative py-32 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Decorative Elements - Simplified */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-10 left-1/4 w-40 h-40 bg-gray-100/15 rounded-full blur-2xl"></div>
-          </div>
-          
+      {/* Features Section - Interactive Hexagon Grid */}
+      <div ref={featuresRef} className="relative py-32 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
           <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 backdrop-blur-sm border border-gray-300 text-sm font-medium text-gray-700 mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-300 text-sm font-medium text-gray-700 mb-6 shadow-sm">
               <Globe className="w-4 h-4" />
               Discover the Magic
             </div>
-            <h2 className="text-4xl sm:text-6xl font-space-grotesk font-bold mb-6 leading-tight">
-              <span className="text-black">
-                Why Creators Choose Us
-              </span>
+            <h2 className="text-4xl sm:text-6xl font-space-grotesk font-bold mb-6 leading-tight text-black">
+              Why Creators Choose Us
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
               A sanctuary for automation artisans where creativity meets functionality in perfect harmony.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="group relative p-8 rounded-3xl bg-gray-50 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl">
-              <div className="absolute inset-0 bg-gray-100/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-black flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+          {/* Interactive Feature Blocks */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {/* Feature 1 - Security */}
+            <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 hover:border-black">
+              <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-gray-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-black rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Shield className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Fortress Security</h3>
+                <h3 className="text-xl font-bold mb-4 text-black group-hover:text-black transition-colors duration-300">
+                  Fortress Security
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
                   Your creations are protected by military-grade encryption and our guardian community of verified artisans.
                 </p>
+                <div className="mt-6 flex items-center text-sm text-gray-500 group-hover:text-black transition-colors duration-300">
+                  <div className="w-2 h-2 bg-black rounded-full mr-2"></div>
+                  Military-grade protection
+                </div>
               </div>
             </div>
-            
-            {/* Feature 2 */}
-            <div className="group relative p-8 rounded-3xl bg-gray-50 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl">
-              <div className="absolute inset-0 bg-gray-100/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gray-700 flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+
+            {/* Feature 2 - Prosperity */}
+            <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 hover:border-gray-700">
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-700/5 to-gray-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-gray-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Instant Prosperity</h3>
+                <h3 className="text-xl font-bold mb-4 text-black group-hover:text-gray-700 transition-colors duration-300">
+                  Instant Prosperity
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
                   Transform your passion into profit with our enchanted marketplace that turns workflows into wealth.
                 </p>
+                <div className="mt-6 flex items-center text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-300">
+                  <div className="w-2 h-2 bg-gray-700 rounded-full mr-2"></div>
+                  Monetize instantly
+                </div>
               </div>
             </div>
-            
-            {/* Feature 3 */}
-            <div className="group relative p-8 rounded-3xl bg-gray-50 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl">
-              <div className="absolute inset-0 bg-gray-100/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gray-600 flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+
+            {/* Feature 3 - Deploy */}
+            <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 hover:border-gray-600">
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-600/5 to-gray-400/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-gray-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Zap className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Lightning Deploy</h3>
+                <h3 className="text-xl font-bold mb-4 text-black group-hover:text-gray-600 transition-colors duration-300">
+                  Lightning Deploy
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
                   Watch your workflows come alive instantly with our magical one-click deployment spells.
                 </p>
+                <div className="mt-6 flex items-center text-sm text-gray-500 group-hover:text-gray-600 transition-colors duration-300">
+                  <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
+                  One-click magic
+                </div>
               </div>
             </div>
-            
-            {/* Feature 4 */}
-            <div className="group relative p-8 rounded-3xl bg-gray-50 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl">
-              <div className="absolute inset-0 bg-gray-100/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gray-800 flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+
+            {/* Feature 4 - Quality */}
+            <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 hover:border-gray-800">
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-800/5 to-gray-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-gray-800 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Cpu className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Artisan Quality</h3>
+                <h3 className="text-xl font-bold mb-4 text-black group-hover:text-gray-800 transition-colors duration-300">
+                  Artisan Quality
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
                   Every workflow is blessed by our council of automation wizards before joining the gallery.
                 </p>
+                <div className="mt-6 flex items-center text-sm text-gray-500 group-hover:text-gray-800 transition-colors duration-300">
+                  <div className="w-2 h-2 bg-gray-800 rounded-full mr-2"></div>
+                  Wizard-approved
+                </div>
               </div>
             </div>
-            
-            {/* Feature 5 */}
-            <div className="group relative p-8 rounded-3xl bg-gray-50 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl">
-              <div className="absolute inset-0 bg-gray-100/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gray-500 flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+
+            {/* Feature 5 - Community */}
+            <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 hover:border-gray-500">
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-gray-300/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-gray-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Users className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Sacred Circle</h3>
+                <h3 className="text-xl font-bold mb-4 text-black group-hover:text-gray-500 transition-colors duration-300">
+                  Sacred Circle
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
                   Join our mystical community of creators where knowledge flows freely and dreams take flight.
                 </p>
+                <div className="mt-6 flex items-center text-sm text-gray-500 group-hover:text-gray-500 transition-colors duration-300">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                  Creator community
+                </div>
               </div>
             </div>
-            
-            {/* Feature 6 */}
-            <div className="group relative p-8 rounded-3xl bg-gray-50 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-lg hover:shadow-2xl">
-              <div className="absolute inset-0 bg-gray-100/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gray-900 flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+
+            {/* Feature 6 - Support */}
+            <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 hover:border-gray-900">
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-900/5 to-black/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-gray-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <Star className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-gray-800">Divine Support</h3>
+                <h3 className="text-xl font-bold mb-4 text-black group-hover:text-gray-900 transition-colors duration-300">
+                  Divine Support
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
                   Our celestial support team guides you through every step of your automation journey.
                 </p>
+                <div className="mt-6 flex items-center text-sm text-gray-500 group-hover:text-gray-900 transition-colors duration-300">
+                  <div className="w-2 h-2 bg-gray-900 rounded-full mr-2"></div>
+                  24/7 guidance
+                </div>
               </div>
+            </div>
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="text-center">
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors duration-300 cursor-pointer">
+              <Workflow className="w-5 h-5" />
+              <span className="font-medium">Explore All Features</span>
+              <ArrowRight className="w-4 h-4" />
             </div>
           </div>
         </div>

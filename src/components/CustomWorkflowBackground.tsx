@@ -30,7 +30,7 @@ function CustomWorkflowBackground() {
 
     const nodes: WorkflowNode[] = [];
     const connections: Connection[] = [];
-    const nodeLabels = ['Let', 'Your', 'Workflows\'', 'Power', 'Unleash'];
+    const nodeLabels = ['Unleash', 'Your', 'n8n', 'Workflows\'', 'Power'];
 
     // Store responsive values for use in draw function
     let isMobile = false;
