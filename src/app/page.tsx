@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Navbar from "@/components/Navbar";
 import VantaBackground from '@/components/VantaBackground';
 
 export const metadata: Metadata = {
@@ -30,9 +29,6 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <>
-      <Navbar />
-      <VantaBackground />
-    </>
+    <VantaBackground />
   );
 }
