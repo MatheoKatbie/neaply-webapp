@@ -41,7 +41,7 @@ export default function Navbar() {
                 <div className="flex justify-between items-center h-14">
                     <div className="flex-shrink-0">
                         <Link href="/" className="flex items-center">
-                            <Image src="/images/logo.png" alt="FlowMarket Logo" width={50} height={50} />
+                            <Image src="/images/logo_flowmarket_256.png" alt="FlowMarket Logo" width={50} height={50} />
                             <span className="font-space-grotesk text-xl font-bold text-black">
                                 FlowMarket
                             </span>
