@@ -8,9 +8,25 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Star, Download, Eye, Zap, Clock, DollarSign, ArrowLeft, Shield, Users, CheckCircle } from 'lucide-react'
+import {
+  Star,
+  Download,
+  Eye,
+  Zap,
+  Clock,
+  DollarSign,
+  ArrowLeft,
+  Shield,
+  Users,
+  CheckCircle,
+  ShoppingBag,
+  ShoppingCart,
+} from 'lucide-react'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
-import { WorkflowPreview } from '@/components/ui/workflow-preview'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
+import rehypeRaw from 'rehype-raw'
 
 interface WorkflowDetail {
   id: string
@@ -293,25 +309,26 @@ export default function WorkflowDetailPage() {
               </div>
 
               {/* Tabs for Details */}
-              <Card>
+              <Card className="overflow-hidden">
                 <Tabs defaultValue="overview" className="p-0">
-                  <div className="border-b">
-                    <TabsList className="grid w-full grid-cols-3 bg-transparent h-auto p-0">
+                  <div className="bg-gray-50/80 border-b">
+                    <TabsList className="grid w-full grid-cols-2 bg-transparent h-auto p-1 gap-1">
                       <TabsTrigger
                         value="overview"
-                        className="rounded-none cursor-pointer data-[state=active]:border-b-2 data-[state=active]:border-blue-500 py-4"
+                        className="relative rounded-lg cursor-pointer px-6 py-3 text-sm font-medium transition-all duration-200
+                                 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm
+                                 data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900
+                                 data-[state=inactive]:hover:bg-white/50"
                       >
                         Overview
                       </TabsTrigger>
-                      <TabsTrigger
-                        value="preview"
-                        className="rounded-none cursor-pointer data-[state=active]:border-b-2 data-[state=active]:border-blue-500 py-4"
-                      >
-                        Preview
-                      </TabsTrigger>
+
                       <TabsTrigger
                         value="reviews"
-                        className="rounded-none cursor-pointer data-[state=active]:border-b-2 data-[state=active]:border-blue-500 py-4"
+                        className="relative rounded-lg cursor-pointer px-6 py-3 text-sm font-medium transition-all duration-200
+                                 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm
+                                 data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900
+                                 data-[state=inactive]:hover:bg-white/50"
                       >
                         Reviews
                       </TabsTrigger>
@@ -322,11 +339,53 @@ export default function WorkflowDetailPage() {
                     <div className="space-y-6">
                       <div>
                         <h3 className="text-lg font-semibold mb-3">Description</h3>
-                        <div className="prose prose-gray max-w-none">
+                        <div className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100">
                           {workflow.longDescMd ? (
-                            <div dangerouslySetInnerHTML={{ __html: workflow.longDescMd }} />
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              rehypePlugins={[rehypeHighlight, rehypeRaw]}
+                              components={{
+                                code: ({ className, children, ...props }) => {
+                                  const match = /language-(\w+)/.exec(className || '')
+                                  const isInline = !match
+                                  return isInline ? (
+                                    <code className="bg-blue-50 text-blue-600 px-1 py-0.5 rounded text-sm" {...props}>
+                                      {children}
+                                    </code>
+                                  ) : (
+                                    <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto">
+                                      <code className={className} {...props}>
+                                        {children}
+                                      </code>
+                                    </pre>
+                                  )
+                                },
+                                blockquote: ({ children }) => (
+                                  <blockquote className="border-l-4 border-blue-200 bg-blue-50/50 pl-4 py-2 my-4 italic text-gray-700">
+                                    {children}
+                                  </blockquote>
+                                ),
+                                ul: ({ children }) => (
+                                  <ul className="list-disc pl-6 space-y-1 text-gray-700">{children}</ul>
+                                ),
+                                ol: ({ children }) => (
+                                  <ol className="list-decimal pl-6 space-y-1 text-gray-700">{children}</ol>
+                                ),
+                                h1: ({ children }) => (
+                                  <h1 className="text-2xl font-bold text-gray-900 mt-6 mb-4">{children}</h1>
+                                ),
+                                h2: ({ children }) => (
+                                  <h2 className="text-xl font-semibold text-gray-900 mt-5 mb-3">{children}</h2>
+                                ),
+                                h3: ({ children }) => (
+                                  <h3 className="text-lg font-medium text-gray-900 mt-4 mb-2">{children}</h3>
+                                ),
+                              }}
+                            >
+                              {workflow.longDescMd}
+                            </ReactMarkdown>
                           ) : (
-                            <p>{workflow.shortDesc}</p>
+                            <p className="text-gray-700">{workflow.shortDesc}</p>
                           )}
                         </div>
                       </div>
@@ -363,16 +422,6 @@ export default function WorkflowDetailPage() {
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="preview" className="p-6">
-                    {workflow.version?.jsonContent ? (
-                      <WorkflowPreview workflow={workflow.version.jsonContent} />
-                    ) : (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500">No preview available for this workflow</p>
-                      </div>
-                    )}
-                  </TabsContent>
-
                   <TabsContent value="reviews" className="p-6">
                     <div className="text-center py-8">
                       <p className="text-gray-500">Reviews will be implemented soon</p>
@@ -400,7 +449,7 @@ export default function WorkflowDetailPage() {
                     className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer"
                     onClick={handlePurchase}
                   >
-                    <DollarSign className="w-4 h-4 mr-2" />
+                    <ShoppingCart className="w-4 h-4 mr-2" />
                     Purchase Workflow
                   </Button>
 

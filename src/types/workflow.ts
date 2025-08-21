@@ -74,6 +74,7 @@ export interface WorkflowFormData {
   shortDesc: string
   longDescMd: string
   heroImageUrl: string
+  heroImageFile?: File
   basePriceCents: number
   currency: string
   status: 'draft' | 'published' | 'unlisted' | 'disabled'
@@ -119,16 +120,6 @@ export interface N8nNode {
   retryOnFail?: boolean
   maxTries?: number
   waitBetweenTries?: number
-}
-
-export interface WorkflowPreview {
-  nodeCount: number
-  nodeTypes: string[]
-  hasWebhooks: boolean
-  hasCredentials: boolean
-  estimatedComplexity: 'simple' | 'medium' | 'complex'
-  requiredCredentials: string[]
-  description?: string
 }
 
 export interface ApiResponse<T> {

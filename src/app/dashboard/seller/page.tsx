@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
@@ -10,8 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { JsonInput } from '@/components/ui/json-input'
-import { WorkflowPreview } from '@/components/ui/workflow-preview'
-import { WorkflowDiagram } from '@/components/ui/workflow-diagram'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { MultiSelect } from '@/components/ui/multi-select'
 import type { Category, Tag } from '@/types/workflow'
 
@@ -20,6 +19,7 @@ interface Workflow {
   title: string
   slug: string
   shortDesc: string
+  heroImageUrl?: string
   status: 'draft' | 'published' | 'unlisted' | 'disabled'
   basePriceCents: number
   currency: string
@@ -42,6 +42,15 @@ interface Workflow {
       slug: string
     }
   }[]
+  versions?: {
+    id: string
+    semver: string
+    n8nMinVersion?: string
+    n8nMaxVersion?: string
+    jsonContent?: any
+    isLatest: boolean
+    createdAt: string
+  }[]
   _count: {
     reviews: number
     favorites: number
@@ -54,6 +63,7 @@ interface WorkflowFormData {
   shortDesc: string
   longDescMd: string
   heroImageUrl: string
+  heroImageFile?: File
   basePriceCents: number
   currency: string
   status: 'draft' | 'published' | 'unlisted' | 'disabled'
@@ -83,6 +93,7 @@ export default function SellerDashboard() {
     shortDesc: '',
     longDescMd: '',
     heroImageUrl: '',
+    heroImageFile: undefined,
     basePriceCents: 500, // €5.00 default
     currency: 'EUR',
     status: 'draft',
@@ -94,6 +105,7 @@ export default function SellerDashboard() {
     tagIds: [],
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
 
   // Redirect if not a seller
   useEffect(() => {
@@ -103,7 +115,7 @@ export default function SellerDashboard() {
   }, [user, loading, router])
 
   // Fetch workflows
-  const fetchWorkflows = async () => {
+  const fetchWorkflows = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await fetch('/api/workflows')
@@ -113,16 +125,19 @@ export default function SellerDashboard() {
       }
 
       const data = await response.json()
-      setWorkflows(data.data || [])
+      const workflows = data.data || []
+
+      // Temporarily disable auto-cleanup to avoid re-renders
+      setWorkflows(workflows)
     } catch (err: any) {
       setError(err.message)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   // Fetch categories
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setCategoriesLoading(true)
       const response = await fetch('/api/categories')
@@ -136,10 +151,10 @@ export default function SellerDashboard() {
     } finally {
       setCategoriesLoading(false)
     }
-  }
+  }, [])
 
   // Fetch tags
-  const fetchTags = async () => {
+  const fetchTags = useCallback(async () => {
     try {
       setTagsLoading(true)
       const response = await fetch('/api/tags')
@@ -153,7 +168,7 @@ export default function SellerDashboard() {
     } finally {
       setTagsLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (user?.isSeller) {
@@ -161,7 +176,71 @@ export default function SellerDashboard() {
       fetchCategories()
       fetchTags()
     }
-  }, [user])
+  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags])
+
+  // Helper function to delete image from bucket
+  const deleteImageFromBucket = async (imageUrl: string) => {
+    try {
+      if (!imageUrl || imageUrl.startsWith('blob:')) return
+
+      // Extract filename from URL
+      const url = new URL(imageUrl)
+      const fileName = url.pathname.split('/').pop()
+
+      if (fileName && fileName.includes(user?.id || '')) {
+        await fetch(`/api/upload/hero-image?fileName=${fileName}`, {
+          method: 'DELETE',
+        })
+      }
+    } catch (error) {
+      console.warn('Failed to delete image from bucket:', error)
+    }
+  }
+
+  // Helper function to check if image exists and clean up if not
+  const checkAndCleanImageUrl = async (imageUrl: string): Promise<string | null> => {
+    if (!imageUrl || imageUrl.startsWith('blob:')) return imageUrl
+
+    try {
+      // Try to fetch the image to see if it exists
+      const response = await fetch(imageUrl, { method: 'HEAD' })
+      if (response.ok) {
+        return imageUrl // Image exists
+      } else {
+        console.warn('Image not found, cleaning up URL:', imageUrl)
+        return null // Image doesn't exist
+      }
+    } catch (error) {
+      console.warn('Error checking image:', error)
+      return null // Assume it doesn't exist if we can't check
+    }
+  }
+
+  // Helper function to update workflow in database
+  const updateWorkflowThumbnail = async (workflowId: string, thumbnailUrl: string) => {
+    try {
+      const response = await fetch(`/api/workflows/${workflowId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          heroImageUrl: thumbnailUrl || '',
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to update workflow')
+      }
+
+      return true
+    } catch (error: any) {
+      console.error('Failed to update workflow thumbnail:', error)
+      // Don't set error here as it's handled in the calling function
+      return false
+    }
+  }
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -170,6 +249,41 @@ export default function SellerDashboard() {
     setError(null)
 
     try {
+      let finalHeroImageUrl = formData.heroImageUrl
+
+      // Handle image upload/deletion if needed
+      if (formData.heroImageFile && formData.heroImageUrl.startsWith('blob:')) {
+        // New image to upload
+        setUploadingThumbnail(true)
+
+        // Delete old image if we're editing and there was an old image
+        if (editingWorkflow && editingWorkflow.heroImageUrl) {
+          await deleteImageFromBucket(editingWorkflow.heroImageUrl)
+        }
+
+        // Upload new image
+        const uploadFormData = new FormData()
+        uploadFormData.append('file', formData.heroImageFile)
+
+        const uploadResponse = await fetch('/api/upload/hero-image', {
+          method: 'POST',
+          body: uploadFormData,
+        })
+
+        const uploadData = await uploadResponse.json()
+
+        if (!uploadResponse.ok) {
+          throw new Error(uploadData.error || 'Failed to upload image')
+        }
+
+        finalHeroImageUrl = uploadData.url
+        setUploadingThumbnail(false)
+      } else if (editingWorkflow && editingWorkflow.heroImageUrl && !formData.heroImageUrl) {
+        // Image was removed, delete the old one
+        await deleteImageFromBucket(editingWorkflow.heroImageUrl)
+        finalHeroImageUrl = ''
+      }
+
       const url = editingWorkflow ? `/api/workflows/${editingWorkflow.id}` : '/api/workflows'
       const method = editingWorkflow ? 'PUT' : 'POST'
 
@@ -177,7 +291,7 @@ export default function SellerDashboard() {
       const cleanFormData = {
         ...formData,
         longDescMd: formData.longDescMd.trim() || undefined,
-        heroImageUrl: formData.heroImageUrl.trim() || undefined,
+        heroImageUrl: finalHeroImageUrl, // Garder la valeur exacte (même si c'est '' pour supprimer)
       }
 
       console.log('Sending data:', cleanFormData) // Debug
@@ -207,6 +321,7 @@ export default function SellerDashboard() {
         shortDesc: '',
         longDescMd: '',
         heroImageUrl: '',
+        heroImageFile: undefined,
         basePriceCents: 500,
         currency: 'EUR',
         status: 'draft',
@@ -224,8 +339,32 @@ export default function SellerDashboard() {
       setError(err.message || 'An error occurred while saving the workflow')
     } finally {
       setIsSubmitting(false)
+      setUploadingThumbnail(false)
     }
   }
+
+  // Handle thumbnail image selection (preview only, no upload)
+  const handleHeroImageUpload = useCallback(async (file: File | null, previewUrl?: string) => {
+    if (!file) return
+
+    // Just update form data with preview URL and file
+    // Actual upload will happen on form submission
+    setFormData((prev) => ({
+      ...prev,
+      heroImageUrl: previewUrl || '',
+      heroImageFile: file,
+    }))
+  }, [])
+
+  // Handle thumbnail image removal (preview only, no deletion)
+  const handleHeroImageRemove = useCallback(() => {
+    // Just clear form data, actual deletion will happen on form submission
+    setFormData((prev) => ({
+      ...prev,
+      heroImageUrl: '',
+      heroImageFile: undefined,
+    }))
+  }, [])
 
   // Handle workflow deletion
   const handleDelete = async (workflowId: string) => {
@@ -234,6 +373,9 @@ export default function SellerDashboard() {
     }
 
     try {
+      // First, get the workflow details to find the image
+      const workflowToDelete = workflows.find((w) => w.id === workflowId)
+
       const response = await fetch(`/api/workflows/${workflowId}`, {
         method: 'DELETE',
       })
@@ -241,6 +383,15 @@ export default function SellerDashboard() {
       if (!response.ok) {
         const data = await response.json()
         throw new Error(data.error || 'Failed to delete workflow')
+      }
+
+      // Delete the thumbnail image from bucket if it exists
+      if (workflowToDelete) {
+        // Fetch full details to get heroImageUrl
+        const fullWorkflow = await fetchWorkflowDetails(workflowId)
+        if (fullWorkflow?.heroImageUrl) {
+          await deleteImageFromBucket(fullWorkflow.heroImageUrl)
+        }
       }
 
       await fetchWorkflows()
@@ -273,11 +424,16 @@ export default function SellerDashboard() {
     const fullWorkflow = await fetchWorkflowDetails(workflow.id)
     if (fullWorkflow) {
       const latestVersion = fullWorkflow.versions?.[0]
+
+      // Temporarily disable auto-cleanup during edit to avoid re-renders
+      let cleanImageUrl = fullWorkflow.heroImageUrl || ''
+
       setFormData({
         title: fullWorkflow.title,
         shortDesc: fullWorkflow.shortDesc,
         longDescMd: fullWorkflow.longDescMd || '',
-        heroImageUrl: fullWorkflow.heroImageUrl || '',
+        heroImageUrl: cleanImageUrl,
+        heroImageFile: undefined,
         basePriceCents: fullWorkflow.basePriceCents,
         currency: fullWorkflow.currency,
         status: fullWorkflow.status,
@@ -295,6 +451,7 @@ export default function SellerDashboard() {
         shortDesc: workflow.shortDesc,
         longDescMd: '',
         heroImageUrl: '',
+        heroImageFile: undefined,
         basePriceCents: workflow.basePriceCents,
         currency: workflow.currency,
         status: workflow.status,
@@ -335,8 +492,95 @@ export default function SellerDashboard() {
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse">Loading your seller dashboard...</div>
+      <div className="min-h-screen bg-gray-50 p-6 pt-24">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header skeleton */}
+          <div className="bg-white rounded-lg border p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-3">
+                <div className="h-8 bg-gray-200 rounded w-64 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
+              </div>
+              <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Stats cards skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-lg border p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  </div>
+                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tabs skeleton */}
+          <div className="bg-white rounded-lg border">
+            <div className="border-b p-1">
+              <div className="flex space-x-1">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Content skeleton */}
+            <div className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-9 bg-gray-200 rounded w-36 animate-pulse"></div>
+              </div>
+
+              {/* Workflow cards skeleton */}
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white border rounded-lg p-6">
+                    <div className="flex items-start space-x-4">
+                      {/* Image placeholder */}
+                      <div className="w-40 h-32 bg-gray-200 rounded-lg animate-pulse flex-shrink-0"></div>
+
+                      {/* Content */}
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
+                          <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+                        </div>
+                        <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+
+                        {/* Tags skeleton */}
+                        <div className="flex space-x-2">
+                          {[1, 2, 3].map((j) => (
+                            <div key={j} className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+                          ))}
+                        </div>
+
+                        {/* Stats skeleton */}
+                        <div className="flex space-x-6">
+                          {[1, 2, 3, 4].map((j) => (
+                            <div key={j} className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex space-x-2">
+                        <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
+                        <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -432,12 +676,56 @@ export default function SellerDashboard() {
                   <div className="space-y-4">
                     {workflows.slice(0, 5).map((workflow) => (
                       <div key={workflow.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h3 className="font-medium">{workflow.title}</h3>
-                          <p className="text-sm text-gray-500">{workflow.shortDesc}</p>
-                          <div className="flex items-center space-x-2 mt-2">
-                            <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
-                            <span className="text-sm text-gray-500">{workflow._count.orderItems} sales</span>
+                        <div className="flex items-center space-x-4 flex-1">
+                          {/* Thumbnail Preview */}
+                          <div className="flex-shrink-0">
+                            {workflow.heroImageUrl ? (
+                              <div className="w-24 h-16 rounded-md overflow-hidden bg-gray-100 border">
+                                <img
+                                  src={workflow.heroImageUrl}
+                                  alt={workflow.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Fallback to placeholder if image fails to load
+                                    const target = e.target as HTMLImageElement
+                                    target.style.display = 'none'
+                                    target.parentElement!.innerHTML = `
+                                      <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                      </div>
+                                    `
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-24 h-16 rounded-md bg-gray-100 border flex items-center justify-center">
+                                <svg
+                                  className="w-6 h-6 text-gray-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                  ></path>
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div>
+                            <h3 className="font-medium">{workflow.title}</h3>
+                            <p className="text-sm text-gray-500">{workflow.shortDesc}</p>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
+                              <span className="text-sm text-gray-500">{workflow._count.orderItems} sales</span>
+                            </div>
                           </div>
                         </div>
                         <div className="text-right">
@@ -458,13 +746,14 @@ export default function SellerDashboard() {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Your Workflows</h2>
               <Button
-                onClick={() => {
+                onClick={async () => {
                   setEditingWorkflow(null)
                   setFormData({
                     title: '',
                     shortDesc: '',
                     longDescMd: '',
                     heroImageUrl: '',
+                    heroImageFile: undefined,
                     basePriceCents: 500,
                     currency: 'EUR',
                     status: 'draft',
@@ -476,6 +765,8 @@ export default function SellerDashboard() {
                     tagIds: [],
                   })
                   setShowCreateForm(true)
+                  // Refresh workflows when switching to create mode
+                  await fetchWorkflows()
                 }}
               >
                 Add New Workflow
@@ -571,24 +862,6 @@ export default function SellerDashboard() {
                       placeholder="Paste your n8n workflow JSON here..."
                     />
 
-                    {/* Workflow Preview */}
-                    {formData.jsonContent && (
-                      <div className="space-y-4">
-                        <Tabs defaultValue="diagram" className="w-full">
-                          <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="diagram">Visual Diagram</TabsTrigger>
-                            <TabsTrigger value="analysis">Analysis</TabsTrigger>
-                          </TabsList>
-                          <TabsContent value="diagram">
-                            <WorkflowDiagram workflow={formData.jsonContent} />
-                          </TabsContent>
-                          <TabsContent value="analysis">
-                            <WorkflowPreview workflow={formData.jsonContent} />
-                          </TabsContent>
-                        </Tabs>
-                      </div>
-                    )}
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="n8nMinVersion">Minimum n8n Version</Label>
@@ -613,17 +886,31 @@ export default function SellerDashboard() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
                       <div className="space-y-2">
-                        <Label htmlFor="heroImageUrl">Hero Image URL</Label>
-                        <Input
-                          id="heroImageUrl"
-                          name="heroImageUrl"
-                          type="url"
-                          value={formData.heroImageUrl}
-                          onChange={(e) => setFormData({ ...formData, heroImageUrl: e.target.value })}
-                          placeholder="https://example.com/image.jpg"
-                        />
+                        <Label>Thumbnail Image</Label>
+                        <div className="max-w-sm">
+                          <ImageUpload
+                            value={formData.heroImageUrl}
+                            onChange={handleHeroImageUpload}
+                            onRemove={handleHeroImageRemove}
+                            disabled={isSubmitting || uploadingThumbnail}
+                            maxSizeMB={2}
+                            aspectRatio="thumbnail"
+                            placeholder="Upload a thumbnail image (300x200px recommended)"
+                            className="w-full"
+                            key={`image-upload-${editingWorkflow?.id || 'new'}`}
+                          />
+                        </div>
+                        {uploadingThumbnail && <p className="text-sm text-muted-foreground">Uploading thumbnail...</p>}
+                        <p className="text-xs text-muted-foreground">
+                          Recommended: 300x200px (3:2 ratio) • Max 2MB • JPG, PNG, WebP
+                          {formData.heroImageFile && formData.heroImageUrl.startsWith('blob:') && (
+                            <span className="block text-orange-600 mt-1">
+                              ⚠️ Image will be uploaded when you save the workflow
+                            </span>
+                          )}
+                        </p>
                       </div>
 
                       <div className="space-y-2">
@@ -678,9 +965,11 @@ export default function SellerDashboard() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => {
+                        onClick={async () => {
                           setShowCreateForm(false)
                           setEditingWorkflow(null)
+                          // Refresh workflows to show any changes made
+                          await fetchWorkflows()
                         }}
                         disabled={isSubmitting}
                       >
@@ -697,40 +986,94 @@ export default function SellerDashboard() {
                 <Card key={workflow.id}>
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold">{workflow.title}</h3>
-                          <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
-                        </div>
-                        <p className="text-gray-600 mb-4">{workflow.shortDesc}</p>
-
-                        {/* Categories and Tags */}
-                        <div className="space-y-2 mb-4">
-                          {workflow.categories && workflow.categories.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {workflow.categories.map((cat: any) => (
-                                <Badge key={cat.category.id} variant="secondary" className="text-xs">
-                                  {cat.category.name}
-                                </Badge>
-                              ))}
+                      <div className="flex items-start space-x-4 flex-1">
+                        {/* Thumbnail Preview */}
+                        <div className="flex-shrink-0">
+                          {workflow.heroImageUrl ? (
+                            <div className="w-40 h-32 rounded-lg overflow-hidden bg-gray-100 border">
+                              <img
+                                src={workflow.heroImageUrl}
+                                alt={workflow.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  // Fallback to placeholder if image fails to load
+                                  const target = e.target as HTMLImageElement
+                                  target.style.display = 'none'
+                                  target.parentElement!.innerHTML = `
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                                                              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                      </svg>
+                                    </div>
+                                  `
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-40 h-32 rounded-lg bg-gray-100 border flex items-center justify-center">
+                              <svg
+                                className="w-10 h-10 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                ></path>
+                              </svg>
                             </div>
                           )}
-                          {workflow.tags && workflow.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {workflow.tags.map((tag: any) => (
-                                <Badge key={tag.tag.id} variant="outline" className="text-xs text-gray-500">
-                                  #{tag.tag.name}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
                         </div>
 
-                        <div className="flex items-center space-x-6 text-sm text-gray-500">
-                          <span>Price: {formatPrice(workflow.basePriceCents, workflow.currency)}</span>
-                          <span>Sales: {workflow._count.orderItems}</span>
-                          <span>Favorites: {workflow._count.favorites}</span>
-                          <span>Reviews: {workflow._count.reviews}</span>
+                        {/* Content */}
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-lg font-semibold">{workflow.title}</h3>
+                            <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
+                          </div>
+                          <p className="text-gray-600 mb-4">{workflow.shortDesc}</p>
+
+                          {/* Categories and Tags */}
+                          <div className="space-y-2 mb-4">
+                            {workflow.categories && workflow.categories.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {workflow.categories.map((cat: any) => (
+                                  <Badge key={cat.category.id} variant="secondary" className="text-xs">
+                                    {cat.category.name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                            {workflow.tags && workflow.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {workflow.tags.map((tag: any) => (
+                                  <Badge key={tag.tag.id} variant="outline" className="text-xs text-gray-500">
+                                    #{tag.tag.name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center space-x-6 text-sm text-gray-500">
+                            <span>Price: {formatPrice(workflow.basePriceCents, workflow.currency)}</span>
+                            <span>Sales: {workflow._count.orderItems}</span>
+                            <span>Favorites: {workflow._count.favorites}</span>
+                            <span>Reviews: {workflow._count.reviews}</span>
+                            {workflow.versions && workflow.versions.length > 0 && workflow.versions[0] && (
+                              <>
+                                {workflow.versions[0].n8nMinVersion && (
+                                  <span>Min n8n: {workflow.versions[0].n8nMinVersion}</span>
+                                )}
+                                {workflow.versions[0].n8nMaxVersion && (
+                                  <span>Max n8n: {workflow.versions[0].n8nMaxVersion}</span>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex space-x-2 ml-4">

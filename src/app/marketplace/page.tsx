@@ -303,7 +303,7 @@ export default function MarketplacePage() {
               <Button
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-200"
-                onClick={() => router.push('/sell-workflow')}
+                onClick={() => router.push('/become-seller')}
               >
                 <Zap className="w-5 h-5 mr-2" />
                 Sell Workflow
