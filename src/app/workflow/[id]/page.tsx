@@ -282,10 +282,12 @@ export default function WorkflowDetailPage() {
                       <Download className="w-4 h-4" />
                       <span>{workflow.salesCount} sales</span>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <Eye className="w-4 h-4" />
-                      <span>Version {workflow.version.semver}</span>
-                    </div>
+                    {workflow.version && (
+                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <Eye className="w-4 h-4" />
+                        <span>Version {workflow.version.semver}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -331,32 +333,38 @@ export default function WorkflowDetailPage() {
 
                       <Separator />
 
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Version Information</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <span className="text-sm font-medium text-gray-500">Current Version</span>
-                            <p className="text-lg">{workflow.version.semver}</p>
-                          </div>
-                          {workflow.version.n8nMinVersion && (
+                      {workflow.version ? (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Version Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <span className="text-sm font-medium text-gray-500">Minimum n8n Version</span>
-                              <p className="text-lg">{workflow.version.n8nMinVersion}</p>
+                              <span className="text-sm font-medium text-gray-500">Current Version</span>
+                              <p className="text-lg">{workflow.version.semver}</p>
+                            </div>
+                            {workflow.version.n8nMinVersion && (
+                              <div>
+                                <span className="text-sm font-medium text-gray-500">Minimum n8n Version</span>
+                                <p className="text-lg">{workflow.version.n8nMinVersion}</p>
+                              </div>
+                            )}
+                          </div>
+                          {workflow.version.changelog && (
+                            <div className="mt-4">
+                              <span className="text-sm font-medium text-gray-500">Changelog</span>
+                              <p className="mt-1">{workflow.version.changelog}</p>
                             </div>
                           )}
                         </div>
-                        {workflow.version.changelog && (
-                          <div className="mt-4">
-                            <span className="text-sm font-medium text-gray-500">Changelog</span>
-                            <p className="mt-1">{workflow.version.changelog}</p>
-                          </div>
-                        )}
-                      </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">No version information available</p>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
 
                   <TabsContent value="preview" className="p-6">
-                    {workflow.version.jsonContent ? (
+                    {workflow.version?.jsonContent ? (
                       <WorkflowPreview workflow={workflow.version.jsonContent} />
                     ) : (
                       <div className="text-center py-8">

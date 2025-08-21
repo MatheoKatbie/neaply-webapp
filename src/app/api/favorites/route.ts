@@ -53,7 +53,7 @@ export async function GET() {
 
     // Transform the data to match the expected format
     const transformedFavorites = favorites.map((favorite) => ({
-      id: favorite.workflow.id.toString(),
+      id: favorite.workflow.id,
       title: favorite.workflow.title,
       description: favorite.workflow.shortDesc,
       price: favorite.workflow.basePriceCents,
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     // Check if workflow exists
     const workflow = await prisma.workflow.findUnique({
-      where: { id: BigInt(workflowId) },
+      where: { id: workflowId },
     })
 
     if (!workflow) {
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
       where: {
         userId_workflowId: {
           userId: user.id,
-          workflowId: BigInt(workflowId),
+          workflowId: workflowId,
         },
       },
     })
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     await prisma.favorite.create({
       data: {
         userId: user.id,
-        workflowId: BigInt(workflowId),
+        workflowId: workflowId,
       },
     })
 
@@ -166,7 +166,7 @@ export async function DELETE(request: NextRequest) {
         where: {
           userId_workflowId: {
             userId: user.id,
-            workflowId: BigInt(workflowId),
+            workflowId: workflowId,
           },
         },
       })

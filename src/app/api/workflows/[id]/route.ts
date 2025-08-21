@@ -32,6 +32,8 @@ const updateWorkflowSchema = z.object({
   jsonContent: z.any().optional(),
   n8nMinVersion: z.string().optional().or(z.literal('')),
   n8nMaxVersion: z.string().optional().or(z.literal('')),
+  categoryIds: z.array(z.string()).optional(),
+  tagIds: z.array(z.string()).optional(),
 })
 
 // Helper function pour l'authentification côté serveur
@@ -173,8 +175,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const body = await req.json()
     const validatedData = updateWorkflowSchema.parse(body)
 
-    // Préparer les données de mise à jour (exclure les champs de version)
-    const { jsonContent, n8nMinVersion, n8nMaxVersion, ...workflowUpdateData } = validatedData
+    // Préparer les données de mise à jour (exclure les champs de version et relations)
+    const { jsonContent, n8nMinVersion, n8nMaxVersion, categoryIds, tagIds, ...workflowUpdateData } = validatedData
 
     // Si le titre change, mettre à jour le slug
     if (validatedData.title && validatedData.title !== existingWorkflow.title) {
@@ -209,6 +211,42 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       // Mettre à jour ou créer la version si du JSON est fourni
       if (jsonContent !== undefined) {
         await updateWorkflowVersion(workflowId, jsonContent, n8nMinVersion, n8nMaxVersion)
+      }
+
+      // Mettre à jour les catégories si fournies
+      if (categoryIds !== undefined) {
+        // Supprimer toutes les anciennes relations
+        await tx.workflowCategory.deleteMany({
+          where: { workflowId: workflowId },
+        })
+
+        // Créer les nouvelles relations
+        if (categoryIds.length > 0) {
+          await tx.workflowCategory.createMany({
+            data: categoryIds.map((categoryId: string) => ({
+              workflowId: workflowId,
+              categoryId: categoryId,
+            })),
+          })
+        }
+      }
+
+      // Mettre à jour les tags si fournis
+      if (tagIds !== undefined) {
+        // Supprimer toutes les anciennes relations
+        await tx.workflowTag.deleteMany({
+          where: { workflowId: workflowId },
+        })
+
+        // Créer les nouvelles relations
+        if (tagIds.length > 0) {
+          await tx.workflowTag.createMany({
+            data: tagIds.map((tagId: string) => ({
+              workflowId: workflowId,
+              tagId: tagId,
+            })),
+          })
+        }
       }
 
       // Récupérer le workflow mis à jour avec toutes les relations

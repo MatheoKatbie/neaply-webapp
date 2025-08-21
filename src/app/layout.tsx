@@ -1,21 +1,23 @@
-import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/hooks/useAuth";
-import ClientLayout from "./client-layout";
+import type { Metadata } from 'next'
+import { Inter, Space_Grotesk } from 'next/font/google'
+import './globals.css'
+import { AuthProvider } from '@/hooks/useAuth'
+import ClientLayout from './client-layout'
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+  variable: '--font-inter',
+  subsets: ['latin'],
+})
 
 export const metadata: Metadata = {
   title: 'FlowMarket - Buy & Sell n8n Workflows | Automation Marketplace',
-  description: 'The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own creations to the automation community. Join thousands of users automating their workflows.',
+  description:
+    'The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own creations to the automation community. Join thousands of users automating their workflows.',
   keywords: 'n8n, workflows, automation, marketplace, buy workflows, sell workflows, no-code automation',
   openGraph: {
     title: 'FlowMarket - Buy & Sell n8n Workflows',
-    description: 'The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own creations.',
+    description:
+      'The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own creations.',
     type: 'website',
     url: 'https://flowmarket.com',
     images: [
@@ -36,27 +38,22 @@ export const metadata: Metadata = {
 }
 
 const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-});
-
+  variable: '--font-space-grotesk',
+  subsets: ['latin'],
+})
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}
-      >
+      <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`} suppressHydrationWarning={true}>
         <AuthProvider>
-          <ClientLayout>
-            {children}
-          </ClientLayout>
+          <ClientLayout>{children}</ClientLayout>
         </AuthProvider>
       </body>
     </html>
-  );
+  )
 }

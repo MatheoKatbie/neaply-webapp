@@ -213,6 +213,7 @@ function WorkflowCard({
             <div className="text-lg font-bold text-green-600">{formatPrice(price, currency)}</div>
           </div>
         </div>
+        <Button className="w-full bg-blue-600 text-white py-2 rounded-md">View Workflow</Button>
       </CardContent>
     </Card>
   )

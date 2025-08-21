@@ -28,6 +28,20 @@ interface Workflow {
   ratingCount: number
   createdAt: string
   updatedAt: string
+  categories?: {
+    category: {
+      id: string
+      name: string
+      slug: string
+    }
+  }[]
+  tags?: {
+    tag: {
+      id: string
+      name: string
+      slug: string
+    }
+  }[]
   _count: {
     reviews: number
     favorites: number
@@ -689,6 +703,29 @@ export default function SellerDashboard() {
                           <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
                         </div>
                         <p className="text-gray-600 mb-4">{workflow.shortDesc}</p>
+
+                        {/* Categories and Tags */}
+                        <div className="space-y-2 mb-4">
+                          {workflow.categories && workflow.categories.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {workflow.categories.map((cat: any) => (
+                                <Badge key={cat.category.id} variant="secondary" className="text-xs">
+                                  {cat.category.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          {workflow.tags && workflow.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {workflow.tags.map((tag: any) => (
+                                <Badge key={tag.tag.id} variant="outline" className="text-xs text-gray-500">
+                                  #{tag.tag.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
                         <div className="flex items-center space-x-6 text-sm text-gray-500">
                           <span>Price: {formatPrice(workflow.basePriceCents, workflow.currency)}</span>
                           <span>Sales: {workflow._count.orderItems}</span>

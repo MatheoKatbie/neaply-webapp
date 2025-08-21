@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Heart, Star, ShoppingCart, Zap, Search } from 'lucide-react'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 
@@ -257,26 +258,33 @@ export default function FavoritesPage() {
 
                   {/* Categories and Tags */}
                   <div className="space-y-2">
-                    {workflow.categories.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {workflow.categories.slice(0, 2).map((category, index) => (
-                          <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                            {category}
-                          </span>
-                        ))}
-                        {workflow.categories.length > 2 && (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                            +{workflow.categories.length - 2} more
-                          </span>
-                        )}
-                      </div>
-                    )}
+                    <div className="flex flex-wrap gap-1">
+                      {workflow.categories.slice(0, 2).map((category, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {category}
+                        </Badge>
+                      ))}
+                      {workflow.categories.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{workflow.categories.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {workflow.tags.slice(0, 3).map((tag, index) => (
+                        <Badge key={index} variant="outline" className="text-xs text-gray-500">
+                          #{tag}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Favorited date */}
                   <div className="text-xs text-gray-500 pt-2 border-t border-gray-100">
                     Added {new Date(workflow.favoritedAt).toLocaleDateString()}
                   </div>
+
+                  <button className="w-full bg-blue-600 text-white py-2 rounded-md">View Workflow</button>
                 </CardContent>
               </Card>
             ))}

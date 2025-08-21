@@ -23,11 +23,11 @@ const createWorkflowSchema = z.object({
     .max(100000, 'Base price cannot exceed €1000.00'),
   currency: z.string().default('EUR'),
   status: z.enum(['draft', 'published', 'unlisted', 'disabled']).default('draft'),
-  categoryIds: z.array(z.string().uuid('Category ID must be a valid UUID')).optional(),
-  tagIds: z.array(z.string().uuid('Tag ID must be a valid UUID')).optional(),
   jsonContent: z.any().optional(),
   n8nMinVersion: z.string().optional().or(z.literal('')),
   n8nMaxVersion: z.string().optional().or(z.literal('')),
+  categoryIds: z.array(z.string()).optional(),
+  tagIds: z.array(z.string()).optional(),
 })
 
 const updateWorkflowSchema = createWorkflowSchema.partial()
@@ -129,6 +129,26 @@ export async function POST(req: NextRequest) {
             n8nMaxVersion: validatedData.n8nMaxVersion || null,
             isLatest: true,
           },
+        })
+      }
+
+      // Créer les relations avec les catégories
+      if (validatedData.categoryIds && validatedData.categoryIds.length > 0) {
+        await tx.workflowCategory.createMany({
+          data: validatedData.categoryIds.map((categoryId: string) => ({
+            workflowId: workflow.id,
+            categoryId: categoryId,
+          })),
+        })
+      }
+
+      // Créer les relations avec les tags
+      if (validatedData.tagIds && validatedData.tagIds.length > 0) {
+        await tx.workflowTag.createMany({
+          data: validatedData.tagIds.map((tagId: string) => ({
+            workflowId: workflow.id,
+            tagId: tagId,
+          })),
         })
       }
 
