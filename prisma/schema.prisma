@@ -112,7 +112,7 @@ model SellerProfile {
  * ============================
  */
 model Workflow {
-  id             BigInt         @id @default(autoincrement())
+  id             String         @id @default(uuid()) @db.Uuid
   sellerId       String         @db.Uuid
   seller         User           @relation(fields: [sellerId], references: [id], onDelete: Restrict)
   title          String
@@ -143,8 +143,8 @@ model Workflow {
 }
 
 model WorkflowVersion {
-  id            BigInt   @id @default(autoincrement())
-  workflowId    BigInt
+  id            String   @id @default(uuid()) @db.Uuid
+  workflowId    String   @db.Uuid
   workflow      Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   semver        String
   changelogMd   String?
@@ -166,15 +166,15 @@ model WorkflowVersion {
  * ============================
  */
 model Category {
-  id        BigInt             @id @default(autoincrement())
+  id        String             @id @default(uuid()) @db.Uuid
   name      String             @unique
   slug      String             @unique
   workflows WorkflowCategory[]
 }
 
 model WorkflowCategory {
-  workflowId BigInt
-  categoryId BigInt
+  workflowId String   @db.Uuid
+  categoryId String   @db.Uuid
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
@@ -182,15 +182,15 @@ model WorkflowCategory {
 }
 
 model Tag {
-  id        BigInt        @id @default(autoincrement())
+  id        String        @id @default(uuid()) @db.Uuid
   name      String        @unique
   slug      String        @unique
   workflows WorkflowTag[]
 }
 
 model WorkflowTag {
-  workflowId BigInt
-  tagId      BigInt
+  workflowId String   @db.Uuid
+  tagId      String   @db.Uuid
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
@@ -203,8 +203,8 @@ model WorkflowTag {
  * ============================
  */
 model PricingPlan {
-  id         BigInt   @id @default(autoincrement())
-  workflowId BigInt
+  id         String   @id @default(uuid()) @db.Uuid
+  workflowId String   @db.Uuid
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   name       String // "Standard", "Pro", etc. (toujours one-time)
   priceCents Int
@@ -225,7 +225,7 @@ model PricingPlan {
  */
 model Favorite {
   userId     String   @db.Uuid
-  workflowId BigInt
+  workflowId String   @db.Uuid
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
@@ -239,7 +239,7 @@ model Favorite {
  * ============================
  */
 model Order {
-  id             BigInt      @id @default(autoincrement())
+  id             String      @id @default(uuid()) @db.Uuid
   userId         String      @db.Uuid
   user           User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   status         OrderStatus
@@ -257,10 +257,10 @@ model Order {
 }
 
 model OrderItem {
-  id             BigInt  @id @default(autoincrement())
-  orderId        BigInt
-  workflowId     BigInt
-  pricingPlanId  BigInt?
+  id             String  @id @default(uuid()) @db.Uuid
+  orderId        String  @db.Uuid
+  workflowId     String  @db.Uuid
+  pricingPlanId  String? @db.Uuid
   unitPriceCents Int
   quantity       Int     @default(1)
   subtotalCents  Int
@@ -274,8 +274,8 @@ model OrderItem {
 }
 
 model Payment {
-  id             BigInt        @id @default(autoincrement())
-  orderId        BigInt
+  id             String        @id @default(uuid()) @db.Uuid
+  orderId        String        @db.Uuid
   order          Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   provider       String // stripe, paypal...
   providerCharge String
@@ -292,8 +292,8 @@ model Payment {
  * ============================
  */
 model Review {
-  id         BigInt       @id @default(autoincrement())
-  workflowId BigInt
+  id         String       @id @default(uuid()) @db.Uuid
+  workflowId String       @db.Uuid
   userId     String       @db.Uuid
   rating     Int
   title      String?
@@ -314,7 +314,7 @@ model Review {
  * ============================
  */
 model Payout {
-  id            BigInt       @id @default(autoincrement())
+  id            String       @id @default(uuid()) @db.Uuid
   sellerId      String       @db.Uuid
   seller        User         @relation(fields: [sellerId], references: [id], onDelete: Restrict)
   amountCents   Int
@@ -335,9 +335,9 @@ model Payout {
  * ============================
  */
 model Report {
-  id         BigInt       @id @default(autoincrement())
+  id         String       @id @default(uuid()) @db.Uuid
   reporterId String?      @db.Uuid
-  workflowId BigInt
+  workflowId String       @db.Uuid
   reason     String
   status     ReportStatus @default(open)
   createdAt  DateTime     @default(now())
@@ -349,11 +349,11 @@ model Report {
 }
 
 model AuditLog {
-  id         BigInt   @id @default(autoincrement())
+  id         String   @id @default(uuid()) @db.Uuid
   userId     String?  @db.Uuid
   action     String // "workflow.publish", "order.refund", etc.
   entityType String // "workflow","order","user",...
-  entityId   BigInt?
+  entityId   String?  @db.Uuid
   metadata   Json?
   createdAt  DateTime @default(now())
 
@@ -368,7 +368,7 @@ model AuditLog {
  * ============================
  */
 model WorkflowCompatibility {
-  workflowId BigInt
+  workflowId String @db.Uuid
   n8nVersion String
   status     CompatibilityStatus
 

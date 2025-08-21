@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label'
 import { JsonInput } from '@/components/ui/json-input'
 import { WorkflowPreview } from '@/components/ui/workflow-preview'
 import { WorkflowDiagram } from '@/components/ui/workflow-diagram'
+import { MultiSelect } from '@/components/ui/multi-select'
+import type { Category, Tag } from '@/types/workflow'
 
 interface Workflow {
   id: string
@@ -45,6 +47,8 @@ interface WorkflowFormData {
   jsonFile?: File
   n8nMinVersion?: string
   n8nMaxVersion?: string
+  categoryIds?: string[]
+  tagIds?: string[]
 }
 
 export default function SellerDashboard() {
@@ -56,6 +60,10 @@ export default function SellerDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(false)
+  const [tagsLoading, setTagsLoading] = useState(false)
   const [formData, setFormData] = useState<WorkflowFormData>({
     title: '',
     shortDesc: '',
@@ -68,6 +76,8 @@ export default function SellerDashboard() {
     jsonFile: undefined,
     n8nMinVersion: '',
     n8nMaxVersion: '',
+    categoryIds: [],
+    tagIds: [],
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -97,9 +107,45 @@ export default function SellerDashboard() {
     }
   }
 
+  // Fetch categories
+  const fetchCategories = async () => {
+    try {
+      setCategoriesLoading(true)
+      const response = await fetch('/api/categories')
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories')
+      }
+      const data = await response.json()
+      setCategories(data.data || [])
+    } catch (err: any) {
+      console.error('Failed to fetch categories:', err.message)
+    } finally {
+      setCategoriesLoading(false)
+    }
+  }
+
+  // Fetch tags
+  const fetchTags = async () => {
+    try {
+      setTagsLoading(true)
+      const response = await fetch('/api/tags')
+      if (!response.ok) {
+        throw new Error('Failed to fetch tags')
+      }
+      const data = await response.json()
+      setTags(data.data || [])
+    } catch (err: any) {
+      console.error('Failed to fetch tags:', err.message)
+    } finally {
+      setTagsLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (user?.isSeller) {
       fetchWorkflows()
+      fetchCategories()
+      fetchTags()
     }
   }, [user])
 
@@ -154,6 +200,8 @@ export default function SellerDashboard() {
         jsonFile: undefined,
         n8nMinVersion: '',
         n8nMaxVersion: '',
+        categoryIds: [],
+        tagIds: [],
       })
       setShowCreateForm(false)
       setEditingWorkflow(null)
@@ -223,6 +271,8 @@ export default function SellerDashboard() {
         jsonFile: undefined,
         n8nMinVersion: latestVersion?.n8nMinVersion || '',
         n8nMaxVersion: latestVersion?.n8nMaxVersion || '',
+        categoryIds: fullWorkflow.categories?.map((cat: any) => cat.category.id.toString()) || [],
+        tagIds: fullWorkflow.tags?.map((tag: any) => tag.tag.id.toString()) || [],
       })
     } else {
       // Fallback to basic data if fetch fails
@@ -238,6 +288,8 @@ export default function SellerDashboard() {
         jsonFile: undefined,
         n8nMinVersion: '',
         n8nMaxVersion: '',
+        categoryIds: [],
+        tagIds: [],
       })
     }
   }
@@ -406,6 +458,8 @@ export default function SellerDashboard() {
                     jsonFile: undefined,
                     n8nMinVersion: '',
                     n8nMaxVersion: '',
+                    categoryIds: [],
+                    tagIds: [],
                   })
                   setShowCreateForm(true)
                 }}
@@ -578,6 +632,29 @@ export default function SellerDashboard() {
                           <option value="disabled">Disabled</option>
                         </select>
                       </div>
+                    </div>
+
+                    {/* Categories & Tags Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <MultiSelect
+                        label="Categories"
+                        options={categories}
+                        selected={formData.categoryIds || []}
+                        onChange={(selected) => setFormData({ ...formData, categoryIds: selected })}
+                        placeholder="Select categories..."
+                        disabled={categoriesLoading}
+                        className="w-full"
+                      />
+
+                      <MultiSelect
+                        label="Tags"
+                        options={tags}
+                        selected={formData.tagIds || []}
+                        onChange={(selected) => setFormData({ ...formData, tagIds: selected })}
+                        placeholder="Select tags..."
+                        disabled={tagsLoading}
+                        className="w-full"
+                      />
                     </div>
 
                     <div className="flex gap-4 pt-4">
