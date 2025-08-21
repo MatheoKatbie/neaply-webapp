@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Star, Search, Filter, Download, Heart, Eye, Zap, Clock, DollarSign } from 'lucide-react'
+import { Star, Search, Filter, Download, Eye, Zap, Clock, DollarSign } from 'lucide-react'
+import { AnimatedHeart } from '@/components/ui/animated-heart'
 
 interface WorkflowCardProps {
   id: string
@@ -75,10 +76,42 @@ function WorkflowCard({
     router.push(`/workflow/${id}`)
   }
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setFavorite(!favorite)
-    // TODO: Implement favorite API call
+  const handleFavoriteClick = async (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+
+    try {
+      if (favorite) {
+        // Remove from favorites
+        const response = await fetch('/api/favorites', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ workflowId: id }),
+        })
+
+        if (response.ok) {
+          setFavorite(false)
+        }
+      } else {
+        // Add to favorites
+        const response = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ workflowId: id }),
+        })
+
+        if (response.ok) {
+          setFavorite(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error updating favorites:', error)
+      // Revert the state if there was an error
+      // setFavorite(!favorite) - don't revert since we'll show the original state
+    }
   }
 
   const formatPrice = (price: number, currency: string) => {
@@ -94,14 +127,14 @@ function WorkflowCard({
       onClick={handleCardClick}
     >
       {/* Favorite button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-white/90 transition-all duration-200"
-        onClick={handleFavoriteClick}
-      >
-        <Heart className={`w-4 h-4 ${favorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
-      </Button>
+      <div className="absolute top-3 right-3 z-10">
+        <AnimatedHeart
+          isFavorite={favorite}
+          onToggle={(e) => handleFavoriteClick(e)}
+          className="bg-white/80 hover:bg-white/90"
+          size="md"
+        />
+      </div>
 
       {/* Hero image */}
       <div className="h-48 bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">

@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Star, Download, Heart, Eye, Zap, Clock, DollarSign, ArrowLeft, Shield, Users, CheckCircle } from 'lucide-react'
+import { Star, Download, Eye, Zap, Clock, DollarSign, ArrowLeft, Shield, Users, CheckCircle } from 'lucide-react'
+import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { WorkflowPreview } from '@/components/ui/workflow-preview'
 
 interface WorkflowDetail {
@@ -53,7 +54,7 @@ export default function WorkflowDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [isFavorite, setIsFavorite] = useState(false)
 
-  // Fetch workflow details
+  // Fetch workflow details and favorite status
   useEffect(() => {
     const fetchWorkflow = async () => {
       try {
@@ -79,8 +80,22 @@ export default function WorkflowDetailPage() {
       }
     }
 
+    const checkFavoriteStatus = async () => {
+      try {
+        const response = await fetch('/api/favorites')
+        if (response.ok) {
+          const data = await response.json()
+          const isWorkflowFavorited = data.favorites.some((fav: any) => fav.id === workflowId)
+          setIsFavorite(isWorkflowFavorited)
+        }
+      } catch (error) {
+        console.error('Error checking favorite status:', error)
+      }
+    }
+
     if (workflowId) {
       fetchWorkflow()
+      checkFavoriteStatus()
     }
   }, [workflowId])
 
@@ -91,9 +106,38 @@ export default function WorkflowDetailPage() {
     }).format(price / 100)
   }
 
-  const handleFavoriteClick = () => {
-    setIsFavorite(!isFavorite)
-    // TODO: Implement favorite API call
+  const handleFavoriteClick = async () => {
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        const response = await fetch('/api/favorites', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ workflowId }),
+        })
+
+        if (response.ok) {
+          setIsFavorite(false)
+        }
+      } else {
+        // Add to favorites
+        const response = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ workflowId }),
+        })
+
+        if (response.ok) {
+          setIsFavorite(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error updating favorites:', error)
+    }
   }
 
   const handlePurchase = () => {
@@ -206,9 +250,7 @@ export default function WorkflowDetailPage() {
                       <h1 className="text-2xl font-bold text-gray-900 mb-2">{workflow.title}</h1>
                       <p className="text-gray-600 text-lg">{workflow.shortDesc}</p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={handleFavoriteClick} className="ml-4">
-                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
-                    </Button>
+                    <AnimatedHeart isFavorite={isFavorite} onToggle={handleFavoriteClick} className="ml-4" size="lg" />
                   </div>
 
                   {/* Categories and Tags */}

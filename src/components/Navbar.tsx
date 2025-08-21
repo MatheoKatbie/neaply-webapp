@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Image from 'next/image'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Heart } from 'lucide-react'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -55,6 +56,14 @@ export default function Navbar() {
               >
                 Marketplace
               </Link>
+              {user && (
+                <Link
+                  href="/favorites"
+                  className="font-inter text-gray-700 hover:text-black px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-gray-100 flex items-center gap-1"
+                >
+                  Favorites
+                </Link>
+              )}
             </div>
           </div>
 
@@ -196,6 +205,15 @@ export default function Navbar() {
               >
                 Marketplace
               </Link>
+              {user && (
+                <Link
+                  href="/favorites"
+                  className="font-inter text-gray-700 hover:text-black px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100 flex items-center gap-1"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Favorites
+                </Link>
+              )}
 
               <div className="pt-4 space-y-2">
                 {loading ? (
