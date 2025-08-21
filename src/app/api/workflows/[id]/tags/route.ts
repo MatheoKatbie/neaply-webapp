@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 // Schema for tag management
 const manageTagsSchema = z.object({
-  tagIds: z.array(z.string().transform((id) => BigInt(id))),
+  tagIds: z.array(z.string().uuid()),
 })
 
 // Helper function for authentication
@@ -34,7 +34,7 @@ async function getAuthenticatedSeller() {
 }
 
 // PUT /api/workflows/[id]/tags - Update workflow tags
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Authentication check
     const seller = await getAuthenticatedSeller()
@@ -42,7 +42,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Authentication required - must be a seller' }, { status: 401 })
     }
 
-    const workflowId = BigInt(params.id)
+    const { id } = await params
+    const workflowId = id
 
     // Check if workflow exists and belongs to seller
     const workflow = await prisma.workflow.findUnique({

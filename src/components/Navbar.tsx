@@ -132,6 +132,15 @@ export default function Navbar() {
                       <div className="py-1">
                         <button
                           onClick={() => {
+                            router.push('/orders')
+                            setIsDropdownOpen(false)
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-black transition-colors duration-200 cursor-pointer"
+                        >
+                          Orders History
+                        </button>
+                        <button
+                          onClick={() => {
                             router.push('/help')
                             setIsDropdownOpen(false)
                           }}
@@ -250,6 +259,15 @@ export default function Navbar() {
                     {/* Mobile dropdown items */}
                     <button
                       onClick={() => {
+                        router.push('/orders')
+                        setIsMenuOpen(false)
+                      }}
+                      className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-transparent border border-gray-300 text-gray-700 rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-100 hover:text-black cursor-pointer"
+                    >
+                      Orders History
+                    </button>
+                    <button
+                      onClick={() => {
                         router.push('/help')
                         setIsMenuOpen(false)
                       }}
@@ -264,7 +282,7 @@ export default function Navbar() {
                       }}
                       className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-transparent border border-gray-300 text-gray-700 rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-100 hover:text-black cursor-pointer"
                     >
-                      Parameters
+                      Settings
                     </button>
                     <button
                       onClick={() => {

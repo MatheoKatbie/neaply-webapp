@@ -23,6 +23,7 @@ import {
   ShoppingCart,
 } from 'lucide-react'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
+import { PurchaseButton } from '@/components/ui/purchase-button'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -157,7 +158,7 @@ export default function WorkflowDetailPage() {
   }
 
   const handlePurchase = () => {
-    // TODO: Implement purchase flow
+    // This will be handled by the PurchaseButton component
     console.log('Purchase workflow:', workflowId)
   }
 
@@ -444,14 +445,12 @@ export default function WorkflowDetailPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button
-                    size="lg"
-                    className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer"
-                    onClick={handlePurchase}
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Purchase Workflow
-                  </Button>
+                  <PurchaseButton
+                    workflowId={workflowId}
+                    price={workflow.price}
+                    currency={workflow.currency}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  />
 
                   <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">

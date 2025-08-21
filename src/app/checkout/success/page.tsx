@@ -1,0 +1,253 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import Navbar from '@/components/Navbar'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { CheckCircle, Download, ArrowRight, Home } from 'lucide-react'
+import type { Order } from '@/types/payment'
+
+export default function CheckoutSuccessPage() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const sessionId = searchParams.get('session_id')
+  const orderId = searchParams.get('order_id')
+
+  const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!orderId) {
+      setError('No order ID provided')
+      setLoading(false)
+      return
+    }
+
+    const fetchOrder = async () => {
+      try {
+        const response = await fetch(`/api/orders/${orderId}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch order details')
+        }
+        const data = await response.json()
+        setOrder(data.order)
+      } catch (err) {
+        console.error('Error fetching order:', err)
+        setError('Failed to load order details')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrder()
+  }, [orderId])
+
+  const handleDownload = (workflowId: string) => {
+    // TODO: Implement download logic
+    console.log('Download workflow:', workflowId)
+  }
+
+  const formatPrice = (priceCents: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(priceCents / 100)
+  }
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+              <div className="h-64 bg-gray-200 rounded-lg"></div>
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  if (error || !order) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <Card className="text-center py-12">
+              <CardContent>
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-red-500" />
+                </div>
+                <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
+                <p className="text-gray-600 mb-6">{error || "The order you're looking for could not be found."}</p>
+                <Button onClick={() => router.push('/marketplace')}>
+                  <Home className="w-4 h-4 mr-2" />
+                  Back to Marketplace
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* Success Header */}
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-10 h-10 text-green-500" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
+            <p className="text-lg text-gray-600">Thank you for your purchase. Your workflows are ready for download.</p>
+          </div>
+
+          {/* Order Details */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Order Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <span className="text-sm font-medium text-gray-500">Order ID</span>
+                  <p className="text-lg font-mono">{order.id}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-500">Total Amount</span>
+                  <p className="text-lg font-semibold text-green-600">
+                    {formatPrice(order.totalCents, order.currency)}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-500">Payment Date</span>
+                  <p className="text-lg">
+                    {order.paidAt ? new Date(order.paidAt).toLocaleDateString() : 'Processing...'}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-500">Status</span>
+                  <p className="text-lg">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {order.status === 'paid' ? 'Completed' : order.status}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Your Workflows</h3>
+                <div className="space-y-4">
+                  {order.items.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        {item.workflow.heroImageUrl ? (
+                          <img
+                            src={item.workflow.heroImageUrl}
+                            alt={item.workflow.title}
+                            className="w-12 h-12 object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <Download className="w-6 h-6 text-blue-600" />
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="font-medium">{item.workflow.title}</h4>
+                          {item.pricingPlan && <p className="text-sm text-gray-600">{item.pricingPlan.name} Plan</p>}
+                          <p className="text-sm font-medium text-green-600">
+                            {formatPrice(item.unitPriceCents, order.currency)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button size="sm" onClick={() => handleDownload(item.workflowId)} className="cursor-pointer">
+                          <Download className="w-4 h-4 mr-2" />
+                          Download
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => router.push(`/workflow/${item.workflowId}`)}
+                          className="cursor-pointer"
+                        >
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Next Steps */}
+          <Card>
+            <CardHeader>
+              <CardTitle>What's Next?</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-sm font-medium text-blue-600">1</span>
+                  </div>
+                  <div>
+                    <p className="font-medium">Download your workflows</p>
+                    <p className="text-sm text-gray-600">
+                      Click the download buttons above to get your workflow files.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-sm font-medium text-blue-600">2</span>
+                  </div>
+                  <div>
+                    <p className="font-medium">Import to n8n</p>
+                    <p className="text-sm text-gray-600">
+                      Open n8n and import the downloaded workflow files to start using them.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-sm font-medium text-blue-600">3</span>
+                  </div>
+                  <div>
+                    <p className="font-medium">Need help?</p>
+                    <p className="text-sm text-gray-600">
+                      Check the workflow documentation or contact the seller for support.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex justify-center space-x-4 mt-8">
+            <Button variant="outline" onClick={() => router.push('/marketplace')} className="cursor-pointer">
+              <Home className="w-4 h-4 mr-2" />
+              Browse More Workflows
+            </Button>
+            <Button onClick={() => router.push('/dashboard')} className="cursor-pointer">
+              Go to Dashboard
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
