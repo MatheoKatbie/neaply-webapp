@@ -82,7 +82,7 @@ export async function DELETE(request: NextRequest) {
           userId: user.id,
           action: 'store.delete',
           entityType: 'store',
-          entityId: BigInt(0), // No specific entity ID for store deletion
+          entityId: null, // No specific entity ID for store deletion
           metadata: {
             reason: 'User requested store deletion',
           },
