@@ -47,7 +47,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white text-black overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 text-black overflow-x-hidden pt-20">
       {/* Hero Section */}
       <div
         ref={heroRef}
