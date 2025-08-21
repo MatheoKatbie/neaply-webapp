@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import Navbar from '@/components/Navbar'
+import { Toaster } from 'sonner'
 
 interface ClientLayoutProps {
   children: React.ReactNode
@@ -18,7 +19,16 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <>
       {shouldShowNavbar && <Navbar />}
-      <main className={shouldShowNavbar ? 'py-10' : ''}>{children}</main>
+      <main className={shouldShowNavbar ? '' : ''}>{children}</main>
+      <Toaster
+        position="bottom-right"
+        richColors
+        closeButton
+        expand={true}
+        toastOptions={{
+          duration: 4000,
+        }}
+      />
     </>
   )
 }

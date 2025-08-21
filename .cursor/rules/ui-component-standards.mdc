@@ -1,16 +1,78 @@
 ---
-description: UI component standards using Radix UI, Tailwind CSS, and design system
+description: UI component standards using Shadcn UI, Tailwind CSS, and design system
 globs: **/components/**,**/ui/**
 ---
 
 # UI Component Standards
 
-FlowMarket uses a design system built with Radix UI primitives, Tailwind CSS, and class-variance-authority for consistent styling.
+FlowMarket uses Shadcn UI, a design system built with Radix UI primitives, Tailwind CSS, and class-variance-authority for consistent styling.
+
+## Adding Shadcn UI Components
+
+Use these npx commands to add new Shadcn UI components to the project:
+
+### Core Components
+
+```bash
+# Button component
+npx shadcn@latest add button
+
+# Form components
+npx shadcn@latest add form
+npx shadcn@latest add input
+npx shadcn@latest add label
+npx shadcn@latest add textarea
+
+# Layout components
+npx shadcn@latest add card
+npx shadcn@latest add separator
+npx shadcn@latest add tabs
+
+# Navigation components
+npx shadcn@latest add navigation-menu
+npx shadcn@latest add menubar
+npx shadcn@latest add dropdown-menu
+
+# Data display
+npx shadcn@latest add table
+npx shadcn@latest add badge
+npx shadcn@latest add avatar
+
+# Feedback components
+npx shadcn@latest add alert
+npx shadcn@latest add progress
+
+# Overlay components
+npx shadcn@latest add dialog
+npx shadcn@latest add sheet
+npx shadcn@latest add popover
+npx shadcn@latest add tooltip
+```
+
+### Installing Multiple Components
+
+```bash
+# Add multiple components at once
+npx shadcn@latest add button input card form label
+```
+
+### Toast
+
+- Use sonner for the toast
+
+### Component Installation Notes
+
+- Components will be installed to `src/components/ui/`
+- Dependencies will be automatically added to package.json
+- Tailwind CSS configuration will be updated if needed
+- Always review the generated components before using them
 
 ## Component Architecture
 
 ### Base Components Location
+
 All reusable UI components are in [src/components/ui/](mdc:src/components/ui/):
+
 - [button.tsx](mdc:src/components/ui/button.tsx) - Button component with variants
 - [card.tsx](mdc:src/components/ui/card.tsx) - Card layouts
 - [form.tsx](mdc:src/components/ui/form.tsx) - Form components
@@ -18,52 +80,48 @@ All reusable UI components are in [src/components/ui/](mdc:src/components/ui/):
 - [tabs.tsx](mdc:src/components/ui/tabs.tsx) - Tab navigation
 
 ### Component Pattern
+
 Use this pattern for all UI components:
 
 ```typescript
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import * as React from 'react'
+import { Slot } from '@radix-ui/react-slot'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
 // Define variants using class-variance-authority
 const componentVariants = cva(
-  "base-classes-here", // base styles
+  'base-classes-here', // base styles
   {
     variants: {
       variant: {
-        default: "default-styles",
-        secondary: "secondary-styles",
+        default: 'default-styles',
+        secondary: 'secondary-styles',
       },
       size: {
-        default: "default-size",
-        sm: "small-size",
-        lg: "large-size",
+        default: 'default-size',
+        sm: 'small-size',
+        lg: 'large-size',
       },
     },
     defaultVariants: {
-      variant: "default",
-      size: "default",
+      variant: 'default',
+      size: 'default',
     },
   }
 )
 
 // Component interface
 interface ComponentProps
-  extends React.ComponentProps<"button"> // or appropriate HTML element
-  , VariantProps<typeof componentVariants> {
+  extends React.ComponentProps<'button'>, // or appropriate HTML element
+    VariantProps<typeof componentVariants> {
   asChild?: boolean
 }
 
 function Component({ className, variant, size, asChild = false, ...props }: ComponentProps) {
-  const Comp = asChild ? Slot : "button" // or appropriate element
-  
-  return (
-    <Comp
-      className={cn(componentVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+  const Comp = asChild ? Slot : 'button' // or appropriate element
+
+  return <Comp className={cn(componentVariants({ variant, size, className }))} {...props} />
 }
 
 export { Component, componentVariants }
@@ -72,57 +130,66 @@ export { Component, componentVariants }
 ## Design System
 
 ### Typography
+
 Use these font classes consistently:
+
 ```typescript
 // Primary font (Inter)
-className="font-inter text-sm font-medium"
+className = 'font-inter text-sm font-medium'
 
 // Display font (Space Grotesk) - for headings/brand
-className="font-space-grotesk text-xl font-bold"
+className = 'font-space-grotesk text-xl font-bold'
 ```
 
 ### Colors & Theming
+
 Follow the established color palette:
+
 ```typescript
 // Primary actions
-className="bg-black text-white hover:bg-gray-800"
+className = 'bg-black text-white hover:bg-gray-800'
 
-// Secondary actions  
-className="bg-transparent border border-black text-black hover:bg-black hover:text-white"
+// Secondary actions
+className = 'bg-transparent border border-black text-black hover:bg-black hover:text-white'
 
 // Destructive actions
-className="bg-red-500 text-white hover:bg-red-600"
-className="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+className = 'bg-red-500 text-white hover:bg-red-600'
+className = 'border border-red-500 text-red-500 hover:bg-red-500 hover:text-white'
 
 // Text colors
-className="text-gray-700 hover:text-black"
+className = 'text-gray-700 hover:text-black'
 ```
 
 ### Spacing & Layout
+
 Use consistent spacing scale:
+
 ```typescript
 // Padding/Margin
-className="px-4 py-2"    // Small
-className="px-5 py-3"    // Medium  
-className="px-6 py-4"    // Large
+className = 'px-4 py-2' // Small
+className = 'px-5 py-3' // Medium
+className = 'px-6 py-4' // Large
 
 // Gaps
-className="space-x-3"    // Horizontal
-className="space-y-2"    // Vertical
-className="gap-4"        // Grid/Flex gap
+className = 'space-x-3' // Horizontal
+className = 'space-y-2' // Vertical
+className = 'gap-4' // Grid/Flex gap
 ```
 
 ### Border Radius
+
 Use rounded corners consistently:
+
 ```typescript
-className="rounded-full"    // Pills/buttons
-className="rounded-lg"      // Cards
-className="rounded-md"      // Small elements
+className = 'rounded-full' // Pills/buttons
+className = 'rounded-lg' // Cards
+className = 'rounded-md' // Small elements
 ```
 
 ## Component Examples
 
 ### Button Usage
+
 ```typescript
 import { Button } from "@/components/ui/button"
 
@@ -145,89 +212,92 @@ import { Button } from "@/components/ui/button"
 ```
 
 ### Form Components
-```typescript
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 
-<div className="space-y-2">
+```typescript
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+;<div className="space-y-2">
   <Label htmlFor="email">Email</Label>
-  <Input 
-    id="email"
-    type="email" 
-    placeholder="Enter your email"
-    className="w-full"
-  />
+  <Input id="email" type="email" placeholder="Enter your email" className="w-full" />
 </div>
 ```
 
 ### Card Layouts
-```typescript
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
-<Card>
+```typescript
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+;<Card>
   <CardHeader>
     <CardTitle>Card Title</CardTitle>
   </CardHeader>
-  <CardContent>
-    Card content goes here
-  </CardContent>
+  <CardContent>Card content goes here</CardContent>
 </Card>
 ```
 
 ## Layout Components
 
 ### Navbar Pattern
+
 The [src/components/Navbar.tsx](mdc:src/components/Navbar.tsx) demonstrates:
+
 - Responsive navigation (desktop/mobile)
 - Authentication state handling
 - Modern glass-morphism design
 - Mobile menu toggle
 
 ### Background Components
+
 [src/components/VantaBackground.tsx](mdc:src/components/VantaBackground.tsx) shows animated background integration.
 
 ## Responsive Design
 
 ### Mobile-First Approach
+
 Always start with mobile styles, then add desktop:
+
 ```typescript
-className="w-full md:w-auto"           // Width
-className="flex-col md:flex-row"       // Direction
-className="space-y-2 md:space-y-0 md:space-x-4"  // Spacing
+className = 'w-full md:w-auto' // Width
+className = 'flex-col md:flex-row' // Direction
+className = 'space-y-2 md:space-y-0 md:space-x-4' // Spacing
 ```
 
 ### Responsive Navigation
+
 ```typescript
 // Desktop navigation
-className="hidden md:flex"
+className = 'hidden md:flex'
 
-// Mobile navigation  
-className="md:hidden"
+// Mobile navigation
+className = 'md:hidden'
 
 // Mobile menu
-className="md:hidden absolute top-full left-0 w-full"
+className = 'md:hidden absolute top-full left-0 w-full'
 ```
 
 ## Animation & Transitions
 
 ### Hover Effects
+
 ```typescript
-className="transition-all duration-300 hover:bg-gray-800 hover:shadow-lg"
+className = 'transition-all duration-300 hover:bg-gray-800 hover:shadow-lg'
 ```
 
 ### Loading States
+
 ```typescript
-className="animate-pulse bg-gray-200 rounded"
+className = 'animate-pulse bg-gray-200 rounded'
 ```
 
 ### Focus States
+
 ```typescript
-className="focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+className = 'focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500'
 ```
 
 ## Accessibility
 
 Always include:
+
 - Proper semantic HTML elements
 - ARIA labels where needed
 - Keyboard navigation support
@@ -235,10 +305,7 @@ Always include:
 - Screen reader friendly text
 
 ```typescript
-<button 
-  aria-label="Close menu"
-  className="sr-only md:not-sr-only"
->
+<button aria-label="Close menu" className="sr-only md:not-sr-only">
   Close
 </button>
 ```
