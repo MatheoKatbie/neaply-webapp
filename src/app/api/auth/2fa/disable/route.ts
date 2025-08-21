@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
         has_2fa: false,
         backup_codes: [],
         totp_secret: null,
+        totp_secret_temp: null,
+        totp_setup_timestamp: null,
         totp_enabled_at: null,
         totp_disabled_at: new Date().toISOString(),
       },

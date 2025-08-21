@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
+import { Secret, TOTP } from 'otpauth'
+import crypto from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,22 +15,53 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { totpCode, backupCodes } = await request.json()
+    const { totpCode } = await request.json()
 
     if (!totpCode) {
       return NextResponse.json({ error: 'TOTP code is required' }, { status: 400 })
     }
 
-    // In a real implementation, you would:
-    // 1. Verify the TOTP code against the user's secret
-    // 2. Enable 2FA for the user
-    // 3. Store backup codes securely
+    // Check if user has a temporary secret from setup
+    const tempSecret = user.user_metadata?.totp_secret_temp
+    if (!tempSecret) {
+      return NextResponse.json({ error: 'No 2FA setup found. Please start setup first.' }, { status: 400 })
+    }
 
-    // For now, we'll simulate enabling 2FA by updating user metadata
+    // Verify the TOTP code
+    const secret = Secret.fromBase32(tempSecret)
+    const totp = new TOTP({
+      issuer: 'FlowMarket',
+      label: user.email || 'User',
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+      secret: secret,
+    })
+
+    const currentToken = totp.generate()
+    const isValid = totpCode === currentToken
+
+    // Also check the previous and next tokens for clock skew tolerance
+    const previousToken = totp.generate({ timestamp: Date.now() - 30000 })
+    const nextToken = totp.generate({ timestamp: Date.now() + 30000 })
+
+    const isValidWithSkew = isValid || totpCode === previousToken || totpCode === nextToken
+
+    if (!isValidWithSkew) {
+      return NextResponse.json({ error: 'Invalid TOTP code' }, { status: 400 })
+    }
+
+    // Generate backup codes
+    const backupCodes = Array.from({ length: 10 }, () => crypto.randomBytes(4).toString('hex').toUpperCase())
+
+    // Enable 2FA and move temp secret to permanent
     const { error: updateError } = await supabase.auth.updateUser({
       data: {
         has_2fa: true,
-        backup_codes: backupCodes || [],
+        totp_secret: tempSecret,
+        totp_secret_temp: null,
+        totp_setup_timestamp: null,
+        backup_codes: backupCodes,
         totp_enabled_at: new Date().toISOString(),
       },
     })

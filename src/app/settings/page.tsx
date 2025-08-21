@@ -20,9 +20,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { User, Shield, Key, Camera, Store, Trash2, CheckCircle, AlertTriangle, Upload } from 'lucide-react'
+import {
+  User,
+  Shield,
+  Key,
+  Camera,
+  Store,
+  Trash2,
+  CheckCircle,
+  AlertTriangle,
+  Upload,
+  Copy,
+  Smartphone,
+  QrCode,
+  Monitor,
+  Calendar,
+  MapPin,
+} from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
+import type { TwoFactorSetup, TwoFactorStatus, RememberedDevice } from '@/types/auth'
 
 interface UserProfile {
   displayName: string
@@ -37,9 +54,8 @@ interface StoreInfo {
   bio?: string
 }
 
-interface Security2FA {
-  enabled: boolean
-  backupCodes?: string[]
+interface Security2FA extends TwoFactorStatus {
+  setupData?: TwoFactorSetup
 }
 
 export default function SettingsPage() {
@@ -66,12 +82,19 @@ export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [twoFA, setTwoFA] = useState<Security2FA>({ enabled: false })
+  const [twoFA, setTwoFA] = useState<Security2FA>({ enabled: false, methods: [] })
+  const [totpCode, setTotpCode] = useState('')
+  const [setupStep, setSetupStep] = useState<'qr' | 'verify' | 'backup'>('qr')
+
+  // Device states
+  const [rememberedDevices, setRememberedDevices] = useState<RememberedDevice[]>([])
+  const [loadingDevices, setLoadingDevices] = useState(false)
 
   // Modal states
   const [showDeleteStoreModal, setShowDeleteStoreModal] = useState(false)
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false)
   const [show2FASetupModal, setShow2FASetupModal] = useState(false)
+  const [showBackupCodesModal, setShowBackupCodesModal] = useState(false)
 
   // File upload state
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
@@ -113,6 +136,7 @@ export default function SettingsPage() {
       }
 
       fetch2FAStatus()
+      fetchRememberedDevices()
     }
   }, [user])
 
@@ -137,6 +161,47 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Error fetching 2FA status:', error)
+    }
+  }
+
+  const fetchRememberedDevices = async () => {
+    try {
+      setLoadingDevices(true)
+      const response = await fetch('/api/auth/devices')
+      if (response.ok) {
+        const data = await response.json()
+        setRememberedDevices(data.devices || [])
+      }
+    } catch (error) {
+      console.error('Error fetching devices:', error)
+    } finally {
+      setLoadingDevices(false)
+    }
+  }
+
+  const removeDevice = async (deviceId: string) => {
+    try {
+      setLoadingDevices(true)
+      const response = await fetch('/api/auth/devices', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId }),
+      })
+
+      if (response.ok) {
+        setRememberedDevices((prev) => prev.filter((device) => device.id !== deviceId))
+        toast.success('Device Removed', {
+          description: 'The device has been removed from your remembered devices.',
+        })
+      } else {
+        throw new Error('Failed to remove device')
+      }
+    } catch (error) {
+      toast.error('Error', {
+        description: 'Failed to remove device. Please try again.',
+      })
+    } finally {
+      setLoadingDevices(false)
     }
   }
 
@@ -324,7 +389,7 @@ export default function SettingsPage() {
       try {
         const response = await fetch('/api/auth/2fa/disable', { method: 'POST' })
         if (response.ok) {
-          setTwoFA({ enabled: false })
+          setTwoFA({ enabled: false, methods: [] })
           toast.success('2FA Disabled', {
             description: 'Two-factor authentication has been disabled.',
           })
@@ -335,9 +400,95 @@ export default function SettingsPage() {
         })
       }
     } else {
-      // Enable 2FA
-      setShow2FASetupModal(true)
+      // Start 2FA setup
+      await start2FASetup()
     }
+  }
+
+  const start2FASetup = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/auth/2fa/setup', { method: 'POST' })
+
+      if (response.ok) {
+        const setupData: TwoFactorSetup = await response.json()
+        setTwoFA((prev) => ({ ...prev, setupData }))
+        setSetupStep('qr')
+        setShow2FASetupModal(true)
+      } else {
+        const error = await response.json()
+        toast.error('Setup Failed', {
+          description: error.error || 'Failed to start 2FA setup',
+        })
+      }
+    } catch (error) {
+      toast.error('Error', {
+        description: 'Failed to start 2FA setup. Please try again.',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const verify2FASetup = async () => {
+    if (!totpCode || totpCode.length !== 6) {
+      toast.error('Invalid Code', {
+        description: 'Please enter a 6-digit code from your authenticator app.',
+      })
+      return
+    }
+
+    try {
+      setLoading(true)
+      const response = await fetch('/api/auth/2fa/enable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ totpCode }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setTwoFA((prev) => ({
+          ...prev,
+          enabled: true,
+          backupCodes: result.backupCodes,
+          setupData: undefined,
+        }))
+        setSetupStep('backup')
+        setTotpCode('')
+
+        // Refresh 2FA status
+        await fetch2FAStatus()
+
+        toast.success('2FA Enabled', {
+          description: 'Two-factor authentication has been enabled successfully.',
+        })
+      } else {
+        const error = await response.json()
+        toast.error('Verification Failed', {
+          description: error.error || 'Invalid verification code. Please try again.',
+        })
+      }
+    } catch (error) {
+      toast.error('Error', {
+        description: 'Failed to verify 2FA setup. Please try again.',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    toast.success('Copied', {
+      description: 'Copied to clipboard',
+    })
+  }
+
+  const complete2FASetup = () => {
+    setShow2FASetupModal(false)
+    setSetupStep('qr')
+    setTotpCode('')
   }
 
   const handleDeleteStore = async () => {
@@ -382,7 +533,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className={`grid w-full ${user.isSeller ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
@@ -390,6 +541,10 @@ export default function SettingsPage() {
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Security
+          </TabsTrigger>
+          <TabsTrigger value="devices" className="flex items-center gap-2">
+            <Monitor className="h-4 w-4" />
+            Devices
           </TabsTrigger>
           {user.isSeller && (
             <TabsTrigger value="store" className="flex items-center gap-2">
@@ -543,13 +698,160 @@ export default function SettingsPage() {
                 <Switch checked={twoFA.enabled} onCheckedChange={handleToggle2FA} />
               </div>
               {twoFA.enabled && (
-                <Alert>
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertDescription>Two-factor authentication is active on your account.</AlertDescription>
-                </Alert>
+                <div className="space-y-3">
+                  <Alert>
+                    <CheckCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      Two-factor authentication is active on your account.
+                      {twoFA.enabledAt && (
+                        <span className="block text-xs text-gray-500 mt-1">
+                          Enabled on {new Date(twoFA.enabledAt).toLocaleDateString()}
+                        </span>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowBackupCodesModal(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Key className="h-4 w-4" />
+                    View Backup Codes
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Devices Tab */}
+        <TabsContent value="devices" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Remembered Devices</CardTitle>
+              <CardDescription>
+                Manage devices that don't require two-factor authentication when signing in.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingDevices ? (
+                <div className="text-center py-8">
+                  <div className="text-sm text-gray-500">Loading devices...</div>
+                </div>
+              ) : rememberedDevices.length === 0 ? (
+                <div className="text-center py-8">
+                  <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Remembered Devices</h3>
+                  <p className="text-sm text-gray-500">
+                    Devices you choose to remember during 2FA login will appear here.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {rememberedDevices.map((device) => (
+                    <div key={device.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-start space-x-3">
+                        <Monitor className="h-5 w-5 text-gray-400 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-medium text-gray-900">{device.name}</h4>
+                            <Badge variant="secondary" className="text-xs">
+                              Trusted
+                            </Badge>
+                          </div>
+                          <div className="mt-1 space-y-1">
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Last used: {new Date(device.lastUsed).toLocaleDateString()}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Added: {new Date(device.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                            {device.ipAddress && (
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <MapPin className="h-3 w-3" />
+                                IP: {device.ipAddress}
+                              </div>
+                            )}
+                            <div className="text-xs text-gray-400 truncate">{device.userAgent}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeDevice(device.id)}
+                        disabled={loadingDevices}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {rememberedDevices.length > 0 && (
+                <div className="mt-6 pt-4 border-t">
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      Removing a device will require two-factor authentication the next time you sign in from that
+                      device.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {twoFA.enabled && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Device Security</CardTitle>
+                <CardDescription>Settings related to device security and two-factor authentication.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-medium">Two-Factor Authentication</h4>
+                    <p className="text-sm text-gray-500">Protect your account with an additional security layer</p>
+                  </div>
+                  <Badge variant="default" className="flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3" />
+                    Active
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-medium">Remembered Devices</h4>
+                    <p className="text-sm text-gray-500">
+                      {rememberedDevices.length} device{rememberedDevices.length !== 1 ? 's' : ''} trusted
+                    </p>
+                  </div>
+                  {rememberedDevices.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        rememberedDevices.forEach((device) => removeDevice(device.id))
+                      }}
+                      disabled={loadingDevices}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Remove All
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Store Tab (only for sellers) */}
@@ -670,15 +972,174 @@ export default function SettingsPage() {
 
       {/* 2FA Setup Modal */}
       <Dialog open={show2FASetupModal} onOpenChange={setShow2FASetupModal}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Setup Two-Factor Authentication
+            </DialogTitle>
+            <DialogDescription>
+              {setupStep === 'qr' && 'Scan the QR code with your authenticator app'}
+              {setupStep === 'verify' && 'Enter the verification code from your authenticator app'}
+              {setupStep === 'backup' && 'Save your backup codes in a secure location'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* QR Code Step */}
+            {setupStep === 'qr' && twoFA.setupData && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="bg-white p-4 rounded-lg border inline-block">
+                    <img src={twoFA.setupData.qrCode} alt="QR Code for 2FA setup" className="w-48 h-48" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Manual Entry Key</Label>
+                  <div className="flex items-center gap-2">
+                    <Input value={twoFA.setupData.secret} readOnly className="font-mono text-sm" />
+                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(twoFA.setupData!.secret)}>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500">Use this key if you can't scan the QR code</p>
+                </div>
+
+                <Alert>
+                  <Smartphone className="h-4 w-4" />
+                  <AlertDescription>
+                    1. Install an authenticator app (Google Authenticator, Authy, etc.)
+                    <br />
+                    2. Scan the QR code or enter the key manually
+                    <br />
+                    3. Click "Continue" when ready to verify
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            {/* Verification Step */}
+            {setupStep === 'verify' && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="totpCode">Verification Code</Label>
+                  <Input
+                    id="totpCode"
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="000000"
+                    className="text-center text-lg font-mono tracking-wider"
+                    maxLength={6}
+                  />
+                  <p className="text-sm text-gray-500">Enter the 6-digit code from your authenticator app</p>
+                </div>
+              </div>
+            )}
+
+            {/* Backup Codes Step */}
+            {setupStep === 'backup' && twoFA.backupCodes && (
+              <div className="space-y-4">
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    Save these backup codes in a secure location. You can use them to access your account if you lose
+                    your device.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="grid grid-cols-2 gap-2 font-mono text-sm">
+                    {twoFA.backupCodes.map((code, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                        <span>{code}</span>
+                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(code)} className="h-6 w-6 p-0">
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={() => copyToClipboard(twoFA.backupCodes!.join('\n'))}
+                  className="w-full"
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy All Codes
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            {setupStep === 'qr' && (
+              <>
+                <Button variant="outline" onClick={() => setShow2FASetupModal(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => setSetupStep('verify')}>Continue</Button>
+              </>
+            )}
+
+            {setupStep === 'verify' && (
+              <>
+                <Button variant="outline" onClick={() => setSetupStep('qr')}>
+                  Back
+                </Button>
+                <Button onClick={verify2FASetup} disabled={loading || totpCode.length !== 6}>
+                  {loading ? 'Verifying...' : 'Verify & Enable'}
+                </Button>
+              </>
+            )}
+
+            {setupStep === 'backup' && (
+              <Button onClick={complete2FASetup} className="w-full">
+                Complete Setup
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Backup Codes Modal */}
+      <Dialog open={showBackupCodesModal} onOpenChange={setShowBackupCodesModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Setup Two-Factor Authentication</DialogTitle>
-            <DialogDescription>Enhance your account security with two-factor authentication.</DialogDescription>
+            <DialogTitle>Backup Codes</DialogTitle>
+            <DialogDescription>Use these codes to access your account if you lose your device.</DialogDescription>
           </DialogHeader>
-          <div className="text-center space-y-4">
-            <p className="text-sm text-gray-600">2FA setup will be implemented in a future update.</p>
-            <Button onClick={() => setShow2FASetupModal(false)}>Close</Button>
-          </div>
+
+          {twoFA.backupCodes && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-1 gap-2 font-mono text-sm">
+                  {twoFA.backupCodes.map((code, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                      <span>{code}</span>
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(code)} className="h-6 w-6 p-0">
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={() => copyToClipboard(twoFA.backupCodes!.join('\n'))}
+                className="w-full"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copy All Codes
+              </Button>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setShowBackupCodesModal(false)}>Close</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

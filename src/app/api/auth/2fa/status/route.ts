@@ -19,11 +19,14 @@ export async function GET(request: NextRequest) {
 
     const has2FA = user.user_metadata?.has_2fa || false
     const backupCodes = user.user_metadata?.backup_codes || []
+    const hasSetupInProgress = !!user.user_metadata?.totp_secret_temp
 
     return NextResponse.json({
       enabled: has2FA,
+      setupInProgress: hasSetupInProgress,
       backupCodes: has2FA ? backupCodes : undefined,
       methods: has2FA ? ['authenticator'] : [],
+      enabledAt: user.user_metadata?.totp_enabled_at || null,
     })
   } catch (error) {
     console.error('Error fetching 2FA status:', error)
