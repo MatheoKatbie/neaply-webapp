@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import {
   Star,
   Download,
@@ -40,6 +41,11 @@ interface WorkflowDetail {
     displayName: string
     storeName?: string
     slug?: string
+    supportEmail?: string
+    phoneNumber?: string
+    countryCode?: string
+    websiteUrl?: string
+    avatarUrl?: string
   }
   rating: number
   ratingCount: number
@@ -494,14 +500,30 @@ export default function WorkflowDetailPage() {
                         <span>{workflow.salesCount} sales</span>
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full cursor-pointer"
-                      onClick={() => workflow.seller.slug && router.push(`/store/${workflow.seller.slug}`)}
-                    >
-                      View Store
-                    </Button>
+                    <div className="space-y-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full cursor-pointer"
+                        onClick={() => workflow.seller.slug && router.push(`/store/${workflow.seller.slug}`)}
+                      >
+                        View Store
+                      </Button>
+                      <ContactSellerButton
+                        seller={{
+                          displayName: workflow.seller.displayName,
+                          storeName: workflow.seller.storeName,
+                          supportEmail: workflow.seller.supportEmail,
+                          phoneNumber: workflow.seller.phoneNumber,
+                          countryCode: workflow.seller.countryCode,
+                          websiteUrl: workflow.seller.websiteUrl,
+                          avatarUrl: workflow.seller.avatarUrl,
+                        }}
+                        workflowTitle={workflow.title}
+                        size="sm"
+                        className="w-full"
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>

@@ -102,6 +102,8 @@ model SellerProfile {
   bio          String?
   websiteUrl   String?
   supportEmail String?
+  phoneNumber  String?
+  countryCode  String?
   payoutMethod Json?
   status       SellerProfileStatus @default(active)
 }

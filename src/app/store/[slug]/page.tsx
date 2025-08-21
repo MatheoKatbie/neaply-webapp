@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import {
   Star,
   Globe,
@@ -50,6 +51,8 @@ interface StoreData {
   bio?: string
   websiteUrl?: string
   supportEmail?: string
+  phoneNumber?: string
+  countryCode?: string
   user: {
     id: string
     displayName: string
@@ -306,6 +309,22 @@ export default function StorePage() {
                       <p className="text-gray-700 leading-relaxed">{store.bio}</p>
                     </div>
                   )}
+
+                  {/* Contact Seller Button */}
+                  <div className="mt-6 pt-4 border-t">
+                    <ContactSellerButton
+                      seller={{
+                        displayName: store.user.displayName,
+                        storeName: store.storeName,
+                        supportEmail: store.supportEmail,
+                        phoneNumber: store.phoneNumber,
+                        countryCode: store.countryCode,
+                        websiteUrl: store.websiteUrl,
+                        avatarUrl: store.user.avatarUrl,
+                      }}
+                      className="w-full sm:w-auto"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

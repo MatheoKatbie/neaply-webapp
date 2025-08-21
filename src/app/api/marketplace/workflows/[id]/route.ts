@@ -22,10 +22,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         seller: {
           select: {
             displayName: true,
+            avatarUrl: true,
             sellerProfile: {
               select: {
                 storeName: true,
                 slug: true,
+                supportEmail: true,
+                phoneNumber: true,
+                countryCode: true,
+                websiteUrl: true,
               },
             },
           },
@@ -99,6 +104,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         displayName: workflow.seller.displayName,
         storeName: workflow.seller.sellerProfile?.storeName,
         slug: workflow.seller.sellerProfile?.slug,
+        supportEmail: workflow.seller.sellerProfile?.supportEmail,
+        phoneNumber: workflow.seller.sellerProfile?.phoneNumber,
+        countryCode: workflow.seller.sellerProfile?.countryCode,
+        websiteUrl: workflow.seller.sellerProfile?.websiteUrl,
+        avatarUrl: workflow.seller.avatarUrl,
       },
       rating: parseFloat(workflow.ratingAvg.toString()),
       ratingCount: workflow.ratingCount,

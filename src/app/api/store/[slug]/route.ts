@@ -96,6 +96,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       bio: sellerProfile.bio,
       websiteUrl: sellerProfile.websiteUrl,
       supportEmail: sellerProfile.supportEmail,
+      phoneNumber: sellerProfile.phoneNumber,
+      countryCode: sellerProfile.countryCode,
       user: sellerProfile.user,
       stats: {
         totalWorkflows: workflows.length,
