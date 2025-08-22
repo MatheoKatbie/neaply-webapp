@@ -99,27 +99,45 @@ export async function POST(request: NextRequest) {
     }
 
     // Create pending order
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        status: 'pending',
-        totalCents: priceCents,
-        currency: workflow.currency,
-        provider: 'stripe',
-        items: {
-          create: {
-            workflowId,
-            pricingPlanId,
-            unitPriceCents: priceCents,
-            quantity: 1,
-            subtotalCents: priceCents,
-          },
+    const orderData: any = {
+      userId: user.id,
+      status: 'pending',
+      totalCents: priceCents,
+      currency: workflow.currency,
+      provider: 'stripe',
+      items: {
+        create: {
+          workflowId,
+          unitPriceCents: priceCents,
+          quantity: 1,
+          subtotalCents: priceCents,
         },
       },
+    }
+
+    // Only include pricingPlanId if it has a value
+    if (pricingPlanId) {
+      orderData.items.create.pricingPlanId = pricingPlanId
+    }
+
+    const order = await prisma.order.create({
+      data: orderData,
     })
 
     // Create Stripe checkout session
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+    // Prepare metadata - only include pricingPlanId if it has a value
+    const metadata: Record<string, string> = {
+      orderId: order.id,
+      userId: user.id,
+      workflowId,
+    }
+
+    if (pricingPlanId) {
+      metadata.pricingPlanId = pricingPlanId
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -142,12 +160,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      metadata: {
-        orderId: order.id,
-        userId: user.id,
-        workflowId,
-        pricingPlanId: pricingPlanId || '',
-      },
+      metadata,
       success_url: successUrl || `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
       cancel_url: cancelUrl || `${baseUrl}/checkout/cancelled?order_id=${order.id}`,
       customer_email: user.email,
