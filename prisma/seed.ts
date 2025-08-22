@@ -1,13 +1,13 @@
 /**
  * Database Seeding Script
- * 
+ *
  * This script can run in two modes:
- * 
+ *
  * 1. PRODUCTION MODE (categories and tags only):
  *    - Run: NODE_ENV=production npx prisma db seed
  *    - Or: SEED_MOCK_DATA=false npx prisma db seed
  *    - Creates only essential categories and tags
- * 
+ *
  * 2. DEVELOPMENT MODE (full mock data):
  *    - Run: npx prisma db seed
  *    - Or: SEED_MOCK_DATA=true npx prisma db seed
@@ -22,7 +22,9 @@ const prisma = new PrismaClient()
 // Configuration - Set to false for production
 const INCLUDE_MOCK_DATA = process.env.NODE_ENV !== 'production'
 
-console.log(`🔧 Seeding mode: ${INCLUDE_MOCK_DATA ? 'Development (with mock data)' : 'Production (categories and tags only)'}`)
+console.log(
+  `🔧 Seeding mode: ${INCLUDE_MOCK_DATA ? 'Development (with mock data)' : 'Production (categories and tags only)'}`
+)
 
 // Predefined categories for n8n workflows
 const categories = [
@@ -193,7 +195,7 @@ async function main() {
     // Create users (including sellers and buyers)
     console.log('👥 Creating users...')
     const users = []
-    
+
     // Create 5 sellers
     for (let i = 0; i < 5; i++) {
       const user = await prisma.user.create({
@@ -241,9 +243,9 @@ async function main() {
 
     // Create seller profiles for sellers
     console.log('🏪 Creating seller profiles...')
-    const sellers = users.filter(u => u.isSeller)
+    const sellers = users.filter((u) => u.isSeller)
     const sellerProfiles = []
-    
+
     for (const seller of sellers) {
       const storeName = faker.company.name() + ' Automation'
       const profile = await prisma.sellerProfile.create({
@@ -258,7 +260,7 @@ async function main() {
           countryCode: faker.location.countryCode(),
           payoutMethod: {
             type: 'stripe',
-            accountId: faker.string.alphanumeric(20)
+            accountId: faker.string.alphanumeric(20),
           },
           status: 'active',
         },
@@ -285,7 +287,7 @@ async function main() {
       'Product Inventory Tracker',
       'Customer Support Ticketing',
       'Sales Pipeline Automation',
-      'Content Publishing Workflow'
+      'Content Publishing Workflow',
     ]
 
     for (let i = 0; i < 15; i++) {
@@ -293,7 +295,7 @@ async function main() {
       const title = workflowTitles[i] || faker.lorem.words(3)
       const salesCount = faker.number.int({ min: 0, max: 500 })
       const ratingCount = faker.number.int({ min: 0, max: Math.floor(salesCount * 0.3) })
-      
+
       const workflow = await prisma.workflow.create({
         data: {
           sellerId: seller.id,
@@ -332,15 +334,17 @@ async function main() {
                 id: faker.string.uuid(),
                 type: 'n8n-nodes-base.webhook',
                 name: 'Webhook Trigger',
-                position: [250, 300]
-              }
+                position: [250, 300],
+              },
             ],
-            connections: {}
+            connections: {},
           },
-          extraAssets: faker.datatype.boolean() ? {
-            templates: ['template1.html', 'template2.html'],
-            documentation: 'guide.pdf'
-          } : undefined,
+          extraAssets: faker.datatype.boolean()
+            ? {
+                templates: ['template1.html', 'template2.html'],
+                documentation: 'guide.pdf',
+              }
+            : undefined,
           isLatest: true,
         },
       })
@@ -351,7 +355,7 @@ async function main() {
     for (const workflow of workflows) {
       const numCategories = faker.number.int({ min: 1, max: 3 })
       const selectedCategories = faker.helpers.arrayElements(createdCategories, numCategories)
-      
+
       for (const category of selectedCategories) {
         await prisma.workflowCategory.create({
           data: {
@@ -367,7 +371,7 @@ async function main() {
     for (const workflow of workflows) {
       const numTags = faker.number.int({ min: 2, max: 5 })
       const selectedTags = faker.helpers.arrayElements(createdTags, numTags)
-      
+
       for (const tag of selectedTags) {
         await prisma.workflowTag.create({
           data: {
@@ -387,12 +391,7 @@ async function main() {
           name: 'Standard',
           priceCents: workflow.basePriceCents,
           currency: workflow.currency,
-          features: [
-            'Complete workflow file',
-            'Setup documentation',
-            'Email support',
-            '30-day updates'
-          ],
+          features: ['Complete workflow file', 'Setup documentation', 'Email support', '30-day updates'],
           isActive: true,
           sortOrder: 0,
         },
@@ -401,16 +400,16 @@ async function main() {
 
     // Create orders and payments
     console.log('🛒 Creating orders...')
-    const buyers = users.filter(u => !u.isSeller && !u.isAdmin)
-    const publishedWorkflows = workflows.filter(w => w.status === 'published')
-    
+    const buyers = users.filter((u) => !u.isSeller && !u.isAdmin)
+    const publishedWorkflows = workflows.filter((w) => w.status === 'published')
+
     for (let i = 0; i < 50; i++) {
       const buyer = faker.helpers.arrayElement(buyers)
       const workflow = faker.helpers.arrayElement(publishedWorkflows)
       const pricingPlan = await prisma.pricingPlan.findFirst({
-        where: { workflowId: workflow.id }
+        where: { workflowId: workflow.id },
       })
-      
+
       if (pricingPlan) {
         const order = await prisma.order.create({
           data: {
@@ -449,7 +448,7 @@ async function main() {
                 id: faker.string.alphanumeric(20),
                 amount: order.totalCents,
                 currency: order.currency.toLowerCase(),
-                status: 'succeeded'
+                status: 'succeeded',
               },
             },
           })
@@ -461,26 +460,46 @@ async function main() {
     console.log('⭐ Creating reviews...')
     const paidOrders = await prisma.order.findMany({
       where: { status: 'paid' },
-      include: { items: true, user: true }
+      include: { items: true, user: true },
     })
 
-    for (const order of paidOrders.slice(0, 30)) { // Create reviews for first 30 orders
-      if (faker.datatype.boolean(0.6)) { // 60% chance of review
+    // Track which user-workflow combinations have already been reviewed
+    const reviewedCombinations = new Set<string>()
+
+    for (const order of paidOrders.slice(0, 30)) {
+      // Create reviews for first 30 orders
+      if (faker.datatype.boolean(0.6)) {
+        // 60% chance of review
         const orderItem = order.items[0]
         if (orderItem) {
+          const combinationKey = `${order.userId}-${orderItem.workflowId}`
+
+          // Skip if this user has already reviewed this workflow
+          if (reviewedCombinations.has(combinationKey)) {
+            continue
+          }
+
           const rating = faker.number.int({ min: 3, max: 5 }) // Mostly positive reviews
-          
-          await prisma.review.create({
-            data: {
-              workflowId: orderItem.workflowId,
-              userId: order.userId,
-              rating,
-              title: faker.lorem.sentence(),
-              bodyMd: faker.lorem.paragraph(),
-              status: 'published',
-              helpfulCount: faker.number.int({ min: 0, max: 10 }),
-            },
-          })
+
+          try {
+            await prisma.review.create({
+              data: {
+                workflowId: orderItem.workflowId,
+                userId: order.userId,
+                rating,
+                title: faker.lorem.sentence(),
+                bodyMd: faker.lorem.paragraph(),
+                status: 'published',
+                helpfulCount: faker.number.int({ min: 0, max: 10 }),
+              },
+            })
+
+            // Mark this combination as reviewed
+            reviewedCombinations.add(combinationKey)
+          } catch (error) {
+            // Skip if there's already a review for this combination
+            console.log(`Skipping duplicate review for user ${order.userId} and workflow ${orderItem.workflowId}`)
+          }
         }
       }
     }
@@ -490,7 +509,7 @@ async function main() {
     for (const buyer of buyers) {
       const numFavorites = faker.number.int({ min: 0, max: 5 })
       const favoriteWorkflows = faker.helpers.arrayElements(publishedWorkflows, numFavorites)
-      
+
       for (const workflow of favoriteWorkflows) {
         await prisma.favorite.create({
           data: {
@@ -502,7 +521,6 @@ async function main() {
     }
 
     console.log('✅ Database seeded successfully!')
-    
   } catch (error) {
     console.error('❌ Error during seeding:', error)
     process.exit(1)
