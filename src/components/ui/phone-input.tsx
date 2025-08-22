@@ -107,27 +107,27 @@ export function PhoneInputComponent({
   )
 
   return (
-    <div className={cn('relative', className)}>
-      <div className="flex">
+    <div className={cn('relative w-full', className)}>
+      <div className="flex w-full">
         {/* Country Select */}
-        <div ref={countrySelectRef} className="relative">
+        <div ref={countrySelectRef} className="relative flex-shrink-0">
           <button
             type="button"
             onClick={() => setCountrySelectOpen(!countrySelectOpen)}
             disabled={disabled}
             className={cn(
-              'flex items-center gap-2 px-3 py-3 border border-r-0 border-gray-300 rounded-l-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer',
+              'flex items-center gap-1 px-2 py-3 border border-r-0 border-gray-300 rounded-l-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer min-w-0',
               disabled && 'bg-gray-100 cursor-not-allowed'
             )}
           >
             <img
               alt={selectedCountry.value}
               src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${selectedCountry.value}.svg`}
-              className="w-4 h-3 rounded-sm"
+              className="w-4 h-3 rounded-sm flex-shrink-0"
             />
-            <span className="text-xs font-medium">{selectedCountry.phonePrefix}</span>
+            <span className="text-xs font-medium whitespace-nowrap">{selectedCountry.phonePrefix}</span>
             <svg
-              className={cn('w-4 h-4 transition-transform', countrySelectOpen && 'rotate-180')}
+              className={cn('w-3 h-3 transition-transform flex-shrink-0', countrySelectOpen && 'rotate-180')}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -185,7 +185,7 @@ export function PhoneInputComponent({
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
-            'flex-1 px-3 py-2 border border-gray-300 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+            'flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
             disabled && 'bg-gray-100 cursor-not-allowed'
           )}
         />

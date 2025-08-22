@@ -367,8 +367,8 @@ export default function BecomeSellerPage() {
                 {/* Benefits Section */}
                 <Card className="bg-gradient-to-br bg-white/90">
                   <CardHeader>
-                    <CardTitle className="text-2xl text-blue-900">Why Sell on FlowMarket?</CardTitle>
-                    <CardDescription className="text-blue-700">
+                    <CardTitle className="text-2xl">Why Sell on FlowMarket?</CardTitle>
+                    <CardDescription className="">
                       Join thousands of creators monetizing their n8n workflows
                     </CardDescription>
                   </CardHeader>
@@ -385,8 +385,8 @@ export default function BecomeSellerPage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-blue-900">Upload Your Workflows</h3>
-                        <p className="text-blue-700">Share your n8n creations with the community</p>
+                        <h3 className="text-lg font-semibold">Upload Your Workflows</h3>
+                        <p className="">Share your n8n creations with the community</p>
                       </div>
                     </div>
 
@@ -402,8 +402,8 @@ export default function BecomeSellerPage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-green-900">Earn Money</h3>
-                        <p className="text-green-700">Set your prices and receive instant payments</p>
+                        <h3 className="text-lg font-semibold">Earn Money</h3>
+                        <p className="">Set your prices and receive instant payments</p>
                       </div>
                     </div>
 
@@ -419,8 +419,8 @@ export default function BecomeSellerPage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-purple-900">Grow Your Audience</h3>
-                        <p className="text-purple-700">Build your reputation and customer base</p>
+                        <h3 className="text-lg font-semibold">Grow Your Audience</h3>
+                        <p className="">Build your reputation and customer base</p>
                       </div>
                     </div>
                   </CardContent>
@@ -500,7 +500,7 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-red-600">{validationErrors.storeName}</p>
                     ) : (
                       <p className="text-xs text-gray-500">
-                        This name will be displayed on your public profile and workflows
+                        {formData.storeName.length}/50 characters (min. 2). This name will be displayed on your public profile and workflows.
                       </p>
                     )}
                   </div>
@@ -524,7 +524,7 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-red-600">{validationErrors.bio}</p>
                     ) : (
                       <p className="text-xs text-gray-500">
-                        {formData.bio.length}/500 characters. Help customers trust you.
+                        {formData.bio.length}/500 characters (min. 10). Help customers trust you.
                       </p>
                     )}
                   </div>
@@ -570,7 +570,7 @@ export default function BecomeSellerPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="space-y-2 col-span-1">
                       <Label htmlFor="phoneNumber">Phone Number (optional)</Label>
                       <PhoneInputComponent
                         value={formData.phoneNumber}
@@ -579,13 +579,16 @@ export default function BecomeSellerPage() {
                         }}
                         placeholder="Enter your phone number"
                       />
-                      {validationErrors.phoneNumber && (
+                      {validationErrors.phoneNumber ? (
                         <p className="text-xs text-red-600">{validationErrors.phoneNumber}</p>
+                      ) : (
+                        <p className="text-xs text-gray-500">
+                          {formData.phoneNumber ? `${formData.phoneNumber.replace(/\D/g, '').length} digits (min. 8)` : '0 digits (min. 8)'} - Phone for business communication
+                        </p>
                       )}
-                      <p className="text-xs text-gray-500">Phone for business communication</p>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 col-span-1">
                       <Label htmlFor="countryCode">Country *</Label>
                       <CountrySelect
                         id="countryCode"
