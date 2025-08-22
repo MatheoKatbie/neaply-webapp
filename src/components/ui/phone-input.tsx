@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { COUNTRIES } from '@/lib/countries'
 import type { SelectMenuOption } from '@/types/countries'
 import { cn } from '@/lib/utils'
@@ -27,10 +27,11 @@ export function PhoneInputComponent({
   const [countrySelectOpen, setCountrySelectOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const countrySelectRef = useRef<HTMLDivElement>(null)
+  const isInitialized = useRef(false)
 
   // Initialize with default country (France)
   useEffect(() => {
-    if (value) {
+    if (value && !isInitialized.current) {
       // Try to parse existing phone number to extract country and number
       const parsed = parsePhoneNumber(value)
       if (parsed) {
@@ -39,14 +40,25 @@ export function PhoneInputComponent({
       } else {
         setPhoneNumber(value)
       }
+      isInitialized.current = true
     }
   }, [value])
 
-  // Update parent when phone number changes
+  // Memoize the onChange callback to prevent infinite loops
+  const notifyParent = useCallback(
+    (fullNumber: string) => {
+      onChange(fullNumber || undefined)
+    },
+    [onChange]
+  )
+
+  // Update parent when phone number changes - but only when user actually changes it
   useEffect(() => {
-    const fullNumber = phoneNumber ? `${selectedCountry.phonePrefix}${phoneNumber}` : ''
-    onChange(fullNumber || undefined)
-  }, [selectedCountry, phoneNumber, onChange])
+    if (isInitialized.current) {
+      const fullNumber = phoneNumber ? `${selectedCountry.phonePrefix}${phoneNumber}` : ''
+      notifyParent(fullNumber)
+    }
+  }, [selectedCountry, phoneNumber, notifyParent])
 
   // Close country select when clicking outside
   useEffect(() => {

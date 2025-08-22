@@ -10,6 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://flowmarket.com'),
   title: 'FlowMarket - Buy & Sell n8n Workflows | Automation Marketplace',
   description:
     'The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own creations to the automation community. Join thousands of users automating their workflows.',

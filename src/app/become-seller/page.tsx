@@ -21,6 +21,60 @@ interface SellerFormData {
   countryCode: string
 }
 
+interface ValidationErrors {
+  storeName?: string
+  bio?: string
+  websiteUrl?: string
+  supportEmail?: string
+  phoneNumber?: string
+  countryCode?: string
+}
+
+// Validation functions
+const validateStoreName = (value: string): string | undefined => {
+  if (!value) return 'Store name is required'
+  if (value.length < 2) return 'Store name must be at least 2 characters'
+  if (value.length > 50) return 'Store name cannot exceed 50 characters'
+  return undefined
+}
+
+const validateBio = (value: string): string | undefined => {
+  if (value && value.length < 10) return 'Bio must be at least 10 characters'
+  if (value && value.length > 500) return 'Bio cannot exceed 500 characters'
+  return undefined
+}
+
+const validateWebsiteUrl = (value: string): string | undefined => {
+  if (!value) return undefined // Optional field
+  try {
+    new URL(value)
+    return undefined
+  } catch {
+    return 'Website URL must be valid (e.g., https://example.com)'
+  }
+}
+
+const validateSupportEmail = (value: string): string | undefined => {
+  if (!value) return undefined // Optional field
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(value)) return 'Support email must be valid'
+  return undefined
+}
+
+const validatePhoneNumber = (value: string): string | undefined => {
+  if (!value) return undefined // Optional field
+  if (value.length < 8) return 'Phone number must be at least 8 digits'
+  if (value.length > 20) return 'Phone number cannot exceed 20 characters'
+  return undefined
+}
+
+const validateCountryCode = (value: string): string | undefined => {
+  if (!value) return 'Country is required'
+  if (value.length < 2) return 'Country code is required and must be at least 2 characters'
+  if (value.length > 3) return 'Country code cannot exceed 3 characters'
+  return undefined
+}
+
 export default function BecomeSellerPage() {
   const { user, loading, refreshUser } = useAuth()
   const router = useRouter()
@@ -32,6 +86,7 @@ export default function BecomeSellerPage() {
     phoneNumber: '',
     countryCode: 'FR',
   })
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -61,8 +116,113 @@ export default function BecomeSellerPage() {
     checkExistingProfile()
   }, [user])
 
+  // Real-time validation for optional fields
+  useEffect(() => {
+    // Phone number validation
+    if (formData.phoneNumber) {
+      const error = validatePhoneNumber(formData.phoneNumber)
+      setValidationErrors((prev) => ({
+        ...prev,
+        phoneNumber: error,
+      }))
+    } else {
+      setValidationErrors((prev) => ({
+        ...prev,
+        phoneNumber: undefined,
+      }))
+    }
+  }, [formData.phoneNumber])
+
+  // Website URL validation
+  useEffect(() => {
+    if (formData.websiteUrl) {
+      const error = validateWebsiteUrl(formData.websiteUrl)
+      setValidationErrors((prev) => ({
+        ...prev,
+        websiteUrl: error,
+      }))
+    } else {
+      setValidationErrors((prev) => ({
+        ...prev,
+        websiteUrl: undefined,
+      }))
+    }
+  }, [formData.websiteUrl])
+
+  // Support email validation
+  useEffect(() => {
+    if (formData.supportEmail) {
+      const error = validateSupportEmail(formData.supportEmail)
+      setValidationErrors((prev) => ({
+        ...prev,
+        supportEmail: error,
+      }))
+    } else {
+      setValidationErrors((prev) => ({
+        ...prev,
+        supportEmail: undefined,
+      }))
+    }
+  }, [formData.supportEmail])
+
+  // Real-time validation function
+  const validateField = (field: keyof SellerFormData, value: string) => {
+    let error: string | undefined
+
+    switch (field) {
+      case 'storeName':
+        error = validateStoreName(value)
+        break
+      case 'bio':
+        error = validateBio(value)
+        break
+      case 'websiteUrl':
+        error = validateWebsiteUrl(value)
+        break
+      case 'supportEmail':
+        error = validateSupportEmail(value)
+        break
+      case 'phoneNumber':
+        error = validatePhoneNumber(value)
+        break
+      case 'countryCode':
+        error = validateCountryCode(value)
+        break
+    }
+
+    setValidationErrors((prev) => ({
+      ...prev,
+      [field]: error,
+    }))
+
+    return error
+  }
+
+  // Check if form is valid
+  const isFormValid = () => {
+    const requiredFields: (keyof SellerFormData)[] = ['storeName', 'countryCode']
+    const hasRequiredErrors = requiredFields.some((field) => validationErrors[field])
+    const hasAnyErrors = Object.values(validationErrors).some((error) => error)
+
+    return !hasRequiredErrors && !hasAnyErrors && formData.storeName.trim() !== ''
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate all fields before submission
+    const errors: ValidationErrors = {}
+    Object.keys(formData).forEach((key) => {
+      const field = key as keyof SellerFormData
+      const error = validateField(field, formData[field])
+      if (error) errors[field] = error
+    })
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors)
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -96,14 +256,29 @@ export default function BecomeSellerPage() {
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     })
+
+    // Clear error when user starts typing
+    if (validationErrors[name as keyof SellerFormData]) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }))
+    }
+  }
+
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    validateField(name as keyof SellerFormData, value)
   }
 
   const handleCountryChange = (countryCode: string) => {
     setFormData((prev) => ({ ...prev, countryCode }))
+    validateField('countryCode', countryCode)
   }
 
   const handleCountryToggle = () => {
@@ -316,12 +491,18 @@ export default function BecomeSellerPage() {
                       required
                       value={formData.storeName}
                       onChange={handleInputChange}
+                      onBlur={handleInputBlur}
                       placeholder="e.g., FlowAutomation Pro"
                       maxLength={50}
+                      className={validationErrors.storeName ? 'border-red-500 focus:border-red-500' : ''}
                     />
-                    <p className="text-xs text-gray-500">
-                      This name will be displayed on your public profile and workflows
-                    </p>
+                    {validationErrors.storeName ? (
+                      <p className="text-xs text-red-600">{validationErrors.storeName}</p>
+                    ) : (
+                      <p className="text-xs text-gray-500">
+                        This name will be displayed on your public profile and workflows
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -329,16 +510,23 @@ export default function BecomeSellerPage() {
                     <textarea
                       id="bio"
                       name="bio"
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
+                      }`}
                       value={formData.bio}
                       onChange={handleInputChange}
+                      onBlur={handleInputBlur}
                       placeholder="Describe your expertise, specialties, and what customers can expect from your workflows..."
                       maxLength={500}
                       rows={4}
                     />
-                    <p className="text-xs text-gray-500">
-                      {formData.bio.length}/500 characters. Help customers trust you.
-                    </p>
+                    {validationErrors.bio ? (
+                      <p className="text-xs text-red-600">{validationErrors.bio}</p>
+                    ) : (
+                      <p className="text-xs text-gray-500">
+                        {formData.bio.length}/500 characters. Help customers trust you.
+                      </p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -350,9 +538,15 @@ export default function BecomeSellerPage() {
                         type="url"
                         value={formData.websiteUrl}
                         onChange={handleInputChange}
+                        onBlur={handleInputBlur}
                         placeholder="https://yoursite.com"
+                        className={validationErrors.websiteUrl ? 'border-red-500 focus:border-red-500' : ''}
                       />
-                      <p className="text-xs text-gray-500">Add your website to gain credibility</p>
+                      {validationErrors.websiteUrl ? (
+                        <p className="text-xs text-red-600">{validationErrors.websiteUrl}</p>
+                      ) : (
+                        <p className="text-xs text-gray-500">Add your website to gain credibility</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -363,9 +557,15 @@ export default function BecomeSellerPage() {
                         type="email"
                         value={formData.supportEmail}
                         onChange={handleInputChange}
+                        onBlur={handleInputBlur}
                         placeholder="support@yoursite.com"
+                        className={validationErrors.supportEmail ? 'border-red-500 focus:border-red-500' : ''}
                       />
-                      <p className="text-xs text-gray-500">Email for customer support</p>
+                      {validationErrors.supportEmail ? (
+                        <p className="text-xs text-red-600">{validationErrors.supportEmail}</p>
+                      ) : (
+                        <p className="text-xs text-gray-500">Email for customer support</p>
+                      )}
                     </div>
                   </div>
 
@@ -374,9 +574,14 @@ export default function BecomeSellerPage() {
                       <Label htmlFor="phoneNumber">Phone Number (optional)</Label>
                       <PhoneInputComponent
                         value={formData.phoneNumber}
-                        onChange={(value) => setFormData((prev) => ({ ...prev, phoneNumber: value || '' }))}
+                        onChange={(value) => {
+                          setFormData((prev) => ({ ...prev, phoneNumber: value || '' }))
+                        }}
                         placeholder="Enter your phone number"
                       />
+                      {validationErrors.phoneNumber && (
+                        <p className="text-xs text-red-600">{validationErrors.phoneNumber}</p>
+                      )}
                       <p className="text-xs text-gray-500">Phone for business communication</p>
                     </div>
 
@@ -390,12 +595,15 @@ export default function BecomeSellerPage() {
                         onChange={handleCountryChange}
                         selectedValue={selectedCountry}
                       />
+                      {validationErrors.countryCode && (
+                        <p className="text-xs text-red-600">{validationErrors.countryCode}</p>
+                      )}
                       <p className="text-xs text-gray-500">Your business location</p>
                     </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                    <Button type="submit" className="flex-1" disabled={isLoading}>
+                    <Button type="submit" className="flex-1" disabled={isLoading || !isFormValid()}>
                       {isLoading
                         ? existingProfile
                           ? 'Updating...'
