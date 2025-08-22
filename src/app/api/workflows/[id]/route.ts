@@ -24,7 +24,7 @@ const updateWorkflowSchema = z.object({
   heroImageUrl: z.string().url('Hero image URL must be valid').optional().or(z.literal('')),
   basePriceCents: z
     .number()
-    .min(100, 'Base price must be at least €1.00')
+    .min(0, 'Base price cannot be negative')
     .max(100000, 'Base price cannot exceed €1000.00')
     .optional(),
   currency: z.string().optional(),

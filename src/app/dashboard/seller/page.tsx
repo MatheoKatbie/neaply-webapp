@@ -12,7 +12,131 @@ import { Label } from '@/components/ui/label'
 import { JsonInput } from '@/components/ui/json-input'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { MultiSelect } from '@/components/ui/multi-select'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { Category, Tag } from '@/types/workflow'
+
+// Validation rules based on Zod schema from API
+type ValidationRule =
+  | { minLength: number; maxLength: number; required: boolean }
+  | { min: number; max: number; required: boolean }
+  | { required: boolean }
+
+const validationRules: Record<string, ValidationRule> = {
+  title: {
+    minLength: 3,
+    maxLength: 100,
+    required: true,
+  },
+  shortDesc: {
+    minLength: 10,
+    maxLength: 200,
+    required: true,
+  },
+  longDescMd: {
+    minLength: 10,
+    maxLength: 5000,
+    required: false,
+  },
+  basePriceCents: {
+    min: 0, // €0.00 (free)
+    max: 100000, // €1000.00
+    required: true,
+  },
+  jsonContent: {
+    required: true,
+  },
+}
+
+// Field name mapping for better error messages
+const fieldNames: Record<string, string> = {
+  title: 'Title',
+  shortDesc: 'Short description',
+  longDescMd: 'Detailed description',
+  basePriceCents: 'Price',
+  jsonContent: 'Workflow JSON',
+}
+
+// Validation hook
+const useFormValidation = (formData: WorkflowFormData) => {
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
+
+  const validateField = useCallback((field: string, value: any): string | null => {
+    const rules = validationRules[field as keyof typeof validationRules]
+    if (!rules) return null
+
+    const fieldName = fieldNames[field] || field.charAt(0).toUpperCase() + field.slice(1)
+
+    if (rules.required && (value === undefined || value === null || (typeof value === 'string' && !value.trim()))) {
+      return `${fieldName} is required`
+    }
+
+    if (typeof value === 'string' && value.trim()) {
+      if ('minLength' in rules && value.length < rules.minLength) {
+        return `${fieldName} must be at least ${rules.minLength} characters`
+      }
+      if ('maxLength' in rules && value.length > rules.maxLength) {
+        return `${fieldName} cannot exceed ${rules.maxLength} characters`
+      }
+    }
+
+    if (field === 'basePriceCents' && typeof value === 'number') {
+      if ('min' in rules && value < rules.min) {
+        return `Price cannot be negative`
+      }
+      if ('max' in rules && value > rules.max) {
+        return `Price cannot exceed €${(rules.max / 100).toFixed(2)}`
+      }
+    }
+
+    if (field === 'jsonContent' && rules.required && !value) {
+      return 'Workflow JSON is required'
+    }
+
+    return null
+  }, [])
+
+  const validateForm = useCallback(() => {
+    const newErrors: Record<string, string> = {}
+
+    Object.keys(validationRules).forEach((field) => {
+      const value = formData[field as keyof WorkflowFormData]
+      const error = validateField(field, value)
+      if (error) {
+        newErrors[field] = error
+      }
+    })
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }, [formData, validateField])
+
+  const markFieldAsTouched = useCallback((field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }))
+  }, [])
+
+  const getFieldError = useCallback(
+    (field: string): string | null => {
+      if (!touched[field]) return null
+      return errors[field] || null
+    },
+    [errors, touched]
+  )
+
+  const isFormValid = useMemo(() => {
+    return validateForm()
+  }, [validateForm])
+
+  return {
+    errors,
+    touched,
+    validateField,
+    validateForm,
+    markFieldAsTouched,
+    getFieldError,
+    isFormValid,
+  }
+}
 
 interface Workflow {
   id: string
@@ -94,7 +218,7 @@ export default function SellerDashboard() {
     longDescMd: '',
     heroImageUrl: '',
     heroImageFile: undefined,
-    basePriceCents: 500, // €5.00 default
+    basePriceCents: 0, // €0.00 default (free)
     currency: 'EUR',
     status: 'draft',
     jsonContent: undefined,
@@ -106,6 +230,11 @@ export default function SellerDashboard() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
+  const [loadingWorkflowData, setLoadingWorkflowData] = useState(false)
+
+  // Initialize validation hook
+  const { errors, touched, validateField, validateForm, markFieldAsTouched, getFieldError, isFormValid } =
+    useFormValidation(formData)
 
   // Redirect if not a seller
   useEffect(() => {
@@ -245,6 +374,17 @@ export default function SellerDashboard() {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Mark all fields as touched and validate
+    Object.keys(validationRules).forEach((field) => {
+      markFieldAsTouched(field)
+    })
+
+    if (!isFormValid) {
+      setError('Please fix the validation errors before submitting')
+      return
+    }
+
     setIsSubmitting(true)
     setError(null)
 
@@ -322,7 +462,7 @@ export default function SellerDashboard() {
         longDescMd: '',
         heroImageUrl: '',
         heroImageFile: undefined,
-        basePriceCents: 500,
+        basePriceCents: 0,
         currency: 'EUR',
         status: 'draft',
         jsonContent: undefined,
@@ -334,6 +474,7 @@ export default function SellerDashboard() {
       })
       setShowCreateForm(false)
       setEditingWorkflow(null)
+      setLoadingWorkflowData(false)
       await fetchWorkflows()
     } catch (err: any) {
       setError(err.message || 'An error occurred while saving the workflow')
@@ -419,49 +560,57 @@ export default function SellerDashboard() {
   const handleEdit = async (workflow: Workflow) => {
     setEditingWorkflow(workflow)
     setShowCreateForm(true)
+    setLoadingWorkflowData(true)
 
-    // Fetch full details
-    const fullWorkflow = await fetchWorkflowDetails(workflow.id)
-    if (fullWorkflow) {
-      const latestVersion = fullWorkflow.versions?.[0]
+    try {
+      // Fetch full details
+      const fullWorkflow = await fetchWorkflowDetails(workflow.id)
+      if (fullWorkflow) {
+        const latestVersion = fullWorkflow.versions?.[0]
 
-      // Temporarily disable auto-cleanup during edit to avoid re-renders
-      let cleanImageUrl = fullWorkflow.heroImageUrl || ''
+        // Temporarily disable auto-cleanup during edit to avoid re-renders
+        let cleanImageUrl = fullWorkflow.heroImageUrl || ''
 
-      setFormData({
-        title: fullWorkflow.title,
-        shortDesc: fullWorkflow.shortDesc,
-        longDescMd: fullWorkflow.longDescMd || '',
-        heroImageUrl: cleanImageUrl,
-        heroImageFile: undefined,
-        basePriceCents: fullWorkflow.basePriceCents,
-        currency: fullWorkflow.currency,
-        status: fullWorkflow.status,
-        jsonContent: latestVersion?.jsonContent,
-        jsonFile: undefined,
-        n8nMinVersion: latestVersion?.n8nMinVersion || '',
-        n8nMaxVersion: latestVersion?.n8nMaxVersion || '',
-        categoryIds: fullWorkflow.categories?.map((cat: any) => cat.category.id.toString()) || [],
-        tagIds: fullWorkflow.tags?.map((tag: any) => tag.tag.id.toString()) || [],
-      })
-    } else {
-      // Fallback to basic data if fetch fails
-      setFormData({
-        title: workflow.title,
-        shortDesc: workflow.shortDesc,
-        longDescMd: '',
-        heroImageUrl: '',
-        heroImageFile: undefined,
-        basePriceCents: workflow.basePriceCents,
-        currency: workflow.currency,
-        status: workflow.status,
-        jsonContent: undefined,
-        jsonFile: undefined,
-        n8nMinVersion: '',
-        n8nMaxVersion: '',
-        categoryIds: [],
-        tagIds: [],
-      })
+        setFormData({
+          title: fullWorkflow.title,
+          shortDesc: fullWorkflow.shortDesc,
+          longDescMd: fullWorkflow.longDescMd || '',
+          heroImageUrl: cleanImageUrl,
+          heroImageFile: undefined,
+          basePriceCents: fullWorkflow.basePriceCents,
+          currency: fullWorkflow.currency,
+          status: fullWorkflow.status,
+          jsonContent: latestVersion?.jsonContent,
+          jsonFile: undefined,
+          n8nMinVersion: latestVersion?.n8nMinVersion || '',
+          n8nMaxVersion: latestVersion?.n8nMaxVersion || '',
+          categoryIds: fullWorkflow.categories?.map((cat: any) => cat.category.id.toString()) || [],
+          tagIds: fullWorkflow.tags?.map((tag: any) => tag.tag.id.toString()) || [],
+        })
+      } else {
+        // Fallback to basic data if fetch fails
+        setFormData({
+          title: workflow.title,
+          shortDesc: workflow.shortDesc,
+          longDescMd: '',
+          heroImageUrl: '',
+          heroImageFile: undefined,
+          basePriceCents: workflow.basePriceCents,
+          currency: workflow.currency,
+          status: workflow.status,
+          jsonContent: undefined,
+          jsonFile: undefined,
+          n8nMinVersion: '',
+          n8nMaxVersion: '',
+          categoryIds: [],
+          tagIds: [],
+        })
+      }
+    } catch (error) {
+      console.error('Error loading workflow data:', error)
+      setError('Failed to load workflow data')
+    } finally {
+      setLoadingWorkflowData(false)
     }
   }
 
@@ -745,32 +894,35 @@ export default function SellerDashboard() {
           <TabsContent value="workflows" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Your Workflows</h2>
-              <Button
-                onClick={async () => {
-                  setEditingWorkflow(null)
-                  setFormData({
-                    title: '',
-                    shortDesc: '',
-                    longDescMd: '',
-                    heroImageUrl: '',
-                    heroImageFile: undefined,
-                    basePriceCents: 500,
-                    currency: 'EUR',
-                    status: 'draft',
-                    jsonContent: undefined,
-                    jsonFile: undefined,
-                    n8nMinVersion: '',
-                    n8nMaxVersion: '',
-                    categoryIds: [],
-                    tagIds: [],
-                  })
-                  setShowCreateForm(true)
-                  // Refresh workflows when switching to create mode
-                  await fetchWorkflows()
-                }}
-              >
-                Add New Workflow
-              </Button>
+              {!showCreateForm && (
+                <Button
+                  onClick={async () => {
+                    setEditingWorkflow(null)
+                    setLoadingWorkflowData(false)
+                    setFormData({
+                      title: '',
+                      shortDesc: '',
+                      longDescMd: '',
+                      heroImageUrl: '',
+                      heroImageFile: undefined,
+                      basePriceCents: 0,
+                      currency: 'EUR',
+                      status: 'draft',
+                      jsonContent: undefined,
+                      jsonFile: undefined,
+                      n8nMinVersion: '',
+                      n8nMaxVersion: '',
+                      categoryIds: [],
+                      tagIds: [],
+                    })
+                    setShowCreateForm(true)
+                    // Refresh workflows when switching to create mode
+                    await fetchWorkflows()
+                  }}
+                >
+                  Add New Workflow
+                </Button>
+              )}
             </div>
 
             {showCreateForm && (
@@ -782,317 +934,445 @@ export default function SellerDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="title">Title *</Label>
-                        <Input
-                          id="title"
-                          name="title"
-                          value={formData.title}
-                          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                          placeholder="e.g., Advanced Email Automation"
-                          required
-                          maxLength={100}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="basePriceCents">Price (€) *</Label>
-                        <Input
-                          id="basePriceCents"
-                          name="basePriceCents"
-                          type="number"
-                          min="1"
-                          max="1000"
-                          step="0.01"
-                          value={formData.basePriceCents / 100}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              basePriceCents: Math.round(parseFloat(e.target.value || '0') * 100),
-                            })
-                          }
-                          placeholder="5.00"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="shortDesc">Short Description *</Label>
-                      <Input
-                        id="shortDesc"
-                        name="shortDesc"
-                        value={formData.shortDesc}
-                        onChange={(e) => setFormData({ ...formData, shortDesc: e.target.value })}
-                        placeholder="Brief description of your workflow..."
-                        required
-                        maxLength={200}
-                      />
-                      <p className="text-xs text-gray-500">{formData.shortDesc.length}/200 characters</p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="longDescMd">Detailed Description</Label>
-                      <textarea
-                        id="longDescMd"
-                        name="longDescMd"
-                        className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        value={formData.longDescMd}
-                        onChange={(e) => setFormData({ ...formData, longDescMd: e.target.value })}
-                        placeholder="Detailed description with features, requirements, etc..."
-                        maxLength={5000}
-                        rows={6}
-                      />
-                      <p className="text-xs text-gray-500">
-                        {formData.longDescMd.length}/5000 characters. Supports markdown.
-                      </p>
-                    </div>
-
-                    {/* JSON Workflow Input */}
-                    <JsonInput
-                      value={formData.jsonContent}
-                      onChange={(jsonContent, isValid) => {
-                        setFormData({ ...formData, jsonContent })
-                      }}
-                      onFileSelect={(file) => {
-                        setFormData({ ...formData, jsonFile: file })
-                      }}
-                      placeholder="Paste your n8n workflow JSON here..."
-                    />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="n8nMinVersion">Minimum n8n Version</Label>
-                        <Input
-                          id="n8nMinVersion"
-                          name="n8nMinVersion"
-                          value={formData.n8nMinVersion || ''}
-                          onChange={(e) => setFormData({ ...formData, n8nMinVersion: e.target.value })}
-                          placeholder="e.g., 1.0.0"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="n8nMaxVersion">Maximum n8n Version</Label>
-                        <Input
-                          id="n8nMaxVersion"
-                          name="n8nMaxVersion"
-                          value={formData.n8nMaxVersion || ''}
-                          onChange={(e) => setFormData({ ...formData, n8nMaxVersion: e.target.value })}
-                          placeholder="e.g., 1.99.99"
-                        />
-                      </div>
-                    </div>
-
+                  {loadingWorkflowData ? (
                     <div className="space-y-6">
-                      <div className="space-y-2">
-                        <Label>Thumbnail Image</Label>
-                        <div className="max-w-sm">
-                          <ImageUpload
-                            value={formData.heroImageUrl}
-                            onChange={handleHeroImageUpload}
-                            onRemove={handleHeroImageRemove}
-                            disabled={isSubmitting || uploadingThumbnail}
-                            maxSizeMB={2}
-                            aspectRatio="thumbnail"
-                            placeholder="Upload a thumbnail image (300x200px recommended)"
-                            className="w-full"
-                            key={`image-upload-${editingWorkflow?.id || 'new'}`}
-                          />
+                      {/* Title and Price skeleton */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-10 w-full" />
                         </div>
-                        {uploadingThumbnail && <p className="text-sm text-muted-foreground">Uploading thumbnail...</p>}
-                        <p className="text-xs text-muted-foreground">
-                          Recommended: 300x200px (3:2 ratio) • Max 2MB • JPG, PNG, WebP
-                          {formData.heroImageFile && formData.heroImageUrl.startsWith('blob:') && (
-                            <span className="block text-orange-600 mt-1">
-                              ⚠️ Image will be uploaded when you save the workflow
-                            </span>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      </div>
+
+                      {/* Short Description skeleton */}
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+
+                      {/* Long Description skeleton */}
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-36" />
+                        <Skeleton className="h-32 w-full" />
+                        <Skeleton className="h-3 w-48" />
+                      </div>
+
+                      {/* JSON Input skeleton */}
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-48 w-full" />
+                      </div>
+
+                      {/* n8n Versions skeleton */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      </div>
+
+                      {/* Image Upload skeleton */}
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-32 w-48" />
+                        <Skeleton className="h-3 w-64" />
+                      </div>
+
+                      {/* Status skeleton */}
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+
+                      {/* Categories & Tags skeleton */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-12" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      </div>
+
+                      {/* Buttons skeleton */}
+                      <div className="flex gap-4 pt-4">
+                        <Skeleton className="h-10 flex-1" />
+                        <Skeleton className="h-10 w-20" />
+                      </div>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="title">Title *</Label>
+                          <Input
+                            id="title"
+                            name="title"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            onBlur={() => markFieldAsTouched('title')}
+                            placeholder="e.g., Advanced Email Automation"
+                            required
+                            maxLength={100}
+                            className={getFieldError('title') ? 'border-red-500' : ''}
+                          />
+                          {getFieldError('title') && <p className="text-xs text-red-500">{getFieldError('title')}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="basePriceCents">Price (€) *</Label>
+                          <Input
+                            id="basePriceCents"
+                            name="basePriceCents"
+                            type="number"
+                            min="0"
+                            max="1000"
+                            step="0.01"
+                            value={formData.basePriceCents / 100}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                basePriceCents: Math.round(parseFloat(e.target.value || '0') * 100),
+                              })
+                            }
+                            onBlur={() => markFieldAsTouched('basePriceCents')}
+                            placeholder="5.00"
+                            required
+                            className={getFieldError('basePriceCents') ? 'border-red-500' : ''}
+                          />
+                          {getFieldError('basePriceCents') && (
+                            <p className="text-xs text-red-500">{getFieldError('basePriceCents')}</p>
                           )}
-                        </p>
+                        </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <select
-                          id="status"
-                          name="status"
-                          value={formData.status}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              status: e.target.value as any,
-                            })
-                          }
-                          className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <option value="draft">Draft</option>
-                          <option value="published">Published</option>
-                          <option value="unlisted">Unlisted</option>
-                          <option value="disabled">Disabled</option>
-                        </select>
+                        <Label htmlFor="shortDesc">Short Description *</Label>
+                        <Input
+                          id="shortDesc"
+                          name="shortDesc"
+                          value={formData.shortDesc}
+                          onChange={(e) => setFormData({ ...formData, shortDesc: e.target.value })}
+                          onBlur={() => markFieldAsTouched('shortDesc')}
+                          placeholder="Brief description of your workflow..."
+                          required
+                          maxLength={200}
+                          className={getFieldError('shortDesc') ? 'border-red-500' : ''}
+                        />
+                        <p className="text-xs text-gray-500">{formData.shortDesc.length}/200 characters</p>
+                        {getFieldError('shortDesc') && (
+                          <p className="text-xs text-red-500">{getFieldError('shortDesc')}</p>
+                        )}
                       </div>
-                    </div>
 
-                    {/* Categories & Tags Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <MultiSelect
-                        label="Categories"
-                        options={categories}
-                        selected={formData.categoryIds || []}
-                        onChange={(selected) => setFormData({ ...formData, categoryIds: selected })}
-                        placeholder="Select categories..."
-                        disabled={categoriesLoading}
-                        className="w-full"
-                      />
+                      <div className="space-y-2">
+                        <Label htmlFor="longDescMd">Detailed Description</Label>
+                        <textarea
+                          id="longDescMd"
+                          name="longDescMd"
+                          className={`flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                            getFieldError('longDescMd') ? 'border-red-500' : ''
+                          }`}
+                          value={formData.longDescMd}
+                          onChange={(e) => setFormData({ ...formData, longDescMd: e.target.value })}
+                          onBlur={() => markFieldAsTouched('longDescMd')}
+                          placeholder="Detailed description with features, requirements, etc..."
+                          maxLength={5000}
+                          rows={6}
+                        />
+                        <p className="text-xs text-gray-500">
+                          {formData.longDescMd.length}/5000 characters. Supports markdown.
+                        </p>
+                        {getFieldError('longDescMd') && (
+                          <p className="text-xs text-red-500">{getFieldError('longDescMd')}</p>
+                        )}
+                      </div>
 
-                      <MultiSelect
-                        label="Tags"
-                        options={tags}
-                        selected={formData.tagIds || []}
-                        onChange={(selected) => setFormData({ ...formData, tagIds: selected })}
-                        placeholder="Select tags..."
-                        disabled={tagsLoading}
-                        className="w-full"
-                      />
-                    </div>
+                      {/* JSON Workflow Input */}
+                      <div className="space-y-2">
+                        <Label>Workflow JSON *</Label>
+                        <JsonInput
+                          value={formData.jsonContent}
+                          onChange={(jsonContent, isValid) => {
+                            setFormData({ ...formData, jsonContent })
+                            // Mark as touched when JSON is changed
+                            if (!touched.jsonContent) {
+                              markFieldAsTouched('jsonContent')
+                            }
+                          }}
+                          onFileSelect={(file) => {
+                            setFormData({ ...formData, jsonFile: file })
+                          }}
+                          placeholder="Paste your n8n workflow JSON here..."
+                          error={getFieldError('jsonContent') || undefined}
+                        />
+                        {getFieldError('jsonContent') && (
+                          <p className="text-xs text-red-500">{getFieldError('jsonContent')}</p>
+                        )}
+                      </div>
 
-                    <div className="flex gap-4 pt-4">
-                      <Button type="submit" disabled={isSubmitting} className="flex-1">
-                        {isSubmitting ? 'Saving...' : editingWorkflow ? 'Update Workflow' : 'Create Workflow'}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={async () => {
-                          setShowCreateForm(false)
-                          setEditingWorkflow(null)
-                          // Refresh workflows to show any changes made
-                          await fetchWorkflows()
-                        }}
-                        disabled={isSubmitting}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="n8nMinVersion">Minimum n8n Version</Label>
+                          <Input
+                            id="n8nMinVersion"
+                            name="n8nMinVersion"
+                            value={formData.n8nMinVersion || ''}
+                            onChange={(e) => setFormData({ ...formData, n8nMinVersion: e.target.value })}
+                            onBlur={() => markFieldAsTouched('n8nMinVersion')}
+                            placeholder="e.g., 1.0.0"
+                            className={getFieldError('n8nMinVersion') ? 'border-red-500' : ''}
+                          />
+                          {getFieldError('n8nMinVersion') && (
+                            <p className="text-xs text-red-500">{getFieldError('n8nMinVersion')}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="n8nMaxVersion">Maximum n8n Version</Label>
+                          <Input
+                            id="n8nMaxVersion"
+                            name="n8nMaxVersion"
+                            value={formData.n8nMaxVersion || ''}
+                            onChange={(e) => setFormData({ ...formData, n8nMaxVersion: e.target.value })}
+                            onBlur={() => markFieldAsTouched('n8nMaxVersion')}
+                            placeholder="e.g., 1.99.99"
+                            className={getFieldError('n8nMaxVersion') ? 'border-red-500' : ''}
+                          />
+                          {getFieldError('n8nMaxVersion') && (
+                            <p className="text-xs text-red-500">{getFieldError('n8nMaxVersion')}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <Label>Thumbnail Image</Label>
+                          <div className="max-w-sm">
+                            <ImageUpload
+                              value={formData.heroImageUrl}
+                              onChange={handleHeroImageUpload}
+                              onRemove={handleHeroImageRemove}
+                              disabled={isSubmitting || uploadingThumbnail}
+                              maxSizeMB={2}
+                              aspectRatio="thumbnail"
+                              placeholder="Upload a thumbnail image (300x200px recommended)"
+                              className="w-full"
+                              key={`image-upload-${editingWorkflow?.id || 'new'}`}
+                            />
+                          </div>
+                          {uploadingThumbnail && (
+                            <p className="text-sm text-muted-foreground">Uploading thumbnail...</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Recommended: 300x200px (3:2 ratio) • Max 2MB • JPG, PNG, WebP
+                            {formData.heroImageFile && formData.heroImageUrl.startsWith('blob:') && (
+                              <span className="block text-orange-600 mt-1">
+                                ⚠️ Image will be uploaded when you save the workflow
+                              </span>
+                            )}
+                          </p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="status">Status</Label>
+                          <select
+                            id="status"
+                            name="status"
+                            value={formData.status}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                status: e.target.value as any,
+                              })
+                            }
+                            onBlur={() => markFieldAsTouched('status')}
+                            className={`flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                              getFieldError('status') ? 'border-red-500' : ''
+                            }`}
+                          >
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                            <option value="unlisted">Unlisted</option>
+                            <option value="disabled">Disabled</option>
+                          </select>
+                          {getFieldError('status') && <p className="text-xs text-red-500">{getFieldError('status')}</p>}
+                        </div>
+                      </div>
+
+                      {/* Categories & Tags Section */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <MultiSelect
+                          label="Categories"
+                          options={categories}
+                          selected={formData.categoryIds || []}
+                          onChange={(selected) => setFormData({ ...formData, categoryIds: selected })}
+                          placeholder="Select categories..."
+                          disabled={categoriesLoading}
+                          className="w-full"
+                        />
+
+                        <MultiSelect
+                          label="Tags"
+                          options={tags}
+                          selected={formData.tagIds || []}
+                          onChange={(selected) => setFormData({ ...formData, tagIds: selected })}
+                          placeholder="Select tags..."
+                          disabled={tagsLoading}
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div className="flex gap-4 pt-4">
+                        <Button type="submit" disabled={isSubmitting || !isFormValid} className="flex-1">
+                          {isSubmitting ? 'Saving...' : editingWorkflow ? 'Update Workflow' : 'Create Workflow'}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={async () => {
+                            setShowCreateForm(false)
+                            setEditingWorkflow(null)
+                            setLoadingWorkflowData(false)
+                            // Refresh workflows to show any changes made
+                            await fetchWorkflows()
+                          }}
+                          disabled={isSubmitting}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  )}
                 </CardContent>
               </Card>
             )}
 
             <div className="grid grid-cols-1 gap-6">
-              {workflows.map((workflow) => (
-                <Card key={workflow.id}>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-start space-x-4 flex-1">
-                        {/* Thumbnail Preview */}
-                        <div className="flex-shrink-0">
-                          {workflow.heroImageUrl ? (
-                            <div className="w-40 h-32 rounded-lg overflow-hidden bg-gray-100 border">
-                              <img
-                                src={workflow.heroImageUrl}
-                                alt={workflow.title}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  // Fallback to placeholder if image fails to load
-                                  const target = e.target as HTMLImageElement
-                                  target.style.display = 'none'
-                                  target.parentElement!.innerHTML = `
-                                    <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+              {workflows
+                .filter((workflow) => !editingWorkflow || workflow.id !== editingWorkflow.id)
+                .map((workflow) => (
+                  <Card key={workflow.id}>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-start space-x-4 flex-1">
+                          {/* Thumbnail Preview */}
+                          <div className="flex-shrink-0">
+                            {workflow.heroImageUrl ? (
+                              <div className="w-40 h-32 rounded-lg overflow-hidden bg-gray-100 border">
+                                <img
+                                  src={workflow.heroImageUrl}
+                                  alt={workflow.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Fallback to placeholder if image fails to load
+                                    const target = e.target as HTMLImageElement
+                                    target.style.display = 'none'
+                                    target.parentElement!.innerHTML = `
+                                      <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
                                                                               <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                       </svg>
                                     </div>
                                   `
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-40 h-32 rounded-lg bg-gray-100 border flex items-center justify-center">
-                              <svg
-                                className="w-10 h-10 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                ></path>
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-lg font-semibold">{workflow.title}</h3>
-                            <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
-                          </div>
-                          <p className="text-gray-600 mb-4">{workflow.shortDesc}</p>
-
-                          {/* Categories and Tags */}
-                          <div className="space-y-2 mb-4">
-                            {workflow.categories && workflow.categories.length > 0 && (
-                              <div className="flex flex-wrap gap-1">
-                                {workflow.categories.map((cat: any) => (
-                                  <Badge key={cat.category.id} variant="secondary" className="text-xs">
-                                    {cat.category.name}
-                                  </Badge>
-                                ))}
+                                  }}
+                                />
                               </div>
-                            )}
-                            {workflow.tags && workflow.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1">
-                                {workflow.tags.map((tag: any) => (
-                                  <Badge key={tag.tag.id} variant="outline" className="text-xs text-gray-500">
-                                    #{tag.tag.name}
-                                  </Badge>
-                                ))}
+                            ) : (
+                              <div className="w-40 h-32 rounded-lg bg-gray-100 border flex items-center justify-center">
+                                <svg
+                                  className="w-10 h-10 text-gray-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                  ></path>
+                                </svg>
                               </div>
                             )}
                           </div>
 
-                          <div className="flex items-center space-x-6 text-sm text-gray-500">
-                            <span>Price: {formatPrice(workflow.basePriceCents, workflow.currency)}</span>
-                            <span>Sales: {workflow._count.orderItems}</span>
-                            <span>Favorites: {workflow._count.favorites}</span>
-                            <span>Reviews: {workflow._count.reviews}</span>
-                            {workflow.versions && workflow.versions.length > 0 && workflow.versions[0] && (
-                              <>
-                                {workflow.versions[0].n8nMinVersion && (
-                                  <span>Min n8n: {workflow.versions[0].n8nMinVersion}</span>
-                                )}
-                                {workflow.versions[0].n8nMaxVersion && (
-                                  <span>Max n8n: {workflow.versions[0].n8nMaxVersion}</span>
-                                )}
-                              </>
-                            )}
+                          {/* Content */}
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-2">
+                              <h3 className="text-lg font-semibold">{workflow.title}</h3>
+                              <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
+                            </div>
+                            <p className="text-gray-600 mb-4">{workflow.shortDesc}</p>
+
+                            {/* Categories and Tags */}
+                            <div className="space-y-2 mb-4">
+                              {workflow.categories && workflow.categories.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {workflow.categories.map((cat: any) => (
+                                    <Badge key={cat.category.id} variant="secondary" className="text-xs">
+                                      {cat.category.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                              {workflow.tags && workflow.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {workflow.tags.map((tag: any) => (
+                                    <Badge key={tag.tag.id} variant="outline" className="text-xs text-gray-500">
+                                      #{tag.tag.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center space-x-6 text-sm text-gray-500">
+                              <span>Price: {formatPrice(workflow.basePriceCents, workflow.currency)}</span>
+                              <span>Sales: {workflow._count.orderItems}</span>
+                              <span>Favorites: {workflow._count.favorites}</span>
+                              <span>Reviews: {workflow._count.reviews}</span>
+                              {workflow.versions && workflow.versions.length > 0 && workflow.versions[0] && (
+                                <>
+                                  {workflow.versions[0].n8nMinVersion && (
+                                    <span>Min n8n: {workflow.versions[0].n8nMinVersion}</span>
+                                  )}
+                                  {workflow.versions[0].n8nMaxVersion && (
+                                    <span>Max n8n: {workflow.versions[0].n8nMaxVersion}</span>
+                                  )}
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
+                        <div className="flex space-x-2 ml-4">
+                          <Button size="sm" variant="outline" onClick={() => handleEdit(workflow)}>
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDelete(workflow.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex space-x-2 ml-4">
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(workflow)}>
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(workflow.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
 
               {workflows.length === 0 && !showCreateForm && (
                 <Card>
