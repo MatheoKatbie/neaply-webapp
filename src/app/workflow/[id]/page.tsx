@@ -435,6 +435,65 @@ export default function WorkflowDetailPage() {
                   </div>
                 </div>
               </Card>
+
+              {/* Similar Workflows - Horizontal Slider */}
+              {recommendations && recommendations.similarWorkflows.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Similar Workflows</CardTitle>
+                    <p className="text-sm text-gray-600">Based on categories and tags</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <div className="flex gap-4 pb-4" style={{ width: `${recommendations.similarWorkflows.length * 300}px`, minWidth: '100%' }}>
+                        {recommendations.similarWorkflows.map((similarWorkflow) => (
+                          <div key={similarWorkflow.id} className="flex-shrink-0" style={{ width: '280px' }}>
+                            <WorkflowCardMini
+                              {...similarWorkflow}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* More from this Store - Horizontal Slider */}
+              {recommendations && recommendations.storeWorkflows.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg">More from {recommendations.storeName}</CardTitle>
+                        <p className="text-sm text-gray-600">Other workflows by this seller</p>
+                      </div>
+                      {recommendations.storeWorkflows.length > 4 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)}
+                        >
+                          View All ({recommendations.storeWorkflows.length})
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <div className="flex gap-4 pb-4" style={{ width: `${recommendations.storeWorkflows.length * 300}px`, minWidth: '100%' }}>
+                        {recommendations.storeWorkflows.map((storeWorkflow) => (
+                          <div key={storeWorkflow.id} className="flex-shrink-0" style={{ width: '280px' }}>
+                            <WorkflowCardMini
+                              {...storeWorkflow}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -537,57 +596,6 @@ export default function WorkflowDetailPage() {
                 </CardContent>
               </Card>
 
-              {/* Similar Workflows */}
-              {recommendations && recommendations.similarWorkflows.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Similar Workflows</CardTitle>
-                    <p className="text-sm text-gray-600">Based on categories and tags</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {recommendations.similarWorkflows.slice(0, 3).map((similarWorkflow) => (
-                        <WorkflowCardMini
-                          key={similarWorkflow.id}
-                          {...similarWorkflow}
-                        />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* More from this Store */}
-              {recommendations && recommendations.storeWorkflows.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">More from {recommendations.storeName}</CardTitle>
-                    <p className="text-sm text-gray-600">Other workflows by this seller</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {recommendations.storeWorkflows.slice(0, 3).map((storeWorkflow) => (
-                        <WorkflowCardMini
-                          key={storeWorkflow.id}
-                          {...storeWorkflow}
-                        />
-                      ))}
-                      {recommendations.storeWorkflows.length > 3 && (
-                        <div className="pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                            onClick={() => recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)}
-                          >
-                            View All ({recommendations.storeWorkflows.length} workflows)
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </div>
 
