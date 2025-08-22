@@ -16,6 +16,7 @@ import { JsonInput } from '@/components/ui/json-input'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { FileUpload } from '@/components/ui/file-upload'
 import { MultiSelect } from '@/components/ui/multi-select'
+import { PlatformSelect } from '@/components/ui/platform-select'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Category, Tag } from '@/types/workflow'
 
@@ -47,6 +48,9 @@ const validationRules: Record<string, ValidationRule> = {
     max: 100000, // €1000.00
     required: true,
   },
+  platform: {
+    required: true,
+  },
   jsonContent: {
     required: true,
   },
@@ -75,6 +79,7 @@ const fieldNames: Record<string, string> = {
   shortDesc: 'Short description',
   longDescMd: 'Detailed description',
   basePriceCents: 'Price',
+  platform: 'Platform',
   jsonContent: 'Workflow JSON',
   documentationUrl: 'Documentation',
   n8nMinVersion: 'Minimum n8n version',
@@ -293,6 +298,7 @@ interface WorkflowFormData {
   basePriceCents: number
   currency: string
   status: 'draft' | 'published' | 'unlisted' | 'disabled'
+  platform?: string
   jsonContent?: any
   jsonFile?: File
   n8nMinVersion?: string
@@ -325,6 +331,7 @@ export default function SellerDashboard() {
     basePriceCents: 0, // €0.00 default (free)
     currency: 'EUR',
     status: 'draft',
+    platform: '',
     jsonContent: undefined,
     jsonFile: undefined,
     n8nMinVersion: '',
@@ -1372,6 +1379,22 @@ export default function SellerDashboard() {
                             {formData.longDescMd.length}/5000 characters (min. 50). Supports markdown.
                           </p>
                         )}
+                      </div>
+
+                      {/* Platform Selection */}
+                      <div className="space-y-2 cursor-pointer">
+                        <PlatformSelect
+                          value={formData.platform}
+                          onValueChange={(platform) => {
+                            setFormData({ ...formData, platform })
+                            if (!touched.platform) {
+                              markFieldAsTouched('platform')
+                            }
+                          }}
+                          placeholder="Select the platform for your workflow..."
+                          error={getFieldError('platform') || undefined}
+                          required={true}
+                        />
                       </div>
 
                       {/* JSON Workflow Input */}
