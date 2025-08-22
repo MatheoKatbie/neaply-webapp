@@ -61,12 +61,20 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getSession()
 
   // Routes publiques qui ne nécessitent pas d'authentification
-  const publicRoutes = ['/auth/login', '/auth/register', '/auth/callback', '/auth/reset-password', '/']
+  const publicRoutes = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/callback',
+    '/auth/reset-password',
+    '/',
+    '/checkout/success', // Allow checkout success page without auth
+    '/checkout/cancelled', // Allow checkout cancelled page without auth
+  ]
 
   const { pathname } = req.nextUrl
 
   // Permettre l'accès aux routes publiques
-  if (publicRoutes.includes(pathname)) {
+  if (publicRoutes.includes(pathname) || pathname.startsWith('/checkout/')) {
     // Si l'utilisateur est connecté et essaie d'accéder aux pages auth, rediriger vers la page d'accueil
     if (session && (pathname.startsWith('/auth/login') || pathname.startsWith('/auth/register'))) {
       return NextResponse.redirect(new URL('/', req.url))
@@ -76,6 +84,11 @@ export async function middleware(req: NextRequest) {
 
   // Webhook routes should never require authentication
   if (pathname.startsWith('/api/webhooks/')) {
+    return response
+  }
+
+  // Public API routes for order access
+  if (pathname.startsWith('/api/orders/public/')) {
     return response
   }
 

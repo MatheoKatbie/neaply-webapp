@@ -72,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important: inclure les cookies
       })
 
       if (response.ok) {
@@ -93,6 +94,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         console.log('Failed to fetch user data from API, status:', response.status)
+        // Si on a une erreur 401, essayer de rafraîchir la session
+        if (response.status === 401) {
+          console.log('Session expired, attempting to refresh...')
+          const {
+            data: { session },
+            error,
+          } = await supabase.auth.refreshSession()
+          if (session && !error) {
+            console.log('Session refreshed successfully')
+            // Retenter la requête après rafraîchissement
+            const retryResponse = await fetch('/api/user', {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+            })
+            if (retryResponse.ok) {
+              const userData = await retryResponse.json()
+              return {
+                id: user.id,
+                email: user.email!,
+                name: user.user_metadata?.full_name || user.user_metadata?.name,
+                avatar_url: userData.avatarUrl || user.user_metadata?.avatar_url,
+                isSeller: userData.isSeller || false,
+                isAdmin: userData.isAdmin || false,
+                displayName:
+                  userData.displayName ||
+                  user.user_metadata?.full_name ||
+                  user.user_metadata?.name ||
+                  user.email!.split('@')[0],
+                createdAt: user.created_at ? new Date(user.created_at) : undefined,
+                updatedAt: user.updated_at ? new Date(user.updated_at) : undefined,
+              }
+            }
+          }
+        }
       }
     } catch (error) {
       console.log('Network error when fetching user data from API:', error)
