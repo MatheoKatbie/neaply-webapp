@@ -90,6 +90,7 @@ model User {
   payouts       Payout[]
   auditLogs     AuditLog[]
   reports       Report[]       @relation("UserReports")
+  reviewHelpfulVotes ReviewHelpfulVote[]
 
   @@index([email])
 }
@@ -290,24 +291,51 @@ model Payment {
 
 /**
  * ============================
- * Reviews (1 par acheteur)
+ * Reviews (1 par acheteur - ownership required)
  * ============================
  */
 model Review {
   id         String       @id @default(uuid()) @db.Uuid
   workflowId String       @db.Uuid
   userId     String       @db.Uuid
-  rating     Int
-  title      String?
-  bodyMd     String?
+  rating     Int          @db.SmallInt // 1-5 stars
+  title      String?      @db.VarChar(200)
+  bodyMd     String?      @db.Text
   status     ReviewStatus @default(published)
   createdAt  DateTime     @default(now())
-
+  updatedAt  DateTime     @updatedAt
+  
+  // Helpful votes from other users
+  helpfulCount Int @default(0)
+  
   workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Track helpful votes
+  helpfulVotes ReviewHelpfulVote[]
 
-  @@unique([workflowId, userId]) // un avis par utilisateur
+  @@unique([workflowId, userId]) // one review per user per workflow
   @@index([workflowId, status, createdAt])
+  @@index([rating, createdAt])
+}
+
+/**
+ * ============================
+ * Review Helpful Votes
+ * ============================
+ */
+model ReviewHelpfulVote {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @db.Uuid
+  userId   String @db.Uuid
+  
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([reviewId, userId]) // one vote per user per review
+  @@index([reviewId])
 }
 
 /**

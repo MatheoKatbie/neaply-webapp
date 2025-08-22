@@ -19,8 +19,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Invalid workflow ID format' }, { status: 400 })
     }
 
-    // Check if user already owns this workflow (if logged in)
+    // Check if user already owns this workflow and can review (if logged in)
     let userOwnsWorkflow = false
+    let userCanReview = false
+    let userHasReviewed = false
     if (user) {
       const existingOrder = await prisma.order.findFirst({
         where: {
@@ -36,6 +38,20 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         },
       })
       userOwnsWorkflow = !!existingOrder
+
+      // Check if user can leave a review (owns workflow and hasn't reviewed yet)
+      if (userOwnsWorkflow) {
+        const existingReview = await prisma.review.findUnique({
+          where: {
+            workflowId_userId: {
+              workflowId: workflowId,
+              userId: user.id,
+            },
+          },
+        })
+        userHasReviewed = !!existingReview
+        userCanReview = !userHasReviewed
+      }
     }
 
     // Fetch published workflow by ID (public access)
@@ -148,6 +164,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       createdAt: workflow.createdAt,
       updatedAt: workflow.updatedAt,
       userOwnsWorkflow, // Add ownership status
+      userCanReview, // Add review eligibility
+      userHasReviewed, // Add review status
       version: latestVersion
         ? {
             semver: latestVersion.semver,

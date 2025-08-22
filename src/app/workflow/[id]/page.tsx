@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { PurchaseButton } from '@/components/ui/purchase-button'
+import { ReviewSystem } from '@/components/ui/review-system'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -59,6 +60,8 @@ interface WorkflowDetail {
   createdAt: string
   updatedAt: string
   userOwnsWorkflow?: boolean
+  userCanReview?: boolean
+  userHasReviewed?: boolean
   version: {
     semver: string
     changelog?: string
@@ -487,10 +490,7 @@ export default function WorkflowDetailPage() {
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span>Free updates</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-green-500" />
-                      <span>30-day money-back guarantee</span>
-                    </div>
+
                   </div>
                 </CardContent>
               </Card>
@@ -554,6 +554,15 @@ export default function WorkflowDetailPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-12">
+            <ReviewSystem
+              workflowId={workflowId}
+              userCanReview={workflow.userCanReview}
+              userHasReviewed={workflow.userHasReviewed}
+            />
           </div>
         </div>
       </div>
