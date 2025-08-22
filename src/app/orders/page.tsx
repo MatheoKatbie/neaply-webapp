@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Package, Download, Calendar, CreditCard, FileText, ChevronRight, ShoppingBag, AlertCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Order } from '@/types/payment'
+import { AlertCircle, Calendar, ChevronRight, CreditCard, Download, FileText, Package, ShoppingBag } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function OrdersHistoryPage() {
   const router = useRouter()
@@ -86,9 +87,35 @@ export default function OrdersHistoryPage() {
     }
   }
 
-  const handleDownloadWorkflow = (workflowId: string) => {
-    // TODO: Implement download logic
-    console.log('Download workflow:', workflowId)
+  const handleDownloadWorkflow = async (workflowId: string, workflowTitle: string) => {
+    try {
+      const response = await fetch(`/api/workflows/${workflowId}/download`, {
+        credentials: 'include',
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to download workflow')
+      }
+      
+      const data = await response.json()
+      
+      // Create and download the JSON file
+      const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
+        type: 'application/json',
+      })
+      
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error downloading workflow:', error)
+      alert('Failed to download workflow. Please try again.')
+    }
   }
 
   if (loading) {
@@ -187,7 +214,7 @@ export default function OrdersHistoryPage() {
                       <h4 className="font-medium text-gray-900">Items Purchased:</h4>
                       {order.items.map((item) => (
                         <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-4">
+                          <Link href={`workflow/${item.workflowId}`} className="flex items-center space-x-4">
                             {item.workflow.heroImageUrl ? (
                               <img
                                 src={item.workflow.heroImageUrl}
@@ -208,11 +235,11 @@ export default function OrdersHistoryPage() {
                                 {formatPrice(item.unitPriceCents, order.currency)}
                               </p>
                             </div>
-                          </div>
+                          </Link>
 
                           <div className="flex items-center space-x-2">
                             {order.status === 'paid' && (
-                              <Button size="sm" onClick={() => handleDownloadWorkflow(item.workflowId)}>
+                              <Button size="sm" onClick={() => handleDownloadWorkflow(item.workflowId, item.workflow.title)}>
                                 <Download className="w-4 h-4 mr-2" />
                                 Download
                               </Button>

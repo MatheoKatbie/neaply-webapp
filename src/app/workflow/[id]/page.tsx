@@ -199,6 +199,37 @@ export default function WorkflowDetailPage() {
     console.log('Purchase workflow:', workflowId)
   }
 
+  const handleDownload = async (workflowId: string, workflowTitle: string) => {
+    try {
+      const response = await fetch(`/api/workflows/${workflowId}/download`, {
+        credentials: 'include',
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to download workflow')
+      }
+      
+      const data = await response.json()
+      
+      // Create and download the JSON file
+      const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
+        type: 'application/json',
+      })
+      
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error downloading workflow:', error)
+      alert('Failed to download workflow. Please try again.')
+    }
+  }
+
   if (loading) {
     return (
       <>
@@ -510,12 +541,19 @@ export default function WorkflowDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {workflow.userOwnsWorkflow ? (
-                    <div className="w-full">
+                    <div className="w-full space-y-3">
                       <Button disabled className="w-full bg-green-600 text-white cursor-not-allowed opacity-75">
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
-                      <p className="text-sm text-gray-600 text-center mt-2">You already own this workflow</p>
+                      <Button 
+                        onClick={() => handleDownload(workflowId, workflow.title)}
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Download className="w-5 h-5 mr-2" />
+                        Download Workflow
+                      </Button>
+                      <p className="text-sm text-gray-600 text-center">You already own this workflow</p>
                     </div>
                   ) : (
                     <PurchaseButton
