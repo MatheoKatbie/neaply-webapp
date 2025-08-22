@@ -68,7 +68,9 @@ export function FileUpload({
         return
       }
 
-      onChange(file)
+      // Create a blob URL for preview
+      const previewUrl = URL.createObjectURL(file)
+      onChange(file, previewUrl)
     },
     [onChange, validateFile]
   )
@@ -134,7 +136,7 @@ export function FileUpload({
   }, [onBlur])
 
   const handleRemove = useCallback(() => {
-    onChange(null)
+    onChange(null, '')
     if (onRemove) {
       onRemove()
     }
@@ -144,10 +146,10 @@ export function FileUpload({
     const extension = fileName.split('.').pop()?.toLowerCase()
     switch (extension) {
       case 'pdf':
-        return <FileText className="h-8 w-8 text-red-500" />
+        return <FileText className="h-8 w-8 text-gray-500" />
       case 'docx':
       case 'doc':
-        return <FileText className="h-8 w-8 text-blue-500" />
+        return <FileText className="h-8 w-8 text-gray-500" />
       case 'txt':
       case 'md':
         return <FileText className="h-8 w-8 text-gray-500" />
@@ -174,6 +176,17 @@ export function FileUpload({
       return getFileName(value)
     }
     return null
+  }
+
+  // Get the display text for the file status
+  const getFileStatusText = () => {
+    if (selectedFile) {
+      return 'Document selected'
+    }
+    if (value && !value.startsWith('blob:')) {
+      return 'Document uploaded'
+    }
+    return 'Document selected'
   }
 
   // Check if we have a file to display
@@ -208,7 +221,7 @@ export function FileUpload({
               <div className="text-gray-600">{getFileIcon(getDisplayFileName() || 'document')}</div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{getDisplayFileName()}</p>
-                <p className="text-xs text-gray-500">{selectedFile ? 'Document selected' : 'Document uploaded'}</p>
+                <p className="text-xs text-gray-500">{getFileStatusText()}</p>
               </div>
             </div>
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
@@ -260,7 +273,7 @@ export function FileUpload({
           className="hidden"
           onChange={handleFileInputChange}
           disabled={disabled}
-          required={required}
+          required={false}
         />
       </div>
 

@@ -9,7 +9,8 @@
     "postinstall": "npx prisma generate",
     "lint": "eslint",
     "db:deploy": "prisma migrate deploy",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:clear": "node scripts/clear-database.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
