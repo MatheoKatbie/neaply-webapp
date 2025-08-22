@@ -27,12 +27,22 @@ function CheckoutSuccessContent() {
 
     const fetchOrder = async () => {
       try {
-        const response = await fetch(`/api/orders/${orderId}`)
+        // Try the public API first (no authentication required)
+        const response = await fetch(`/api/orders/public/${orderId}`)
         if (!response.ok) {
-          throw new Error('Failed to fetch order details')
+          // If public API fails, try the authenticated API
+          const authResponse = await fetch(`/api/orders/${orderId}`, {
+            credentials: 'include',
+          })
+          if (!authResponse.ok) {
+            throw new Error('Failed to fetch order details')
+          }
+          const authData = await authResponse.json()
+          setOrder(authData.order)
+        } else {
+          const data = await response.json()
+          setOrder(data.order)
         }
-        const data = await response.json()
-        setOrder(data.order)
       } catch (err) {
         console.error('Error fetching order:', err)
         setError('Failed to load order details')
