@@ -570,7 +570,7 @@ export default function BecomeSellerPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="space-y-2 col-span-1">
                       <Label htmlFor="phoneNumber">Phone Number (optional)</Label>
                       <PhoneInputComponent
                         value={formData.phoneNumber}
@@ -585,7 +585,7 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-gray-500">Phone for business communication</p>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 col-span-1">
                       <Label htmlFor="countryCode">Country *</Label>
                       <CountrySelect
                         id="countryCode"
