@@ -6,9 +6,14 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔔 Webhook received')
+
     const body = await request.text()
+    console.log('📝 Request body length:', body.length)
+
     const headersList = await headers()
     const signature = headersList.get('stripe-signature')
+    console.log('🔐 Stripe signature present:', !!signature)
 
     if (!signature) {
       console.error('Missing Stripe signature')
@@ -18,13 +23,15 @@ export async function POST(request: NextRequest) {
     let event: Stripe.Event
 
     try {
+      console.log('🔍 Verifying webhook signature...')
       event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
+      console.log('✅ Webhook signature verified successfully')
     } catch (err) {
-      console.error('Webhook signature verification failed:', err)
+      console.error('❌ Webhook signature verification failed:', err)
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
 
-    console.log('Processing Stripe webhook event:', event.type, 'ID:', event.id)
+    console.log('📋 Processing Stripe webhook event:', event.type, 'ID:', event.id)
 
     try {
       switch (event.type) {
@@ -45,12 +52,31 @@ export async function POST(request: NextRequest) {
       }
     } catch (handlerError) {
       console.error(`Error handling ${event.type} event:`, handlerError)
+
+      // Log detailed error information
+      if (handlerError instanceof Error) {
+        console.error('Error message:', handlerError.message)
+        console.error('Error stack:', handlerError.stack)
+      }
+
       // Return 500 to trigger retry for critical events
       if (event.type === 'checkout.session.completed') {
-        return NextResponse.json({ error: 'Event processing failed' }, { status: 500 })
+        return NextResponse.json(
+          {
+            error: 'Event processing failed',
+            details: handlerError instanceof Error ? handlerError.message : 'Unknown error',
+          },
+          { status: 500 }
+        )
       }
       // For non-critical events, return 200 to avoid retries
-      return NextResponse.json({ error: 'Event processing failed' }, { status: 200 })
+      return NextResponse.json(
+        {
+          error: 'Event processing failed',
+          details: handlerError instanceof Error ? handlerError.message : 'Unknown error',
+        },
+        { status: 200 }
+      )
     }
 
     return NextResponse.json({ received: true })
@@ -63,15 +89,19 @@ export async function POST(request: NextRequest) {
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   try {
     console.log('Processing checkout session completed:', session.id)
+    console.log('Session metadata:', session.metadata)
 
-    const { orderId, userId, workflowId } = session.metadata || {}
+    const { orderId, userId, workflowId, pricingPlanId } = session.metadata || {}
+
+    console.log('Extracted metadata:', { orderId, userId, workflowId, pricingPlanId })
 
     if (!orderId || !userId || !workflowId) {
-      console.error('Missing metadata in checkout session:', session.metadata)
+      console.error('Missing required metadata in checkout session:', session.metadata)
       return
     }
 
     // Get the payment intent to access charge information
+    console.log('Retrieving payment intent:', session.payment_intent)
     const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string)
     const charge = paymentIntent.latest_charge as Stripe.Charge
 
@@ -80,8 +110,12 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       return
     }
 
+    console.log('Found charge:', charge.id)
+
     // Update order status and create payment record
     await prisma.$transaction(async (tx) => {
+      console.log('Starting database transaction for order:', orderId)
+
       // First, check if order exists and get current status
       const existingOrder = await tx.order.findUnique({
         where: { id: orderId },
@@ -99,8 +133,16 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         throw new Error(`Order not found: ${orderId}`)
       }
 
+      console.log('Found existing order:', {
+        id: existingOrder.id,
+        status: existingOrder.status,
+        itemsCount: existingOrder.items.length,
+      })
+
       // Only update if order is not already paid
       if (existingOrder.status !== 'paid') {
+        console.log('Updating order status to paid')
+
         // Update order
         const updatedOrder = await tx.order.update({
           where: { id: orderId },
@@ -119,7 +161,10 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           },
         })
 
+        console.log('Order updated successfully')
+
         // Create payment record
+        console.log('Creating payment record')
         await tx.payment.create({
           data: {
             orderId,
@@ -133,8 +178,12 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           },
         })
 
+        console.log('Payment record created successfully')
+
         // Increment sales count for each workflow in the order
+        console.log('Incrementing sales count for workflows')
         for (const item of updatedOrder.items) {
+          console.log('Updating workflow sales count:', item.workflowId)
           await tx.workflow.update({
             where: { id: item.workflowId },
             data: {
@@ -146,6 +195,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         }
 
         // Create audit log
+        console.log('Creating audit log')
         await tx.auditLog.create({
           data: {
             userId,
@@ -155,6 +205,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             metadata: {
               orderId,
               workflowId,
+              pricingPlanId: pricingPlanId || null, // Handle empty string case
               amount: session.amount_total,
               currency: session.currency,
               stripeSessionId: session.id,
@@ -162,6 +213,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           },
         })
 
+        console.log('Audit log created successfully')
         console.log('Successfully processed checkout session completed for order:', orderId)
       } else {
         console.log('Order already paid, skipping duplicate processing:', orderId)
