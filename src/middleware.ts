@@ -74,6 +74,11 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
+  // Webhook routes should never require authentication
+  if (pathname.startsWith('/api/webhooks/')) {
+    return response
+  }
+
   // Vérifier si l'utilisateur est authentifié pour les routes protégées
   if (!session) {
     // Rediriger vers la page de connexion avec l'URL de retour
@@ -93,7 +98,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
+     * - api/webhooks (webhook endpoints should not be protected)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
