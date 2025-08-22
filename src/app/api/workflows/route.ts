@@ -17,17 +17,14 @@ const createWorkflowSchema = z.object({
     .optional()
     .or(z.literal('')),
   heroImageUrl: z.string().url('Hero image URL must be valid').optional().or(z.literal('')),
-  basePriceCents: z
-    .number()
-    .min(100, 'Base price must be at least €1.00')
-    .max(100000, 'Base price cannot exceed €1000.00'),
+  basePriceCents: z.number().min(0, 'Base price cannot be negative').max(100000, 'Base price cannot exceed €1000.00'),
   currency: z.string().default('EUR'),
   status: z.enum(['draft', 'published', 'unlisted', 'disabled']).default('draft'),
   jsonContent: z.any().optional(),
   n8nMinVersion: z.string().optional().or(z.literal('')),
   n8nMaxVersion: z.string().optional().or(z.literal('')),
-  categoryIds: z.array(z.string()).optional(),
-  tagIds: z.array(z.string()).optional(),
+  categoryIds: z.array(z.string()).min(1, 'At least one category must be selected'),
+  tagIds: z.array(z.string()).min(1, 'At least one tag must be selected'),
 })
 
 const updateWorkflowSchema = createWorkflowSchema.partial()
