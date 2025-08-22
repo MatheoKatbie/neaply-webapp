@@ -22,6 +22,7 @@ const updateWorkflowSchema = z.object({
     .max(5000, 'Long description cannot exceed 5000 characters')
     .optional(),
   heroImageUrl: z.string().url('Hero image URL must be valid').optional().or(z.literal('')),
+  documentationUrl: z.string().url('Documentation URL must be valid').optional().or(z.literal('')),
   basePriceCents: z
     .number()
     .min(0, 'Base price cannot be negative')
@@ -32,8 +33,8 @@ const updateWorkflowSchema = z.object({
   jsonContent: z.any().optional(),
   n8nMinVersion: z.string().optional().or(z.literal('')),
   n8nMaxVersion: z.string().optional().or(z.literal('')),
-  categoryIds: z.array(z.string()).optional(),
-  tagIds: z.array(z.string()).optional(),
+  categoryIds: z.array(z.string()).min(1, 'At least one category must be selected').optional(),
+  tagIds: z.array(z.string()).min(1, 'At least one tag must be selected').optional(),
 })
 
 // Helper function pour l'authentification côté serveur
@@ -220,15 +221,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           where: { workflowId: workflowId },
         })
 
-        // Créer les nouvelles relations
-        if (categoryIds.length > 0) {
-          await tx.workflowCategory.createMany({
-            data: categoryIds.map((categoryId: string) => ({
-              workflowId: workflowId,
-              categoryId: categoryId,
-            })),
-          })
-        }
+        // Créer les nouvelles relations (validation garantit qu'il y a au moins 1 élément)
+        await tx.workflowCategory.createMany({
+          data: categoryIds.map((categoryId: string) => ({
+            workflowId: workflowId,
+            categoryId: categoryId,
+          })),
+        })
       }
 
       // Mettre à jour les tags si fournis
@@ -238,15 +237,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           where: { workflowId: workflowId },
         })
 
-        // Créer les nouvelles relations
-        if (tagIds.length > 0) {
-          await tx.workflowTag.createMany({
-            data: tagIds.map((tagId: string) => ({
-              workflowId: workflowId,
-              tagId: tagId,
-            })),
-          })
-        }
+        // Créer les nouvelles relations (validation garantit qu'il y a au moins 1 élément)
+        await tx.workflowTag.createMany({
+          data: tagIds.map((tagId: string) => ({
+            workflowId: workflowId,
+            tagId: tagId,
+          })),
+        })
       }
 
       // Récupérer le workflow mis à jour avec toutes les relations

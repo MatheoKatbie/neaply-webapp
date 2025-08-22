@@ -23,8 +23,8 @@ const createWorkflowSchema = z.object({
   jsonContent: z.any().optional(),
   n8nMinVersion: z.string().optional().or(z.literal('')),
   n8nMaxVersion: z.string().optional().or(z.literal('')),
-  categoryIds: z.array(z.string()).optional(),
-  tagIds: z.array(z.string()).optional(),
+  categoryIds: z.array(z.string()).min(1, 'At least one category must be selected'),
+  tagIds: z.array(z.string()).min(1, 'At least one tag must be selected'),
 })
 
 const updateWorkflowSchema = createWorkflowSchema.partial()
