@@ -58,6 +58,7 @@ interface WorkflowDetail {
   slug: string
   createdAt: string
   updatedAt: string
+  userOwnsWorkflow?: boolean
   version: {
     semver: string
     changelog?: string
@@ -451,12 +452,27 @@ export default function WorkflowDetailPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <PurchaseButton
-                    workflowId={workflowId}
-                    price={workflow.price}
-                    currency={workflow.currency}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  />
+                  {workflow.userOwnsWorkflow ? (
+                    <div className="w-full">
+                      <Button
+                        disabled
+                        className="w-full bg-green-600 text-white cursor-not-allowed opacity-75"
+                      >
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Already Purchased
+                      </Button>
+                      <p className="text-sm text-gray-600 text-center mt-2">
+                        You already own this workflow
+                      </p>
+                    </div>
+                  ) : (
+                    <PurchaseButton
+                      workflowId={workflowId}
+                      price={workflow.price}
+                      currency={workflow.currency}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                    />
+                  )}
 
                   <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">

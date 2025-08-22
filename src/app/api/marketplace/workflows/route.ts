@@ -36,6 +36,13 @@ export async function GET(req: NextRequest) {
       status: 'published', // Only show published workflows
     }
 
+    // Exclude user's own workflows if logged in
+    if (user) {
+      where.sellerId = {
+        not: user.id,
+      }
+    }
+
     // Search filter
     if (validatedParams.search) {
       const searchTerm = validatedParams.search.toLowerCase()
