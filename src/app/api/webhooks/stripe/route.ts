@@ -102,15 +102,43 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
     // Get the payment intent to access charge information
     console.log('Retrieving payment intent:', session.payment_intent)
-    const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string)
-    const charge = paymentIntent.latest_charge as Stripe.Charge
+    let paymentIntent: Stripe.PaymentIntent
+    let charge: Stripe.Charge
 
-    if (!charge) {
-      console.error('No charge found for payment intent:', session.payment_intent)
-      return
+    try {
+      paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string)
+      console.log('Payment intent retrieved:', paymentIntent.id)
+
+      if (!paymentIntent.latest_charge) {
+        console.error('No charge found for payment intent:', session.payment_intent)
+        return
+      }
+
+      // Retrieve the actual charge object
+      charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string)
+      console.log('Found charge:', charge.id)
+    } catch (error) {
+      console.error('Error retrieving payment intent or charge:', error)
+      throw new Error(
+        `Failed to retrieve payment information: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
 
-    console.log('Found charge:', charge.id)
+    // Validate required fields
+    if (!charge.id || typeof charge.id !== 'string' || charge.id.trim() === '') {
+      console.error('Charge ID is missing or invalid:', charge.id)
+      throw new Error('Valid charge ID is required')
+    }
+
+    if (!session.amount_total) {
+      console.error('Session amount total is missing')
+      throw new Error('Session amount total is required')
+    }
+
+    if (!session.currency) {
+      console.error('Session currency is missing')
+      throw new Error('Session currency is required')
+    }
 
     // Update order status and create payment record
     await prisma.$transaction(async (tx) => {
@@ -163,22 +191,46 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
         console.log('Order updated successfully')
 
-        // Create payment record
-        console.log('Creating payment record')
-        await tx.payment.create({
-          data: {
+        // Check if payment record already exists
+        const existingPayment = await tx.payment.findFirst({
+          where: {
+            orderId,
+            provider: 'stripe',
+            providerCharge: charge.id,
+          },
+        })
+
+        if (existingPayment) {
+          console.log('Payment record already exists for this order and charge:', existingPayment.id)
+        } else {
+          // Create payment record
+          console.log('Creating payment record with charge ID:', charge.id)
+          const paymentData = {
             orderId,
             provider: 'stripe',
             providerCharge: charge.id,
             amountCents: session.amount_total || 0,
-            currency: session.currency || 'eur',
-            status: 'succeeded',
+            currency: (session.currency || 'eur').toUpperCase(),
+            status: 'succeeded' as const,
             processedAt: new Date(),
             rawPayload: session as any,
-          },
-        })
+          }
 
-        console.log('Payment record created successfully')
+          console.log('Payment data:', JSON.stringify(paymentData, null, 2))
+
+          try {
+            const createdPayment = await tx.payment.create({
+              data: paymentData,
+            })
+            console.log('Payment created successfully with ID:', createdPayment.id)
+          } catch (paymentError) {
+            console.error('Failed to create payment record:', paymentError)
+            console.error('Payment data that failed:', JSON.stringify(paymentData, null, 2))
+            throw paymentError
+          }
+
+          console.log('Payment record created successfully')
+        }
 
         // Increment sales count for each workflow in the order
         console.log('Incrementing sales count for workflows')
