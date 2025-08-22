@@ -27,6 +27,7 @@ import {
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
+import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -81,6 +82,13 @@ export default function WorkflowDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [recommendations, setRecommendations] = useState<{
+    similarWorkflows: any[]
+    storeWorkflows: any[]
+    storeName: string
+    storeSlug?: string
+  } | null>(null)
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false)
 
   // Fetch workflow details and favorite status
   useEffect(() => {
@@ -100,11 +108,29 @@ export default function WorkflowDetailPage() {
 
         const data = await response.json()
         setWorkflow(data.data)
-      } catch (err) {
-        console.error('Error fetching workflow:', err)
+        
+        // Fetch recommendations after workflow is loaded
+        fetchRecommendations()
+      } catch (error) {
+        console.error('Error fetching workflow:', error)
         setError('Failed to load workflow')
       } finally {
         setLoading(false)
+      }
+    }
+
+    const fetchRecommendations = async () => {
+      try {
+        setRecommendationsLoading(true)
+        const response = await fetch(`/api/marketplace/workflows/${workflowId}/recommendations`)
+        if (response.ok) {
+          const data = await response.json()
+          setRecommendations(data)
+        }
+      } catch (error) {
+        console.error('Error fetching recommendations:', error)
+      } finally {
+        setRecommendationsLoading(false)
       }
     }
 
@@ -511,15 +537,57 @@ export default function WorkflowDetailPage() {
                 </CardContent>
               </Card>
 
-              {/* Related Workflows */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Related Workflows</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600">Related workflows will be shown here</p>
-                </CardContent>
-              </Card>
+              {/* Similar Workflows */}
+              {recommendations && recommendations.similarWorkflows.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Similar Workflows</CardTitle>
+                    <p className="text-sm text-gray-600">Based on categories and tags</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {recommendations.similarWorkflows.slice(0, 3).map((similarWorkflow) => (
+                        <WorkflowCardMini
+                          key={similarWorkflow.id}
+                          {...similarWorkflow}
+                        />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* More from this Store */}
+              {recommendations && recommendations.storeWorkflows.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">More from {recommendations.storeName}</CardTitle>
+                    <p className="text-sm text-gray-600">Other workflows by this seller</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {recommendations.storeWorkflows.slice(0, 3).map((storeWorkflow) => (
+                        <WorkflowCardMini
+                          key={storeWorkflow.id}
+                          {...storeWorkflow}
+                        />
+                      ))}
+                      {recommendations.storeWorkflows.length > 3 && (
+                        <div className="pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)}
+                          >
+                            View All ({recommendations.storeWorkflows.length} workflows)
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
 

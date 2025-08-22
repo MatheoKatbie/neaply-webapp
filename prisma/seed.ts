@@ -1,6 +1,28 @@
+/**
+ * Database Seeding Script
+ * 
+ * This script can run in two modes:
+ * 
+ * 1. PRODUCTION MODE (categories and tags only):
+ *    - Run: NODE_ENV=production npx prisma db seed
+ *    - Or: SEED_MOCK_DATA=false npx prisma db seed
+ *    - Creates only essential categories and tags
+ * 
+ * 2. DEVELOPMENT MODE (full mock data):
+ *    - Run: npx prisma db seed
+ *    - Or: SEED_MOCK_DATA=true npx prisma db seed
+ *    - Creates categories, tags, users, workflows, orders, reviews, etc.
+ */
+
 import { PrismaClient } from '@prisma/client'
+import { faker } from '@faker-js/faker'
 
 const prisma = new PrismaClient()
+
+// Configuration - Set to false for production
+const INCLUDE_MOCK_DATA = process.env.NODE_ENV !== 'production'
+
+console.log(`🔧 Seeding mode: ${INCLUDE_MOCK_DATA ? 'Development (with mock data)' : 'Production (categories and tags only)'}`)
 
 // Predefined categories for n8n workflows
 const categories = [
@@ -110,27 +132,377 @@ async function main() {
   console.log('🌱 Starting database seed...')
 
   try {
-    // Create categories
+    if (INCLUDE_MOCK_DATA) {
+      // Clear existing data (only in development)
+      console.log('🧹 Clearing existing data...')
+      await prisma.workflowTag.deleteMany()
+      await prisma.workflowCategory.deleteMany()
+      await prisma.workflowCompatibility.deleteMany()
+      await prisma.reviewHelpfulVote.deleteMany()
+      await prisma.review.deleteMany()
+      await prisma.favorite.deleteMany()
+      await prisma.payment.deleteMany()
+      await prisma.orderItem.deleteMany()
+      await prisma.order.deleteMany()
+      await prisma.pricingPlan.deleteMany()
+      await prisma.workflowVersion.deleteMany()
+      await prisma.workflow.deleteMany()
+      await prisma.tag.deleteMany()
+      await prisma.category.deleteMany()
+      await prisma.auditLog.deleteMany()
+      await prisma.report.deleteMany()
+      await prisma.payout.deleteMany()
+      await prisma.sellerProfile.deleteMany()
+      await prisma.user.deleteMany()
+    }
+
+    // Create categories (always create these, even in production)
     console.log('📂 Creating categories...')
+    const createdCategories = []
     for (const category of categories) {
-      await prisma.category.upsert({
+      const created = await prisma.category.upsert({
         where: { slug: category.slug },
         update: {},
         create: category,
       })
+      createdCategories.push(created)
     }
-    console.log(`✅ Created ${categories.length} categories`)
+    console.log(`✅ Created/updated ${categories.length} categories`)
 
-    // Create tags
+    // Create tags (always create these, even in production)
     console.log('🏷️  Creating tags...')
+    const createdTags = []
     for (const tag of tags) {
-      await prisma.tag.upsert({
+      const created = await prisma.tag.upsert({
         where: { slug: tag.slug },
         update: {},
         create: tag,
       })
+      createdTags.push(created)
     }
-    console.log(`✅ Created ${tags.length} tags`)
+    console.log(`✅ Created/updated ${tags.length} tags`)
+
+    // Only create mock data in development
+    if (!INCLUDE_MOCK_DATA) {
+      console.log('🏁 Production seeding complete! Only categories and tags were created.')
+      return
+    }
+
+    console.log('🎭 Creating mock data for development...')
+
+    // Create users (including sellers and buyers)
+    console.log('👥 Creating users...')
+    const users = []
+    
+    // Create 5 sellers
+    for (let i = 0; i < 5; i++) {
+      const user = await prisma.user.create({
+        data: {
+          email: faker.internet.email(),
+          passwordHash: faker.internet.password(),
+          displayName: faker.person.fullName(),
+          avatarUrl: faker.image.avatar(),
+          isSeller: true,
+          isAdmin: false,
+        },
+      })
+      users.push(user)
+    }
+
+    // Create 10 regular users (buyers)
+    for (let i = 0; i < 10; i++) {
+      const user = await prisma.user.create({
+        data: {
+          email: faker.internet.email(),
+          passwordHash: faker.internet.password(),
+          displayName: faker.person.fullName(),
+          avatarUrl: faker.image.avatar(),
+          isSeller: false,
+          isAdmin: false,
+        },
+      })
+      users.push(user)
+    }
+
+    // Create 1 admin
+    const admin = await prisma.user.create({
+      data: {
+        email: 'admin@flowmarket.com',
+        passwordHash: faker.internet.password(),
+        displayName: 'Admin User',
+        avatarUrl: null,
+        isSeller: false,
+        isAdmin: true,
+      },
+    })
+    users.push(admin)
+
+    console.log(`✅ Created ${users.length} users`)
+
+    // Create seller profiles for sellers
+    console.log('🏪 Creating seller profiles...')
+    const sellers = users.filter(u => u.isSeller)
+    const sellerProfiles = []
+    
+    for (const seller of sellers) {
+      const storeName = faker.company.name() + ' Automation'
+      const profile = await prisma.sellerProfile.create({
+        data: {
+          userId: seller.id,
+          storeName,
+          slug: faker.helpers.slugify(storeName).toLowerCase(),
+          bio: faker.lorem.paragraph(),
+          websiteUrl: faker.internet.url(),
+          supportEmail: faker.internet.email(),
+          phoneNumber: faker.phone.number(),
+          countryCode: faker.location.countryCode(),
+          payoutMethod: {
+            type: 'stripe',
+            accountId: faker.string.alphanumeric(20)
+          },
+          status: 'active',
+        },
+      })
+      sellerProfiles.push(profile)
+    }
+    console.log(`✅ Created ${sellerProfiles.length} seller profiles`)
+
+    // Create workflows
+    console.log('⚡ Creating workflows...')
+    const workflows = []
+    const workflowTitles = [
+      'Customer Onboarding Automation',
+      'E-commerce Order Processing',
+      'Social Media Content Scheduler',
+      'Lead Generation Pipeline',
+      'Email Marketing Automation',
+      'Data Backup & Sync',
+      'Invoice Processing System',
+      'CRM Contact Sync',
+      'Slack Notification Hub',
+      'Google Sheets Reporter',
+      'Website Form Handler',
+      'Product Inventory Tracker',
+      'Customer Support Ticketing',
+      'Sales Pipeline Automation',
+      'Content Publishing Workflow'
+    ]
+
+    for (let i = 0; i < 15; i++) {
+      const seller = faker.helpers.arrayElement(sellers)
+      const title = workflowTitles[i] || faker.lorem.words(3)
+      const salesCount = faker.number.int({ min: 0, max: 500 })
+      const ratingCount = faker.number.int({ min: 0, max: Math.floor(salesCount * 0.3) })
+      
+      const workflow = await prisma.workflow.create({
+        data: {
+          sellerId: seller.id,
+          title,
+          slug: faker.helpers.slugify(title).toLowerCase(),
+          shortDesc: faker.lorem.sentence(),
+          longDescMd: faker.lorem.paragraphs(3),
+          heroImageUrl: faker.image.url({ width: 800, height: 400 }),
+          documentationUrl: faker.datatype.boolean() ? faker.internet.url() : null,
+          status: faker.helpers.arrayElement(['published', 'published', 'published', 'draft']), // 75% published
+          basePriceCents: faker.number.int({ min: 999, max: 19999 }), // €9.99 to €199.99
+          currency: 'EUR',
+          salesCount,
+          ratingAvg: ratingCount > 0 ? faker.number.float({ min: 3.0, max: 5.0, fractionDigits: 1 }) : 0,
+          ratingCount,
+        },
+      })
+      workflows.push(workflow)
+    }
+    console.log(`✅ Created ${workflows.length} workflows`)
+
+    // Create workflow versions
+    console.log('📦 Creating workflow versions...')
+    for (const workflow of workflows) {
+      await prisma.workflowVersion.create({
+        data: {
+          workflowId: workflow.id,
+          semver: '1.0.0',
+          changelogMd: 'Initial release',
+          n8nMinVersion: '0.200.0',
+          n8nMaxVersion: null,
+          jsonFileUrl: faker.internet.url(),
+          jsonContent: {
+            nodes: [
+              {
+                id: faker.string.uuid(),
+                type: 'n8n-nodes-base.webhook',
+                name: 'Webhook Trigger',
+                position: [250, 300]
+              }
+            ],
+            connections: {}
+          },
+          extraAssets: faker.datatype.boolean() ? {
+            templates: ['template1.html', 'template2.html'],
+            documentation: 'guide.pdf'
+          } : undefined,
+          isLatest: true,
+        },
+      })
+    }
+
+    // Create workflow categories (assign random categories to workflows)
+    console.log('🔗 Creating workflow categories...')
+    for (const workflow of workflows) {
+      const numCategories = faker.number.int({ min: 1, max: 3 })
+      const selectedCategories = faker.helpers.arrayElements(createdCategories, numCategories)
+      
+      for (const category of selectedCategories) {
+        await prisma.workflowCategory.create({
+          data: {
+            workflowId: workflow.id,
+            categoryId: category.id,
+          },
+        })
+      }
+    }
+
+    // Create workflow tags
+    console.log('🏷️  Creating workflow tags...')
+    for (const workflow of workflows) {
+      const numTags = faker.number.int({ min: 2, max: 5 })
+      const selectedTags = faker.helpers.arrayElements(createdTags, numTags)
+      
+      for (const tag of selectedTags) {
+        await prisma.workflowTag.create({
+          data: {
+            workflowId: workflow.id,
+            tagId: tag.id,
+          },
+        })
+      }
+    }
+
+    // Create pricing plans
+    console.log('💰 Creating pricing plans...')
+    for (const workflow of workflows) {
+      await prisma.pricingPlan.create({
+        data: {
+          workflowId: workflow.id,
+          name: 'Standard',
+          priceCents: workflow.basePriceCents,
+          currency: workflow.currency,
+          features: [
+            'Complete workflow file',
+            'Setup documentation',
+            'Email support',
+            '30-day updates'
+          ],
+          isActive: true,
+          sortOrder: 0,
+        },
+      })
+    }
+
+    // Create orders and payments
+    console.log('🛒 Creating orders...')
+    const buyers = users.filter(u => !u.isSeller && !u.isAdmin)
+    const publishedWorkflows = workflows.filter(w => w.status === 'published')
+    
+    for (let i = 0; i < 50; i++) {
+      const buyer = faker.helpers.arrayElement(buyers)
+      const workflow = faker.helpers.arrayElement(publishedWorkflows)
+      const pricingPlan = await prisma.pricingPlan.findFirst({
+        where: { workflowId: workflow.id }
+      })
+      
+      if (pricingPlan) {
+        const order = await prisma.order.create({
+          data: {
+            userId: buyer.id,
+            status: faker.helpers.arrayElement(['paid', 'paid', 'paid', 'pending']), // 75% paid
+            totalCents: pricingPlan.priceCents,
+            currency: workflow.currency,
+            provider: 'stripe',
+            providerIntent: faker.string.alphanumeric(20),
+            paidAt: faker.date.recent({ days: 30 }),
+          },
+        })
+
+        await prisma.orderItem.create({
+          data: {
+            orderId: order.id,
+            workflowId: workflow.id,
+            pricingPlanId: pricingPlan.id,
+            unitPriceCents: pricingPlan.priceCents,
+            quantity: 1,
+            subtotalCents: pricingPlan.priceCents,
+          },
+        })
+
+        if (order.status === 'paid') {
+          await prisma.payment.create({
+            data: {
+              orderId: order.id,
+              provider: 'stripe',
+              providerCharge: faker.string.alphanumeric(20),
+              amountCents: order.totalCents,
+              currency: order.currency,
+              status: 'succeeded',
+              processedAt: order.paidAt || new Date(),
+              rawPayload: {
+                id: faker.string.alphanumeric(20),
+                amount: order.totalCents,
+                currency: order.currency.toLowerCase(),
+                status: 'succeeded'
+              },
+            },
+          })
+        }
+      }
+    }
+
+    // Create reviews
+    console.log('⭐ Creating reviews...')
+    const paidOrders = await prisma.order.findMany({
+      where: { status: 'paid' },
+      include: { items: true, user: true }
+    })
+
+    for (const order of paidOrders.slice(0, 30)) { // Create reviews for first 30 orders
+      if (faker.datatype.boolean(0.6)) { // 60% chance of review
+        const orderItem = order.items[0]
+        if (orderItem) {
+          const rating = faker.number.int({ min: 3, max: 5 }) // Mostly positive reviews
+          
+          await prisma.review.create({
+            data: {
+              workflowId: orderItem.workflowId,
+              userId: order.userId,
+              rating,
+              title: faker.lorem.sentence(),
+              bodyMd: faker.lorem.paragraph(),
+              status: 'published',
+              helpfulCount: faker.number.int({ min: 0, max: 10 }),
+            },
+          })
+        }
+      }
+    }
+
+    // Create favorites
+    console.log('❤️  Creating favorites...')
+    for (const buyer of buyers) {
+      const numFavorites = faker.number.int({ min: 0, max: 5 })
+      const favoriteWorkflows = faker.helpers.arrayElements(publishedWorkflows, numFavorites)
+      
+      for (const workflow of favoriteWorkflows) {
+        await prisma.favorite.create({
+          data: {
+            userId: buyer.id,
+            workflowId: workflow.id,
+          },
+        })
+      }
+    }
+
+    console.log('✅ Database seeded successfully!')
+    
   } catch (error) {
     console.error('❌ Error during seeding:', error)
     process.exit(1)

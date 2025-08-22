@@ -137,7 +137,7 @@ function WorkflowCard({
       </div>
 
       {/* Hero image */}
-      <div className="h-48 bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">
+      <div className="h-48 bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
         {heroImage ? (
           <img
             src={heroImage}
@@ -162,7 +162,7 @@ function WorkflowCard({
       </div>
 
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold group-hover:text-blue-600 transition-colors">{title}</CardTitle>
+        <CardTitle className="text-lg font-semibold group-hover:text-gray-900 transition-colors">{title}</CardTitle>
         <CardDescription className="text-sm text-gray-600 line-clamp-2">{description}</CardDescription>
       </CardHeader>
 
@@ -213,7 +213,7 @@ function WorkflowCard({
             <div className="text-lg font-bold text-green-600">{formatPrice(price, currency)}</div>
           </div>
         </div>
-        <Button className="w-full bg-blue-600 text-white py-2 rounded-md">View Workflow</Button>
+        <Button className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800">View Workflow</Button>
       </CardContent>
     </Card>
   )
@@ -302,7 +302,7 @@ export default function MarketplacePage() {
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Workflow Marketplace</h1>
               <Button
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-200"
+                className="bg-black hover:bg-gray-800 text-white font-semibold px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-200"
                 onClick={() => router.push('/become-seller')}
               >
                 <Zap className="w-5 h-5 mr-2" />
@@ -332,7 +332,7 @@ export default function MarketplacePage() {
                       placeholder="Search workflows, tags, or categories..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-12 h-12 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      className="pl-12 h-12 text-base border-gray-200 focus:border-gray-400 focus:ring-gray-400"
                     />
                   </div>
                 </div>
@@ -346,7 +346,7 @@ export default function MarketplacePage() {
                     id="category"
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full h-12 px-4 py-3 text-base border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full h-12 px-4 py-3 text-base border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all"
                   >
                     <option value="all">All Categories</option>
                     {categories.map((category) => (
@@ -366,7 +366,7 @@ export default function MarketplacePage() {
                     id="sort"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full h-12 px-4 py-3 text-base border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full h-12 px-4 py-3 text-base border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all"
                   >
                     <option value="popular">Most Popular</option>
                     <option value="newest">Newest</option>
@@ -389,7 +389,7 @@ export default function MarketplacePage() {
                     placeholder="0"
                     value={priceRange.min}
                     onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
-                    className="h-12 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className="h-12 text-base border-gray-200 focus:border-gray-400 focus:ring-gray-400"
                   />
                 </div>
                 <div>
@@ -402,7 +402,7 @@ export default function MarketplacePage() {
                     placeholder="1000"
                     value={priceRange.max}
                     onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
-                    className="h-12 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className="h-12 text-base border-gray-200 focus:border-gray-400 focus:ring-gray-400"
                   />
                 </div>
                 <div className="lg:col-span-3 flex items-end gap-3">
@@ -419,7 +419,7 @@ export default function MarketplacePage() {
                     <Filter className="w-4 h-4 mr-2" />
                     Clear Filters
                   </Button>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-8">
+                  <Button className="bg-black hover:bg-gray-800 text-white h-12 px-8">
                     <Search className="w-4 h-4 mr-2" />
                     Search
                   </Button>
