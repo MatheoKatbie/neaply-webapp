@@ -232,7 +232,7 @@ function ReviewForm({ workflowId, onReviewSubmitted }: {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
+          <div className='space-y-2'>
             <Label htmlFor="rating">Rating *</Label>
             <div className="mt-2">
               <StarRating
@@ -241,7 +241,7 @@ function ReviewForm({ workflowId, onReviewSubmitted }: {
               />
             </div>
           </div>
-          <div>
+          <div className='space-y-2'>
             <Label htmlFor="title">Review Title (Optional)</Label>
             <Input
               id="title"
@@ -251,7 +251,7 @@ function ReviewForm({ workflowId, onReviewSubmitted }: {
               maxLength={200}
             />
           </div>
-          <div>
+          <div className='space-y-2'>
             <Label htmlFor="bodyMd">Review Details (Optional)</Label>
             <Textarea
               id="bodyMd"
