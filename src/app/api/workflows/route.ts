@@ -4,29 +4,67 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
 // Schema de validation pour un workflow
-const createWorkflowSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title cannot exceed 100 characters'),
-  shortDesc: z
-    .string()
-    .min(10, 'Short description must be at least 10 characters')
-    .max(200, 'Short description cannot exceed 200 characters'),
-  longDescMd: z
-    .string()
-    .min(10, 'Long description must be at least 10 characters')
-    .max(5000, 'Long description cannot exceed 5000 characters')
-    .optional()
-    .or(z.literal('')),
-  heroImageUrl: z.string().url('Hero image URL must be valid').optional().or(z.literal('')),
-  documentationUrl: z.string().url('Documentation URL must be valid').optional().or(z.literal('')),
-  basePriceCents: z.number().min(0, 'Base price cannot be negative').max(100000, 'Base price cannot exceed €1000.00'),
-  currency: z.string().default('EUR'),
-  status: z.enum(['draft', 'published', 'unlisted', 'disabled']).default('draft'),
-  jsonContent: z.any().optional(),
-  n8nMinVersion: z.string().optional().or(z.literal('')),
-  n8nMaxVersion: z.string().optional().or(z.literal('')),
-  categoryIds: z.array(z.string()).min(1, 'At least one category must be selected'),
-  tagIds: z.array(z.string()).min(1, 'At least one tag must be selected'),
-})
+// Helper function to compare semantic versions
+function compareVersions(version1: string, version2: string): number {
+  const parts1 = version1.split('.').map(Number)
+  const parts2 = version2.split('.').map(Number)
+
+  // Pad arrays to same length
+  while (parts1.length < parts2.length) parts1.push(0)
+  while (parts2.length < parts1.length) parts2.push(0)
+
+  // Compare each part
+  for (let i = 0; i < parts1.length; i++) {
+    if (parts1[i] > parts2[i]) return 1
+    if (parts1[i] < parts2[i]) return -1
+  }
+  return 0
+}
+
+const createWorkflowSchema = z
+  .object({
+    title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title cannot exceed 100 characters'),
+    shortDesc: z
+      .string()
+      .min(10, 'Short description must be at least 10 characters')
+      .max(200, 'Short description cannot exceed 200 characters'),
+    longDescMd: z
+      .string()
+      .min(10, 'Long description must be at least 10 characters')
+      .max(5000, 'Long description cannot exceed 5000 characters')
+      .optional()
+      .or(z.literal('')),
+    heroImageUrl: z.string().url('Hero image URL must be valid').optional().or(z.literal('')),
+    documentationUrl: z.string().url('Documentation URL must be valid').optional().or(z.literal('')),
+    basePriceCents: z.number().min(0, 'Base price cannot be negative').max(100000, 'Base price cannot exceed €1000.00'),
+    currency: z.string().default('EUR'),
+    status: z.enum(['draft', 'published', 'unlisted', 'disabled']).default('draft'),
+    jsonContent: z.any().optional(),
+    n8nMinVersion: z
+      .string()
+      .min(1, 'Minimum n8n version is required')
+      .regex(/^\d+\.\d+\.\d+$/, 'Version must be in format X.Y.Z (e.g., 1.0.0)'),
+    n8nMaxVersion: z
+      .string()
+      .regex(/^\d+\.\d+\.\d+$/, 'Version must be in format X.Y.Z (e.g., 1.0.0)')
+      .optional()
+      .or(z.literal('')),
+    categoryIds: z.array(z.string()).min(1, 'At least one category must be selected'),
+    tagIds: z.array(z.string()).min(1, 'At least one tag must be selected'),
+  })
+  .refine(
+    (data) => {
+      // Validate that max version is greater than min version if both are provided
+      if (data.n8nMaxVersion && data.n8nMaxVersion.trim()) {
+        return compareVersions(data.n8nMaxVersion, data.n8nMinVersion) > 0
+      }
+      return true
+    },
+    {
+      message: 'Maximum n8n version must be greater than minimum n8n version',
+      path: ['n8nMaxVersion'],
+    }
+  )
 
 const updateWorkflowSchema = createWorkflowSchema.partial()
 

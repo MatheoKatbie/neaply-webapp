@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,7 +38,7 @@ const validationRules: Record<string, ValidationRule> = {
     required: true,
   },
   longDescMd: {
-    minLength: 10,
+    minLength: 50,
     maxLength: 5000,
     required: false,
   },
@@ -51,6 +52,12 @@ const validationRules: Record<string, ValidationRule> = {
   },
   documentationUrl: {
     required: true,
+  },
+  n8nMinVersion: {
+    required: true,
+  },
+  n8nMaxVersion: {
+    required: false,
   },
   categoryIds: {
     minArrayLength: 1,
@@ -70,6 +77,8 @@ const fieldNames: Record<string, string> = {
   basePriceCents: 'Price',
   jsonContent: 'Workflow JSON',
   documentationUrl: 'Documentation',
+  n8nMinVersion: 'Minimum n8n version',
+  n8nMaxVersion: 'Maximum n8n version',
   categoryIds: 'Categories',
   tagIds: 'Tags',
 }
@@ -126,6 +135,45 @@ const useFormValidation = (formData: WorkflowFormData) => {
         // If we have a valid URL (not blob), it's considered valid
         if (hasUrl) {
           return null
+        }
+      }
+
+      if (field === 'n8nMinVersion' && rules.required && !value) {
+        return 'Minimum n8n version is required'
+      }
+
+      if (field === 'n8nMinVersion' && value && value.trim()) {
+        const versionRegex = /^\d+\.\d+\.\d+$/
+        if (!versionRegex.test(value)) {
+          return 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        }
+      }
+
+      if (field === 'n8nMaxVersion' && value && value.trim()) {
+        const versionRegex = /^\d+\.\d+\.\d+$/
+        if (!versionRegex.test(value)) {
+          return 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        }
+      }
+
+      if (field === 'n8nMaxVersion' && value && value.trim()) {
+        const minVersion = formData.n8nMinVersion || '0.0.0'
+        const maxVersion = value
+
+        // Compare semantic versions properly
+        const minParts = minVersion.split('.').map(Number)
+        const maxParts = maxVersion.split('.').map(Number)
+
+        // Pad arrays to same length
+        while (minParts.length < maxParts.length) minParts.push(0)
+        while (maxParts.length < minParts.length) maxParts.push(0)
+
+        // Compare each part
+        for (let i = 0; i < minParts.length; i++) {
+          if (maxParts[i] > minParts[i]) break
+          if (maxParts[i] < minParts[i]) {
+            return 'Maximum n8n version must be greater than minimum n8n version'
+          }
         }
       }
 
@@ -388,6 +436,23 @@ export default function SellerDashboard() {
     }
   }, [editingWorkflow, formData.documentationUrl, formData.documentationFile, markFieldAsTouched, validateField])
 
+  // Force validation when n8n versions change
+  useEffect(() => {
+    if (touched.n8nMinVersion || touched.n8nMaxVersion) {
+      validateField('n8nMinVersion', formData.n8nMinVersion)
+      validateField('n8nMaxVersion', formData.n8nMaxVersion)
+    }
+  }, [formData.n8nMinVersion, formData.n8nMaxVersion, touched.n8nMinVersion, touched.n8nMaxVersion, validateField])
+
+  // Force validation when editing workflow with existing n8n versions
+  useEffect(() => {
+    if (editingWorkflow && formData.n8nMinVersion && formData.n8nMaxVersion) {
+      // When editing, if we have a min version but no max version, mark as touched and validate
+      markFieldAsTouched('n8nMaxVersion')
+      validateField('n8nMaxVersion', formData.n8nMaxVersion)
+    }
+  }, [editingWorkflow, formData.n8nMinVersion, formData.n8nMaxVersion, markFieldAsTouched, validateField])
+
   // Helper function to delete image from bucket
   const deleteImageFromBucket = async (imageUrl: string) => {
     try {
@@ -620,6 +685,17 @@ export default function SellerDashboard() {
       setEditingWorkflow(null)
       setLoadingWorkflowData(false)
       await fetchWorkflows()
+
+      // Show success toast
+      if (editingWorkflow) {
+        toast.success('Workflow updated successfully!', {
+          description: `"${formData.title || editingWorkflow.title}" has been updated.`,
+        })
+      } else {
+        toast.success('Workflow created successfully!', {
+          description: `"${formData.title}" has been added to your store.`,
+        })
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred while saving the workflow')
     } finally {
@@ -1317,7 +1393,7 @@ export default function SellerDashboard() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <Label htmlFor="n8nMinVersion">Minimum n8n Version</Label>
+                          <Label htmlFor="n8nMinVersion">Minimum n8n Version *</Label>
                           <Input
                             id="n8nMinVersion"
                             name="n8nMinVersion"
@@ -1326,14 +1402,16 @@ export default function SellerDashboard() {
                             onBlur={() => markFieldAsTouched('n8nMinVersion')}
                             placeholder="e.g., 1.0.0"
                             className={getFieldError('n8nMinVersion') ? 'border-red-500' : ''}
+                            required
                           />
                           {getFieldError('n8nMinVersion') && (
                             <p className="text-xs text-red-500">{getFieldError('n8nMinVersion')}</p>
                           )}
+                          <p className="text-xs text-muted-foreground">Format: X.Y.Z (e.g., 1.0.0, 0.234.0)</p>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="n8nMaxVersion">Maximum n8n Version</Label>
+                          <Label htmlFor="n8nMaxVersion">Maximum n8n Version (Optional)</Label>
                           <Input
                             id="n8nMaxVersion"
                             name="n8nMaxVersion"
@@ -1346,6 +1424,9 @@ export default function SellerDashboard() {
                           {getFieldError('n8nMaxVersion') && (
                             <p className="text-xs text-red-500">{getFieldError('n8nMaxVersion')}</p>
                           )}
+                          <p className="text-xs text-muted-foreground">
+                            Format: X.Y.Z (e.g., 1.99.99) - Must be greater than minimum version
+                          </p>
                         </div>
                       </div>
 

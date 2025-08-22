@@ -146,10 +146,10 @@ export function FileUpload({
     const extension = fileName.split('.').pop()?.toLowerCase()
     switch (extension) {
       case 'pdf':
-        return <FileText className="h-8 w-8 text-red-500" />
+        return <FileText className="h-8 w-8 text-gray-500" />
       case 'docx':
       case 'doc':
-        return <FileText className="h-8 w-8 text-blue-500" />
+        return <FileText className="h-8 w-8 text-gray-500" />
       case 'txt':
       case 'md':
         return <FileText className="h-8 w-8 text-gray-500" />
