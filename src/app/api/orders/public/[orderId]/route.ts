@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest, { params }: { params: { orderId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ orderId: string }> }) {
   try {
-    const { orderId } = params
+    const { orderId } = await params
 
     // Validate order ID format
     if (!orderId || typeof orderId !== 'string') {
