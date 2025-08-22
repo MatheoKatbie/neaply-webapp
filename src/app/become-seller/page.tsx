@@ -500,7 +500,7 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-red-600">{validationErrors.storeName}</p>
                     ) : (
                       <p className="text-xs text-gray-500">
-                        This name will be displayed on your public profile and workflows
+                        {formData.storeName.length}/50 characters (min. 2). This name will be displayed on your public profile and workflows.
                       </p>
                     )}
                   </div>
@@ -524,7 +524,7 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-red-600">{validationErrors.bio}</p>
                     ) : (
                       <p className="text-xs text-gray-500">
-                        {formData.bio.length}/500 characters. Help customers trust you.
+                        {formData.bio.length}/500 characters (min. 10). Help customers trust you.
                       </p>
                     )}
                   </div>
@@ -579,10 +579,13 @@ export default function BecomeSellerPage() {
                         }}
                         placeholder="Enter your phone number"
                       />
-                      {validationErrors.phoneNumber && (
+                      {validationErrors.phoneNumber ? (
                         <p className="text-xs text-red-600">{validationErrors.phoneNumber}</p>
+                      ) : (
+                        <p className="text-xs text-gray-500">
+                          {formData.phoneNumber ? `${formData.phoneNumber.replace(/\D/g, '').length} digits (min. 8)` : '0 digits (min. 8)'} - Phone for business communication
+                        </p>
                       )}
-                      <p className="text-xs text-gray-500">Phone for business communication</p>
                     </div>
 
                     <div className="space-y-2 col-span-1">

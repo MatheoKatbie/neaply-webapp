@@ -1296,7 +1296,11 @@ export default function SellerDashboard() {
                             maxLength={100}
                             className={getFieldError('title') ? 'border-red-500' : ''}
                           />
-                          {getFieldError('title') && <p className="text-xs text-red-500">{getFieldError('title')}</p>}
+                          {getFieldError('title') ? (
+                            <p className="text-xs text-red-500">{getFieldError('title')}</p>
+                          ) : (
+                            <p className="text-xs text-gray-500">{formData.title.length}/100 characters (min. 3)</p>
+                          )}
                         </div>
 
                         <div className="space-y-2">
@@ -1339,9 +1343,10 @@ export default function SellerDashboard() {
                           maxLength={200}
                           className={getFieldError('shortDesc') ? 'border-red-500' : ''}
                         />
-                        <p className="text-xs text-gray-500">{formData.shortDesc.length}/200 characters</p>
-                        {getFieldError('shortDesc') && (
+                        {getFieldError('shortDesc') ? (
                           <p className="text-xs text-red-500">{getFieldError('shortDesc')}</p>
+                        ) : (
+                          <p className="text-xs text-gray-500">{formData.shortDesc.length}/200 characters (min. 10)</p>
                         )}
                       </div>
 
@@ -1360,11 +1365,12 @@ export default function SellerDashboard() {
                           maxLength={5000}
                           rows={6}
                         />
-                        <p className="text-xs text-gray-500">
-                          {formData.longDescMd.length}/5000 characters. Supports markdown.
-                        </p>
-                        {getFieldError('longDescMd') && (
+                        {getFieldError('longDescMd') ? (
                           <p className="text-xs text-red-500">{getFieldError('longDescMd')}</p>
+                        ) : (
+                          <p className="text-xs text-gray-500">
+                            {formData.longDescMd.length}/5000 characters (min. 50). Supports markdown.
+                          </p>
                         )}
                       </div>
 
