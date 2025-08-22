@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase-server'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Get user for ownership check
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     const { id } = await params
     const workflowId = id
 
@@ -10,6 +17,41 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(workflowId)) {
       return NextResponse.json({ error: 'Invalid workflow ID format' }, { status: 400 })
+    }
+
+    // Check if user already owns this workflow and can review (if logged in)
+    let userOwnsWorkflow = false
+    let userCanReview = false
+    let userHasReviewed = false
+    if (user) {
+      const existingOrder = await prisma.order.findFirst({
+        where: {
+          userId: user.id,
+          status: {
+            in: ['paid', 'pending'], // Count both paid and pending purchases
+          },
+          items: {
+            some: {
+              workflowId: workflowId,
+            },
+          },
+        },
+      })
+      userOwnsWorkflow = !!existingOrder
+
+      // Check if user can leave a review (owns workflow and hasn't reviewed yet)
+      if (userOwnsWorkflow) {
+        const existingReview = await prisma.review.findUnique({
+          where: {
+            workflowId_userId: {
+              workflowId: workflowId,
+              userId: user.id,
+            },
+          },
+        })
+        userHasReviewed = !!existingReview
+        userCanReview = !userHasReviewed
+      }
     }
 
     // Fetch published workflow by ID (public access)
@@ -121,6 +163,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       slug: workflow.slug,
       createdAt: workflow.createdAt,
       updatedAt: workflow.updatedAt,
+      userOwnsWorkflow, // Add ownership status
+      userCanReview, // Add review eligibility
+      userHasReviewed, // Add review status
       version: latestVersion
         ? {
             semver: latestVersion.semver,

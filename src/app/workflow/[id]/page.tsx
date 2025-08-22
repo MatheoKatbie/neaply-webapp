@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { PurchaseButton } from '@/components/ui/purchase-button'
+import { ReviewSystem } from '@/components/ui/review-system'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -58,6 +59,9 @@ interface WorkflowDetail {
   slug: string
   createdAt: string
   updatedAt: string
+  userOwnsWorkflow?: boolean
+  userCanReview?: boolean
+  userHasReviewed?: boolean
   version: {
     semver: string
     changelog?: string
@@ -451,12 +455,27 @@ export default function WorkflowDetailPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <PurchaseButton
-                    workflowId={workflowId}
-                    price={workflow.price}
-                    currency={workflow.currency}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  />
+                  {workflow.userOwnsWorkflow ? (
+                    <div className="w-full">
+                      <Button
+                        disabled
+                        className="w-full bg-green-600 text-white cursor-not-allowed opacity-75"
+                      >
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Already Purchased
+                      </Button>
+                      <p className="text-sm text-gray-600 text-center mt-2">
+                        You already own this workflow
+                      </p>
+                    </div>
+                  ) : (
+                    <PurchaseButton
+                      workflowId={workflowId}
+                      price={workflow.price}
+                      currency={workflow.currency}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                    />
+                  )}
 
                   <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
@@ -471,10 +490,7 @@ export default function WorkflowDetailPage() {
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span>Free updates</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-green-500" />
-                      <span>30-day money-back guarantee</span>
-                    </div>
+
                   </div>
                 </CardContent>
               </Card>
@@ -538,6 +554,15 @@ export default function WorkflowDetailPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-12">
+            <ReviewSystem
+              workflowId={workflowId}
+              userCanReview={workflow.userCanReview}
+              userHasReviewed={workflow.userHasReviewed}
+            />
           </div>
         </div>
       </div>
