@@ -68,7 +68,9 @@ export function FileUpload({
         return
       }
 
-      onChange(file)
+      // Create a blob URL for preview
+      const previewUrl = URL.createObjectURL(file)
+      onChange(file, previewUrl)
     },
     [onChange, validateFile]
   )
@@ -134,7 +136,7 @@ export function FileUpload({
   }, [onBlur])
 
   const handleRemove = useCallback(() => {
-    onChange(null)
+    onChange(null, '')
     if (onRemove) {
       onRemove()
     }
@@ -260,7 +262,7 @@ export function FileUpload({
           className="hidden"
           onChange={handleFileInputChange}
           disabled={disabled}
-          required={required}
+          required={false}
         />
       </div>
 

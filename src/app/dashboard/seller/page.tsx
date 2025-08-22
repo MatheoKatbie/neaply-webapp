@@ -118,6 +118,14 @@ const useFormValidation = (formData: WorkflowFormData) => {
         if (!hasUrl && !hasSelectedFile) {
           return 'Documentation is required'
         }
+        // If we have a blob URL, we must have a selected file
+        if (value && value.startsWith('blob:') && !hasSelectedFile) {
+          return 'Documentation is required'
+        }
+        // If we have a valid URL (not blob), it's considered valid
+        if (hasUrl) {
+          return null
+        }
       }
 
       // Validate array fields (categories and tags)
@@ -363,6 +371,22 @@ export default function SellerDashboard() {
     }
   }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags])
 
+  // Force validation when documentation file changes
+  useEffect(() => {
+    if (touched.documentationUrl) {
+      validateField('documentationUrl', formData.documentationUrl)
+    }
+  }, [formData.documentationFile, formData.documentationUrl, touched.documentationUrl, validateField])
+
+  // Force validation when editing workflow with existing documentation
+  useEffect(() => {
+    if (editingWorkflow && formData.documentationUrl && !formData.documentationFile) {
+      // When editing, if we have a documentation URL but no file, mark as touched and validate
+      markFieldAsTouched('documentationUrl')
+      validateField('documentationUrl', formData.documentationUrl)
+    }
+  }, [editingWorkflow, formData.documentationUrl, formData.documentationFile, markFieldAsTouched, validateField])
+
   // Helper function to delete image from bucket
   const deleteImageFromBucket = async (imageUrl: string) => {
     try {
@@ -459,7 +483,9 @@ export default function SellerDashboard() {
       markFieldAsTouched(field)
     })
 
-    if (!isFormValid) {
+    // Force validation check
+    const isValid = validateForm()
+    if (!isValid) {
       setError('Please fix the validation errors before submitting')
       return
     }
@@ -640,8 +666,13 @@ export default function SellerDashboard() {
 
       // Mark the field as touched to trigger validation
       markFieldAsTouched('documentationUrl')
+
+      // Force immediate validation
+      setTimeout(() => {
+        validateField('documentationUrl', previewUrl || '')
+      }, 0)
     },
-    [markFieldAsTouched]
+    [markFieldAsTouched, validateField]
   )
 
   // Handle documentation file removal (preview only, no deletion)
@@ -1609,7 +1640,7 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-              <SellerAnalytics />
+            <SellerAnalytics />
           </TabsContent>
         </Tabs>
       </div>

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import {
   Star,
@@ -22,6 +22,7 @@ import {
   CheckCircle,
   ShoppingBag,
   ShoppingCart,
+  FileText,
 } from 'lucide-react'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { PurchaseButton } from '@/components/ui/purchase-button'
@@ -319,126 +320,94 @@ export default function WorkflowDetailPage() {
                 </div>
               </div>
 
-              {/* Tabs for Details */}
+              {/* Description Card */}
               <Card className="overflow-hidden">
-                <Tabs defaultValue="overview" className="p-0">
-                  <div className="bg-gray-50/80 border-b">
-                    <TabsList className="grid w-full grid-cols-2 bg-transparent h-auto p-1 gap-1">
-                      <TabsTrigger
-                        value="overview"
-                        className="relative rounded-lg cursor-pointer px-6 py-3 text-sm font-medium transition-all duration-200
-                                 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm
-                                 data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900
-                                 data-[state=inactive]:hover:bg-white/50"
-                      >
-                        Overview
-                      </TabsTrigger>
-
-                      <TabsTrigger
-                        value="reviews"
-                        className="relative rounded-lg cursor-pointer px-6 py-3 text-sm font-medium transition-all duration-200
-                                 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm
-                                 data-[state=inactive]:text-gray-600 data-[state=inactive]:hover:text-gray-900
-                                 data-[state=inactive]:hover:bg-white/50"
-                      >
-                        Reviews
-                      </TabsTrigger>
-                    </TabsList>
-                  </div>
-
-                  <TabsContent value="overview" className="p-6">
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">Description</h3>
-                        <div className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100">
-                          {workflow.longDescMd ? (
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
-                              rehypePlugins={[rehypeHighlight, rehypeRaw]}
-                              components={{
-                                code: ({ className, children, ...props }) => {
-                                  const match = /language-(\w+)/.exec(className || '')
-                                  const isInline = !match
-                                  return isInline ? (
-                                    <code className="bg-blue-50 text-blue-600 px-1 py-0.5 rounded text-sm" {...props}>
+                <div className="p-6">
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Description</h3>
+                      <div className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100">
+                        {workflow.longDescMd ? (
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeHighlight, rehypeRaw]}
+                            components={{
+                              code: ({ className, children, ...props }) => {
+                                const match = /language-(\w+)/.exec(className || '')
+                                const isInline = !match
+                                return isInline ? (
+                                  <code className="bg-blue-50 text-blue-600 px-1 py-0.5 rounded text-sm" {...props}>
+                                    {children}
+                                  </code>
+                                ) : (
+                                  <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto">
+                                    <code className={className} {...props}>
                                       {children}
                                     </code>
-                                  ) : (
-                                    <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto">
-                                      <code className={className} {...props}>
-                                        {children}
-                                      </code>
-                                    </pre>
-                                  )
-                                },
-                                blockquote: ({ children }) => (
-                                  <blockquote className="border-l-4 border-blue-200 bg-blue-50/50 pl-4 py-2 my-4 italic text-gray-700">
-                                    {children}
-                                  </blockquote>
-                                ),
-                                ul: ({ children }) => (
-                                  <ul className="list-disc pl-6 space-y-1 text-gray-700">{children}</ul>
-                                ),
-                                ol: ({ children }) => (
-                                  <ol className="list-decimal pl-6 space-y-1 text-gray-700">{children}</ol>
-                                ),
-                                h1: ({ children }) => (
-                                  <h1 className="text-2xl font-bold text-gray-900 mt-6 mb-4">{children}</h1>
-                                ),
-                                h2: ({ children }) => (
-                                  <h2 className="text-xl font-semibold text-gray-900 mt-5 mb-3">{children}</h2>
-                                ),
-                                h3: ({ children }) => (
-                                  <h3 className="text-lg font-medium text-gray-900 mt-4 mb-2">{children}</h3>
-                                ),
-                              }}
-                            >
-                              {workflow.longDescMd}
-                            </ReactMarkdown>
-                          ) : (
-                            <p className="text-gray-700">{workflow.shortDesc}</p>
-                          )}
-                        </div>
+                                  </pre>
+                                )
+                              },
+                              blockquote: ({ children }) => (
+                                <blockquote className="border-l-4 border-blue-200 bg-blue-50/50 pl-4 py-2 my-4 italic text-gray-700">
+                                  {children}
+                                </blockquote>
+                              ),
+                              ul: ({ children }) => (
+                                <ul className="list-disc pl-6 space-y-1 text-gray-700">{children}</ul>
+                              ),
+                              ol: ({ children }) => (
+                                <ol className="list-decimal pl-6 space-y-1 text-gray-700">{children}</ol>
+                              ),
+                              h1: ({ children }) => (
+                                <h1 className="text-2xl font-bold text-gray-900 mt-6 mb-4">{children}</h1>
+                              ),
+                              h2: ({ children }) => (
+                                <h2 className="text-xl font-semibold text-gray-900 mt-5 mb-3">{children}</h2>
+                              ),
+                              h3: ({ children }) => (
+                                <h3 className="text-lg font-medium text-gray-900 mt-4 mb-2">{children}</h3>
+                              ),
+                            }}
+                          >
+                            {workflow.longDescMd}
+                          </ReactMarkdown>
+                        ) : (
+                          <p className="text-gray-700">{workflow.shortDesc}</p>
+                        )}
                       </div>
+                    </div>
 
-                      <Separator />
+                    <Separator />
 
-                      {workflow.version ? (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-3">Version Information</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <span className="text-sm font-medium text-gray-500">Current Version</span>
-                              <p className="text-lg">{workflow.version.semver}</p>
-                            </div>
-                            {workflow.version.n8nMinVersion && (
-                              <div>
-                                <span className="text-sm font-medium text-gray-500">Minimum n8n Version</span>
-                                <p className="text-lg">{workflow.version.n8nMinVersion}</p>
-                              </div>
-                            )}
+                    {workflow.version ? (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Version Information</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-sm font-medium text-gray-500">Current Version</span>
+                            <p className="text-lg">{workflow.version.semver}</p>
                           </div>
-                          {workflow.version.changelog && (
-                            <div className="mt-4">
-                              <span className="text-sm font-medium text-gray-500">Changelog</span>
-                              <p className="mt-1">{workflow.version.changelog}</p>
+                          {workflow.version.n8nMinVersion && (
+                            <div>
+                              <span className="text-sm font-medium text-gray-500">Minimum n8n Version</span>
+                              <p className="text-lg">{workflow.version.n8nMinVersion}</p>
                             </div>
                           )}
                         </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-500">No version information available</p>
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="reviews" className="p-6">
-                    <div className="text-center py-8">
-                      <p className="text-gray-500">Reviews will be implemented soon</p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                        {workflow.version.changelog && (
+                          <div className="mt-4">
+                            <span className="text-sm font-medium text-gray-500">Changelog</span>
+                            <p className="mt-1">{workflow.version.changelog}</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-500">No version information available</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </Card>
             </div>
 
@@ -457,16 +426,11 @@ export default function WorkflowDetailPage() {
                 <CardContent className="space-y-4">
                   {workflow.userOwnsWorkflow ? (
                     <div className="w-full">
-                      <Button
-                        disabled
-                        className="w-full bg-green-600 text-white cursor-not-allowed opacity-75"
-                      >
+                      <Button disabled className="w-full bg-green-600 text-white cursor-not-allowed opacity-75">
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
-                      <p className="text-sm text-gray-600 text-center mt-2">
-                        You already own this workflow
-                      </p>
+                      <p className="text-sm text-gray-600 text-center mt-2">You already own this workflow</p>
                     </div>
                   ) : (
                     <PurchaseButton
@@ -490,7 +454,10 @@ export default function WorkflowDetailPage() {
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span>Free updates</span>
                     </div>
-
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-green-500" />
+                      <span>Documentation available</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

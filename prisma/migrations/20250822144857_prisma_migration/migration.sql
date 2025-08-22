@@ -12,6 +12,9 @@ ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL,
 ALTER COLUMN "rating" SET DATA TYPE SMALLINT,
 ALTER COLUMN "title" SET DATA TYPE VARCHAR(200);
 
+-- AlterTable
+ALTER TABLE "public"."Workflow" ADD COLUMN     "documentationUrl" TEXT;
+
 -- CreateTable
 CREATE TABLE "public"."ReviewHelpfulVote" (
     "id" UUID NOT NULL,
