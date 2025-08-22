@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { SellerAnalytics } from '@/components/ui/seller-analytics'
@@ -781,7 +782,7 @@ export default function SellerDashboard() {
           longDescMd: '',
           heroImageUrl: '',
           heroImageFile: undefined,
-          documentationUrl: '',
+          documentationUrl: workflow.documentationUrl || '',
           documentationFile: undefined,
           basePriceCents: workflow.basePriceCents,
           currency: workflow.currency,

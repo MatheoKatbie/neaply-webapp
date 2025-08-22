@@ -178,6 +178,17 @@ export function FileUpload({
     return null
   }
 
+  // Get the display text for the file status
+  const getFileStatusText = () => {
+    if (selectedFile) {
+      return 'Document selected'
+    }
+    if (value && !value.startsWith('blob:')) {
+      return 'Document uploaded'
+    }
+    return 'Document selected'
+  }
+
   // Check if we have a file to display
   const hasFile = selectedFile || (value && !value.startsWith('blob:'))
 
@@ -210,7 +221,7 @@ export function FileUpload({
               <div className="text-gray-600">{getFileIcon(getDisplayFileName() || 'document')}</div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{getDisplayFileName()}</p>
-                <p className="text-xs text-gray-500">{selectedFile ? 'Document selected' : 'Document uploaded'}</p>
+                <p className="text-xs text-gray-500">{getFileStatusText()}</p>
               </div>
             </div>
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
