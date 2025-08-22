@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { SellerAnalytics } from '@/components/ui/seller-analytics'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
@@ -1608,31 +1609,7 @@ export default function SellerDashboard() {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Analytics & Performance</CardTitle>
-                <CardDescription>Track your workflow performance and sales metrics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <div className="mx-auto h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics Coming Soon</h3>
-                  <p className="text-gray-500">
-                    We're working on detailed analytics to help you track your workflow performance, sales trends, and
-                    customer insights.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+              <SellerAnalytics />
           </TabsContent>
         </Tabs>
       </div>

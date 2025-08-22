@@ -64,13 +64,6 @@ export default function Home() {
               <div className="absolute bottom-20 right-10 w-24 h-24 bg-gray-400 rounded-full opacity-30 animate-pulse"></div>
             </div>
 
-            {/* Badge */}
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gray-100 backdrop-blur-md border border-gray-300 text-sm font-medium text-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-              <div className="w-2 h-2 bg-black rounded-full animate-pulse"></div>
-              <Sparkles className="w-4 h-4 text-gray-600" />
-              The Future of Workflow Automation
-            </div>
-
             {/* Main Headline */}
             <div className="space-y-6">
               <h1 className="text-5xl sm:text-7xl lg:text-8xl font-space-grotesk font-bold tracking-tight leading-tight">
