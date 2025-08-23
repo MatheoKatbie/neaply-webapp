@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Heart, Star, ShoppingCart, Zap, Search } from 'lucide-react'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 
 interface FavoriteWorkflow {
@@ -199,7 +200,7 @@ export default function FavoritesPage() {
                 </div>
 
                 {/* Hero image */}
-                <div className="h-48 bg-gradient-to-br from-blue-50 to-purple-50 relative overflow-hidden">
+                <div className="h-48 relative overflow-hidden">
                   {workflow.heroImage ? (
                     <img
                       src={workflow.heroImage}
@@ -207,18 +208,19 @@ export default function FavoritesPage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{
-                        background: `linear-gradient(135deg, 
-                                        hsl(${(parseInt(workflow.id) * 137.5) % 360}, 60%, 70%), 
-                                        hsl(${(parseInt(workflow.id) * 137.5 + 60) % 360}, 60%, 80%))`,
+                    <AutoThumbnail
+                      workflow={{
+                        id: workflow.id,
+                        title: workflow.title,
+                        shortDesc: workflow.description,
+                        longDescMd: '',
+                        categories: workflow.categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
+                        tags: workflow.tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
+                        platform: undefined,
                       }}
-                    >
-                      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
-                        <Zap className="w-8 h-8 text-white" />
-                      </div>
-                    </div>
+                      size="md"
+                      className="w-full h-full"
+                    />
                   )}
                 </div>
 

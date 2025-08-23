@@ -7,6 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
+import { AnimatedHeart } from '@/components/ui/animated-heart'
+import { Separator } from '@/components/ui/separator'
+import { PlatformBadge } from '@/components/ui/platform-badge'
 import {
   Star,
   Globe,
@@ -21,6 +24,7 @@ import {
   Download,
   Heart,
 } from 'lucide-react'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 
 interface StoreWorkflow {
   id: string
@@ -30,6 +34,7 @@ interface StoreWorkflow {
   heroImage?: string
   price: number
   currency: string
+  platform?: string
   rating: number
   ratingCount: number
   salesCount: number
@@ -67,6 +72,176 @@ interface StoreData {
     memberSince: string
   }
   workflows: StoreWorkflow[]
+}
+
+function WorkflowCard({
+  id,
+  title,
+  shortDesc,
+  price,
+  currency,
+  platform,
+  rating,
+  ratingCount,
+  salesCount,
+  heroImage,
+  categories,
+  tags,
+  storeName,
+}: StoreWorkflow & { storeName: string }) {
+  const router = useRouter()
+  const [favorite, setFavorite] = useState(false)
+
+  const handleCardClick = () => {
+    router.push(`/workflow/${id}`)
+  }
+
+  const handleFavoriteClick = async (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+
+    try {
+      if (favorite) {
+        // Remove from favorites
+        const response = await fetch('/api/favorites', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ workflowId: id }),
+        })
+
+        if (response.ok) {
+          setFavorite(false)
+        }
+      } else {
+        // Add to favorites
+        const response = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ workflowId: id }),
+        })
+
+        if (response.ok) {
+          setFavorite(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error updating favorites:', error)
+    }
+  }
+
+  const formatPrice = (price: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(price / 100)
+  }
+
+  return (
+    <Card
+      className="cursor-pointer hover:shadow-lg transition-all duration-300 group relative overflow-hidden py-0 pb-6"
+      onClick={handleCardClick}
+    >
+      {/* Favorite button */}
+      <div className="absolute top-3 right-3 z-10">
+        <AnimatedHeart
+          isFavorite={favorite}
+          onToggle={(e) => handleFavoriteClick(e)}
+          className="bg-white/80 hover:bg-white/90"
+          size="md"
+        />
+      </div>
+
+      {/* Hero image */}
+      <div className="h-48 relative overflow-hidden">
+        {heroImage ? (
+          <img
+            src={heroImage}
+            alt={title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <AutoThumbnail
+            workflow={{
+              id,
+              title,
+              shortDesc,
+              longDescMd: '',
+              categories: categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
+              tags: tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
+              platform,
+            }}
+            size="md"
+            className="w-full h-full"
+          />
+        )}
+
+        {/* Platform badge */}
+        {platform && (
+          <div className="absolute top-3 left-3 z-10">
+            <PlatformBadge platform={platform} size="sm" variant="default" className="shadow-sm" />
+          </div>
+        )}
+      </div>
+
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-semibold group-hover:text-gray-900 transition-colors">{title}</CardTitle>
+        <CardDescription className="text-sm text-gray-600 line-clamp-2">{shortDesc}</CardDescription>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {/* Categories and tags */}
+        <div className="space-y-2">
+          <div className="flex flex-wrap gap-1">
+            {categories.slice(0, 2).map((category) => (
+              <Badge key={category} variant="secondary" className="text-xs">
+                {category}
+              </Badge>
+            ))}
+            {categories.length > 2 && (
+              <Badge variant="outline" className="text-xs">
+                +{categories.length - 2}
+              </Badge>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {tags.slice(0, 3).map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs text-gray-500">
+                #{tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Seller and stats */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">by {storeName}</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+                <span className="text-xs text-gray-500">({ratingCount})</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <Download className="w-3 h-3" />
+              <span>{salesCount} sales</span>
+            </div>
+            <div className="text-lg font-bold text-green-600">{formatPrice(price, currency)}</div>
+          </div>
+        </div>
+        <Button className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800">View Workflow</Button>
+      </CardContent>
+    </Card>
+  )
 }
 
 export default function StorePage() {
@@ -347,80 +522,7 @@ export default function StorePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {store.workflows.map((workflow) => (
-                <Card
-                  key={workflow.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => router.push(`/workflow/${workflow.id}`)}
-                >
-                  <div className="h-48 relative">
-                    {workflow.heroImage ? (
-                      <img src={workflow.heroImage} alt={workflow.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div
-                        className="w-full h-full flex items-center justify-center"
-                        style={{
-                          background: `linear-gradient(135deg, 
-                                                      hsl(${(parseInt(workflow.id) * 137.5) % 360}, 60%, 70%), 
-                                                      hsl(${(parseInt(workflow.id) * 137.5 + 60) % 360}, 60%, 80%))`,
-                        }}
-                      >
-                        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
-                          <Zap className="w-8 h-8 text-white" />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Price badge */}
-                    <div className="absolute top-3 right-3">
-                      <Badge className="bg-green-600 hover:bg-green-700 text-white font-semibold">
-                        {formatPrice(workflow.price, workflow.currency)}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <CardHeader>
-                    <CardTitle className="text-lg">{workflow.title}</CardTitle>
-                    <CardDescription className="line-clamp-2">{workflow.shortDesc}</CardDescription>
-                  </CardHeader>
-
-                  <CardContent>
-                    <div className="space-y-3">
-                      {/* Categories */}
-                      <div className="flex flex-wrap gap-1">
-                        {workflow.categories.slice(0, 2).map((category) => (
-                          <Badge key={category} variant="secondary" className="text-xs">
-                            {category}
-                          </Badge>
-                        ))}
-                        {workflow.categories.length > 2 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{workflow.categories.length - 2}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Stats */}
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                            <span>{workflow.rating.toFixed(1)}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Download className="w-3 h-3" />
-                            <span>{workflow.salesCount}</span>
-                          </div>
-                        </div>
-                        {workflow.version && (
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <span>v{workflow.version.semver}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <WorkflowCard key={workflow.id} {...workflow} storeName={store.storeName} />
               ))}
             </div>
           )}

@@ -16,6 +16,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const { user, signOut, loading } = useAuth()
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const isHomepage = pathname === '/'
 
@@ -59,14 +60,35 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.body.style.overflow = 'unset'
+    }
+  }, [isMenuOpen])
+
   return (
-    <nav className="static top-0 left-0 z-50 w-full bg-white/90 backdrop-blur-md rounded-none border-b border-gray-200 shadow-sm md:fixed md:top-4 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[min(96vw,1280px)] md:rounded-full md:border md:shadow-lg">
+    <nav className="static top-0 left-0 z-50 w-full bg-white rounded-none border-b border-gray-200 shadow-sm md:fixed md:top-4 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[min(96vw,1280px)] md:rounded-full md:border md:shadow-lg">
       <div className="w-full px-4 md:px-6">
         <div className="flex justify-between items-center h-14">
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/images/logo_flowmarket_256.png" alt="FlowMarket Logo" width={30} height={30} />
-              <span className="font-space-grotesk text-xl font-bold text-black">FlowMarket</span>
+              <Image src="/images/logo_flowmarket_256.png" alt="Flow Market Logo" width={30} height={30} />
+              <span className="font-space-grotesk text-xl font-bold text-black">Flow Market</span>
             </Link>
           </div>
 
@@ -138,7 +160,7 @@ export default function Navbar() {
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                       {/* User Info Section */}
                       <div className="px-4 py-3 border-b border-gray-200">
                         <div className="flex items-center space-x-3">
@@ -234,47 +256,82 @@ export default function Navbar() {
           </div>
         </div>
 
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white/95 backdrop-blur-md rounded-2xl mt-2 border border-gray-200 shadow-lg">
-              <Link
-                href="/marketplace"
-                className="font-inter text-gray-700 hover:text-black block px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100"
+        {/* Mobile Menu with Animation */}
+        <div
+          ref={menuRef}
+          className={`md:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${
+            isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div
+            className={`fixed top-0 right-0 w-80 h-full bg-white backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
+            style={{ height: '100vh' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Mobile Menu Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white">
+              <div className="flex items-center gap-2">
+                <Image src="/images/logo_flowmarket_256.png" alt="Flow Market Logo" width={24} height={24} />
+                <span className="font-space-grotesk text-lg font-bold text-black">Flow Market</span>
+              </div>
+              <button
                 onClick={() => setIsMenuOpen(false)}
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-black transition-colors duration-200"
               >
-                Marketplace
-              </Link>
-              {user && user.isSeller && (
-                <Link
-                  href={`/store/${storeSlug || user.id}`}
-                  className="font-inter text-gray-700 hover:text-black block px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Your Store
-                </Link>
-              )}
-              {user && (
-                <Link
-                  href="/favorites"
-                  className="font-inter text-gray-700 hover:text-black px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100 flex items-center gap-1"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Favorites
-                </Link>
-              )}
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-              <div className="pt-4 space-y-2">
+            {/* Mobile Menu Content */}
+            <div className="p-6 space-y-6 bg-white">
+              {/* Navigation Links */}
+              <div className="space-y-1">
+                <Link
+                  href="/marketplace"
+                  className="block text-gray-700 hover:text-black py-3 text-base font-medium transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Marketplace
+                </Link>
+                {user && user.isSeller && (
+                  <Link
+                    href={`/store/${storeSlug || user.id}`}
+                    className="block text-gray-700 hover:text-black py-3 text-base font-medium transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Your Store
+                  </Link>
+                )}
+                {user && (
+                  <Link
+                    href="/favorites"
+                    className="block text-gray-700 hover:text-black py-3 text-base font-medium transition-colors duration-200 flex items-center gap-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Heart className="h-4 w-4" />
+                    Favorites
+                  </Link>
+                )}
+              </div>
+
+              {/* User Actions */}
+              <div className="space-y-3">
                 {loading ? (
-                  <div className="space-y-2">
-                    <div className="h-10 w-full bg-gray-200 rounded-full animate-pulse"></div>
-                    <div className="h-10 w-full bg-gray-200 rounded-full animate-pulse"></div>
+                  <div className="space-y-3">
+                    <div className="h-12 w-full bg-gray-200 rounded-lg animate-pulse"></div>
+                    <div className="h-12 w-full bg-gray-200 rounded-lg animate-pulse"></div>
                   </div>
                 ) : user ? (
                   // Logged in user - mobile
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {!user.isSeller && (
                       <button
-                        className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-black border border-black text-white rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-800"
+                        className="w-full bg-black text-white py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-gray-800"
                         onClick={() => {
                           router.push('/become-seller')
                           setIsMenuOpen(false)
@@ -285,7 +342,7 @@ export default function Navbar() {
                     )}
                     {user.isSeller && (
                       <button
-                        className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-black border border-black text-white rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-800"
+                        className="w-full bg-black text-white py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-gray-800"
                         onClick={() => {
                           router.push('/dashboard/seller')
                           setIsMenuOpen(false)
@@ -295,13 +352,13 @@ export default function Navbar() {
                       </button>
                     )}
 
-                    {/* Mobile dropdown items */}
+                    {/* Mobile menu items without borders */}
                     <button
                       onClick={() => {
                         router.push('/orders')
                         setIsMenuOpen(false)
                       }}
-                      className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-transparent border border-gray-300 text-gray-700 rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-100 hover:text-black cursor-pointer"
+                      className="w-full text-gray-700 hover:text-black py-3 px-4 text-sm font-medium transition-colors duration-200 text-left"
                     >
                       Orders History
                     </button>
@@ -310,7 +367,7 @@ export default function Navbar() {
                         router.push('/help')
                         setIsMenuOpen(false)
                       }}
-                      className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-transparent border border-gray-300 text-gray-700 rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-100 hover:text-black cursor-pointer"
+                      className="w-full text-gray-700 hover:text-black py-3 px-4 text-sm font-medium transition-colors duration-200 text-left"
                     >
                       Help & Support
                     </button>
@@ -319,7 +376,7 @@ export default function Navbar() {
                         router.push('/settings')
                         setIsMenuOpen(false)
                       }}
-                      className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-transparent border border-gray-300 text-gray-700 rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-100 hover:text-black cursor-pointer"
+                      className="w-full text-gray-700 hover:text-black py-3 px-4 text-sm font-medium transition-colors duration-200 text-left"
                     >
                       Settings
                     </button>
@@ -328,16 +385,16 @@ export default function Navbar() {
                         handleLogout()
                         setIsMenuOpen(false)
                       }}
-                      className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-transparent border border-red-500 text-red-500 rounded-full text-sm font-medium transition-all duration-300 hover:bg-red-500 hover:text-white cursor-pointer"
+                      className="w-full text-red-600 hover:text-red-700 py-3 px-4 text-sm font-medium transition-colors duration-200 text-left"
                     >
                       Logout
                     </button>
                   </div>
                 ) : (
                   // Not logged in - mobile
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <button
-                      className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-transparent border border-black text-black rounded-full text-sm font-medium transition-all duration-300 hover:bg-black hover:text-white"
+                      className="w-full bg-transparent text-black py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-gray-100"
                       onClick={() => {
                         router.push('/auth/login')
                         setIsMenuOpen(false)
@@ -346,7 +403,7 @@ export default function Navbar() {
                       Login
                     </button>
                     <button
-                      className="font-inter w-full inline-flex items-center justify-center h-10 px-4 bg-black border border-black text-white rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-800"
+                      className="w-full bg-black text-white py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-gray-800"
                       onClick={() => {
                         router.push('/auth/register')
                         setIsMenuOpen(false)
@@ -359,7 +416,7 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </nav>
   )

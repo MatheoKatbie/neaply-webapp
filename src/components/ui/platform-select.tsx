@@ -32,7 +32,7 @@ const platforms: Platform[] = [
     description: 'Visual platform for creating automated workflows',
   },
   {
-    value: 'airtable-script',
+    value: 'airtable_script',
     label: 'Airtable Script',
     logo: '/images/company-logo/airtable-logo.png',
     description: 'Custom automation scripts for Airtable',

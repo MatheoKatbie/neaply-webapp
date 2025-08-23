@@ -78,6 +78,7 @@ export interface WorkflowFormData {
   basePriceCents: number
   currency: string
   status: 'draft' | 'published' | 'unlisted' | 'disabled'
+  platform?: string
   jsonContent?: any
   jsonFile?: File
   n8nMinVersion?: string

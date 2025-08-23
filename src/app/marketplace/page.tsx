@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Star, Search, Filter, Download, Eye, Zap, Clock, DollarSign } from 'lucide-react'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -139,7 +140,7 @@ function WorkflowCard({
       </div>
 
       {/* Hero image */}
-      <div className="h-48 bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+      <div className="h-48 relative overflow-hidden">
         {heroImage ? (
           <img
             src={heroImage}
@@ -147,19 +148,19 @@ function WorkflowCard({
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          // Temporary placeholder with dynamic colors based on workflow ID
-          <div
-            className="w-full h-full flex items-center justify-center"
-            style={{
-              background: `linear-gradient(135deg, 
-                                hsl(${(parseInt(id) * 137.5) % 360}, 60%, 70%), 
-                                hsl(${(parseInt(id) * 137.5 + 60) % 360}, 60%, 80%))`,
+          <AutoThumbnail
+            workflow={{
+              id,
+              title,
+              shortDesc: description,
+              longDescMd: '',
+              categories: categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
+              tags: tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
+              platform,
             }}
-          >
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
-              <Zap className="w-8 h-8 text-white" />
-            </div>
-          </div>
+            size="md"
+            className="w-full h-full"
+          />
         )}
 
         {/* Platform badge */}
@@ -236,6 +237,7 @@ export default function MarketplacePage() {
   const [sortBy, setSortBy] = useState('popular')
   const [workflows, setWorkflows] = useState<WorkflowCardProps[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [categories, setCategories] = useState<CategoryData[]>([])
   const [pagination, setPagination] = useState({
     page: 1,
@@ -246,13 +248,17 @@ export default function MarketplacePage() {
   })
 
   // Fetch workflows from API
-  const fetchWorkflows = async () => {
+  const fetchWorkflows = async (page = 1, append = false) => {
     try {
-      setLoading(true)
+      if (page === 1) {
+        setLoading(true)
+      } else {
+        setLoadingMore(true)
+      }
 
       // Build query parameters
       const params = new URLSearchParams({
-        page: '1',
+        page: page.toString(),
         limit: '12',
         sortBy: sortBy,
       })
@@ -281,21 +287,38 @@ export default function MarketplacePage() {
 
       const data: MarketplaceResponse = await response.json()
 
-      setWorkflows(data.data || [])
+      if (append) {
+        // Append new workflows to existing list
+        setWorkflows((prev) => [...prev, ...(data.data || [])])
+      } else {
+        // Replace workflows (for new searches/filters)
+        setWorkflows(data.data || [])
+      }
+
       setCategories(data.categories || [])
       setPagination(data.pagination)
     } catch (error) {
       console.error('Error fetching workflows:', error)
-      setWorkflows([])
-      setCategories([])
+      if (!append) {
+        setWorkflows([])
+        setCategories([])
+      }
     } finally {
       setLoading(false)
+      setLoadingMore(false)
+    }
+  }
+
+  // Load more workflows function
+  const loadMoreWorkflows = async () => {
+    if (pagination.hasNext && !loadingMore) {
+      await fetchWorkflows(pagination.page + 1, true)
     }
   }
 
   // Fetch workflows on component mount and when filters change
   useEffect(() => {
-    fetchWorkflows()
+    fetchWorkflows(1, false)
   }, [searchQuery, selectedCategory, priceRange.min, priceRange.max, sortBy])
 
   // Workflows are already filtered and sorted by the API
@@ -478,15 +501,8 @@ export default function MarketplacePage() {
           {/* Load More Button */}
           {sortedWorkflows.length > 0 && !loading && pagination.hasNext && (
             <div className="text-center mt-12">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  // TODO: Implement pagination
-                  console.log('Load more clicked - implement pagination')
-                }}
-              >
-                Load More Workflows
+              <Button variant="outline" size="lg" onClick={loadMoreWorkflows} disabled={loadingMore}>
+                {loadingMore ? 'Loading...' : 'Load More Workflows'}
               </Button>
               <p className="text-sm text-gray-500 mt-2">
                 Showing {sortedWorkflows.length} of {pagination.totalCount} workflows

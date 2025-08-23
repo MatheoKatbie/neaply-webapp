@@ -9,13 +9,16 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { AnimatedHeart } from '@/components/ui/animated-heart'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
-import { PlatformBadge } from '@/components/ui/platform-badge'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
+import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
+import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
 import {
   ArrowLeft,
+  BarChart3,
   CheckCircle,
   Download,
   Eye,
@@ -202,18 +205,18 @@ export default function WorkflowDetailPage() {
       const response = await fetch(`/api/workflows/${workflowId}/download`, {
         credentials: 'include',
       })
-      
+
       if (!response.ok) {
         throw new Error('Failed to download workflow')
       }
-      
+
       const data = await response.json()
-      
+
       // Create and download the JSON file
       const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
         type: 'application/json',
       })
-      
+
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -293,22 +296,23 @@ export default function WorkflowDetailPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Hero Image and Title */}
               <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div className="h-64 bg-gradient-to-br from-blue-50 to-purple-50 relative">
+                <div className="h-64 relative">
                   {workflow.heroImage ? (
                     <img src={workflow.heroImage} alt={workflow.title} className="w-full h-full object-cover" />
                   ) : (
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{
-                        background: `linear-gradient(135deg, 
-                                                    hsl(${(parseInt(workflow.id) * 137.5) % 360}, 60%, 70%), 
-                                                    hsl(${(parseInt(workflow.id) * 137.5 + 60) % 360}, 60%, 80%))`,
+                    <AutoThumbnail
+                      workflow={{
+                        id: workflow.id,
+                        title: workflow.title,
+                        shortDesc: workflow.shortDesc,
+                        longDescMd: workflow.longDescMd || '',
+                        categories: workflow.categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
+                        tags: workflow.tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
+                        platform: workflow.platform,
                       }}
-                    >
-                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
-                        <Zap className="w-10 h-10 text-white" />
-                      </div>
-                    </div>
+                      size="lg"
+                      className="w-full h-full"
+                    />
                   )}
 
                   {/* Platform badge */}
@@ -446,6 +450,29 @@ export default function WorkflowDetailPage() {
 
                     <Separator />
 
+                    {/* Workflow Analysis */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold">Technical Analysis</h3>
+                        <WorkflowAnalysisModal
+                          workflowId={workflowId}
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                            >
+                              <BarChart3 className="w-4 h-4 mr-2" />
+                              View Advanced Analysis
+                            </Button>
+                          }
+                        />
+                      </div>
+                      <WorkflowAnalysisPreview workflowId={workflowId} />
+                    </div>
+
+                    <Separator />
+
                     {workflow.version ? (
                       <div>
                         <h3 className="text-lg font-semibold mb-3">Version Information</h3>
@@ -497,7 +524,7 @@ export default function WorkflowDetailPage() {
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
-                      <Button 
+                      <Button
                         onClick={() => handleDownload(workflowId, workflow.title)}
                         className="w-full bg-blue-600 hover:bg-blue-700"
                       >

@@ -114,6 +114,13 @@ model SellerProfile {
   countryCode  String?
   payoutMethod Json?
   status       SellerProfileStatus @default(active)
+  
+  // Stripe Connect fields
+  stripeAccountId String?          // Stripe Connect account ID
+  stripeOnboardingCompleted Boolean @default(false)
+  stripeOnboardingUrl String?      // URL for onboarding completion
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 /**
