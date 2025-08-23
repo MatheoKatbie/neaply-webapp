@@ -68,19 +68,19 @@ export default function Home() {
             <div className="space-y-6">
               <h1 className="text-5xl sm:text-7xl lg:text-8xl font-space-grotesk font-bold tracking-tight leading-tight">
                 <div className="relative inline-block">
-                  <span className="text-black">Craft & Share</span>
+                  <span className="text-black">The Ultimate</span>
                   <div className="absolute -inset-1 bg-gray-200/30 blur-lg -z-10 animate-pulse"></div>
                 </div>
                 <br />
                 <div className="relative inline-block mt-4">
-                  <span className="text-gray-700">n8n Magic</span>
+                  <span className="text-gray-700">Automation Hub</span>
                   <div className="absolute -inset-1 bg-gray-300/30 blur-xl -z-10 animate-pulse"></div>
                 </div>
               </h1>
 
               <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light">
-                Where automation dreams come to life. Discover enchanting workflows, share your creations, and join a
-                community of digital artisans.
+                Where n8n, Make, Airtable, and Zapier workflows come together. Discover, share, and monetize your
+                automation creations in one unified marketplace.
               </p>
             </div>
 

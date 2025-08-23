@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
+import { getLatestWorkflowVersionWithDecryptedContent } from '@/lib/workflow-version'
 
 // Helper function to get authenticated user
 async function getAuthenticatedUser() {
@@ -9,7 +10,7 @@ async function getAuthenticatedUser() {
     data: { user },
     error,
   } = await supabase.auth.getUser()
-  
+
   if (error || !user) {
     return null
   }
@@ -44,7 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     const { id } = await params
-    
+
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(id)) {
@@ -56,35 +57,29 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     // Check if user owns this workflow
     const hasAccess = await userOwnsWorkflow(user.id, workflowId)
     if (!hasAccess) {
-      return NextResponse.json({ error: 'Access denied. You must purchase this workflow to download it.' }, { status: 403 })
+      return NextResponse.json(
+        { error: 'Access denied. You must purchase this workflow to download it.' },
+        { status: 403 }
+      )
     }
 
-    // Get the workflow with its latest version
+    // Get the workflow with its latest version and decrypted content
     const workflow = await prisma.workflow.findUnique({
       where: { id: workflowId },
-      include: {
-        versions: {
-          where: { isLatest: true },
-          take: 1,
-        },
-      },
     })
 
     if (!workflow) {
       return NextResponse.json({ error: 'Workflow not found' }, { status: 404 })
     }
 
-    if (!workflow.versions || workflow.versions.length === 0) {
-      return NextResponse.json({ error: 'No workflow version available for download' }, { status: 404 })
-    }
+    // Get latest version with decrypted content
+    const latestVersion = await getLatestWorkflowVersionWithDecryptedContent(workflowId)
 
-    const latestVersion = workflow.versions[0]
-    
     if (!latestVersion.jsonContent) {
       return NextResponse.json({ error: 'Workflow content not available' }, { status: 404 })
     }
 
-    // Return the workflow JSON content
+    // Return the decrypted workflow JSON content
     return NextResponse.json({
       workflow: latestVersion.jsonContent,
       metadata: {

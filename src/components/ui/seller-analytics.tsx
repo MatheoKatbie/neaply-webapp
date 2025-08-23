@@ -4,13 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   LineChart,
   Line,
@@ -25,16 +19,7 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import {
-  TrendingUp,
-  Heart,
-  Package,
-  DollarSign,
-  Star,
-  Eye,
-  Calendar,
-  RefreshCw,
-} from 'lucide-react'
+import { TrendingUp, Heart, Package, DollarSign, Star, Eye, Calendar, RefreshCw } from 'lucide-react'
 
 interface AnalyticsData {
   overview: {
@@ -112,13 +97,13 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
     try {
       setLoading(true)
       setError(null)
-      
+
       const response = await fetch(`/api/seller/analytics?months=${timeRange}`)
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch analytics')
       }
-      
+
       const result = await response.json()
       setData(result.data)
     } catch (err) {
@@ -161,9 +146,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
             <div className="text-red-500 mb-4">
               <TrendingUp className="w-12 h-12" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {error || 'Failed to load analytics'}
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{error || 'Failed to load analytics'}</h3>
             <Button onClick={fetchAnalytics} variant="outline">
               <RefreshCw className="w-4 h-4 mr-2" />
               Try Again
@@ -248,9 +231,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(data.overview.totalRevenueCents)}
-            </div>
+            <div className="text-2xl font-bold">{formatCurrency(data.overview.totalRevenueCents)}</div>
             <p className="text-xs text-muted-foreground">All time earnings</p>
           </CardContent>
         </Card>
@@ -269,20 +250,16 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data.salesOverTime}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="month" 
-                    tickFormatter={formatMonth}
-                    fontSize={12}
-                  />
+                  <XAxis dataKey="month" tickFormatter={formatMonth} fontSize={12} />
                   <YAxis fontSize={12} />
-                  <Tooltip 
+                  <Tooltip
                     labelFormatter={(value) => formatMonth(value as string)}
                     formatter={(value: number) => [value, 'Workflows Sold']}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="workflowsSold" 
-                    stroke="#3B82F6" 
+                  <Line
+                    type="monotone"
+                    dataKey="workflowsSold"
+                    stroke="#3B82F6"
                     strokeWidth={2}
                     dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
                     activeDot={{ r: 6 }}
@@ -308,7 +285,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }: { name: string; percent?: number }) => 
+                    label={({ name, percent }: { name: string; percent?: number }) =>
                       `${name}: ${((percent || 0) * 100).toFixed(1)}%`
                     }
                     outerRadius={80}
@@ -321,6 +298,32 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
                   </Pie>
                   <Tooltip />
                 </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Revenue Chart Section */}
+      <div className="mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Revenue</CardTitle>
+            <CardDescription>Revenue generated per month</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.salesOverTime}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" tickFormatter={formatMonth} fontSize={12} />
+                  <YAxis fontSize={12} tickFormatter={(value) => formatCurrency(value)} />
+                  <Tooltip
+                    labelFormatter={(value) => formatMonth(value as string)}
+                    formatter={(value: number) => [formatCurrency(value), 'Revenue']}
+                  />
+                  <Bar dataKey="revenueCents" fill="#10B981" radius={[4, 4, 0, 0]} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
@@ -350,12 +353,10 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
                 {data.topWorkflows.map((workflow) => (
                   <tr key={workflow.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
-                      <div className="font-medium text-gray-900 truncate max-w-xs">
-                        {workflow.title}
-                      </div>
+                      <div className="font-medium text-gray-900 truncate max-w-xs">{workflow.title}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <Badge 
+                      <Badge
                         variant={workflow.status === 'published' ? 'default' : 'secondary'}
                         className={workflow.status === 'published' ? 'bg-green-100 text-green-800' : ''}
                       >
@@ -366,12 +367,8 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">
-                          {workflow.rating.toFixed(1)}
-                        </span>
-                        <span className="text-gray-500 text-sm">
-                          ({workflow.ratingCount})
-                        </span>
+                        <span className="font-medium">{workflow.rating.toFixed(1)}</span>
+                        <span className="text-gray-500 text-sm">({workflow.ratingCount})</span>
                       </div>
                     </td>
                     <td className="py-3 px-4">

@@ -23,12 +23,17 @@ import {
   ShoppingBag,
   ShoppingCart,
   FileText,
+  BarChart3,
 } from 'lucide-react'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
 import { PlatformBadge } from '@/components/ui/platform-badge'
+import { Recommendations } from '@/components/ui/recommendations'
+import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
+import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -206,18 +211,18 @@ export default function WorkflowDetailPage() {
       const response = await fetch(`/api/workflows/${workflowId}/download`, {
         credentials: 'include',
       })
-      
+
       if (!response.ok) {
         throw new Error('Failed to download workflow')
       }
-      
+
       const data = await response.json()
-      
+
       // Create and download the JSON file
       const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
         type: 'application/json',
       })
-      
+
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -297,22 +302,23 @@ export default function WorkflowDetailPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Hero Image and Title */}
               <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div className="h-64 bg-gradient-to-br from-blue-50 to-purple-50 relative">
+                <div className="h-64 relative">
                   {workflow.heroImage ? (
                     <img src={workflow.heroImage} alt={workflow.title} className="w-full h-full object-cover" />
                   ) : (
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{
-                        background: `linear-gradient(135deg, 
-                                                    hsl(${(parseInt(workflow.id) * 137.5) % 360}, 60%, 70%), 
-                                                    hsl(${(parseInt(workflow.id) * 137.5 + 60) % 360}, 60%, 80%))`,
+                    <AutoThumbnail
+                      workflow={{
+                        id: workflow.id,
+                        title: workflow.title,
+                        shortDesc: workflow.shortDesc,
+                        longDescMd: workflow.longDescMd || '',
+                        categories: workflow.categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
+                        tags: workflow.tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
+                        platform: workflow.platform,
                       }}
-                    >
-                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
-                        <Zap className="w-10 h-10 text-white" />
-                      </div>
-                    </div>
+                      size="lg"
+                      className="w-full h-full"
+                    />
                   )}
 
                   {/* Platform badge */}
@@ -450,6 +456,29 @@ export default function WorkflowDetailPage() {
 
                     <Separator />
 
+                    {/* Workflow Analysis */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold">Technical Analysis</h3>
+                        <WorkflowAnalysisModal
+                          workflowId={workflowId}
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                            >
+                              <BarChart3 className="w-4 h-4 mr-2" />
+                              View Advanced Analysis
+                            </Button>
+                          }
+                        />
+                      </div>
+                      <WorkflowAnalysisPreview workflowId={workflowId} />
+                    </div>
+
+                    <Separator />
+
                     {workflow.version ? (
                       <div>
                         <h3 className="text-lg font-semibold mb-3">Version Information</h3>
@@ -480,65 +509,6 @@ export default function WorkflowDetailPage() {
                   </div>
                 </div>
               </Card>
-
-              {/* Similar Workflows - Horizontal Slider */}
-              {recommendations && recommendations.similarWorkflows.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Similar Workflows</CardTitle>
-                    <p className="text-sm text-gray-600">Based on categories and tags</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <div className="flex gap-4 pb-4" style={{ width: `${recommendations.similarWorkflows.length * 300}px`, minWidth: '100%' }}>
-                        {recommendations.similarWorkflows.map((similarWorkflow) => (
-                          <div key={similarWorkflow.id} className="flex-shrink-0" style={{ width: '280px' }}>
-                            <WorkflowCardMini
-                              {...similarWorkflow}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* More from this Store - Horizontal Slider */}
-              {recommendations && recommendations.storeWorkflows.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-lg">More from {recommendations.storeName}</CardTitle>
-                        <p className="text-sm text-gray-600">Other workflows by this seller</p>
-                      </div>
-                      {recommendations.storeWorkflows.length > 4 && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)}
-                        >
-                          View All ({recommendations.storeWorkflows.length})
-                        </Button>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <div className="flex gap-4 pb-4" style={{ width: `${recommendations.storeWorkflows.length * 300}px`, minWidth: '100%' }}>
-                        {recommendations.storeWorkflows.map((storeWorkflow) => (
-                          <div key={storeWorkflow.id} className="flex-shrink-0" style={{ width: '280px' }}>
-                            <WorkflowCardMini
-                              {...storeWorkflow}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
 
             {/* Sidebar */}
@@ -560,7 +530,7 @@ export default function WorkflowDetailPage() {
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
-                      <Button 
+                      <Button
                         onClick={() => handleDownload(workflowId, workflow.title)}
                         className="w-full bg-blue-600 hover:bg-blue-700"
                       >
@@ -649,6 +619,19 @@ export default function WorkflowDetailPage() {
               </Card>
             </div>
           </div>
+
+          {/* Recommendations Section - Full Width */}
+          {recommendations && (
+            <div className="mt-12">
+              <Recommendations
+                similarWorkflows={recommendations.similarWorkflows}
+                storeWorkflows={recommendations.storeWorkflows}
+                storeName={recommendations.storeName}
+                storeSlug={recommendations.storeSlug}
+                loading={recommendationsLoading}
+              />
+            </div>
+          )}
 
           {/* Reviews Section */}
           <div className="mt-12">

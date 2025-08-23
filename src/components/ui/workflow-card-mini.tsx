@@ -63,10 +63,10 @@ export function WorkflowCardMini({
 
   return (
     <Card
-      className={`cursor-pointer hover:shadow-md transition-shadow duration-200 ${className}`}
+      className={`cursor-pointer hover:shadow-md transition-shadow duration-200 flex flex-col h-full ${className}`}
       onClick={handleClick}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-4 flex flex-col flex-1">
         {/* Hero Image */}
         {heroImage && (
           <div className="w-full h-24 bg-gray-100 rounded-md mb-3 overflow-hidden relative">
@@ -102,7 +102,7 @@ export function WorkflowCardMini({
         )}
 
         {/* Stats and Price */}
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center justify-between text-xs mt-auto">
           <div className="flex items-center gap-3">
             {rating > 0 && (
               <div className="flex items-center gap-1">

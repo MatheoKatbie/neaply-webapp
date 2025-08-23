@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { safeEncrypt, safeDecrypt } from '@/lib/encryption'
 
 // Schema de validation pour un workflow
 // Helper function to compare semantic versions
@@ -39,6 +40,7 @@ const createWorkflowSchema = z
     basePriceCents: z.number().min(0, 'Base price cannot be negative').max(100000, 'Base price cannot exceed €1000.00'),
     currency: z.string().default('EUR'),
     status: z.enum(['draft', 'published', 'unlisted', 'disabled']).default('draft'),
+    platform: z.enum(['n8n', 'zapier', 'make', 'airtable_script']).optional(),
     jsonContent: z.any().optional(),
     n8nMinVersion: z
       .string()
@@ -152,6 +154,7 @@ export async function POST(req: NextRequest) {
           basePriceCents: validatedData.basePriceCents,
           currency: validatedData.currency,
           status: validatedData.status,
+          platform: validatedData.platform || null,
         },
       })
 
@@ -161,7 +164,7 @@ export async function POST(req: NextRequest) {
           data: {
             workflowId: workflow.id,
             semver: '1.0.0',
-            jsonContent: validatedData.jsonContent,
+            jsonContent: safeEncrypt(validatedData.jsonContent),
             n8nMinVersion: validatedData.n8nMinVersion || null,
             n8nMaxVersion: validatedData.n8nMaxVersion || null,
             isLatest: true,
@@ -314,10 +317,17 @@ export async function GET(req: NextRequest) {
 
     const totalPages = Math.ceil(totalCount / limit)
 
-    // No need to convert UUIDs to strings - they're already strings
+    // Decrypt JSON content for each workflow version
+    const workflowsWithDecryptedContent = workflows.map((workflow) => ({
+      ...workflow,
+      versions: workflow.versions.map((version) => ({
+        ...version,
+        jsonContent: version.jsonContent ? safeDecrypt(version.jsonContent) : null,
+      })),
+    }))
 
     return NextResponse.json({
-      data: workflows,
+      data: workflowsWithDecryptedContent,
       pagination: {
         page,
         limit,
