@@ -309,7 +309,7 @@ export default function BecomeSellerPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-center text-green-600">
-                {existingProfile ? 'Profile Updated!' : 'Welcome to FlowMarket!'}
+                {existingProfile ? 'Profile Updated!' : 'Welcome to Flow Market!'}
               </CardTitle>
               <CardDescription className="text-center">
                 {existingProfile
@@ -351,7 +351,7 @@ export default function BecomeSellerPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {existingProfile ? 'Edit Your Seller Profile' : 'Become a Seller on FlowMarket'}
+            {existingProfile ? 'Edit Your Seller Profile' : 'Become a Seller on Flow Market'}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             {existingProfile ? 'Update your store information' : 'Start selling your n8n workflows today'}
@@ -500,7 +500,8 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-red-600">{validationErrors.storeName}</p>
                     ) : (
                       <p className="text-xs text-gray-500">
-                        {formData.storeName.length}/50 characters (min. 2). This name will be displayed on your public profile and workflows.
+                        {formData.storeName.length}/50 characters (min. 2). This name will be displayed on your public
+                        profile and workflows.
                       </p>
                     )}
                   </div>
@@ -583,7 +584,10 @@ export default function BecomeSellerPage() {
                         <p className="text-xs text-red-600">{validationErrors.phoneNumber}</p>
                       ) : (
                         <p className="text-xs text-gray-500">
-                          {formData.phoneNumber ? `${formData.phoneNumber.replace(/\D/g, '').length} digits (min. 8)` : '0 digits (min. 8)'} - Phone for business communication
+                          {formData.phoneNumber
+                            ? `${formData.phoneNumber.replace(/\D/g, '').length} digits (min. 8)`
+                            : '0 digits (min. 8)'}{' '}
+                          - Phone for business communication
                         </p>
                       )}
                     </div>

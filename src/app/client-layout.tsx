@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import { Toaster } from 'sonner'
 
 interface ClientLayoutProps {
@@ -11,15 +12,17 @@ interface ClientLayoutProps {
 export default function ClientLayout({ children }: ClientLayoutProps) {
   const pathname = usePathname()
 
-  // Define auth pages that should not have the navbar
+  // Define auth pages that should not have the navbar or footer
   const authPages = ['/auth/login', '/auth/register', '/auth/reset-password', '/auth/callback']
 
   const shouldShowNavbar = !authPages.includes(pathname)
+  const shouldShowFooter = !authPages.includes(pathname)
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       {shouldShowNavbar && <Navbar />}
-      <main className={shouldShowNavbar ? '' : ''}>{children}</main>
+      <main className="flex-1">{children}</main>
+      {shouldShowFooter && <Footer />}
       <Toaster
         position="bottom-right"
         richColors
@@ -29,6 +32,6 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
           duration: 4000,
         }}
       />
-    </>
+    </div>
   )
 }
