@@ -4,9 +4,10 @@ import Navbar from '@/components/Navbar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { copyWorkflowToClipboard, downloadWorkflowAsZip } from '@/lib/download-utils'
+import { CopyButton } from '@/components/ui/copy-button'
+import { downloadWorkflowAsZip } from '@/lib/download-utils'
 import type { Order } from '@/types/payment'
-import { AlertCircle, Calendar, ChevronRight, Copy, CreditCard, Download, FileText, Package, ShoppingBag } from 'lucide-react'
+import { AlertCircle, Calendar, ChevronRight, CreditCard, Download, FileText, Package, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -97,15 +98,6 @@ export default function OrdersHistoryPage() {
     }
   }
 
-  const handleCopyToClipboard = async (workflowId: string) => {
-    try {
-      await copyWorkflowToClipboard(workflowId)
-      alert('Workflow JSON copied to clipboard! You can now paste it into n8n or other platforms.')
-    } catch (error) {
-      console.error('Copy error:', error)
-      alert('Failed to copy workflow to clipboard. Please try again.')
-    }
-  }
 
   if (loading) {
     return (
@@ -229,10 +221,10 @@ export default function OrdersHistoryPage() {
                           <div className="flex items-center space-x-2">
                             {order.status === 'paid' && (
                               <>
-                                <Button variant='outline' size="sm" onClick={() => handleCopyToClipboard(item.workflowId)}>
-                                  <Copy className="w-4 h-4 mr-2" />
-                                  Copy
-                                </Button>
+                                <CopyButton 
+                                  workflowId={item.workflowId}
+                                  showText={false}
+                                />
                                 <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
                                   <Download className="w-4 h-4 mr-2" />
                                   ZIP

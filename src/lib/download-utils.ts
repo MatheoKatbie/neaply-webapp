@@ -23,7 +23,7 @@ export async function downloadWorkflowAsZip(workflowId: string, title: string) {
   }
 }
 
-export async function copyWorkflowToClipboard(workflowId: string) {
+export async function copyWorkflowToClipboard(workflowId: string): Promise<boolean> {
   try {
     const response = await fetch(`/api/workflows/${workflowId}/download?format=json`)
     
@@ -38,6 +38,6 @@ export async function copyWorkflowToClipboard(workflowId: string) {
     return true
   } catch (error) {
     console.error('Copy to clipboard error:', error)
-    throw error
+    return false
   }
 }

@@ -11,18 +11,18 @@ import { useEffect, useState } from 'react'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
+import { CopyButton } from '@/components/ui/copy-button'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
 import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
 import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
-import { copyWorkflowToClipboard, downloadWorkflowAsZip } from '@/lib/download-utils'
+import { downloadWorkflowAsZip } from '@/lib/download-utils'
 import {
   ArrowLeft,
   BarChart3,
   CheckCircle,
-  Copy,
   Download,
   Eye,
   FileText,
@@ -212,15 +212,6 @@ export default function WorkflowDetailPage() {
     }
   }
 
-  const handleCopyToClipboard = async (workflowId: string) => {
-    try {
-      await copyWorkflowToClipboard(workflowId)
-      alert('Workflow JSON copied to clipboard! You can now paste it into n8n or other platforms.')
-    } catch (error) {
-      console.error('Copy error:', error)
-      alert('Failed to copy workflow to clipboard. Please try again.')
-    }
-  }
 
   if (loading) {
     return (
@@ -516,17 +507,15 @@ export default function WorkflowDetailPage() {
                         Already Purchased
                       </Button>
                       <div className="flex gap-2">
-                        <Button
-                        variant='outline'
-                          onClick={() => handleCopyToClipboard(workflowId)}
+                        <CopyButton 
+                          workflowId={workflowId}
                           className="flex-1"
-                        >
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy JSON
-                        </Button>
+                        />
                         <Button
-                          variant='outline'
                           onClick={() => handleDownloadZip(workflowId, workflow.title)}
+                          size='sm'
+                          className="flex-1"
+                          variant='outline'
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Download ZIP
