@@ -1,31 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select'
-import { Star, ThumbsUp, MessageSquare, Edit, Trash2, Flag } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
+import { MessageSquare, Star, ThumbsUp } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 interface Review {
@@ -131,7 +130,7 @@ function ReviewCard({ review }: { review: Review }) {
               <div className="font-semibold">{review.user.displayName}</div>
               <div className="flex items-center gap-2">
                 <StarRating rating={review.rating} readonly />
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   {new Date(review.createdAt).toLocaleDateString()}
                 </span>
               </div>
@@ -152,7 +151,7 @@ function ReviewCard({ review }: { review: Review }) {
               variant="ghost"
               size="sm"
               onClick={handleHelpfulClick}
-              className={isHelpful ? 'text-blue-600' : 'text-gray-600'}
+              className={isHelpful ? 'text-blue-600' : 'text-muted-foreground'}
             >
               <ThumbsUp className="w-4 h-4 mr-1" />
               Helpful ({helpfulCount})
@@ -359,17 +358,17 @@ export function ReviewSystem({ workflowId, userCanReview, userHasReviewed, class
                 <Card key={i} className="animate-pulse">
                   <CardHeader>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                      <div className="w-10 h-10 bg-muted rounded-full"></div>
                       <div className="space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-32"></div>
-                        <div className="h-3 bg-gray-200 rounded w-24"></div>
+                        <div className="h-4 bg-muted rounded w-32"></div>
+                        <div className="h-3 bg-muted rounded w-24"></div>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded w-full"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-muted rounded w-full"></div>
+                      <div className="h-4 bg-muted rounded w-3/4"></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -384,8 +383,8 @@ export function ReviewSystem({ workflowId, userCanReview, userHasReviewed, class
           ) : (
             <div className="text-center py-8">
               <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No reviews yet</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-foreground mb-2">No reviews yet</h3>
+              <p className="text-muted-foreground">
                 {userCanReview
                   ? 'Be the first to review this workflow!'
                   : 'Reviews will appear here once users start sharing their experiences.'}

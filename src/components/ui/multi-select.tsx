@@ -1,11 +1,10 @@
 'use client'
 
-import * as React from 'react'
-import { X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { X } from 'lucide-react'
+import * as React from 'react'
 
 export interface MultiSelectOption {
   id: string
@@ -95,7 +94,7 @@ export function MultiSelect({
 
   return (
     <div className={cn('relative', className)}>
-      {label && <Label className="text-sm font-medium text-gray-700 mb-2 block">{label}</Label>}
+      {label && <Label className="text-sm font-medium text-muted-foreground mb-2 block">{label}</Label>}
 
       <div ref={dropdownRef} className="relative">
         {/* Trigger Button */}

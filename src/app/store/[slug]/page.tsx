@@ -1,30 +1,25 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
-import { Separator } from '@/components/ui/separator'
-import { PlatformBadge } from '@/components/ui/platform-badge'
-import {
-  Star,
-  Globe,
-  Mail,
-  Calendar,
-  Package,
-  TrendingUp,
-  Users,
-  ArrowLeft,
-  Zap,
-  Clock,
-  Download,
-  Heart,
-} from 'lucide-react'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ContactSellerButton } from '@/components/ui/contact-seller-button'
+import { PlatformBadge } from '@/components/ui/platform-badge'
+import { Separator } from '@/components/ui/separator'
+import {
+    ArrowLeft,
+    Calendar,
+    Download,
+    Globe,
+    Mail,
+    Package,
+    Star
+} from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface StoreWorkflow {
   id: string
@@ -149,7 +144,7 @@ function WorkflowCard({
         <AnimatedHeart
           isFavorite={favorite}
           onToggle={(e) => handleFavoriteClick(e)}
-          className="bg-white/80 hover:bg-white/90"
+          className="bg-background/80 hover:bg-background/90"
           size="md"
         />
       </div>
@@ -187,8 +182,8 @@ function WorkflowCard({
       </div>
 
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold group-hover:text-gray-900 transition-colors">{title}</CardTitle>
-        <CardDescription className="text-sm text-gray-600 line-clamp-2">{shortDesc}</CardDescription>
+        <CardTitle className="text-lg font-semibold group-hover:text-foreground transition-colors">{title}</CardTitle>
+        <CardDescription className="text-sm text-muted-foreground line-clamp-2">{shortDesc}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -208,7 +203,7 @@ function WorkflowCard({
           </div>
           <div className="flex flex-wrap gap-1">
             {tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs text-gray-500">
+              <Badge key={tag} variant="outline" className="text-xs text-muted-foreground">
                 #{tag}
               </Badge>
             ))}
@@ -220,25 +215,25 @@ function WorkflowCard({
         {/* Seller and stats */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">by {storeName}</span>
+            <span className="text-muted-foreground">by {storeName}</span>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                 <span className="text-sm font-medium">{rating.toFixed(1)}</span>
-                <span className="text-xs text-gray-500">({ratingCount})</span>
+                <span className="text-xs text-muted-foreground">({ratingCount})</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-xs text-gray-500">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Download className="w-3 h-3" />
               <span>{salesCount} sales</span>
             </div>
             <div className="text-lg font-bold text-green-600">{formatPrice(price, currency)}</div>
           </div>
         </div>
-        <Button className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800">View Workflow</Button>
+        <Button className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-gray-800">View Workflow</Button>
       </CardContent>
     </Card>
   )
@@ -316,16 +311,16 @@ export default function StorePage() {
       >
         {/* Decorative elements */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full opacity-30"></div>
-          <div className="absolute top-20 right-16 w-12 h-12 bg-white rounded-full opacity-40"></div>
-          <div className="absolute bottom-16 left-20 w-16 h-16 bg-white rounded-full opacity-25"></div>
-          <div className="absolute bottom-10 right-10 w-8 h-8 bg-white rounded-full opacity-50"></div>
+          <div className="absolute top-10 left-10 w-20 h-20 bg-background rounded-full opacity-30"></div>
+          <div className="absolute top-20 right-16 w-12 h-12 bg-background rounded-full opacity-40"></div>
+          <div className="absolute bottom-16 left-20 w-16 h-16 bg-background rounded-full opacity-25"></div>
+          <div className="absolute bottom-10 right-10 w-8 h-8 bg-background rounded-full opacity-50"></div>
         </div>
 
         {/* Store icon */}
-        <div className="relative z-10 bg-white/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
-          <div className="w-16 h-16 bg-white/30 rounded-xl flex items-center justify-center">
-            <Package className="w-8 h-8 text-white" />
+        <div className="relative z-10 bg-background/20 backdrop-blur-sm rounded-2xl p-6 border border-white/30">
+          <div className="w-16 h-16 bg-background/30 rounded-xl flex items-center justify-center">
+            <Package className="w-8 h-8 text-primary-foreground" />
           </div>
         </div>
 
@@ -346,13 +341,13 @@ export default function StorePage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-64 bg-gray-200 rounded-lg mb-8"></div>
+              <div className="h-64 bg-muted rounded-lg mb-8"></div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
+                  <div key={i} className="h-64 bg-muted rounded-lg"></div>
                 ))}
               </div>
             </div>
@@ -366,14 +361,14 @@ export default function StorePage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Package className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{error || 'Store not found'}</h3>
-              <p className="text-gray-600 max-w-md mx-auto mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">{error || 'Store not found'}</h3>
+              <p className="text-muted-foreground max-w-md mx-auto mb-6">
                 The store you're looking for doesn't exist or may have been removed.
               </p>
               <Button onClick={() => router.push('/marketplace')} className="cursor-pointer">
@@ -390,7 +385,7 @@ export default function StorePage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+      <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="mb-6">
@@ -427,9 +422,9 @@ export default function StorePage() {
                 <div className="flex-1">
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div>
-                      <h1 className="text-3xl font-bold text-gray-900 mb-2">{store.storeName}</h1>
-                      <p className="text-lg text-gray-600 mb-1">by {store.user.displayName}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <h1 className="text-3xl font-bold text-foreground mb-2">{store.storeName}</h1>
+                      <p className="text-lg text-muted-foreground mb-1">by {store.user.displayName}</p>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           <span>Member since {formatDate(store.stats.memberSince)}</span>
@@ -461,19 +456,19 @@ export default function StorePage() {
                     {/* Store Stats */}
                     <div className="flex flex-wrap gap-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">{store.stats.totalWorkflows}</div>
-                        <div className="text-sm text-gray-500">Workflows</div>
+                        <div className="text-2xl font-bold text-foreground">{store.stats.totalWorkflows}</div>
+                        <div className="text-sm text-muted-foreground">Workflows</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">{store.stats.totalSales}</div>
-                        <div className="text-sm text-gray-500">Sales</div>
+                        <div className="text-2xl font-bold text-foreground">{store.stats.totalSales}</div>
+                        <div className="text-sm text-muted-foreground">Sales</div>
                       </div>
                       <div className="text-center">
                         <div className="flex items-center gap-1 mb-1">
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-2xl font-bold text-gray-900">{store.stats.avgRating.toFixed(1)}</span>
+                          <span className="text-2xl font-bold text-foreground">{store.stats.avgRating.toFixed(1)}</span>
                         </div>
-                        <div className="text-sm text-gray-500">{store.stats.totalReviews} reviews</div>
+                        <div className="text-sm text-muted-foreground">{store.stats.totalReviews} reviews</div>
                       </div>
                     </div>
                   </div>
@@ -481,7 +476,7 @@ export default function StorePage() {
                   {/* Store Bio */}
                   {store.bio && (
                     <div className="mt-6">
-                      <p className="text-gray-700 leading-relaxed">{store.bio}</p>
+                      <p className="text-muted-foreground leading-relaxed">{store.bio}</p>
                     </div>
                   )}
 
@@ -507,17 +502,17 @@ export default function StorePage() {
 
           {/* Workflows Section */}
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Workflows</h2>
-            <p className="text-gray-600">Browse all workflows from {store.storeName}</p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Workflows</h2>
+            <p className="text-muted-foreground">Browse all workflows from {store.storeName}</p>
           </div>
 
           {store.workflows.length === 0 ? (
             <Card className="p-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Package className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No workflows yet</h3>
-              <p className="text-gray-600">This store hasn't published any workflows yet. Check back later!</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No workflows yet</h3>
+              <p className="text-muted-foreground">This store hasn't published any workflows yet. Check back later!</p>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

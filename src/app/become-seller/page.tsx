@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import CountrySelect from '@/components/ui/country-select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { PhoneInputComponent } from '@/components/ui/phone-input'
-import CountrySelect from '@/components/ui/country-select'
+import { useAuth } from '@/hooks/useAuth'
 import { COUNTRIES } from '@/lib/countries'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface SellerFormData {
   storeName: string
@@ -304,7 +304,7 @@ export default function BecomeSellerPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <Card>
             <CardHeader>
@@ -332,7 +332,7 @@ export default function BecomeSellerPage() {
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   {existingProfile
                     ? 'Redirecting to your dashboard...'
                     : 'You can now start selling your workflows! Redirecting to your dashboard...'}
@@ -346,14 +346,14 @@ export default function BecomeSellerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 pt-24">
+    <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8 pt-24">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             {existingProfile ? 'Edit Your Seller Profile' : 'Become a Seller on Flow Market'}
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             {existingProfile ? 'Update your store information' : 'Start selling your n8n workflows today'}
           </p>
         </div>
@@ -365,7 +365,7 @@ export default function BecomeSellerPage() {
             {!existingProfile && (
               <>
                 {/* Benefits Section */}
-                <Card className="bg-gradient-to-br bg-white/90">
+                <Card className="bg-gradient-to-br bg-background/90">
                   <CardHeader>
                     <CardTitle className="text-2xl">Why Sell on FlowMarket?</CardTitle>
                     <CardDescription className="">
@@ -429,7 +429,7 @@ export default function BecomeSellerPage() {
             )}
 
             {/* Trust Indicators */}
-            <Card className="bg-white border-green-200">
+            <Card className="bg-background border-green-200">
               <CardContent className="pt-6">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -437,9 +437,9 @@ export default function BecomeSellerPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Secure & Trusted</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Secure & Trusted</h3>
                 </div>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center space-x-2">
                     <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -499,7 +499,7 @@ export default function BecomeSellerPage() {
                     {validationErrors.storeName ? (
                       <p className="text-xs text-red-600">{validationErrors.storeName}</p>
                     ) : (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {formData.storeName.length}/50 characters (min. 2). This name will be displayed on your public
                         profile and workflows.
                       </p>
@@ -524,7 +524,7 @@ export default function BecomeSellerPage() {
                     {validationErrors.bio ? (
                       <p className="text-xs text-red-600">{validationErrors.bio}</p>
                     ) : (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {formData.bio.length}/500 characters (min. 10). Help customers trust you.
                       </p>
                     )}
@@ -546,7 +546,7 @@ export default function BecomeSellerPage() {
                       {validationErrors.websiteUrl ? (
                         <p className="text-xs text-red-600">{validationErrors.websiteUrl}</p>
                       ) : (
-                        <p className="text-xs text-gray-500">Add your website to gain credibility</p>
+                        <p className="text-xs text-muted-foreground">Add your website to gain credibility</p>
                       )}
                     </div>
 
@@ -565,7 +565,7 @@ export default function BecomeSellerPage() {
                       {validationErrors.supportEmail ? (
                         <p className="text-xs text-red-600">{validationErrors.supportEmail}</p>
                       ) : (
-                        <p className="text-xs text-gray-500">Email for customer support</p>
+                        <p className="text-xs text-muted-foreground">Email for customer support</p>
                       )}
                     </div>
                   </div>
@@ -583,7 +583,7 @@ export default function BecomeSellerPage() {
                       {validationErrors.phoneNumber ? (
                         <p className="text-xs text-red-600">{validationErrors.phoneNumber}</p>
                       ) : (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {formData.phoneNumber
                             ? `${formData.phoneNumber.replace(/\D/g, '').length} digits (min. 8)`
                             : '0 digits (min. 8)'}{' '}
@@ -605,7 +605,7 @@ export default function BecomeSellerPage() {
                       {validationErrors.countryCode && (
                         <p className="text-xs text-red-600">{validationErrors.countryCode}</p>
                       )}
-                      <p className="text-xs text-gray-500">Your business location</p>
+                      <p className="text-xs text-muted-foreground">Your business location</p>
                     </div>
                   </div>
 
@@ -628,13 +628,13 @@ export default function BecomeSellerPage() {
 
                 {!existingProfile && (
                   <div className="mt-6 pt-6 border-t">
-                    <p className="text-xs text-gray-500 text-center">
+                    <p className="text-xs text-muted-foreground text-center">
                       By creating your store, you agree to our{' '}
-                      <Link href="/terms-sellers" className="underline hover:text-gray-700">
+                      <Link href="/terms-sellers" className="underline hover:text-muted-foreground">
                         seller terms
                       </Link>{' '}
                       and{' '}
-                      <Link href="/privacy" className="underline hover:text-gray-700">
+                      <Link href="/privacy" className="underline hover:text-muted-foreground">
                         privacy policy
                       </Link>
                       .

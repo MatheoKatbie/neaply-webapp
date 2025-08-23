@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
-import { Upload, X, Image as ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { Image as ImageIcon, Upload, X } from 'lucide-react'
 import Image from 'next/image'
+import { useCallback, useRef, useState } from 'react'
 
 interface ImageUploadProps {
   value?: string // Current image URL
@@ -153,8 +153,8 @@ export function ImageUpload({
           'min-h-[120px] flex items-center justify-center cursor-pointer',
           {
             'border-primary bg-primary/5': isDragOver && !disabled,
-            'border-gray-300 hover:border-gray-400': !isDragOver && !disabled && !value,
-            'border-gray-200': disabled,
+            'border-border hover:border-gray-400': !isDragOver && !disabled && !value,
+            'border-border': disabled,
             'cursor-not-allowed opacity-50': disabled,
           }
         )}
@@ -172,7 +172,7 @@ export function ImageUpload({
               className="object-cover rounded-lg"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+            <div className="absolute inset-0 bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -205,8 +205,8 @@ export function ImageUpload({
           <div className="text-center p-6">
             <ImageIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-900">{placeholder}</p>
-              <p className="text-xs text-gray-500">JPG, PNG, GIF, WebP up to {maxSizeMB}MB</p>
+              <p className="text-sm font-medium text-foreground">{placeholder}</p>
+              <p className="text-xs text-muted-foreground">JPG, PNG, GIF, WebP up to {maxSizeMB}MB</p>
             </div>
           </div>
         )}

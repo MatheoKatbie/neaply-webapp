@@ -1,25 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import {
-  ArrowLeft,
-  Package,
-  Download,
-  Calendar,
-  CreditCard,
-  FileText,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  XCircle,
-} from 'lucide-react'
 import type { Order } from '@/types/payment'
+import {
+    AlertCircle,
+    ArrowLeft,
+    CheckCircle,
+    Clock,
+    CreditCard,
+    Download,
+    FileText,
+    Package,
+    XCircle
+} from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function OrderDetailPage() {
   const params = useParams()
@@ -83,11 +82,11 @@ export default function OrderDetailPage() {
       case 'failed':
         return <XCircle className="w-5 h-5 text-red-500" />
       case 'refunded':
-        return <AlertCircle className="w-5 h-5 text-gray-500" />
+        return <AlertCircle className="w-5 h-5 text-muted-foreground" />
       case 'cancelled':
-        return <XCircle className="w-5 h-5 text-gray-500" />
+        return <XCircle className="w-5 h-5 text-muted-foreground" />
       default:
-        return <Clock className="w-5 h-5 text-gray-500" />
+        return <Clock className="w-5 h-5 text-muted-foreground" />
     }
   }
 
@@ -100,11 +99,11 @@ export default function OrderDetailPage() {
       case 'failed':
         return 'bg-red-100 text-red-800'
       case 'refunded':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
       case 'cancelled':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
     }
   }
 
@@ -134,11 +133,11 @@ export default function OrderDetailPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-              <div className="h-64 bg-gray-200 rounded-lg"></div>
+              <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
+              <div className="h-64 bg-muted rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -150,7 +149,7 @@ export default function OrderDetailPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <Card className="text-center py-12">
               <CardContent>
@@ -158,7 +157,7 @@ export default function OrderDetailPage() {
                   <AlertCircle className="w-8 h-8 text-red-500" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
-                <p className="text-gray-600 mb-6">{error || "The order you're looking for could not be found."}</p>
+                <p className="text-muted-foreground mb-6">{error || "The order you're looking for could not be found."}</p>
                 <div className="space-x-4">
                   <Button variant="outline" onClick={() => router.back()}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
@@ -177,7 +176,7 @@ export default function OrderDetailPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+      <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="mb-6">
@@ -197,7 +196,7 @@ export default function OrderDetailPage() {
                   </div>
                   <div>
                     <CardTitle className="text-2xl">Order #{order.id.slice(-8)}</CardTitle>
-                    <p className="text-gray-600 mt-1">Placed on {formatDate(order.createdAt)}</p>
+                    <p className="text-muted-foreground mt-1">Placed on {formatDate(order.createdAt)}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -220,7 +219,7 @@ export default function OrderDetailPage() {
                 <CardContent>
                   <div className="space-y-4">
                     {order.items.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div className="flex items-center space-x-4">
                           {item.workflow.heroImageUrl ? (
                             <img
@@ -234,10 +233,10 @@ export default function OrderDetailPage() {
                             </div>
                           )}
                           <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{item.workflow.title}</h4>
-                            {item.pricingPlan && <p className="text-sm text-gray-600">{item.pricingPlan.name} Plan</p>}
+                            <h4 className="font-medium text-foreground">{item.workflow.title}</h4>
+                            {item.pricingPlan && <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>}
                             <div className="flex items-center space-x-4 mt-2">
-                              <span className="text-sm text-gray-600">Quantity: {item.quantity}</span>
+                              <span className="text-sm text-muted-foreground">Quantity: {item.quantity}</span>
                               <span className="text-sm font-medium text-green-600">
                                 {formatPrice(item.unitPriceCents, order.currency)}
                               </span>
@@ -275,28 +274,28 @@ export default function OrderDetailPage() {
                   <CardContent>
                     <div className="space-y-4">
                       {order.payments.map((payment) => (
-                        <div key={payment.id} className="p-4 bg-gray-50 rounded-lg">
+                        <div key={payment.id} className="p-4 bg-background rounded-lg">
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-medium">Payment #{payment.id.slice(-8)}</span>
                             <Badge className={`${getStatusColor(payment.status)} border-0`}>{payment.status}</Badge>
                           </div>
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="text-gray-600">Amount:</span>
+                              <span className="text-muted-foreground">Amount:</span>
                               <span className="ml-2 font-medium">
                                 {formatPrice(payment.amountCents, payment.currency)}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Provider:</span>
+                              <span className="text-muted-foreground">Provider:</span>
                               <span className="ml-2 font-medium capitalize">{payment.provider}</span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Processed:</span>
+                              <span className="text-muted-foreground">Processed:</span>
                               <span className="ml-2 font-medium">{formatDate(payment.processedAt)}</span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Charge ID:</span>
+                              <span className="text-muted-foreground">Charge ID:</span>
                               <span className="ml-2 font-mono text-xs">{payment.providerCharge}</span>
                             </div>
                           </div>
@@ -318,20 +317,20 @@ export default function OrderDetailPage() {
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Order ID:</span>
+                      <span className="text-muted-foreground">Order ID:</span>
                       <span className="font-mono text-sm">{order.id.slice(-12)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Total Amount:</span>
+                      <span className="text-muted-foreground">Total Amount:</span>
                       <span className="font-semibold text-lg">{formatPrice(order.totalCents, order.currency)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Currency:</span>
+                      <span className="text-muted-foreground">Currency:</span>
                       <span className="font-medium">{order.currency.toUpperCase()}</span>
                     </div>
                     {order.provider && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Payment Method:</span>
+                        <span className="text-muted-foreground">Payment Method:</span>
                         <span className="font-medium capitalize">{order.provider}</span>
                       </div>
                     )}
@@ -339,12 +338,12 @@ export default function OrderDetailPage() {
                     <Separator />
 
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Created:</span>
+                      <span className="text-muted-foreground">Created:</span>
                       <span className="text-sm">{formatDate(order.createdAt)}</span>
                     </div>
                     {order.paidAt && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Paid:</span>
+                        <span className="text-muted-foreground">Paid:</span>
                         <span className="text-sm">{formatDate(order.paidAt)}</span>
                       </div>
                     )}

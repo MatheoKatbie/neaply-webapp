@@ -1,45 +1,42 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useAuth } from '@/hooks/useAuth'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Switch } from '@/components/ui/switch'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  User,
-  Shield,
-  Key,
-  Camera,
-  Store,
-  Trash2,
-  CheckCircle,
-  AlertTriangle,
-  Upload,
-  Copy,
-  Smartphone,
-  QrCode,
-  Monitor,
-  Calendar,
-  MapPin,
-} from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import type { RememberedDevice, TwoFactorSetup, TwoFactorStatus } from '@/types/auth'
+import {
+    AlertTriangle,
+    Calendar,
+    Camera,
+    CheckCircle,
+    Copy,
+    Key,
+    MapPin,
+    Monitor,
+    Shield,
+    Smartphone,
+    Store,
+    Trash2,
+    User
+} from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import type { TwoFactorSetup, TwoFactorStatus, RememberedDevice } from '@/types/auth'
 
 interface UserProfile {
   displayName: string
@@ -519,7 +516,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
-          <p className="text-gray-600">Please sign in to access your settings.</p>
+          <p className="text-muted-foreground">Please sign in to access your settings.</p>
         </div>
       </div>
     )
@@ -529,7 +526,7 @@ export default function SettingsPage() {
     <div className="container mx-auto py-8 px-4 max-w-4xl pt-24">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Account Settings</h1>
-        <p className="text-gray-600">Manage your account, security, and preferences.</p>
+        <p className="text-muted-foreground">Manage your account, security, and preferences.</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -599,7 +596,7 @@ export default function SettingsPage() {
                       }
                     }}
                   />
-                  <p className="text-sm text-gray-500 mt-1">JPG, PNG or GIF. Max size 2MB.</p>
+                  <p className="text-sm text-muted-foreground mt-1">JPG, PNG or GIF. Max size 2MB.</p>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -644,8 +641,8 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" value={profile.email} disabled className="bg-gray-50" />
-                  <p className="text-xs text-gray-500">Email cannot be changed. Contact support if needed.</p>
+                  <Input id="email" value={profile.email} disabled className="bg-background" />
+                  <p className="text-xs text-muted-foreground">Email cannot be changed. Contact support if needed.</p>
                 </div>
               </div>
 
@@ -704,7 +701,7 @@ export default function SettingsPage() {
                     <AlertDescription>
                       Two-factor authentication is active on your account.
                       {twoFA.enabledAt && (
-                        <span className="block text-xs text-gray-500 mt-1">
+                        <span className="block text-xs text-muted-foreground mt-1">
                           Enabled on {new Date(twoFA.enabledAt).toLocaleDateString()}
                         </span>
                       )}
@@ -738,13 +735,13 @@ export default function SettingsPage() {
             <CardContent>
               {loadingDevices ? (
                 <div className="text-center py-8">
-                  <div className="text-sm text-gray-500">Loading devices...</div>
+                  <div className="text-sm text-muted-foreground">Loading devices...</div>
                 </div>
               ) : rememberedDevices.length === 0 ? (
                 <div className="text-center py-8">
                   <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Remembered Devices</h3>
-                  <p className="text-sm text-gray-500">
+                  <h3 className="text-lg font-medium text-foreground mb-2">No Remembered Devices</h3>
+                  <p className="text-sm text-muted-foreground">
                     Devices you choose to remember during 2FA login will appear here.
                   </p>
                 </div>
@@ -756,13 +753,13 @@ export default function SettingsPage() {
                         <Monitor className="h-5 w-5 text-gray-400 mt-0.5" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-medium text-gray-900">{device.name}</h4>
+                            <h4 className="text-sm font-medium text-foreground">{device.name}</h4>
                             <Badge variant="secondary" className="text-xs">
                               Trusted
                             </Badge>
                           </div>
                           <div className="mt-1 space-y-1">
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
                                 Last used: {new Date(device.lastUsed).toLocaleDateString()}
@@ -773,7 +770,7 @@ export default function SettingsPage() {
                               </div>
                             </div>
                             {device.ipAddress && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                 <MapPin className="h-3 w-3" />
                                 IP: {device.ipAddress}
                               </div>
@@ -820,7 +817,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <h4 className="text-sm font-medium">Two-Factor Authentication</h4>
-                    <p className="text-sm text-gray-500">Protect your account with an additional security layer</p>
+                    <p className="text-sm text-muted-foreground">Protect your account with an additional security layer</p>
                   </div>
                   <Badge variant="default" className="flex items-center gap-1">
                     <CheckCircle className="h-3 w-3" />
@@ -831,7 +828,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <h4 className="text-sm font-medium">Remembered Devices</h4>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       {rememberedDevices.length} device{rememberedDevices.length !== 1 ? 's' : ''} trusted
                     </p>
                   </div>
@@ -866,16 +863,16 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Store Name</Label>
-                    <Input value={storeInfo.storeName} disabled className="bg-gray-50" />
+                    <Input value={storeInfo.storeName} disabled className="bg-background" />
                   </div>
                   <div className="space-y-2">
                     <Label>Store URL</Label>
-                    <Input value={`flowmarket.com/store/${storeInfo.slug}`} disabled className="bg-gray-50" />
+                    <Input value={`flowmarket.com/store/${storeInfo.slug}`} disabled className="bg-background" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Bio</Label>
-                  <Input value={storeInfo.bio || 'No bio set'} disabled className="bg-gray-50" />
+                  <Input value={storeInfo.bio || 'No bio set'} disabled className="bg-background" />
                 </div>
               </CardContent>
             </Card>
@@ -990,7 +987,7 @@ export default function SettingsPage() {
             {setupStep === 'qr' && twoFA.setupData && (
               <div className="space-y-4">
                 <div className="text-center">
-                  <div className="bg-white p-4 rounded-lg border inline-block">
+                  <div className="bg-background p-4 rounded-lg border inline-block">
                     <img src={twoFA.setupData.qrCode} alt="QR Code for 2FA setup" className="w-48 h-48" />
                   </div>
                 </div>
@@ -1003,7 +1000,7 @@ export default function SettingsPage() {
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-500">Use this key if you can't scan the QR code</p>
+                  <p className="text-xs text-muted-foreground">Use this key if you can't scan the QR code</p>
                 </div>
 
                 <Alert>
@@ -1032,7 +1029,7 @@ export default function SettingsPage() {
                     className="text-center text-lg font-mono tracking-wider"
                     maxLength={6}
                   />
-                  <p className="text-sm text-gray-500">Enter the 6-digit code from your authenticator app</p>
+                  <p className="text-sm text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
                 </div>
               </div>
             )}
@@ -1048,10 +1045,10 @@ export default function SettingsPage() {
                   </AlertDescription>
                 </Alert>
 
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-background p-4 rounded-lg">
                   <div className="grid grid-cols-2 gap-2 font-mono text-sm">
                     {twoFA.backupCodes.map((code, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                      <div key={index} className="flex items-center justify-between p-2 bg-background rounded border">
                         <span>{code}</span>
                         <Button variant="ghost" size="sm" onClick={() => copyToClipboard(code)} className="h-6 w-6 p-0">
                           <Copy className="h-3 w-3" />
@@ -1113,10 +1110,10 @@ export default function SettingsPage() {
 
           {twoFA.backupCodes && (
             <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-background p-4 rounded-lg">
                 <div className="grid grid-cols-1 gap-2 font-mono text-sm">
                   {twoFA.backupCodes.map((code, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                    <div key={index} className="flex items-center justify-between p-2 bg-background rounded border">
                       <span>{code}</span>
                       <Button variant="ghost" size="sm" onClick={() => copyToClipboard(code)} className="h-6 w-6 p-0">
                         <Copy className="h-3 w-3" />

@@ -1,18 +1,18 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { toast } from 'sonner'
 import { safeDecrypt } from '@/lib/encryption'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { SellerAnalytics } from '@/components/ui/seller-analytics'
 import { SellerPayouts } from '@/components/ui/seller-payouts'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WorkflowForm } from '@/components/workflow/WorkflowForm'
 import type { Category, Tag } from '@/types/workflow'
 
@@ -1161,20 +1161,20 @@ export default function SellerDashboard() {
       case 'draft':
         return 'bg-yellow-100 text-yellow-800'
       case 'unlisted':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
       case 'disabled':
         return 'bg-red-100 text-red-800'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
     }
   }
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 pt-24">
+      <div className="min-h-screen bg-background p-6 pt-24">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header skeleton */}
-          <div className="bg-white rounded-lg border p-6">
+          <div className="bg-background rounded-lg border p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-3">
                 <div className="h-8 bg-gray-200 rounded w-64 animate-pulse"></div>
@@ -1187,7 +1187,7 @@ export default function SellerDashboard() {
           {/* Stats cards skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-lg border p-6">
+              <div key={i} className="bg-background rounded-lg border p-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-3">
                     <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
@@ -1200,7 +1200,7 @@ export default function SellerDashboard() {
           </div>
 
           {/* Tabs skeleton */}
-          <div className="bg-white rounded-lg border">
+          <div className="bg-background rounded-lg border">
             <div className="border-b p-1">
               <div className="flex space-x-1">
                 {[1, 2, 3].map((i) => (
@@ -1219,7 +1219,7 @@ export default function SellerDashboard() {
               {/* Workflow cards skeleton */}
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-white border rounded-lg p-6">
+                  <div key={i} className="bg-background border rounded-lg p-6">
                     <div className="flex items-start space-x-4">
                       {/* Image placeholder */}
                       <div className="w-40 h-32 bg-gray-200 rounded-lg animate-pulse flex-shrink-0"></div>
@@ -1269,13 +1269,13 @@ export default function SellerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 pt-24">
+    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 pt-24">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Seller Dashboard</h1>
-              <p className="mt-2 text-lg text-gray-600">Manage your workflows and track your sales</p>
+              <h1 className="text-3xl font-bold text-foreground">Seller Dashboard</h1>
+              <p className="mt-2 text-lg text-muted-foreground">Manage your workflows and track your sales</p>
             </div>
           </div>
         </div>
@@ -1346,7 +1346,7 @@ export default function SellerDashboard() {
               <CardContent>
                 {workflows.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">No workflows yet</p>
+                    <p className="text-muted-foreground mb-4">No workflows yet</p>
                     <Button
                       onClick={() => {
                         resetTouchedState()
@@ -1365,7 +1365,7 @@ export default function SellerDashboard() {
                           {/* Thumbnail Preview */}
                           <div className="flex-shrink-0">
                             {workflow.heroImageUrl ? (
-                              <div className="w-24 h-16 rounded-md overflow-hidden bg-gray-100 border">
+                              <div className="w-24 h-16 rounded-md overflow-hidden bg-muted border">
                                 <img
                                   src={workflow.heroImageUrl}
                                   alt={workflow.title}
@@ -1375,7 +1375,7 @@ export default function SellerDashboard() {
                                     const target = e.target as HTMLImageElement
                                     target.style.display = 'none'
                                     target.parentElement!.innerHTML = `
-                                      <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                      <div class="w-full h-full flex items-center justify-center bg-muted text-gray-400">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
@@ -1385,7 +1385,7 @@ export default function SellerDashboard() {
                                 />
                               </div>
                             ) : (
-                              <div className="w-24 h-16 rounded-md bg-gray-100 border flex items-center justify-center">
+                              <div className="w-24 h-16 rounded-md bg-muted border flex items-center justify-center">
                                 <svg
                                   className="w-6 h-6 text-gray-400"
                                   fill="none"
@@ -1406,16 +1406,16 @@ export default function SellerDashboard() {
                           {/* Content */}
                           <div>
                             <h3 className="font-medium">{workflow.title}</h3>
-                            <p className="text-sm text-gray-500">{workflow.shortDesc}</p>
+                            <p className="text-sm text-muted-foreground">{workflow.shortDesc}</p>
                             <div className="flex items-center space-x-2 mt-2">
                               <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
-                              <span className="text-sm text-gray-500">{workflow._count.orderItems} sales</span>
+                              <span className="text-sm text-muted-foreground">{workflow._count.orderItems} sales</span>
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="font-medium">{formatPrice(workflow.basePriceCents, workflow.currency)}</div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-muted-foreground">
                             Updated {new Date(workflow.updatedAt).toLocaleDateString()}
                           </div>
                         </div>
@@ -1636,7 +1636,7 @@ export default function SellerDashboard() {
                           {/* Thumbnail Preview */}
                           <div className="flex-shrink-0">
                             {workflow.heroImageUrl ? (
-                              <div className="w-40 h-32 rounded-lg overflow-hidden bg-gray-100 border">
+                              <div className="w-40 h-32 rounded-lg overflow-hidden bg-muted border">
                                 <img
                                   src={workflow.heroImageUrl}
                                   alt={workflow.title}
@@ -1646,7 +1646,7 @@ export default function SellerDashboard() {
                                     const target = e.target as HTMLImageElement
                                     target.style.display = 'none'
                                     target.parentElement!.innerHTML = `
-                                      <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                      <div class="w-full h-full flex items-center justify-center bg-muted text-gray-400">
                                                                               <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                       </svg>
@@ -1656,7 +1656,7 @@ export default function SellerDashboard() {
                                 />
                               </div>
                             ) : (
-                              <div className="w-40 h-32 rounded-lg bg-gray-100 border flex items-center justify-center">
+                              <div className="w-40 h-32 rounded-lg bg-muted border flex items-center justify-center">
                                 <svg
                                   className="w-10 h-10 text-gray-400"
                                   fill="none"
@@ -1680,7 +1680,7 @@ export default function SellerDashboard() {
                               <h3 className="text-lg font-semibold">{workflow.title}</h3>
                               <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
                             </div>
-                            <p className="text-gray-600 mb-4">{workflow.shortDesc}</p>
+                            <p className="text-muted-foreground mb-4">{workflow.shortDesc}</p>
 
                             {/* Categories and Tags */}
                             <div className="space-y-2 mb-4">
@@ -1696,7 +1696,7 @@ export default function SellerDashboard() {
                               {workflow.tags && workflow.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
                                   {workflow.tags.map((tag: any) => (
-                                    <Badge key={tag.tag.id} variant="outline" className="text-xs text-gray-500">
+                                    <Badge key={tag.tag.id} variant="outline" className="text-xs text-muted-foreground">
                                       #{tag.tag.name}
                                     </Badge>
                                   ))}
@@ -1704,7 +1704,7 @@ export default function SellerDashboard() {
                               )}
                             </div>
 
-                            <div className="flex items-center space-x-6 text-sm text-gray-500">
+                            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                               <span>Price: {formatPrice(workflow.basePriceCents, workflow.currency)}</span>
                               <span>Sales: {workflow._count.orderItems}</span>
                               <span>Favorites: {workflow._count.favorites}</span>
@@ -1762,8 +1762,8 @@ export default function SellerDashboard() {
                 <Card>
                   <CardContent className="p-12 text-center">
                     <div className="space-y-4">
-                      <div className="mx-auto h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <svg className="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="mx-auto h-12 w-12 bg-muted rounded-lg flex items-center justify-center">
+                        <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -1772,8 +1772,8 @@ export default function SellerDashboard() {
                           />
                         </svg>
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900">No workflows yet</h3>
-                      <p className="text-gray-500">Get started by creating your first workflow.</p>
+                      <h3 className="text-lg font-medium text-foreground">No workflows yet</h3>
+                      <p className="text-muted-foreground">Get started by creating your first workflow.</p>
                       <Button onClick={() => setShowCreateForm(true)}>Create Your First Workflow</Button>
                     </div>
                   </CardContent>

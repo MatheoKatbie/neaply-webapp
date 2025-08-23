@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 interface EarningsData {
@@ -226,8 +226,8 @@ export function SellerPayouts() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Stripe Connect Setup Required</h3>
-                <p className="text-gray-500 mb-4">
+                <h3 className="text-lg font-medium text-foreground mb-2">Stripe Connect Setup Required</h3>
+                <p className="text-muted-foreground mb-4">
                   To view your earnings and receive payments, you need to connect your Stripe account first.
                 </p>
                 <div className="space-y-3">
@@ -272,8 +272,8 @@ export function SellerPayouts() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Earnings</h3>
-                <p className="text-gray-500 mb-4">{error}</p>
+                <h3 className="text-lg font-medium text-foreground mb-2">Error Loading Earnings</h3>
+                <p className="text-muted-foreground mb-4">{error}</p>
                 <Button onClick={() => fetchEarnings(period)}>Try Again</Button>
               </>
             )}
@@ -288,7 +288,7 @@ export function SellerPayouts() {
       <Card>
         <CardContent className="p-6">
           <div className="text-center">
-            <p className="text-gray-500">No earnings data available</p>
+            <p className="text-muted-foreground">No earnings data available</p>
           </div>
         </CardContent>
       </Card>
@@ -349,7 +349,7 @@ export function SellerPayouts() {
             <div className="text-2xl font-bold">
               {formatCurrency(earningsData.summary.totalGross, earningsData.summary.currency)}
             </div>
-            <p className="text-sm text-gray-500">{earningsData.summary.salesCount} sales</p>
+            <p className="text-sm text-muted-foreground">{earningsData.summary.salesCount} sales</p>
           </CardContent>
         </Card>
 
@@ -361,7 +361,7 @@ export function SellerPayouts() {
             <div className="text-2xl font-bold text-green-600">
               {formatCurrency(earningsData.summary.totalNet, earningsData.summary.currency)}
             </div>
-            <p className="text-sm text-gray-500">Your payout</p>
+            <p className="text-sm text-muted-foreground">Your payout</p>
           </CardContent>
         </Card>
 
@@ -371,7 +371,7 @@ export function SellerPayouts() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{earningsData.transfers.length}</div>
-            <p className="text-sm text-gray-500">Stripe transfers</p>
+            <p className="text-sm text-muted-foreground">Stripe transfers</p>
           </CardContent>
         </Card>
       </div>
@@ -392,7 +392,7 @@ export function SellerPayouts() {
                       <Badge variant="secondary">{index + 1}</Badge>
                       <div>
                         <p className="font-medium">{workflow.title}</p>
-                        <p className="text-sm text-gray-500">{workflow.sales} sales</p>
+                        <p className="text-sm text-muted-foreground">{workflow.sales} sales</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -402,7 +402,7 @@ export function SellerPayouts() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-4">No sales data available</p>
+              <p className="text-muted-foreground text-center py-4">No sales data available</p>
             )}
           </CardContent>
         </Card>
@@ -420,7 +420,7 @@ export function SellerPayouts() {
                   <div key={transfer.id} className="flex justify-between items-center p-3 border rounded-lg">
                     <div>
                       <p className="font-medium">{transfer.description || 'Transfer'}</p>
-                      <p className="text-sm text-gray-500">{formatDate(transfer.created)}</p>
+                      <p className="text-sm text-muted-foreground">{formatDate(transfer.created)}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-green-600">
@@ -431,7 +431,7 @@ export function SellerPayouts() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-4">No transfers available</p>
+              <p className="text-muted-foreground text-center py-4">No transfers available</p>
             )}
           </CardContent>
         </Card>
@@ -451,7 +451,7 @@ export function SellerPayouts() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <p className="font-medium">Order #{order.id}</p>
-                      <p className="text-sm text-gray-500">{formatDateTime(order.paidAt)}</p>
+                      <p className="text-sm text-muted-foreground">{formatDateTime(order.paidAt)}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium">{formatCurrency(order.totalCents, order.currency)}</p>
@@ -469,7 +469,7 @@ export function SellerPayouts() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">No orders available</p>
+            <p className="text-muted-foreground text-center py-4">No orders available</p>
           )}
         </CardContent>
       </Card>

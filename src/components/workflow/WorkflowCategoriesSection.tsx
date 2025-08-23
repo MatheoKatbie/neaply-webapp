@@ -83,7 +83,7 @@ export function WorkflowCategoriesSection({
         <div className="space-y-3">
           {categoryIds?.length > 0 && (
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Selected Categories:</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Selected Categories:</p>
               <div className="flex flex-wrap gap-2">
                 {categoryIds.map((categoryId) => {
                   const category = categories.find((c) => c.id === categoryId)
@@ -102,14 +102,14 @@ export function WorkflowCategoriesSection({
 
           {tagIds?.length > 0 && (
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Selected Tags:</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Selected Tags:</p>
               <div className="flex flex-wrap gap-2">
                 {tagIds.map((tagId) => {
                   const tag = tags.find((t) => t.id === tagId)
                   return tag ? (
                     <span
                       key={tagId}
-                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-gray-800"
                     >
                       #{tag.name}
                     </span>

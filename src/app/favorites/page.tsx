@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useAuth } from '@/hooks/useAuth'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Heart, Star, ShoppingCart, Zap, Search } from 'lucide-react'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useAuth } from '@/hooks/useAuth'
+import { Heart, Search, ShoppingCart, Star } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface FavoriteWorkflow {
   id: string
@@ -107,23 +107,23 @@ export default function FavoritesPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-28">
+      <div className="min-h-screen bg-background pt-20 md:pt-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-64 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-96 mb-8"></div>
+            <div className="h-8 bg-muted rounded w-64 mb-4"></div>
+            <div className="h-4 bg-muted rounded w-96 mb-8"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
+                  <div className="h-48 bg-muted"></div>
                   <CardHeader>
-                    <div className="h-6 bg-gray-200 rounded"></div>
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-6 bg-muted rounded"></div>
+                    <div className="h-4 bg-muted rounded w-3/4"></div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-muted rounded w-1/2"></div>
+                      <div className="h-4 bg-muted rounded w-3/4"></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -137,14 +137,14 @@ export default function FavoritesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-28">
+      <div className="min-h-screen bg-background pt-20 md:pt-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Heart className="w-8 h-8 text-red-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Favorites</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Error Loading Favorites</h3>
+            <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={fetchFavorites}>Try Again</Button>
           </div>
         </div>
@@ -153,15 +153,15 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 md:pt-28">
+    <div className="min-h-screen bg-background pt-20 md:pt-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <Heart className="w-8 h-8 text-red-500" />
-            <h1 className="text-3xl font-bold text-gray-900">My Favorites</h1>
+            <h1 className="text-3xl font-bold text-foreground">My Favorites</h1>
           </div>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-muted-foreground">
             Your collection of saved workflows ({favorites.length} workflow{favorites.length !== 1 ? 's' : ''})
           </p>
         </div>
@@ -169,11 +169,11 @@ export default function FavoritesPage() {
         {/* Content */}
         {favorites.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <Heart className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Favorites Yet</h3>
-            <p className="text-gray-600 max-w-md mx-auto mb-6">
+            <h3 className="text-lg font-semibold text-foreground mb-2">No Favorites Yet</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
               Start exploring workflows in the marketplace and click the heart icon to save your favorites here.
             </p>
             <Button onClick={() => router.push('/marketplace')}>
@@ -194,7 +194,7 @@ export default function FavoritesPage() {
                   <AnimatedHeart
                     isFavorite={true}
                     onToggle={() => removeFromFavorites(workflow.id)}
-                    className="bg-white/80 hover:bg-white/90"
+                    className="bg-background/80 hover:bg-background/90"
                     size="md"
                   />
                 </div>
@@ -228,7 +228,7 @@ export default function FavoritesPage() {
                   <CardTitle className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
                     {workflow.title}
                   </CardTitle>
-                  <CardDescription className="text-sm text-gray-600 line-clamp-2">
+                  <CardDescription className="text-sm text-muted-foreground line-clamp-2">
                     {workflow.description}
                   </CardDescription>
                 </CardHeader>
@@ -236,18 +236,18 @@ export default function FavoritesPage() {
                 <CardContent className="space-y-4">
                   {/* Price and Rating */}
                   <div className="flex justify-between items-center">
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-2xl font-bold text-foreground">
                       {formatPrice(workflow.price, workflow.currency)}
                     </div>
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium text-gray-700">{workflow.rating.toFixed(1)}</span>
-                      <span className="text-xs text-gray-500">({workflow.ratingCount})</span>
+                      <span className="text-sm font-medium text-muted-foreground">{workflow.rating.toFixed(1)}</span>
+                      <span className="text-xs text-muted-foreground">({workflow.ratingCount})</span>
                     </div>
                   </div>
 
                   {/* Seller and Sales */}
-                  <div className="flex justify-between items-center text-sm text-gray-600">
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <span>by</span>
                       <span className="font-medium hover:text-blue-600">{workflow.seller.name}</span>
@@ -274,7 +274,7 @@ export default function FavoritesPage() {
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {workflow.tags.slice(0, 3).map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs text-gray-500">
+                        <Badge key={index} variant="outline" className="text-xs text-muted-foreground">
                           #{tag}
                         </Badge>
                       ))}
@@ -282,11 +282,11 @@ export default function FavoritesPage() {
                   </div>
 
                   {/* Favorited date */}
-                  <div className="text-xs text-gray-500 pt-2 border-t border-gray-100">
+                  <div className="text-xs text-muted-foreground pt-2 border-t border-gray-100">
                     Added {new Date(workflow.favoritedAt).toLocaleDateString()}
                   </div>
 
-                  <button className="w-full bg-blue-600 text-white py-2 rounded-md">View Workflow</button>
+                  <button className="w-full bg-blue-600 text-primary-foreground py-2 rounded-md">View Workflow</button>
                 </CardContent>
               </Card>
             ))}

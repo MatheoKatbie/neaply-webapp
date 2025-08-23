@@ -1,101 +1,38 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Zap,
-  Clock,
-  Shield,
-  Settings,
-  Database,
-  Code,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  BarChart3,
-  Network,
-  Cpu,
-  HardDrive,
-  Activity,
-  Layers,
-  GitBranch,
-  Timer,
-  Globe,
-  Lock,
-  Unlock,
-  RefreshCw,
-  AlertCircle,
-  Info,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Play,
-  Pause,
-  StopCircle,
-  ArrowRight,
-  ArrowLeft,
-  ArrowUpDown,
-  Filter,
-  Search,
-  Eye,
-  EyeOff,
-  Download,
-  Share2,
-  BookOpen,
-  HelpCircle,
-  Star,
-  Users,
-  ShoppingCart,
-  FileText,
-  Calendar,
-  Bell,
-  Mail,
-  MessageSquare,
-  Phone,
-  MapPin,
-  Link,
-  ExternalLink,
-  Copy,
-  Check,
-  X,
-  Plus,
-  Minus as MinusIcon,
-  ChevronDown,
-  ChevronUp,
-  ChevronRight,
-  ChevronLeft,
-  MoreHorizontal,
-  MoreVertical,
-  RotateCcw,
-  Save,
-  Edit,
-  Trash2,
-  Archive,
-  Tag,
-  Hash,
-  Hash as HashIcon,
-  Hash as HashIcon2,
-  Hash as HashIcon3,
-  Hash as HashIcon4,
-  Hash as HashIcon5,
-  Hash as HashIcon6,
-  Hash as HashIcon7,
-  Hash as HashIcon8,
-  Hash as HashIcon9,
-  Hash as HashIcon10,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+    AlertTriangle,
+    ArrowLeft,
+    ArrowRight,
+    ArrowUpDown,
+    BarChart3,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Code,
+    Cpu,
+    Globe,
+    Layers,
+    Play,
+    RefreshCw,
+    Settings,
+    Shield,
+    XCircle,
+    Zap
 } from 'lucide-react'
+import { useState } from 'react'
 
 interface WorkflowAnalysisModalProps {
   workflowId: string
@@ -221,7 +158,7 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
       case 'expert':
         return 'bg-red-100 text-red-800'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
     }
   }
 
@@ -234,7 +171,7 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
       case 'high':
         return 'bg-red-100 text-red-800'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
     }
   }
 
@@ -260,13 +197,13 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
         {loading && (
           <div className="space-y-4">
             <div className="animate-pulse">
-              <div className="h-6 bg-gray-200 rounded w-1/3 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-6 bg-muted rounded w-1/3 mb-2"></div>
+              <div className="h-4 bg-muted rounded w-1/2"></div>
             </div>
             <div className="animate-pulse space-y-4">
-              <div className="h-32 bg-gray-200 rounded"></div>
-              <div className="h-24 bg-gray-200 rounded"></div>
-              <div className="h-40 bg-gray-200 rounded"></div>
+              <div className="h-32 bg-muted rounded"></div>
+              <div className="h-24 bg-muted rounded"></div>
+              <div className="h-40 bg-muted rounded"></div>
             </div>
           </div>
         )}
@@ -274,8 +211,8 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
         {error && (
           <div className="text-center py-8">
             <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Analysis Unavailable</h3>
-            <p className="text-gray-600">{error}</p>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Analysis Unavailable</h3>
+            <p className="text-muted-foreground">{error}</p>
             <Button onClick={fetchAnalysis} className="mt-4">
               Try Again
             </Button>
@@ -306,17 +243,17 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                     <CardContent>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Level</span>
+                          <span className="text-sm text-muted-foreground">Level</span>
                           <Badge className={getComplexityColor(analysis.complexity.level)}>
                             {analysis.complexity.level.charAt(0).toUpperCase() + analysis.complexity.level.slice(1)}
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Score</span>
+                          <span className="text-sm text-muted-foreground">Score</span>
                           <span className="font-medium">{analysis.complexity.score}</span>
                         </div>
                         <div className="space-y-1">
-                          <span className="text-sm text-gray-600">Factors:</span>
+                          <span className="text-sm text-muted-foreground">Factors:</span>
                           <div className="flex flex-wrap gap-1">
                             {analysis.complexity.factors.map((factor, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
@@ -339,15 +276,15 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                     <CardContent>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Min Time</span>
+                          <span className="text-sm text-muted-foreground">Min Time</span>
                           <span className="font-medium">{formatTime(analysis.estimatedExecutionTime.min)}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Average</span>
+                          <span className="text-sm text-muted-foreground">Average</span>
                           <span className="font-medium">{formatTime(analysis.estimatedExecutionTime.average)}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Max Time</span>
+                          <span className="text-sm text-muted-foreground">Max Time</span>
                           <span className="font-medium">{formatTime(analysis.estimatedExecutionTime.max)}</span>
                         </div>
                       </div>
@@ -367,15 +304,15 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-blue-600">{analysis.nodeCount}</div>
-                        <div className="text-sm text-gray-600">Total Nodes</div>
+                        <div className="text-sm text-muted-foreground">Total Nodes</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-600">{analysis.triggerNodes.length}</div>
-                        <div className="text-sm text-gray-600">Trigger Nodes</div>
+                        <div className="text-sm text-muted-foreground">Trigger Nodes</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-purple-600">{analysis.actionNodes.length}</div>
-                        <div className="text-sm text-gray-600">Action Nodes</div>
+                        <div className="text-sm text-muted-foreground">Action Nodes</div>
                       </div>
                     </div>
                   </CardContent>
@@ -392,14 +329,14 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                   <CardContent>
                     <div className="space-y-3">
                       {analysis.integrations.map((integration, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={index} className="flex items-center justify-between p-3 bg-background rounded-lg">
                           <div className="flex items-center gap-3">
                             <span className="font-medium">{integration.name}</span>
                             <Badge variant="outline" className="text-xs">
                               {integration.type}
                             </Badge>
                           </div>
-                          <span className="text-sm text-gray-600">{integration.nodeCount} nodes</span>
+                          <span className="text-sm text-muted-foreground">{integration.nodeCount} nodes</span>
                         </div>
                       ))}
                     </div>
@@ -431,7 +368,7 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                               </Badge>
                             ))
                           ) : (
-                            <span className="text-sm text-gray-500">No input data detected</span>
+                            <span className="text-sm text-muted-foreground">No input data detected</span>
                           )}
                         </div>
                       </div>
@@ -448,7 +385,7 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                               </Badge>
                             ))
                           ) : (
-                            <span className="text-sm text-gray-500">No transformations detected</span>
+                            <span className="text-sm text-muted-foreground">No transformations detected</span>
                           )}
                         </div>
                       </div>
@@ -465,7 +402,7 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                               </Badge>
                             ))
                           ) : (
-                            <span className="text-sm text-gray-500">No output data detected</span>
+                            <span className="text-sm text-muted-foreground">No output data detected</span>
                           )}
                         </div>
                       </div>
@@ -484,7 +421,7 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                       {Object.entries(analysis.nodeTypes).map(([type, count]) => (
-                        <div key={type} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div key={type} className="flex items-center justify-between p-2 bg-background rounded">
                           <span className="text-sm font-medium truncate">{type.split('.').pop()}</span>
                           <Badge variant="secondary" className="text-xs">
                             {count}

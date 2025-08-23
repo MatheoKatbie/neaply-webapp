@@ -1,25 +1,25 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DollarSign, Heart, Package, RefreshCw, Star, TrendingUp } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
 } from 'recharts'
-import { TrendingUp, Heart, Package, DollarSign, Star, Eye, Calendar, RefreshCw } from 'lucide-react'
 
 interface AnalyticsData {
   overview: {
@@ -125,11 +125,11 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
           {[...Array(4)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader className="pb-2">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-muted rounded w-3/4"></div>
               </CardHeader>
               <CardContent>
-                <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-full"></div>
+                <div className="h-8 bg-muted rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-muted rounded w-full"></div>
               </CardContent>
             </Card>
           ))}
@@ -146,7 +146,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
             <div className="text-red-500 mb-4">
               <TrendingUp className="w-12 h-12" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{error || 'Failed to load analytics'}</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">{error || 'Failed to load analytics'}</h3>
             <Button onClick={fetchAnalytics} variant="outline">
               <RefreshCw className="w-4 h-4 mr-2" />
               Try Again
@@ -168,8 +168,8 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
-          <p className="text-gray-600 mt-1">Track your workflow performance and sales trends</p>
+          <h2 className="text-2xl font-bold text-foreground">Analytics Dashboard</h2>
+          <p className="text-muted-foreground mt-1">Track your workflow performance and sales trends</p>
         </div>
         <div className="flex items-center gap-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -351,9 +351,9 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
               </thead>
               <tbody>
                 {data.topWorkflows.map((workflow) => (
-                  <tr key={workflow.id} className="border-b hover:bg-gray-50">
+                  <tr key={workflow.id} className="border-b hover:bg-background">
                     <td className="py-3 px-4">
-                      <div className="font-medium text-gray-900 truncate max-w-xs">{workflow.title}</div>
+                      <div className="font-medium text-foreground truncate max-w-xs">{workflow.title}</div>
                     </td>
                     <td className="py-3 px-4">
                       <Badge
@@ -368,7 +368,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                         <span className="font-medium">{workflow.rating.toFixed(1)}</span>
-                        <span className="text-gray-500 text-sm">({workflow.ratingCount})</span>
+                        <span className="text-muted-foreground text-sm">({workflow.ratingCount})</span>
                       </div>
                     </td>
                     <td className="py-3 px-4">
@@ -383,7 +383,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
               </tbody>
             </table>
             {data.topWorkflows.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 No workflows found. Create your first workflow to see analytics.
               </div>
             )}

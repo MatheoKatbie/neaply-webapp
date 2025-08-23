@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, Download, ArrowRight, Home } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Order } from '@/types/payment'
+import { ArrowRight, CheckCircle, Download, Home } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams()
@@ -96,11 +96,11 @@ function CheckoutSuccessContent() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-              <div className="h-64 bg-gray-200 rounded-lg"></div>
+              <div className="h-8 bg-muted rounded w-1/3 mb-6"></div>
+              <div className="h-64 bg-muted rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -112,7 +112,7 @@ function CheckoutSuccessContent() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <Card className="text-center py-12">
               <CardContent>
@@ -120,7 +120,7 @@ function CheckoutSuccessContent() {
                   <CheckCircle className="w-8 h-8 text-red-500" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
-                <p className="text-gray-600 mb-6">{error || "The order you're looking for could not be found."}</p>
+                <p className="text-muted-foreground mb-6">{error || "The order you're looking for could not be found."}</p>
                 <Button onClick={() => router.push('/marketplace')}>
                   <Home className="w-4 h-4 mr-2" />
                   Back to Marketplace
@@ -136,15 +136,15 @@ function CheckoutSuccessContent() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+      <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Success Header */}
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-10 h-10 text-green-500" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
-            <p className="text-lg text-gray-600">Thank you for your purchase. Your workflows are ready for download.</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Payment Successful!</h1>
+            <p className="text-lg text-muted-foreground">Thank you for your purchase. Your workflows are ready for download.</p>
           </div>
 
           {/* Order Details */}
@@ -155,23 +155,23 @@ function CheckoutSuccessContent() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Order ID</span>
+                  <span className="text-sm font-medium text-muted-foreground">Order ID</span>
                   <p className="text-lg font-mono">{order.id}</p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Total Amount</span>
+                  <span className="text-sm font-medium text-muted-foreground">Total Amount</span>
                   <p className="text-lg font-semibold text-green-600">
                     {formatPrice(order.totalCents, order.currency)}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Payment Date</span>
+                  <span className="text-sm font-medium text-muted-foreground">Payment Date</span>
                   <p className="text-lg">
                     {order.paidAt ? new Date(order.paidAt).toLocaleDateString() : 'Processing...'}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Status</span>
+                  <span className="text-sm font-medium text-muted-foreground">Status</span>
                   <p className="text-lg">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       {order.status === 'paid' ? 'Completed' : order.status}
@@ -185,7 +185,7 @@ function CheckoutSuccessContent() {
                 <h3 className="text-lg font-semibold mb-4">Your Workflows</h3>
                 <div className="space-y-4">
                   {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
                       <div className="flex items-center space-x-4">
                         {item.workflow.heroImageUrl ? (
                           <img
@@ -200,7 +200,7 @@ function CheckoutSuccessContent() {
                         )}
                         <div>
                           <h4 className="font-medium">{item.workflow.title}</h4>
-                          {item.pricingPlan && <p className="text-sm text-gray-600">{item.pricingPlan.name} Plan</p>}
+                          {item.pricingPlan && <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>}
                           <p className="text-sm font-medium text-green-600">
                             {formatPrice(item.unitPriceCents, order.currency)}
                           </p>
@@ -240,7 +240,7 @@ function CheckoutSuccessContent() {
                   </div>
                   <div>
                     <p className="font-medium">Download your workflows</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Click the download buttons above to get your workflow files.
                     </p>
                   </div>
@@ -251,7 +251,7 @@ function CheckoutSuccessContent() {
                   </div>
                   <div>
                     <p className="font-medium">Import to n8n</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Open n8n and import the downloaded workflow files to start using them.
                     </p>
                   </div>
@@ -262,7 +262,7 @@ function CheckoutSuccessContent() {
                   </div>
                   <div>
                     <p className="font-medium">Need help?</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Check the workflow documentation or contact the seller for support.
                     </p>
                   </div>
@@ -292,10 +292,10 @@ export default function CheckoutSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24 flex items-center justify-center">
+        <div className="min-h-screen bg-background pt-20 md:pt-24 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </div>
       }

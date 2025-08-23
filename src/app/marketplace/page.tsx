@@ -1,15 +1,15 @@
 'use client'
 
 import { AnimatedHeart } from '@/components/ui/animated-heart'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Star, Search, Filter, Download, Eye, Zap, Clock, DollarSign } from 'lucide-react'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { PlatformBadge } from '@/components/ui/platform-badge'
+import { Separator } from '@/components/ui/separator'
+import { Download, Filter, Search, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -134,7 +134,7 @@ function WorkflowCard({
         <AnimatedHeart
           isFavorite={favorite}
           onToggle={(e) => handleFavoriteClick(e)}
-          className="bg-white/80 hover:bg-white/90"
+          className="bg-background/80 hover:bg-background/90"
           size="md"
         />
       </div>
@@ -172,8 +172,8 @@ function WorkflowCard({
       </div>
 
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold group-hover:text-gray-900 transition-colors">{title}</CardTitle>
-        <CardDescription className="text-sm text-gray-600 line-clamp-2">{description}</CardDescription>
+        <CardTitle className="text-lg font-semibold text-card-foreground group-hover:text-foreground transition-colors">{title}</CardTitle>
+        <CardDescription className="text-sm text-muted-foreground line-clamp-2">{description}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -193,7 +193,7 @@ function WorkflowCard({
           </div>
           <div className="flex flex-wrap gap-1">
             {tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs text-gray-500">
+              <Badge key={tag} variant="outline" className="text-xs text-muted-foreground">
                 #{tag}
               </Badge>
             ))}
@@ -205,25 +205,25 @@ function WorkflowCard({
         {/* Seller and stats */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">by {seller}</span>
+            <span className="text-muted-foreground">by {seller}</span>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                 <span className="text-sm font-medium">{rating.toFixed(1)}</span>
-                <span className="text-xs text-gray-500">({ratingCount})</span>
+                <span className="text-xs text-muted-foreground">({ratingCount})</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-xs text-gray-500">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Download className="w-3 h-3" />
               <span>{salesCount} sales</span>
             </div>
             <div className="text-lg font-bold text-green-600">{formatPrice(price, currency)}</div>
           </div>
         </div>
-        <Button className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800">View Workflow</Button>
+        <Button className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90">View Workflow</Button>
       </CardContent>
     </Card>
   )
@@ -326,27 +326,27 @@ export default function MarketplacePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+      <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Page Header */}
           <div className="text-center mb-10">
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Workflow Marketplace</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Workflow Marketplace</h1>
             </div>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Discover powerful n8n workflows to automate your business processes. From marketing automation to data
               processing, find the perfect workflow for your needs.
             </p>
           </div>
 
           {/* Search and Filter Section */}
-          <div className="bg-white rounded-xl border shadow-sm p-8 mb-8">
+          <div className="bg-card rounded-xl border border-border shadow-sm p-8 mb-8">
             <div className="space-y-6">
               {/* Main Search and Primary Filters */}
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {/* Search */}
                 <div className="lg:col-span-2">
-                  <Label htmlFor="search" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="search" className="text-sm font-medium text-card-foreground mb-2 block">
                     Search Workflows
                   </Label>
                   <div className="relative">
@@ -356,21 +356,21 @@ export default function MarketplacePage() {
                       placeholder="Search workflows, tags, or categories..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-12 h-12 text-base border-gray-200 focus:border-gray-400 focus:ring-gray-400"
+                      className="pl-12 h-12 text-base border-border focus:border-gray-400 focus:ring-gray-400"
                     />
                   </div>
                 </div>
 
                 {/* Category Filter */}
                 <div>
-                  <Label htmlFor="category" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="category" className="text-sm font-medium text-card-foreground mb-2 block">
                     Category
                   </Label>
                   <select
                     id="category"
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full h-12 px-4 py-3 text-base border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all"
+                    className="w-full h-12 px-4 py-3 text-base border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all"
                   >
                     <option value="all">All Categories</option>
                     {categories.map((category) => (
@@ -383,14 +383,14 @@ export default function MarketplacePage() {
 
                 {/* Sort */}
                 <div>
-                  <Label htmlFor="sort" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="sort" className="text-sm font-medium text-card-foreground mb-2 block">
                     Sort By
                   </Label>
                   <select
                     id="sort"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full h-12 px-4 py-3 text-base border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all"
+                    className="w-full h-12 px-4 py-3 text-base border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all"
                   >
                     <option value="popular">Most Popular</option>
                     <option value="newest">Newest</option>
@@ -402,9 +402,9 @@ export default function MarketplacePage() {
               </div>
 
               {/* Price Range and Clear Filters */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end pt-4 border-t border-gray-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end pt-4 border-t border-border">
                 <div>
-                  <Label htmlFor="min-price" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="min-price" className="text-sm font-medium text-card-foreground mb-2 block">
                     Min Price (€)
                   </Label>
                   <Input
@@ -413,11 +413,11 @@ export default function MarketplacePage() {
                     placeholder="0"
                     value={priceRange.min}
                     onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
-                    className="h-12 text-base border-gray-200 focus:border-gray-400 focus:ring-gray-400"
+                    className="h-12 text-base border-border focus:border-gray-400 focus:ring-gray-400"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="max-price" className="text-sm font-medium text-gray-700 mb-2 block">
+                  <Label htmlFor="max-price" className="text-sm font-medium text-card-foreground mb-2 block">
                     Max Price (€)
                   </Label>
                   <Input
@@ -426,7 +426,7 @@ export default function MarketplacePage() {
                     placeholder="1000"
                     value={priceRange.max}
                     onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
-                    className="h-12 text-base border-gray-200 focus:border-gray-400 focus:ring-gray-400"
+                    className="h-12 text-base border-border focus:border-gray-400 focus:ring-gray-400"
                   />
                 </div>
                 <div className="lg:col-span-3 flex items-end gap-3">
@@ -438,12 +438,12 @@ export default function MarketplacePage() {
                       setPriceRange({ min: '', max: '' })
                       setSortBy('popular')
                     }}
-                    className="flex-1 h-12 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                    className="flex-1 h-12 border-border hover:border-border/80 hover:bg-accent bg-background text-foreground"
                   >
                     <Filter className="w-4 h-4 mr-2" />
                     Clear Filters
                   </Button>
-                  <Button className="bg-black hover:bg-gray-800 text-white h-12 px-8">
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground h-12 px-8">
                     <Search className="w-4 h-4 mr-2" />
                     Search
                   </Button>
@@ -455,7 +455,7 @@ export default function MarketplacePage() {
           {/* Results Section */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold text-gray-900">{pagination.totalCount} workflows found</h2>
+              <h2 className="text-xl font-semibold text-foreground">{pagination.totalCount} workflows found</h2>
               {searchQuery && <Badge variant="outline">Search: "{searchQuery}"</Badge>}
               {selectedCategory !== 'all' && <Badge variant="outline">Category: {selectedCategory}</Badge>}
             </div>
@@ -466,15 +466,15 @@ export default function MarketplacePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
+                  <div className="h-48 bg-muted"></div>
                   <CardHeader>
-                    <div className="h-6 bg-gray-200 rounded"></div>
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-6 bg-muted rounded"></div>
+                    <div className="h-4 bg-muted rounded w-3/4"></div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-muted rounded w-1/2"></div>
+                      <div className="h-4 bg-muted rounded w-3/4"></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -488,11 +488,11 @@ export default function MarketplacePage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-gray-400" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No workflows found</h3>
-              <p className="text-gray-600 max-w-md mx-auto">
+              <h3 className="text-lg font-semibold text-foreground mb-2">No workflows found</h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
                 Try adjusting your search criteria or explore different categories to find the perfect workflow.
               </p>
             </div>
@@ -504,7 +504,7 @@ export default function MarketplacePage() {
               <Button variant="outline" size="lg" onClick={loadMoreWorkflows} disabled={loadingMore}>
                 {loadingMore ? 'Loading...' : 'Load More Workflows'}
               </Button>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-muted-foreground mt-2">
                 Showing {sortedWorkflows.length} of {pagination.totalCount} workflows
               </p>
             </div>

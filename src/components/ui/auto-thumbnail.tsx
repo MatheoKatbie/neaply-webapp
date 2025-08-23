@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useRef, useMemo } from 'react'
-import { Zap, Workflow as WorkflowIcon, Database, Bot, Globe, Shield, Clock, TrendingUp, Icon } from 'lucide-react'
 import type { Workflow } from '@/types/workflow'
+import { Bot, Clock, Database, Globe, Shield, TrendingUp, Workflow as WorkflowIcon, Zap } from 'lucide-react'
+import React, { useEffect, useMemo, useRef } from 'react'
 
 interface AutoThumbnailProps {
   workflow: Pick<Workflow, 'id' | 'title' | 'shortDesc' | 'longDescMd' | 'categories' | 'tags'> & { platform?: string }
@@ -273,13 +273,13 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
 
       {/* Icon overlay */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 border border-white/30">
-          {React.createElement(icon, { className: 'w-8 h-8 text-white' })}
+        <div className="bg-background/20 backdrop-blur-sm rounded-full p-4 border border-white/30">
+          {React.createElement(icon, { className: 'w-8 h-8 text-primary-foreground' })}
         </div>
       </div>
 
       {/* Subtle overlay for better text contrast */}
-      <div className="absolute inset-0 bg-black/5" />
+      <div className="absolute inset-0 bg-primary/5" />
     </div>
   )
 }

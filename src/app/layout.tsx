@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import ClientLayout from './client-layout'
 
 const inter = Inter({
@@ -51,9 +52,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`} suppressHydrationWarning={true}>
-        <AuthProvider>
-          <ClientLayout>{children}</ClientLayout>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ClientLayout>{children}</ClientLayout>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

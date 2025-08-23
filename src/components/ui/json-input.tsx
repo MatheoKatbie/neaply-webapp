@@ -1,11 +1,9 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Label } from '@/components/ui/label'
-import type { N8nWorkflow } from '@/types/workflow'
+import { useEffect, useRef, useState } from 'react'
 
 interface JsonInputProps {
   value?: any
@@ -186,7 +184,7 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
             <CardContent>
               <div
                 className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                  dragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+                  dragOver ? 'border-blue-500 bg-blue-50' : 'border-border hover:border-gray-400'
                 }`}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -218,10 +216,10 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     <span className="font-medium">Click to upload</span> or drag and drop
                   </p>
-                  <p className="text-xs text-gray-500">JSON files only</p>
+                  <p className="text-xs text-muted-foreground">JSON files only</p>
                 </div>
               </div>
             </CardContent>
