@@ -54,9 +54,35 @@ function CheckoutSuccessContent() {
     fetchOrder()
   }, [orderId])
 
-  const handleDownload = (workflowId: string) => {
-    // TODO: Implement download logic
-    console.log('Download workflow:', workflowId)
+  const handleDownload = async (workflowId: string, workflowTitle: string) => {
+    try {
+      const response = await fetch(`/api/workflows/${workflowId}/download`, {
+        credentials: 'include',
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to download workflow')
+      }
+      
+      const data = await response.json()
+      
+      // Create and download the JSON file
+      const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
+        type: 'application/json',
+      })
+      
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error downloading workflow:', error)
+      alert('Failed to download workflow. Please try again.')
+    }
   }
 
   const formatPrice = (priceCents: number, currency: string) => {
@@ -181,7 +207,7 @@ function CheckoutSuccessContent() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" onClick={() => handleDownload(item.workflowId)} className="cursor-pointer">
+                        <Button size="sm" onClick={() => handleDownload(item.workflowId, item.workflow.title)} className="cursor-pointer">
                           <Download className="w-4 h-4 mr-2" />
                           Download
                         </Button>

@@ -79,7 +79,40 @@ export async function POST(request: NextRequest) {
       priceCents = workflow.basePriceCents
     }
 
-    if (priceCents <= 0) {
+    // Handle free workflows (0 price) - create completed order directly
+    if (priceCents === 0) {
+      const freeOrder = await prisma.order.create({
+        data: {
+          userId: user.id,
+          status: 'paid',
+          totalCents: 0,
+          currency: workflow.currency,
+          provider: 'free',
+          paidAt: new Date(),
+          items: {
+            create: {
+              workflowId,
+              unitPriceCents: 0,
+              quantity: 1,
+              subtotalCents: 0,
+              pricingPlanId: pricingPlanId || undefined,
+            },
+          },
+        },
+      })
+
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      const successUrl = `${baseUrl}/checkout/success?order_id=${freeOrder.id}`
+      
+      return NextResponse.json({
+        sessionId: null,
+        url: successUrl,
+        orderId: freeOrder.id,
+        isFree: true,
+      })
+    }
+
+    if (priceCents < 0) {
       return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
     }
 

@@ -201,6 +201,37 @@ export default function WorkflowDetailPage() {
     console.log('Purchase workflow:', workflowId)
   }
 
+  const handleDownload = async (workflowId: string, workflowTitle: string) => {
+    try {
+      const response = await fetch(`/api/workflows/${workflowId}/download`, {
+        credentials: 'include',
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to download workflow')
+      }
+      
+      const data = await response.json()
+      
+      // Create and download the JSON file
+      const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
+        type: 'application/json',
+      })
+      
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error downloading workflow:', error)
+      alert('Failed to download workflow. Please try again.')
+    }
+  }
+
   if (loading) {
     return (
       <>
@@ -449,6 +480,65 @@ export default function WorkflowDetailPage() {
                   </div>
                 </div>
               </Card>
+
+              {/* Similar Workflows - Horizontal Slider */}
+              {recommendations && recommendations.similarWorkflows.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Similar Workflows</CardTitle>
+                    <p className="text-sm text-gray-600">Based on categories and tags</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <div className="flex gap-4 pb-4" style={{ width: `${recommendations.similarWorkflows.length * 300}px`, minWidth: '100%' }}>
+                        {recommendations.similarWorkflows.map((similarWorkflow) => (
+                          <div key={similarWorkflow.id} className="flex-shrink-0" style={{ width: '280px' }}>
+                            <WorkflowCardMini
+                              {...similarWorkflow}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* More from this Store - Horizontal Slider */}
+              {recommendations && recommendations.storeWorkflows.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg">More from {recommendations.storeName}</CardTitle>
+                        <p className="text-sm text-gray-600">Other workflows by this seller</p>
+                      </div>
+                      {recommendations.storeWorkflows.length > 4 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)}
+                        >
+                          View All ({recommendations.storeWorkflows.length})
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <div className="flex gap-4 pb-4" style={{ width: `${recommendations.storeWorkflows.length * 300}px`, minWidth: '100%' }}>
+                        {recommendations.storeWorkflows.map((storeWorkflow) => (
+                          <div key={storeWorkflow.id} className="flex-shrink-0" style={{ width: '280px' }}>
+                            <WorkflowCardMini
+                              {...storeWorkflow}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -465,12 +555,19 @@ export default function WorkflowDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {workflow.userOwnsWorkflow ? (
-                    <div className="w-full">
+                    <div className="w-full space-y-3">
                       <Button disabled className="w-full bg-green-600 text-white cursor-not-allowed opacity-75">
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
-                      <p className="text-sm text-gray-600 text-center mt-2">You already own this workflow</p>
+                      <Button 
+                        onClick={() => handleDownload(workflowId, workflow.title)}
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Download className="w-5 h-5 mr-2" />
+                        Download Workflow
+                      </Button>
+                      <p className="text-sm text-gray-600 text-center">You already own this workflow</p>
                     </div>
                   ) : (
                     <PurchaseButton
@@ -550,54 +647,6 @@ export default function WorkflowDetailPage() {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Similar Workflows */}
-              {recommendations && recommendations.similarWorkflows.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Similar Workflows</CardTitle>
-                    <p className="text-sm text-gray-600">Based on categories and tags</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {recommendations.similarWorkflows.slice(0, 3).map((similarWorkflow) => (
-                        <WorkflowCardMini key={similarWorkflow.id} {...similarWorkflow} />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* More from this Store */}
-              {recommendations && recommendations.storeWorkflows.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">More from {recommendations.storeName}</CardTitle>
-                    <p className="text-sm text-gray-600">Other workflows by this seller</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {recommendations.storeWorkflows.slice(0, 3).map((storeWorkflow) => (
-                        <WorkflowCardMini key={storeWorkflow.id} {...storeWorkflow} />
-                      ))}
-                      {recommendations.storeWorkflows.length > 3 && (
-                        <div className="pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                            onClick={() =>
-                              recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)
-                            }
-                          >
-                            View All ({recommendations.storeWorkflows.length} workflows)
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           </div>
 
