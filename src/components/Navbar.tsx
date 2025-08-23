@@ -11,12 +11,34 @@ import { Heart } from 'lucide-react'
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [storeSlug, setStoreSlug] = useState<string | null>(null)
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut, loading } = useAuth()
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const isHomepage = pathname === '/'
+
+  // Fetch seller profile to get store slug
+  useEffect(() => {
+    const fetchStoreSlug = async () => {
+      if (user && user.isSeller) {
+        try {
+          const response = await fetch(`/api/seller-profile/${user.id}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.success && data.data) {
+              setStoreSlug(data.data.slug)
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch store slug:', error)
+        }
+      }
+    }
+
+    fetchStoreSlug()
+  }, [user])
 
   const handleLogout = async () => {
     await signOut()
@@ -56,6 +78,14 @@ export default function Navbar() {
               >
                 Marketplace
               </Link>
+              {user && user.isSeller && (
+                <Link
+                  href={`/store/${storeSlug || user.id}`}
+                  className="font-inter text-gray-700 hover:text-black px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-gray-100"
+                >
+                  Your Store
+                </Link>
+              )}
               {user && (
                 <Link
                   href="/favorites"
@@ -214,6 +244,15 @@ export default function Navbar() {
               >
                 Marketplace
               </Link>
+              {user && user.isSeller && (
+                <Link
+                  href={`/store/${storeSlug || user.id}`}
+                  className="font-inter text-gray-700 hover:text-black block px-3 py-2 rounded-full text-base font-medium transition-colors duration-200 hover:bg-gray-100"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Your Store
+                </Link>
+              )}
               {user && (
                 <Link
                   href="/favorites"

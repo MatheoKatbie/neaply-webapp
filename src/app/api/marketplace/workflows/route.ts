@@ -216,6 +216,7 @@ export async function GET(req: NextRequest) {
         description: workflow.shortDesc,
         price: workflow.basePriceCents,
         currency: workflow.currency,
+        platform: workflow.platform,
         seller: workflow.seller.sellerProfile?.storeName || workflow.seller.displayName,
         rating: parseFloat(workflow.ratingAvg.toString()),
         ratingCount: workflow.ratingCount,

@@ -66,6 +66,13 @@ enum CompatibilityStatus {
   incompatible
 }
 
+enum Platform {
+  n8n
+  zapier
+  make
+  airtable_script
+}
+
 /**
  * ============================
  * Users & Sellers
@@ -124,6 +131,7 @@ model Workflow {
   longDescMd     String?
   heroImageUrl   String?
   documentationUrl String?      // URL vers le fichier de documentation (PDF, DOCX, etc.)
+  platform       Platform?      // Platform for the workflow (n8n, Zapier, Make, Airtable Script)
   status         WorkflowStatus @default(draft)
   basePriceCents Int            @default(0)
   currency       String         @default("EUR")

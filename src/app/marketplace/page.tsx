@@ -7,7 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { Download, Filter, Search, Star, Zap } from 'lucide-react'
+import { Star, Search, Filter, Download, Eye, Zap, Clock, DollarSign } from 'lucide-react'
+import { AnimatedHeart } from '@/components/ui/animated-heart'
+import { PlatformBadge } from '@/components/ui/platform-badge'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -17,6 +19,7 @@ interface WorkflowCardProps {
   description: string
   price: number
   currency: string
+  platform?: string
   seller: string
   rating: number
   ratingCount: number
@@ -57,6 +60,7 @@ function WorkflowCard({
   description,
   price,
   currency,
+  platform,
   seller,
   rating,
   ratingCount,
@@ -156,6 +160,13 @@ function WorkflowCard({
             <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
               <Zap className="w-8 h-8 text-white" />
             </div>
+          </div>
+        )}
+
+        {/* Platform badge */}
+        {platform && (
+          <div className="absolute top-3 left-3 z-10">
+            <PlatformBadge platform={platform} size="sm" variant="default" className="shadow-sm" />
           </div>
         )}
       </div>

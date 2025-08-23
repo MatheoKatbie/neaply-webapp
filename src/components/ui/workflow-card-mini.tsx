@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Star, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { PlatformBadge } from '@/components/ui/platform-badge'
 
 interface WorkflowCardMiniProps {
   id: string
@@ -15,6 +16,7 @@ interface WorkflowCardMiniProps {
   ratingCount: number
   salesCount: number
   heroImage?: string
+  platform?: string
   categories: string[]
   tags: string[]
   slug: string
@@ -37,6 +39,7 @@ export function WorkflowCardMini({
   ratingCount,
   salesCount,
   heroImage,
+  platform,
   categories,
   tags,
   slug,
@@ -59,33 +62,30 @@ export function WorkflowCardMini({
   }
 
   return (
-    <Card 
+    <Card
       className={`cursor-pointer hover:shadow-md transition-shadow duration-200 ${className}`}
       onClick={handleClick}
     >
       <CardContent className="p-4">
         {/* Hero Image */}
         {heroImage && (
-          <div className="w-full h-24 bg-gray-100 rounded-md mb-3 overflow-hidden">
-            <img
-              src={heroImage}
-              alt={title}
-              className="w-full h-full object-cover"
-            />
+          <div className="w-full h-24 bg-gray-100 rounded-md mb-3 overflow-hidden relative">
+            <img src={heroImage} alt={title} className="w-full h-full object-cover" />
+            {platform && (
+              <div className="absolute top-2 left-2">
+                <PlatformBadge platform={platform} size="sm" variant="default" className="text-xs shadow-sm" />
+              </div>
+            )}
           </div>
         )}
 
         {/* Title and Description */}
         <div className="space-y-2 mb-3">
-          <h3 className="font-semibold text-sm line-clamp-2 leading-tight">
-            {title}
-          </h3>
-          <p className="text-xs text-gray-600 line-clamp-2">
-            {shortDesc}
-          </p>
+          <h3 className="font-semibold text-sm line-clamp-2 leading-tight">{title}</h3>
+          <p className="text-xs text-gray-600 line-clamp-2">{shortDesc}</p>
         </div>
 
-        {/* Categories (max 2) */}
+        {/* Categories */}
         {categories.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-2">
             {categories.slice(0, 2).map((category, index) => (
@@ -115,16 +115,12 @@ export function WorkflowCardMini({
               <span>{salesCount}</span>
             </div>
           </div>
-          <div className="font-semibold text-green-600">
-            {formatPrice(price, currency)}
-          </div>
+          <div className="font-semibold text-green-600">{formatPrice(price, currency)}</div>
         </div>
 
         {/* Seller */}
         <div className="mt-2 pt-2 border-t border-gray-100">
-          <p className="text-xs text-gray-500 truncate">
-            by {seller.storeName || seller.displayName}
-          </p>
+          <p className="text-xs text-gray-500 truncate">by {seller.storeName || seller.displayName}</p>
         </div>
       </CardContent>
     </Card>

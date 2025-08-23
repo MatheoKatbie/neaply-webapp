@@ -142,6 +142,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       longDescMd: workflow.longDescMd,
       price: workflow.basePriceCents,
       currency: workflow.currency,
+      platform: workflow.platform,
       seller: {
         displayName: workflow.seller.displayName,
         storeName: workflow.seller.sellerProfile?.storeName,

@@ -216,6 +216,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       shortDesc: workflow.shortDesc,
       price: workflow.basePriceCents,
       currency: 'EUR',
+      platform: workflow.platform,
       rating: workflow.avgRating || 0,
       ratingCount: workflow.ratingCount || 0,
       salesCount: workflow.salesCount || 0,
