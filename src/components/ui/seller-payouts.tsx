@@ -73,16 +73,27 @@ export function SellerPayouts() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to fetch earnings data')
+        const errorMessage = errorData.error || 'Failed to fetch earnings data'
+
+        // Don't show toast for expected Stripe Connect errors
+        const isStripeConnectError =
+          errorMessage.includes('Stripe Connect account not found') ||
+          errorMessage.includes('stripeAccount') ||
+          errorMessage.includes('connect')
+
+        if (!isStripeConnectError) {
+          toast.error('Failed to load earnings data', {
+            description: errorMessage,
+          })
+        }
+
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
       setEarningsData(data.data)
     } catch (err: any) {
       setError(err.message)
-      toast.error('Failed to load earnings data', {
-        description: err.message,
-      })
     } finally {
       setLoading(false)
     }

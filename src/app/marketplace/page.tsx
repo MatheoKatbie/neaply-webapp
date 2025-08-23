@@ -236,6 +236,7 @@ export default function MarketplacePage() {
   const [sortBy, setSortBy] = useState('popular')
   const [workflows, setWorkflows] = useState<WorkflowCardProps[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [categories, setCategories] = useState<CategoryData[]>([])
   const [pagination, setPagination] = useState({
     page: 1,
@@ -246,13 +247,17 @@ export default function MarketplacePage() {
   })
 
   // Fetch workflows from API
-  const fetchWorkflows = async () => {
+  const fetchWorkflows = async (page = 1, append = false) => {
     try {
-      setLoading(true)
+      if (page === 1) {
+        setLoading(true)
+      } else {
+        setLoadingMore(true)
+      }
 
       // Build query parameters
       const params = new URLSearchParams({
-        page: '1',
+        page: page.toString(),
         limit: '12',
         sortBy: sortBy,
       })
@@ -281,21 +286,38 @@ export default function MarketplacePage() {
 
       const data: MarketplaceResponse = await response.json()
 
-      setWorkflows(data.data || [])
+      if (append) {
+        // Append new workflows to existing list
+        setWorkflows((prev) => [...prev, ...(data.data || [])])
+      } else {
+        // Replace workflows (for new searches/filters)
+        setWorkflows(data.data || [])
+      }
+
       setCategories(data.categories || [])
       setPagination(data.pagination)
     } catch (error) {
       console.error('Error fetching workflows:', error)
-      setWorkflows([])
-      setCategories([])
+      if (!append) {
+        setWorkflows([])
+        setCategories([])
+      }
     } finally {
       setLoading(false)
+      setLoadingMore(false)
+    }
+  }
+
+  // Load more workflows function
+  const loadMoreWorkflows = async () => {
+    if (pagination.hasNext && !loadingMore) {
+      await fetchWorkflows(pagination.page + 1, true)
     }
   }
 
   // Fetch workflows on component mount and when filters change
   useEffect(() => {
-    fetchWorkflows()
+    fetchWorkflows(1, false)
   }, [searchQuery, selectedCategory, priceRange.min, priceRange.max, sortBy])
 
   // Workflows are already filtered and sorted by the API
@@ -478,15 +500,8 @@ export default function MarketplacePage() {
           {/* Load More Button */}
           {sortedWorkflows.length > 0 && !loading && pagination.hasNext && (
             <div className="text-center mt-12">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  // TODO: Implement pagination
-                  console.log('Load more clicked - implement pagination')
-                }}
-              >
-                Load More Workflows
+              <Button variant="outline" size="lg" onClick={loadMoreWorkflows} disabled={loadingMore}>
+                {loadingMore ? 'Loading...' : 'Load More Workflows'}
               </Button>
               <p className="text-sm text-gray-500 mt-2">
                 Showing {sortedWorkflows.length} of {pagination.totalCount} workflows

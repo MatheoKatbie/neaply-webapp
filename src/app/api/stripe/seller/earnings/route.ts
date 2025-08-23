@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { stripe, STRIPE_CONNECT_CONFIG } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
 
@@ -135,8 +135,8 @@ export async function GET(req: NextRequest) {
     // Calculate earnings summary from orders
     const totalGross = orders.reduce((sum, order) => sum + (order.totalCents || 0), 0)
 
-    // Calculate platform fees (assuming 10% commission - adjust as needed)
-    const platformFeePercentage = 0.1 // 10%
+    // Calculate platform fees using configuration
+    const platformFeePercentage = STRIPE_CONNECT_CONFIG.platformFeePercentage / 100 // 15%
     const totalFees = Math.round(totalGross * platformFeePercentage)
     const totalNet = totalGross - totalFees
 
