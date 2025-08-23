@@ -17,10 +17,12 @@ import { ReviewSystem } from '@/components/ui/review-system'
 import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
 import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
+import { copyWorkflowToClipboard, downloadWorkflowAsZip } from '@/lib/download-utils'
 import {
   ArrowLeft,
   BarChart3,
   CheckCircle,
+  Copy,
   Download,
   Eye,
   FileText,
@@ -201,34 +203,22 @@ export default function WorkflowDetailPage() {
     console.log('Purchase workflow:', workflowId)
   }
 
-  const handleDownload = async (workflowId: string, workflowTitle: string) => {
+  const handleDownloadZip = async (workflowId: string, workflowTitle: string) => {
     try {
-      const response = await fetch(`/api/workflows/${workflowId}/download`, {
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to download workflow')
-      }
-
-      const data = await response.json()
-
-      // Create and download the JSON file
-      const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
-        type: 'application/json',
-      })
-
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      await downloadWorkflowAsZip(workflowId, workflowTitle)
     } catch (error) {
-      console.error('Error downloading workflow:', error)
+      console.error('Download error:', error)
       alert('Failed to download workflow. Please try again.')
+    }
+  }
+
+  const handleCopyToClipboard = async (workflowId: string) => {
+    try {
+      await copyWorkflowToClipboard(workflowId)
+      alert('Workflow JSON copied to clipboard! You can now paste it into n8n or other platforms.')
+    } catch (error) {
+      console.error('Copy error:', error)
+      alert('Failed to copy workflow to clipboard. Please try again.')
     }
   }
 
@@ -525,13 +515,23 @@ export default function WorkflowDetailPage() {
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
-                      <Button
-                        onClick={() => handleDownload(workflowId, workflow.title)}
-                        className="w-full bg-blue-600 hover:bg-blue-700"
-                      >
-                        <Download className="w-5 h-5 mr-2" />
-                        Download Workflow
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                        variant='outline'
+                          onClick={() => handleCopyToClipboard(workflowId)}
+                          className="flex-1"
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy JSON
+                        </Button>
+                        <Button
+                          variant='outline'
+                          onClick={() => handleDownloadZip(workflowId, workflow.title)}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download ZIP
+                        </Button>
+                      </div>
                       <p className="text-sm text-muted-foreground text-center">You already own this workflow</p>
                     </div>
                   ) : (

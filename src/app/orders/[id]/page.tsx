@@ -5,17 +5,19 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { copyWorkflowToClipboard, downloadWorkflowAsZip } from '@/lib/download-utils'
 import type { Order } from '@/types/payment'
 import {
-    AlertCircle,
-    ArrowLeft,
-    CheckCircle,
-    Clock,
-    CreditCard,
-    Download,
-    FileText,
-    Package,
-    XCircle
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle,
+  Clock,
+  Copy,
+  CreditCard,
+  Download,
+  FileText,
+  Package,
+  XCircle
 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -124,9 +126,23 @@ export default function OrderDetailPage() {
     }
   }
 
-  const handleDownloadWorkflow = (workflowId: string) => {
-    // TODO: Implement download logic
-    console.log('Download workflow:', workflowId)
+  const handleDownloadZip = async (workflowId: string, workflowTitle: string) => {
+    try {
+      await downloadWorkflowAsZip(workflowId, workflowTitle)
+    } catch (error) {
+      console.error('Download error:', error)
+      alert('Failed to download workflow. Please try again.')
+    }
+  }
+
+  const handleCopyToClipboard = async (workflowId: string) => {
+    try {
+      await copyWorkflowToClipboard(workflowId)
+      alert('Workflow JSON copied to clipboard! You can now paste it into n8n or other platforms.')
+    } catch (error) {
+      console.error('Copy error:', error)
+      alert('Failed to copy workflow to clipboard. Please try again.')
+    }
   }
 
   if (loading) {
@@ -246,10 +262,16 @@ export default function OrderDetailPage() {
 
                         <div className="flex flex-col space-y-2">
                           {order.status === 'paid' && (
-                            <Button size="sm" onClick={() => handleDownloadWorkflow(item.workflowId)}>
-                              <Download className="w-4 h-4 mr-2" />
-                              Download
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button variant='outline' size="sm" onClick={() => handleCopyToClipboard(item.workflowId)}>
+                                <Copy className="w-4 h-4 mr-2" />
+                                Copy
+                              </Button>
+                              <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
+                                <Download className="w-4 h-4 mr-2" />
+                                ZIP
+                              </Button>
+                            </div>
                           )}
                           <Button
                             size="sm"

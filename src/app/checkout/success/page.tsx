@@ -4,9 +4,10 @@ import Navbar from '@/components/Navbar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Order } from '@/types/payment'
-import { ArrowRight, CheckCircle, Download, Home } from 'lucide-react'
+import { ArrowRight, CheckCircle, Copy, Download, Home } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
+import { downloadWorkflowAsZip, copyWorkflowToClipboard } from '@/lib/download-utils'
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams()
@@ -54,34 +55,22 @@ function CheckoutSuccessContent() {
     fetchOrder()
   }, [orderId])
 
-  const handleDownload = async (workflowId: string, workflowTitle: string) => {
+  const handleDownloadZip = async (workflowId: string, workflowTitle: string) => {
     try {
-      const response = await fetch(`/api/workflows/${workflowId}/download`, {
-        credentials: 'include',
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to download workflow')
-      }
-      
-      const data = await response.json()
-      
-      // Create and download the JSON file
-      const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
-        type: 'application/json',
-      })
-      
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      await downloadWorkflowAsZip(workflowId, workflowTitle)
     } catch (error) {
-      console.error('Error downloading workflow:', error)
+      console.error('Download error:', error)
       alert('Failed to download workflow. Please try again.')
+    }
+  }
+
+  const handleCopyToClipboard = async (workflowId: string) => {
+    try {
+      await copyWorkflowToClipboard(workflowId)
+      alert('Workflow JSON copied to clipboard! You can now paste it into n8n or other platforms.')
+    } catch (error) {
+      console.error('Copy error:', error)
+      alert('Failed to copy workflow to clipboard. Please try again.')
     }
   }
 
@@ -207,9 +196,13 @@ function CheckoutSuccessContent() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" onClick={() => handleDownload(item.workflowId, item.workflow.title)} className="cursor-pointer">
+                        <Button size="sm" onClick={() => handleCopyToClipboard(item.workflowId)} className="bg-green-600 hover:bg-green-700">
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy JSON
+                        </Button>
+                        <Button size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)} className="bg-blue-600 hover:bg-blue-700">
                           <Download className="w-4 h-4 mr-2" />
-                          Download
+                          Download ZIP
                         </Button>
                         <Button
                           size="sm"
