@@ -1,6 +1,5 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
 import { useRouter } from 'next/navigation'
@@ -53,10 +52,10 @@ export function Recommendations({
     return (
       <div className="w-full">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-6 bg-muted rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             {[...Array(10)].map((_, i) => (
-              <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
+              <div key={i} className="h-64 bg-muted rounded-lg"></div>
             ))}
           </div>
         </div>
@@ -71,8 +70,8 @@ export function Recommendations({
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Recommendations</h2>
-        <p className="text-gray-600">
+        <h2 className="text-xl font-semibold text-foreground mb-2">Recommendations</h2>
+        <p className="text-muted-foreground">
           {similarWorkflows.length > 0 && storeWorkflows.length > 0
             ? `Similar workflows and more from ${storeName}`
             : similarWorkflows.length > 0

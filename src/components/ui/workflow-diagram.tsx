@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { N8nWorkflow, N8nNode } from '@/types/workflow'
+import type { N8nNode, N8nWorkflow } from '@/types/workflow'
+import { useMemo } from 'react'
 
 interface WorkflowDiagramProps {
     workflow: N8nWorkflow | null
@@ -280,7 +280,7 @@ export function WorkflowDiagram({ workflow, maxWidth = 600, maxHeight = 280 }: W
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center justify-center h-64 text-gray-500">
+                    <div className="flex items-center justify-center h-64 text-muted-foreground">
                         No workflow data to visualize
                     </div>
                 </CardContent>
@@ -430,7 +430,7 @@ export function WorkflowDiagram({ workflow, maxWidth = 600, maxHeight = 280 }: W
                         <span>Communication</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-gray-500"></div>
+                        <div className="w-3 h-3 rounded-full bg-background0"></div>
                         <span>Other</span>
                     </div>
                 </div>

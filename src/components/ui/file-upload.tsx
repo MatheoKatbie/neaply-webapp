@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
-import { Upload, X, FileText, File } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { File, FileText, Upload, X } from 'lucide-react'
+import { useCallback, useRef, useState } from 'react'
 
 interface FileUploadProps {
   value?: string // Current file URL
@@ -146,15 +146,15 @@ export function FileUpload({
     const extension = fileName.split('.').pop()?.toLowerCase()
     switch (extension) {
       case 'pdf':
-        return <FileText className="h-8 w-8 text-gray-500" />
+        return <FileText className="h-8 w-8 text-muted-foreground" />
       case 'docx':
       case 'doc':
-        return <FileText className="h-8 w-8 text-gray-500" />
+        return <FileText className="h-8 w-8 text-muted-foreground" />
       case 'txt':
       case 'md':
-        return <FileText className="h-8 w-8 text-gray-500" />
+        return <FileText className="h-8 w-8 text-muted-foreground" />
       default:
-        return <File className="h-8 w-8 text-gray-500" />
+        return <File className="h-8 w-8 text-muted-foreground" />
     }
   }
 
@@ -204,10 +204,10 @@ export function FileUpload({
           isDragOver && !disabled
             ? 'border-blue-500 bg-blue-50'
             : hasFile
-            ? 'border-gray-300 hover:border-gray-400'
+            ? 'border-border hover:border-gray-400'
             : hasError && required && !isValid
             ? 'border-red-300 bg-red-50'
-            : 'border-gray-300 hover:border-gray-400',
+            : 'border-border hover:border-gray-400',
           disabled && 'opacity-50 cursor-not-allowed'
         )}
         onDrop={handleDrop}
@@ -218,13 +218,13 @@ export function FileUpload({
         {hasFile ? (
           <div className="relative p-4 group">
             <div className="flex items-center space-x-3">
-              <div className="text-gray-600">{getFileIcon(getDisplayFileName() || 'document')}</div>
+              <div className="text-muted-foreground">{getFileIcon(getDisplayFileName() || 'document')}</div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{getDisplayFileName()}</p>
-                <p className="text-xs text-gray-500">{getFileStatusText()}</p>
+                <p className="text-sm font-medium text-foreground truncate">{getDisplayFileName()}</p>
+                <p className="text-xs text-muted-foreground">{getFileStatusText()}</p>
               </div>
             </div>
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+            <div className="absolute inset-0 bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -257,8 +257,8 @@ export function FileUpload({
           <div className="text-center p-6">
             <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-900">{placeholder}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-medium text-foreground">{placeholder}</p>
+              <p className="text-xs text-muted-foreground">
                 {acceptedTypes.join(', ')} up to {maxSizeMB}MB
                 {required && <span className="text-red-500 ml-1">*</span>}
               </p>

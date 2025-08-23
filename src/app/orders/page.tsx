@@ -62,11 +62,11 @@ export default function OrdersHistoryPage() {
       case 'failed':
         return 'bg-red-100 text-red-800'
       case 'refunded':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
       case 'cancelled':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-gray-800'
     }
   }
 
@@ -122,13 +122,13 @@ export default function OrdersHistoryPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-6xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+              <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+                  <div key={i} className="h-32 bg-muted rounded-lg"></div>
                 ))}
               </div>
             </div>
@@ -141,12 +141,12 @@ export default function OrdersHistoryPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+      <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Order History</h1>
-            <p className="text-gray-600">View and manage all your workflow purchases</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Order History</h1>
+            <p className="text-muted-foreground">View and manage all your workflow purchases</p>
           </div>
 
           {error && (
@@ -163,11 +163,11 @@ export default function OrdersHistoryPage() {
           {orders.length === 0 && !error ? (
             <Card className="text-center py-12">
               <CardContent>
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShoppingBag className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Orders Found</h3>
-                <p className="text-gray-600 max-w-md mx-auto mb-6">
+                <h3 className="text-lg font-semibold text-foreground mb-2">No Orders Found</h3>
+                <p className="text-muted-foreground max-w-md mx-auto mb-6">
                   You haven't made any purchases yet. Browse our marketplace to discover amazing workflows.
                 </p>
                 <Button onClick={() => router.push('/marketplace')}>Browse Marketplace</Button>
@@ -177,7 +177,7 @@ export default function OrdersHistoryPage() {
             <div className="space-y-6">
               {orders.map((order) => (
                 <Card key={order.id} className="overflow-hidden">
-                  <CardHeader className="bg-gray-50/50">
+                  <CardHeader className="bg-background/50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -185,7 +185,7 @@ export default function OrdersHistoryPage() {
                         </div>
                         <div>
                           <CardTitle className="text-lg">Order #{order.id.slice(-8)}</CardTitle>
-                          <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
                             <div className="flex items-center space-x-1">
                               <Calendar className="w-4 h-4" />
                               <span>{formatDate(order.createdAt)}</span>
@@ -211,9 +211,9 @@ export default function OrdersHistoryPage() {
 
                   <CardContent className="p-6">
                     <div className="space-y-4">
-                      <h4 className="font-medium text-gray-900">Items Purchased:</h4>
+                      <h4 className="font-medium text-foreground">Items Purchased:</h4>
                       {order.items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
                           <Link href={`workflow/${item.workflowId}`} className="flex items-center space-x-4">
                             {item.workflow.heroImageUrl ? (
                               <img
@@ -227,9 +227,9 @@ export default function OrdersHistoryPage() {
                               </div>
                             )}
                             <div>
-                              <h5 className="font-medium text-gray-900">{item.workflow.title}</h5>
+                              <h5 className="font-medium text-foreground">{item.workflow.title}</h5>
                               {item.pricingPlan && (
-                                <p className="text-sm text-gray-600">{item.pricingPlan.name} Plan</p>
+                                <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
                               )}
                               <p className="text-sm font-medium text-green-600">
                                 {formatPrice(item.unitPriceCents, order.currency)}
@@ -257,9 +257,9 @@ export default function OrdersHistoryPage() {
                     </div>
 
                     {order.status === 'paid' && order.paidAt && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="mt-4 pt-4 border-t border-border">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Payment completed on:</span>
+                          <span className="text-muted-foreground">Payment completed on:</span>
                           <span className="font-medium">{formatDate(order.paidAt)}</span>
                         </div>
                       </div>
@@ -273,7 +273,7 @@ export default function OrdersHistoryPage() {
           {/* Pagination or Load More could be added here */}
           {orders.length > 0 && (
             <div className="mt-8 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Showing {orders.length} order{orders.length !== 1 ? 's' : ''}
               </p>
             </div>

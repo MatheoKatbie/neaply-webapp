@@ -1,15 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { useAuth } from '@/hooks/useAuth'
 import type { RegisterFormData } from '@/types/auth'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function RegisterPage() {
   const { signUp, signInWithProvider, error } = useAuth()
@@ -93,7 +93,7 @@ export default function RegisterPage() {
                       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     A confirmation email has been sent to <strong>{formData.email}</strong>. Click the link in the email
                     to activate your account.
                   </p>
@@ -114,8 +114,8 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center bg-transparent py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
-            <h2 className="mt-6 text-3xl font-bold text-gray-900">Create an account</h2>
-            <p className="mt-2 text-sm text-gray-600">Join FlowMarket today</p>
+            <h2 className="mt-6 text-3xl font-bold text-foreground">Create an account</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Join FlowMarket today</p>
           </div>
 
           <Card>
@@ -226,7 +226,7 @@ export default function RegisterPage() {
                     placeholder="••••••••"
                     minLength={6}
                   />
-                  <p className="text-xs text-gray-500">At least 6 characters</p>
+                  <p className="text-xs text-muted-foreground">At least 6 characters</p>
                 </div>
 
                 <div className="space-y-2">
@@ -249,13 +249,13 @@ export default function RegisterPage() {
               </form>
 
               <div className="text-center text-sm">
-                <span className="text-gray-600">Already have an account? </span>
+                <span className="text-muted-foreground">Already have an account? </span>
                 <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
                   Sign in
                 </Link>
               </div>
 
-              <p className="text-xs text-gray-500 text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 By creating an account, you agree to our{' '}
                 <Link href="/terms" className="underline">
                   terms of service

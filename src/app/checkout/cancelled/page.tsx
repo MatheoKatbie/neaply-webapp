@@ -1,11 +1,11 @@
 'use client'
 
-import { useSearchParams, useRouter } from 'next/navigation'
-import { Suspense } from 'react'
 import Navbar from '@/components/Navbar'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { XCircle, ArrowLeft, Home, ShoppingCart } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { ArrowLeft, Home, ShoppingCart, XCircle } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
 function CheckoutCancelledContent() {
   const searchParams = useSearchParams()
@@ -15,7 +15,7 @@ function CheckoutCancelledContent() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+      <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Card className="text-center py-12">
             <CardContent>
@@ -23,16 +23,16 @@ function CheckoutCancelledContent() {
                 <XCircle className="w-10 h-10 text-orange-500" />
               </div>
 
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">Payment Cancelled</h1>
-              <p className="text-lg text-gray-600 mb-2">Your payment was cancelled and no charges were made.</p>
-              <p className="text-gray-600 mb-8">You can try again anytime or continue browsing our marketplace.</p>
+              <h1 className="text-3xl font-bold text-foreground mb-4">Payment Cancelled</h1>
+              <p className="text-lg text-muted-foreground mb-2">Your payment was cancelled and no charges were made.</p>
+              <p className="text-muted-foreground mb-8">You can try again anytime or continue browsing our marketplace.</p>
 
               {orderId && (
-                <div className="bg-gray-50 rounded-lg p-4 mb-8">
-                  <p className="text-sm text-gray-500">
+                <div className="bg-background rounded-lg p-4 mb-8">
+                  <p className="text-sm text-muted-foreground">
                     Order ID: <span className="font-mono">{orderId}</span>
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">This order has been cancelled and will not be processed.</p>
+                  <p className="text-sm text-muted-foreground mt-1">This order has been cancelled and will not be processed.</p>
                 </div>
               )}
 
@@ -62,20 +62,20 @@ function CheckoutCancelledContent() {
               <h2 className="text-lg font-semibold mb-4">Need Help?</h2>
               <div className="space-y-3 text-sm">
                 <div>
-                  <p className="font-medium text-gray-900">Payment Issues</p>
-                  <p className="text-gray-600">
+                  <p className="font-medium text-foreground">Payment Issues</p>
+                  <p className="text-muted-foreground">
                     If you encountered technical difficulties during checkout, please try again or contact support.
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Questions about Workflows</p>
-                  <p className="text-gray-600">
+                  <p className="font-medium text-foreground">Questions about Workflows</p>
+                  <p className="text-muted-foreground">
                     Browse our marketplace to discover automation workflows for your business needs.
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Customer Support</p>
-                  <p className="text-gray-600">
+                  <p className="font-medium text-foreground">Customer Support</p>
+                  <p className="text-muted-foreground">
                     Contact our support team if you need assistance with your purchase or account.
                   </p>
                 </div>
@@ -92,10 +92,10 @@ export default function CheckoutCancelledPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24 flex items-center justify-center">
+        <div className="min-h-screen bg-background pt-20 md:pt-24 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </div>
       }

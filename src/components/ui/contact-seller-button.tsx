@@ -1,20 +1,18 @@
 'use client'
 
-import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent } from '@/components/ui/card'
-import { MessageCircle, Mail, Phone, Globe, User, MapPin } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Globe, Mail, MapPin, MessageCircle, Phone, User } from 'lucide-react'
+import { useState } from 'react'
 
 interface SellerInfo {
   displayName: string
@@ -105,7 +103,7 @@ export function ContactSellerButton({
             </div>
             <div>
               <p className="font-semibold">{seller.storeName || seller.displayName}</p>
-              <p className="text-sm text-gray-500 font-normal">Seller on FlowMarket</p>
+              <p className="text-sm text-muted-foreground font-normal">Seller on FlowMarket</p>
             </div>
           </DialogTitle>
           <DialogDescription>Choose how you'd like to contact this seller</DialogDescription>
@@ -123,7 +121,7 @@ export function ContactSellerButton({
                     </div>
                     <div>
                       <p className="font-medium text-sm">Email</p>
-                      <p className="text-xs text-gray-500">{seller.supportEmail}</p>
+                      <p className="text-xs text-muted-foreground">{seller.supportEmail}</p>
                     </div>
                   </div>
                   <Button size="sm" onClick={handleEmailContact} className="cursor-pointer">
@@ -142,7 +140,7 @@ export function ContactSellerButton({
                     </div>
                     <div>
                       <p className="font-medium text-sm">Phone</p>
-                      <p className="text-xs text-gray-500">{seller.phoneNumber}</p>
+                      <p className="text-xs text-muted-foreground">{seller.phoneNumber}</p>
                     </div>
                   </div>
                   <Button size="sm" variant="outline" onClick={handlePhoneContact} className="cursor-pointer">
@@ -161,7 +159,7 @@ export function ContactSellerButton({
                     </div>
                     <div>
                       <p className="font-medium text-sm">Website</p>
-                      <p className="text-xs text-gray-500">{seller.websiteUrl.replace(/^https?:\/\//, '')}</p>
+                      <p className="text-xs text-muted-foreground">{seller.websiteUrl.replace(/^https?:\/\//, '')}</p>
                     </div>
                   </div>
                   <Button size="sm" variant="outline" onClick={handleWebsiteContact} className="cursor-pointer">
@@ -174,12 +172,12 @@ export function ContactSellerButton({
             {seller.countryCode && (
               <Card className="p-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <MapPin className="w-4 h-4 text-gray-600" />
+                  <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
                   </div>
                   <div>
                     <p className="font-medium text-sm">Location</p>
-                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
                       <span>{getCountryFlag(seller.countryCode)}</span>
                       {seller.countryCode.toUpperCase()}
                     </p>
@@ -191,7 +189,7 @@ export function ContactSellerButton({
 
           {!seller.supportEmail && !seller.phoneNumber && !seller.websiteUrl && (
             <Card className="p-4 text-center">
-              <p className="text-sm text-gray-500">This seller hasn't provided contact information yet.</p>
+              <p className="text-sm text-muted-foreground">This seller hasn't provided contact information yet.</p>
             </Card>
           )}
         </div>

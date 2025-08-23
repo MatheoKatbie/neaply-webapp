@@ -1,20 +1,20 @@
 'use client'
 
-import { useState, Suspense, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Shield, Smartphone, Key } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useAuth } from '@/hooks/useAuth'
+import { createFingerprintHash, generateDeviceFingerprint, getDeviceName } from '@/lib/device-fingerprint'
 import type { LoginFormData } from '@/types/auth'
-import { generateDeviceFingerprint, createFingerprintHash, getDeviceName } from '@/lib/device-fingerprint'
+import { Key, Shield, Smartphone } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 // Component that uses searchParams - needs to be wrapped in Suspense
@@ -172,8 +172,8 @@ function LoginContent() {
       <div className="min-h-screen flex items-center justify-center bg-transparent py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
-            <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome to Flow Market</h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <h2 className="mt-6 text-3xl font-bold text-foreground">Welcome to Flow Market</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
               {loginStep === 'credentials' ? 'Sign in to your account' : 'Enter your verification code'}
             </p>
           </div>
@@ -322,7 +322,7 @@ function LoginContent() {
                           maxLength={6}
                           autoComplete="one-time-code"
                         />
-                        <p className="text-sm text-gray-500">Enter the 6-digit code from your authenticator app</p>
+                        <p className="text-sm text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
                       </div>
                     </TabsContent>
 
@@ -344,7 +344,7 @@ function LoginContent() {
                           className="text-center text-lg font-mono tracking-wider"
                           maxLength={8}
                         />
-                        <p className="text-sm text-gray-500">Enter one of your 8-character backup codes</p>
+                        <p className="text-sm text-muted-foreground">Enter one of your 8-character backup codes</p>
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -399,7 +399,7 @@ function LoginContent() {
                     </Link>
                   </div>
                   <div>
-                    <span className="text-gray-600">Don't have an account? </span>
+                    <span className="text-muted-foreground">Don't have an account? </span>
                     <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
                       Create account
                     </Link>

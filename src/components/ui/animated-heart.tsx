@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Heart } from 'lucide-react'
+import React, { useState } from 'react'
 
 interface AnimatedHeartProps {
   isFavorite: boolean
@@ -50,7 +50,7 @@ export function AnimatedHeart({
     >
       <Heart
         className={`${sizeClasses[size]} transition-all duration-300 ${
-          isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-400'
+          isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-400'
         } ${isAnimating ? 'animate-pulse scale-125' : ''}`}
       />
     </Button>

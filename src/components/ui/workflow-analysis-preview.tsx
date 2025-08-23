@@ -1,28 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { WorkflowAnalysisModal } from './workflow-analysis-modal'
+import { Card, CardContent } from '@/components/ui/card'
 import {
-  BarChart3,
-  Cpu,
-  Clock,
-  Globe,
-  Shield,
-  Zap,
-  Layers,
-  ArrowRight,
-  Settings,
-  Code,
-  Play,
-  Calendar,
-  CheckCircle,
-  XCircle,
-  Info,
-  Loader2,
+    BarChart3,
+    Info,
+    Loader2
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { WorkflowAnalysisModal } from './workflow-analysis-modal'
 
 interface WorkflowAnalysisPreviewProps {
   className?: string
@@ -116,13 +102,13 @@ export function WorkflowAnalysisPreview({ className, workflowId }: WorkflowAnaly
           <div className="space-y-6">
             <div className="text-center">
               <h4 className="text-lg font-semibold mb-2">Technical Analysis Preview</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Get detailed insights into workflow structure, complexity, and capabilities
               </p>
             </div>
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-              <span className="ml-2 text-sm text-gray-500">Loading analysis...</span>
+              <span className="ml-2 text-sm text-muted-foreground">Loading analysis...</span>
             </div>
           </div>
         </CardContent>
@@ -137,13 +123,13 @@ export function WorkflowAnalysisPreview({ className, workflowId }: WorkflowAnaly
           <div className="space-y-6">
             <div className="text-center">
               <h4 className="text-lg font-semibold mb-2">Technical Analysis Preview</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Get detailed insights into workflow structure, complexity, and capabilities
               </p>
             </div>
             <div className="text-center py-8">
               <Info className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">{error}</p>
+              <p className="text-sm text-muted-foreground">{error}</p>
             </div>
           </div>
         </CardContent>
@@ -158,49 +144,49 @@ export function WorkflowAnalysisPreview({ className, workflowId }: WorkflowAnaly
           {/* Header */}
           <div className="text-center">
             <h4 className="text-lg font-semibold mb-2">Technical Analysis Preview</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Get detailed insights into workflow structure, complexity, and capabilities
             </p>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900">{getNodeTypesCount()}</div>
-              <div className="text-xs text-gray-600">Node Types</div>
+            <div className="text-center p-3 bg-background rounded-lg">
+              <div className="text-2xl font-bold text-foreground">{getNodeTypesCount()}</div>
+              <div className="text-xs text-muted-foreground">Node Types</div>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900">{getIntegrationsCount()}</div>
-              <div className="text-xs text-gray-600">Integrations</div>
+            <div className="text-center p-3 bg-background rounded-lg">
+              <div className="text-2xl font-bold text-foreground">{getIntegrationsCount()}</div>
+              <div className="text-xs text-muted-foreground">Integrations</div>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900">{getAvgRuntime()}</div>
-              <div className="text-xs text-gray-600">Avg Runtime</div>
+            <div className="text-center p-3 bg-background rounded-lg">
+              <div className="text-2xl font-bold text-foreground">{getAvgRuntime()}</div>
+              <div className="text-xs text-muted-foreground">Avg Runtime</div>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900">{getComplexity()}</div>
-              <div className="text-xs text-gray-600">Complexity</div>
+            <div className="text-center p-3 bg-background rounded-lg">
+              <div className="text-2xl font-bold text-foreground">{getComplexity()}</div>
+              <div className="text-xs text-muted-foreground">Complexity</div>
             </div>
           </div>
 
           {/* Call to Action */}
-          <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="text-center p-4 bg-background rounded-lg border border-border">
             <h5 className="font-medium mb-2">Ready to dive deeper?</h5>
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Access comprehensive technical analysis with detailed breakdowns and insights
             </p>
             {workflowId ? (
               <WorkflowAnalysisModal
                 workflowId={workflowId}
                 trigger={
-                  <Button variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+                  <Button variant="outline" className="bg-background border-border text-muted-foreground hover:bg-background">
                     <BarChart3 className="w-4 h-4 mr-2" />
                     View Advanced Analysis
                   </Button>
                 }
               />
             ) : (
-              <Button variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+              <Button variant="outline" className="bg-background border-border text-muted-foreground hover:bg-background">
                 <BarChart3 className="w-4 h-4 mr-2" />
                 View Advanced Analysis
               </Button>

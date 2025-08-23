@@ -1,43 +1,38 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
-import { ContactSellerButton } from '@/components/ui/contact-seller-button'
-import {
-  Star,
-  Download,
-  Eye,
-  Zap,
-  Clock,
-  DollarSign,
-  ArrowLeft,
-  Shield,
-  Users,
-  CheckCircle,
-  ShoppingBag,
-  ShoppingCart,
-  FileText,
-  BarChart3,
-} from 'lucide-react'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
+import { ContactSellerButton } from '@/components/ui/contact-seller-button'
+import { PlatformBadge } from '@/components/ui/platform-badge'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
-import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
-import { PlatformBadge } from '@/components/ui/platform-badge'
-import { Recommendations } from '@/components/ui/recommendations'
 import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
 import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
+import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
+import {
+  ArrowLeft,
+  BarChart3,
+  CheckCircle,
+  Download,
+  Eye,
+  FileText,
+  ShoppingBag,
+  Star,
+  Users,
+  Zap
+} from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
+import remarkGfm from 'remark-gfm'
 
 interface WorkflowDetail {
   id: string
@@ -241,16 +236,16 @@ export default function WorkflowDetailPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+              <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                  <div className="h-96 bg-gray-200 rounded-lg mb-6"></div>
-                  <div className="h-32 bg-gray-200 rounded-lg"></div>
+                  <div className="h-96 bg-muted rounded-lg mb-6"></div>
+                  <div className="h-32 bg-muted rounded-lg"></div>
                 </div>
-                <div className="h-96 bg-gray-200 rounded-lg"></div>
+                <div className="h-96 bg-muted rounded-lg"></div>
               </div>
             </div>
           </div>
@@ -263,14 +258,14 @@ export default function WorkflowDetailPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+        <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Zap className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{error || 'Workflow not found'}</h3>
-              <p className="text-gray-600 max-w-md mx-auto mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">{error || 'Workflow not found'}</h3>
+              <p className="text-muted-foreground max-w-md mx-auto mb-6">
                 The workflow you're looking for doesn't exist or may have been removed.
               </p>
               <Button onClick={() => router.push('/marketplace')} className="cursor-pointer">
@@ -287,7 +282,7 @@ export default function WorkflowDetailPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-20 md:pt-24">
+      <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="mb-6">
@@ -301,7 +296,7 @@ export default function WorkflowDetailPage() {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Hero Image and Title */}
-              <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+              <div className="bg-background rounded-xl border shadow-sm overflow-hidden">
                 <div className="h-64 relative">
                   {workflow.heroImage ? (
                     <img src={workflow.heroImage} alt={workflow.title} className="w-full h-full object-cover" />
@@ -352,8 +347,8 @@ export default function WorkflowDetailPage() {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h1 className="text-2xl font-bold text-gray-900 mb-2">{workflow.title}</h1>
-                      <p className="text-gray-600 text-lg">{workflow.shortDesc}</p>
+                      <h1 className="text-2xl font-bold text-foreground mb-2">{workflow.title}</h1>
+                      <p className="text-muted-foreground text-lg">{workflow.shortDesc}</p>
                     </div>
                     <AnimatedHeart isFavorite={isFavorite} onToggle={handleFavoriteClick} className="ml-4" size="lg" />
                   </div>
@@ -369,7 +364,7 @@ export default function WorkflowDetailPage() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {workflow.tags.map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-gray-500">
+                        <Badge key={tag} variant="outline" className="text-muted-foreground">
                           #{tag}
                         </Badge>
                       ))}
@@ -381,14 +376,14 @@ export default function WorkflowDetailPage() {
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                       <span className="font-medium">{workflow.rating.toFixed(1)}</span>
-                      <span className="text-sm text-gray-500">({workflow.ratingCount} reviews)</span>
+                      <span className="text-sm text-muted-foreground">({workflow.ratingCount} reviews)</span>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
                       <Download className="w-4 h-4" />
                       <span>{workflow.salesCount} sales</span>
                     </div>
                     {workflow.version && (
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Eye className="w-4 h-4" />
                         <span>Version {workflow.version.semver}</span>
                       </div>
@@ -403,7 +398,7 @@ export default function WorkflowDetailPage() {
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold mb-3">Description</h3>
-                      <div className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100">
+                      <div className="prose prose-gray max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-blue-600 prose-strong:text-foreground prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100">
                         {workflow.longDescMd ? (
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
@@ -425,31 +420,31 @@ export default function WorkflowDetailPage() {
                                 )
                               },
                               blockquote: ({ children }) => (
-                                <blockquote className="border-l-4 border-blue-200 bg-blue-50/50 pl-4 py-2 my-4 italic text-gray-700">
+                                <blockquote className="border-l-4 border-blue-200 bg-blue-50/50 pl-4 py-2 my-4 italic text-muted-foreground">
                                   {children}
                                 </blockquote>
                               ),
                               ul: ({ children }) => (
-                                <ul className="list-disc pl-6 space-y-1 text-gray-700">{children}</ul>
+                                <ul className="list-disc pl-6 space-y-1 text-muted-foreground">{children}</ul>
                               ),
                               ol: ({ children }) => (
-                                <ol className="list-decimal pl-6 space-y-1 text-gray-700">{children}</ol>
+                                <ol className="list-decimal pl-6 space-y-1 text-muted-foreground">{children}</ol>
                               ),
                               h1: ({ children }) => (
-                                <h1 className="text-2xl font-bold text-gray-900 mt-6 mb-4">{children}</h1>
+                                <h1 className="text-2xl font-bold text-foreground mt-6 mb-4">{children}</h1>
                               ),
                               h2: ({ children }) => (
-                                <h2 className="text-xl font-semibold text-gray-900 mt-5 mb-3">{children}</h2>
+                                <h2 className="text-xl font-semibold text-foreground mt-5 mb-3">{children}</h2>
                               ),
                               h3: ({ children }) => (
-                                <h3 className="text-lg font-medium text-gray-900 mt-4 mb-2">{children}</h3>
+                                <h3 className="text-lg font-medium text-foreground mt-4 mb-2">{children}</h3>
                               ),
                             }}
                           >
                             {workflow.longDescMd}
                           </ReactMarkdown>
                         ) : (
-                          <p className="text-gray-700">{workflow.shortDesc}</p>
+                          <p className="text-muted-foreground">{workflow.shortDesc}</p>
                         )}
                       </div>
                     </div>
@@ -484,26 +479,26 @@ export default function WorkflowDetailPage() {
                         <h3 className="text-lg font-semibold mb-3">Version Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <span className="text-sm font-medium text-gray-500">Current Version</span>
+                            <span className="text-sm font-medium text-muted-foreground">Current Version</span>
                             <p className="text-lg">{workflow.version.semver}</p>
                           </div>
                           {workflow.version.n8nMinVersion && (
                             <div>
-                              <span className="text-sm font-medium text-gray-500">Minimum n8n Version</span>
+                              <span className="text-sm font-medium text-muted-foreground">Minimum n8n Version</span>
                               <p className="text-lg">{workflow.version.n8nMinVersion}</p>
                             </div>
                           )}
                         </div>
                         {workflow.version.changelog && (
                           <div className="mt-4">
-                            <span className="text-sm font-medium text-gray-500">Changelog</span>
+                            <span className="text-sm font-medium text-muted-foreground">Changelog</span>
                             <p className="mt-1">{workflow.version.changelog}</p>
                           </div>
                         )}
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <p className="text-gray-500">No version information available</p>
+                        <p className="text-muted-foreground">No version information available</p>
                       </div>
                     )}
                   </div>
@@ -517,16 +512,16 @@ export default function WorkflowDetailPage() {
               <Card>
                 <CardHeader>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 mb-2">
+                    <div className="text-3xl font-bold mb-2">
                       {formatPrice(workflow.price, workflow.currency)}
                     </div>
-                    <p className="text-gray-600">One-time purchase</p>
+                    <p className="text-muted-foreground">One-time purchase</p>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {workflow.userOwnsWorkflow ? (
                     <div className="w-full space-y-3">
-                      <Button disabled className="w-full bg-green-600 text-white cursor-not-allowed opacity-75">
+                      <Button disabled className="w-full bg-green-600 text-primary-foreground cursor-not-allowed opacity-75">
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
@@ -537,18 +532,18 @@ export default function WorkflowDetailPage() {
                         <Download className="w-5 h-5 mr-2" />
                         Download Workflow
                       </Button>
-                      <p className="text-sm text-gray-600 text-center">You already own this workflow</p>
+                      <p className="text-sm text-muted-foreground text-center">You already own this workflow</p>
                     </div>
                   ) : (
                     <PurchaseButton
                       workflowId={workflowId}
                       price={workflow.price}
                       currency={workflow.currency}
-                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      className="w-full bg-accent-foreground"
                     />
                   )}
 
-                  <div className="space-y-2 text-sm text-gray-600">
+                  <div className="space-y-2 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span>Instant download</span>
@@ -578,7 +573,7 @@ export default function WorkflowDetailPage() {
                   <div className="space-y-3">
                     <div>
                       <p className="font-medium">{workflow.seller.storeName || workflow.seller.displayName}</p>
-                      <p className="text-sm text-gray-600">n8n Workflow Expert</p>
+                      <p className="text-sm text-muted-foreground">n8n Workflow Expert</p>
                     </div>
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1">
@@ -620,16 +615,54 @@ export default function WorkflowDetailPage() {
             </div>
           </div>
 
-          {/* Recommendations Section - Full Width */}
-          {recommendations && (
-            <div className="mt-12">
-              <Recommendations
-                similarWorkflows={recommendations.similarWorkflows}
-                storeWorkflows={recommendations.storeWorkflows}
-                storeName={recommendations.storeName}
-                storeSlug={recommendations.storeSlug}
-                loading={recommendationsLoading}
-              />
+          {/* Unified Recommendations Slider - Full Width */}
+          {recommendations && (recommendations.similarWorkflows.length > 0 || recommendations.storeWorkflows.length > 0) && (
+            <div className="mt-12"> 
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-foreground mb-2">You might also like</h2>
+                <p className="text-muted-foreground">Discover more workflows that match your interests</p>
+              </div>
+              
+              <div className="overflow-x-auto scrollbar-hide">
+                <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                  {/* Similar Workflows - First 4-5 items */}
+                  {recommendations.similarWorkflows.slice(0, 5).map((similarWorkflow) => (
+                    <div key={`similar-${similarWorkflow.id}`} className="flex-shrink-0" style={{ width: '280px' }}>
+                      <WorkflowCardMini
+                        {...similarWorkflow}
+                      />
+                    </div>
+                  ))}
+                  
+                  {/* Store Workflows - Next items */}
+                  {recommendations.storeWorkflows.slice(0, 4).map((storeWorkflow) => (
+                    <div key={`store-${storeWorkflow.id}`} className="flex-shrink-0" style={{ width: '280px' }}>
+                      <WorkflowCardMini
+                        {...storeWorkflow}
+                      />
+                    </div>
+                  ))}
+                  
+                  {/* See More from Creator Card */}
+                  {recommendations.storeWorkflows.length > 0 && (
+                    <div className="flex-shrink-0" style={{ width: '280px' }}>
+                      <div className="h-full border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50/50 transition-colors cursor-pointer"
+                           onClick={() => recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)}>
+                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                          <ShoppingBag className="w-8 h-8 text-blue-600" />
+                        </div>
+                        <h3 className="font-semibold text-foreground mb-2">More from {recommendations.storeName}</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Explore {recommendations.storeWorkflows.length} more workflows from this creator
+                        </p>
+                        <Button variant="outline" size="sm" className="w-full">
+                          View Store
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 

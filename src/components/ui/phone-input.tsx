@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { COUNTRIES } from '@/lib/countries'
-import type { SelectMenuOption } from '@/types/countries'
 import { cn } from '@/lib/utils'
+import type { SelectMenuOption } from '@/types/countries'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 interface PhoneInputComponentProps {
   value?: string
@@ -116,8 +116,8 @@ export function PhoneInputComponent({
             onClick={() => setCountrySelectOpen(!countrySelectOpen)}
             disabled={disabled}
             className={cn(
-              'flex items-center gap-1 px-2 py-3 border border-r-0 border-gray-300 rounded-l-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer min-w-0',
-              disabled && 'bg-gray-100 cursor-not-allowed'
+              'flex items-center gap-1 px-2 py-3 border border-r-0 border-border rounded-l-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer min-w-0',
+              disabled && 'bg-muted cursor-not-allowed'
             )}
           >
             <img
@@ -138,19 +138,19 @@ export function PhoneInputComponent({
 
           {/* Country Dropdown */}
           {countrySelectOpen && (
-            <div className="absolute top-full left-0 z-50 w-64 max-h-60 overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg">
-              <div className="p-2 border-b border-gray-200">
+            <div className="absolute top-full left-0 z-50 w-64 max-h-60 overflow-y-auto bg-background border border-border rounded-md shadow-lg">
+              <div className="p-2 border-b border-border">
                 <input
                   type="text"
                   placeholder="Search countries..."
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto">
                 {filteredCountries.length === 0 ? (
-                  <div className="px-3 py-2 text-sm text-gray-500">No countries found</div>
+                  <div className="px-3 py-2 text-sm text-muted-foreground">No countries found</div>
                 ) : (
                   filteredCountries.map((country) => (
                     <button
@@ -158,7 +158,7 @@ export function PhoneInputComponent({
                       type="button"
                       onClick={() => handleCountrySelect(country)}
                       className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-50 focus:bg-gray-50 focus:outline-none',
+                        'w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-background focus:bg-background focus:outline-none',
                         selectedCountry.value === country.value && 'bg-blue-50'
                       )}
                     >
@@ -168,7 +168,7 @@ export function PhoneInputComponent({
                         className="w-4 h-3 rounded-sm"
                       />
                       <span className="flex-1 text-left">{country.title}</span>
-                      <span className="text-gray-500 text-xs">{country.phonePrefix}</span>
+                      <span className="text-muted-foreground text-xs">{country.phonePrefix}</span>
                     </button>
                   ))
                 )}
@@ -185,8 +185,8 @@ export function PhoneInputComponent({
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
-            'flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-            disabled && 'bg-gray-100 cursor-not-allowed'
+            'flex-1 min-w-0 px-3 py-2 border border-border rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+            disabled && 'bg-muted cursor-not-allowed'
           )}
         />
       </div>

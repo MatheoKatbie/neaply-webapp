@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function AuthCallback() {
     const router = useRouter()
@@ -37,8 +37,8 @@ export default function AuthCallback() {
     return (
         <div className="flex min-h-screen items-center justify-center">
             <div className="text-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Authentification en cours...</p>
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-blue-600 mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Authentification en cours...</p>
             </div>
         </div>
     )
