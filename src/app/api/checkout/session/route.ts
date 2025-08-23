@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { stripe } from '@/lib/stripe'
+import { stripe, STRIPE_CONNECT_CONFIG } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
 import type { CreateCheckoutSessionRequest, CreateCheckoutSessionResponse } from '@/types/payment'
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     const { workflowId, pricingPlanId, successUrl, cancelUrl } = validation.data
 
-    // Fetch workflow details
+    // Fetch workflow details with seller's Stripe Connect info
     const workflow = await prisma.workflow.findUnique({
       where: { id: workflowId },
       include: {
@@ -63,6 +63,26 @@ export async function POST(request: NextRequest) {
 
     if (workflow.status !== 'published') {
       return NextResponse.json({ error: 'Workflow is not available for purchase' }, { status: 400 })
+    }
+
+    // Check if seller has Stripe Connect account set up
+    if (!workflow.seller.sellerProfile?.stripeAccountId) {
+      return NextResponse.json(
+        {
+          error: 'Seller payment setup incomplete. Please contact the seller.',
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check if seller's Stripe Connect account is ready
+    if (!workflow.seller.sellerProfile.stripeOnboardingCompleted) {
+      return NextResponse.json(
+        {
+          error: 'Seller payment setup incomplete. Please contact the seller.',
+        },
+        { status: 400 }
+      )
     }
 
     // Determine pricing
@@ -103,7 +123,7 @@ export async function POST(request: NextRequest) {
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
       const successUrl = `${baseUrl}/checkout/success?order_id=${freeOrder.id}`
-      
+
       return NextResponse.json({
         sessionId: null,
         url: successUrl,
@@ -157,7 +177,7 @@ export async function POST(request: NextRequest) {
       data: orderData,
     })
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session with Connect
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     // Prepare metadata - only include pricingPlanId if it has a value
@@ -165,11 +185,15 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
       userId: user.id,
       workflowId,
+      sellerAccountId: workflow.seller.sellerProfile.stripeAccountId,
     }
 
     if (pricingPlanId) {
       metadata.pricingPlanId = pricingPlanId
     }
+
+    // Calculate platform fee (15%)
+    const platformFeeAmount = Math.round(priceCents * (STRIPE_CONNECT_CONFIG.platformFeePercentage / 100))
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -198,6 +222,13 @@ export async function POST(request: NextRequest) {
       cancel_url: cancelUrl || `${baseUrl}/checkout/cancelled?order_id=${order.id}`,
       customer_email: user.email,
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
+      // Stripe Connect configuration
+      payment_intent_data: {
+        application_fee_amount: platformFeeAmount,
+        transfer_data: {
+          destination: workflow.seller.sellerProfile.stripeAccountId,
+        },
+      },
     })
 
     // Update order with Stripe session ID
