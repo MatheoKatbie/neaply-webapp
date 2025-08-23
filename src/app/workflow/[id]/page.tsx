@@ -23,6 +23,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   FileText,
+  BarChart3,
 } from 'lucide-react'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
@@ -31,6 +32,8 @@ import { ReviewSystem } from '@/components/ui/review-system'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { Recommendations } from '@/components/ui/recommendations'
+import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
+import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -449,6 +452,29 @@ export default function WorkflowDetailPage() {
                           <p className="text-gray-700">{workflow.shortDesc}</p>
                         )}
                       </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Workflow Analysis */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold">Technical Analysis</h3>
+                        <WorkflowAnalysisModal
+                          workflowId={workflowId}
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                            >
+                              <BarChart3 className="w-4 h-4 mr-2" />
+                              View Advanced Analysis
+                            </Button>
+                          }
+                        />
+                      </div>
+                      <WorkflowAnalysisPreview workflowId={workflowId} />
                     </div>
 
                     <Separator />
