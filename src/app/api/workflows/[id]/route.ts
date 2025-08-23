@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { updateWorkflowVersion } from '@/lib/workflow-version'
+import { safeDecrypt } from '@/lib/encryption'
 
 // Helper function to compare semantic versions
 function compareVersions(version1: string, version2: string): number {
@@ -48,6 +49,7 @@ const updateWorkflowSchema = z
       .optional(),
     currency: z.string().optional(),
     status: z.enum(['draft', 'published', 'unlisted', 'disabled']).optional(),
+    platform: z.enum(['n8n', 'zapier', 'make', 'airtable_script']).optional(),
     jsonContent: z.any().optional(),
     n8nMinVersion: z
       .string()
@@ -176,8 +178,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Workflow not found' }, { status: 404 })
     }
 
-    // UUIDs are already strings, no conversion needed
-    return NextResponse.json({ data: workflow })
+    // Decrypt JSON content for each version
+    const workflowWithDecryptedContent = {
+      ...workflow,
+      versions: workflow.versions.map((version) => ({
+        ...version,
+        jsonContent: version.jsonContent ? safeDecrypt(version.jsonContent) : null,
+      })),
+    }
+
+    return NextResponse.json({ data: workflowWithDecryptedContent })
   } catch (error) {
     console.error('API Error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

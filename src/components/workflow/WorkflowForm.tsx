@@ -100,7 +100,7 @@ export function WorkflowForm({
         }
 
         // For Airtable Script, check if it's a valid string
-        if (formData.platform === 'airtable-script') {
+        if (formData.platform === 'airtable_script') {
           return typeof formData.jsonContent === 'string' && formData.jsonContent.trim().length > 0
         }
 
@@ -145,7 +145,7 @@ export function WorkflowForm({
         }
 
         // For Airtable Script, check if it's a string (JavaScript code)
-        if (formData.platform === 'airtable-script') {
+        if (formData.platform === 'airtable_script') {
           return typeof formData.jsonContent === 'string' && formData.jsonContent.trim().length > 0
         }
 

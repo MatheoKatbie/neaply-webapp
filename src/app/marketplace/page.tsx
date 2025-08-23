@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Star, Search, Filter, Download, Eye, Zap, Clock, DollarSign } from 'lucide-react'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -139,7 +140,7 @@ function WorkflowCard({
       </div>
 
       {/* Hero image */}
-      <div className="h-48 bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+      <div className="h-48 relative overflow-hidden">
         {heroImage ? (
           <img
             src={heroImage}
@@ -147,19 +148,19 @@ function WorkflowCard({
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          // Temporary placeholder with dynamic colors based on workflow ID
-          <div
-            className="w-full h-full flex items-center justify-center"
-            style={{
-              background: `linear-gradient(135deg, 
-                                hsl(${(parseInt(id) * 137.5) % 360}, 60%, 70%), 
-                                hsl(${(parseInt(id) * 137.5 + 60) % 360}, 60%, 80%))`,
+          <AutoThumbnail
+            workflow={{
+              id,
+              title,
+              shortDesc: description,
+              longDescMd: '',
+              categories: categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
+              tags: tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
+              platform,
             }}
-          >
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
-              <Zap className="w-8 h-8 text-white" />
-            </div>
-          </div>
+            size="md"
+            className="w-full h-full"
+          />
         )}
 
         {/* Platform badge */}

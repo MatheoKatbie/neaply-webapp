@@ -24,6 +24,7 @@ import {
   ShoppingCart,
   FileText,
 } from 'lucide-react'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
@@ -298,22 +299,23 @@ export default function WorkflowDetailPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Hero Image and Title */}
               <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                <div className="h-64 bg-gradient-to-br from-blue-50 to-purple-50 relative">
+                <div className="h-64 relative">
                   {workflow.heroImage ? (
                     <img src={workflow.heroImage} alt={workflow.title} className="w-full h-full object-cover" />
                   ) : (
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{
-                        background: `linear-gradient(135deg, 
-                                                    hsl(${(parseInt(workflow.id) * 137.5) % 360}, 60%, 70%), 
-                                                    hsl(${(parseInt(workflow.id) * 137.5 + 60) % 360}, 60%, 80%))`,
+                    <AutoThumbnail
+                      workflow={{
+                        id: workflow.id,
+                        title: workflow.title,
+                        shortDesc: workflow.shortDesc,
+                        longDescMd: workflow.longDescMd || '',
+                        categories: workflow.categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
+                        tags: workflow.tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
+                        platform: workflow.platform,
                       }}
-                    >
-                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
-                        <Zap className="w-10 h-10 text-white" />
-                      </div>
-                    </div>
+                      size="lg"
+                      className="w-full h-full"
+                    />
                   )}
 
                   {/* Platform badge */}

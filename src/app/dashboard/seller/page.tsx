@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
+import { safeDecrypt } from '@/lib/encryption'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,13 +12,6 @@ import { SellerAnalytics } from '@/components/ui/seller-analytics'
 import { SellerPayouts } from '@/components/ui/seller-payouts'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { JsonInput } from '@/components/ui/json-input'
-import { ImageUpload } from '@/components/ui/image-upload'
-import { FileUpload } from '@/components/ui/file-upload'
-import { MultiSelect } from '@/components/ui/multi-select'
-import { PlatformSelect } from '@/components/ui/platform-select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { WorkflowForm } from '@/components/workflow/WorkflowForm'
 import type { Category, Tag } from '@/types/workflow'
@@ -297,7 +291,7 @@ const useFormValidation = (formData: WorkflowFormData) => {
 
       if (field === 'airtableScriptMinVersion' && rules.required && !value) {
         // Only validate Airtable Script version if Airtable Script is the selected platform
-        if (formData.platform === 'airtable-script') {
+        if (formData.platform === 'airtable_script') {
           return 'Minimum Airtable Script version is required'
         }
       }
@@ -404,6 +398,7 @@ interface Workflow {
   shortDesc: string
   heroImageUrl?: string
   documentationUrl?: string
+  platform?: string
   status: 'draft' | 'published' | 'unlisted' | 'disabled'
   basePriceCents: number
   currency: string
@@ -923,6 +918,7 @@ export default function SellerDashboard() {
         basePriceCents: 0,
         currency: 'EUR',
         status: 'draft',
+        platform: '',
         jsonContent: undefined,
         jsonFile: undefined,
         n8nMinVersion: '',
@@ -1098,7 +1094,8 @@ export default function SellerDashboard() {
           basePriceCents: fullWorkflow.basePriceCents,
           currency: fullWorkflow.currency,
           status: fullWorkflow.status,
-          jsonContent: latestVersion?.jsonContent,
+          platform: fullWorkflow.platform || '',
+          jsonContent: latestVersion?.jsonContent ? safeDecrypt(latestVersion.jsonContent) : undefined,
           jsonFile: undefined,
           n8nMinVersion: latestVersion?.n8nMinVersion || '',
           n8nMaxVersion: latestVersion?.n8nMaxVersion || '',
@@ -1124,6 +1121,7 @@ export default function SellerDashboard() {
           basePriceCents: workflow.basePriceCents,
           currency: workflow.currency,
           status: workflow.status,
+          platform: workflow.platform || '',
           jsonContent: undefined,
           jsonFile: undefined,
           n8nMinVersion: '',

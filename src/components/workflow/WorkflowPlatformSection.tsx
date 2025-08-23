@@ -101,7 +101,7 @@ const platformConfig = {
     placeholder: 'Paste your Make workflow JSON here...',
     description: 'Make workflow JSON with scenario configuration',
   },
-  'airtable-script': {
+  airtable_script: {
     name: 'Airtable Script',
     minVersion: '1.0.0',
     maxVersion: '999.999.999',
@@ -187,7 +187,7 @@ export function WorkflowPlatformSection({
         return zapierMinVersion || ''
       case 'make':
         return makeMinVersion || ''
-      case 'airtable-script':
+      case 'airtable_script':
         return airtableScriptMinVersion || ''
       default:
         return n8nMinVersion
@@ -208,7 +208,7 @@ export function WorkflowPlatformSection({
         return zapierMaxVersion || ''
       case 'make':
         return makeMaxVersion || ''
-      case 'airtable-script':
+      case 'airtable_script':
         return airtableScriptMaxVersion || ''
       default:
         return n8nMaxVersion

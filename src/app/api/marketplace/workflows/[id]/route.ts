@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
+import { safeDecrypt } from '@/lib/encryption'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -173,7 +174,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             changelog: latestVersion.changelogMd,
             n8nMinVersion: latestVersion.n8nMinVersion,
             n8nMaxVersion: latestVersion.n8nMaxVersion,
-            jsonContent: latestVersion.jsonContent,
+            jsonContent: safeDecrypt(latestVersion.jsonContent),
           }
         : null,
       plans: workflow.plans.map((plan) => ({
