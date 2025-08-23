@@ -512,7 +512,7 @@ export default function WorkflowDetailPage() {
               <Card>
                 <CardHeader>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 mb-2">
+                    <div className="text-3xl font-bold mb-2">
                       {formatPrice(workflow.price, workflow.currency)}
                     </div>
                     <p className="text-gray-600">One-time purchase</p>
@@ -539,7 +539,7 @@ export default function WorkflowDetailPage() {
                       workflowId={workflowId}
                       price={workflow.price}
                       currency={workflow.currency}
-                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      className="w-full bg-accent-foreground"
                     />
                   )}
 
