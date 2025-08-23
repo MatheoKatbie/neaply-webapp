@@ -14,7 +14,7 @@
  *    - Creates categories, tags, users, workflows, orders, reviews, etc.
  */
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Platform } from '@prisma/client'
 import { faker } from '@faker-js/faker'
 
 const prisma = new PrismaClient()
@@ -305,6 +305,12 @@ async function main() {
           longDescMd: faker.lorem.paragraphs(3),
           heroImageUrl: faker.image.url({ width: 800, height: 400 }),
           documentationUrl: faker.datatype.boolean() ? faker.internet.url() : null,
+          platform: faker.helpers.arrayElement([
+            Platform.n8n,
+            Platform.zapier,
+            Platform.make,
+            Platform.airtable_script,
+          ]),
           status: faker.helpers.arrayElement(['published', 'published', 'published', 'draft']), // 75% published
           basePriceCents: faker.number.int({ min: 999, max: 19999 }), // €9.99 to €199.99
           currency: 'EUR',

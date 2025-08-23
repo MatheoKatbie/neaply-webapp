@@ -28,6 +28,7 @@ import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
+import { PlatformBadge } from '@/components/ui/platform-badge'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -40,6 +41,7 @@ interface WorkflowDetail {
   longDescMd?: string
   price: number
   currency: string
+  platform?: string
   seller: {
     displayName: string
     storeName?: string
@@ -108,7 +110,7 @@ export default function WorkflowDetailPage() {
 
         const data = await response.json()
         setWorkflow(data.data)
-        
+
         // Fetch recommendations after workflow is loaded
         fetchRecommendations()
       } catch (error) {
@@ -282,8 +284,20 @@ export default function WorkflowDetailPage() {
                     </div>
                   )}
 
+                  {/* Platform badge */}
+                  {workflow.platform && (
+                    <div className="absolute top-4 left-4">
+                      <PlatformBadge
+                        platform={workflow.platform}
+                        size="default"
+                        variant="default"
+                        className="shadow-sm"
+                      />
+                    </div>
+                  )}
+
                   {/* Status badges */}
-                  <div className="absolute top-4 left-4 flex gap-2">
+                  <div className="absolute top-4 right-4 flex gap-2">
                     {workflow.isNew && (
                       <Badge variant="default" className="text-xs">
                         New
@@ -547,10 +561,7 @@ export default function WorkflowDetailPage() {
                   <CardContent>
                     <div className="space-y-3">
                       {recommendations.similarWorkflows.slice(0, 3).map((similarWorkflow) => (
-                        <WorkflowCardMini
-                          key={similarWorkflow.id}
-                          {...similarWorkflow}
-                        />
+                        <WorkflowCardMini key={similarWorkflow.id} {...similarWorkflow} />
                       ))}
                     </div>
                   </CardContent>
@@ -567,10 +578,7 @@ export default function WorkflowDetailPage() {
                   <CardContent>
                     <div className="space-y-3">
                       {recommendations.storeWorkflows.slice(0, 3).map((storeWorkflow) => (
-                        <WorkflowCardMini
-                          key={storeWorkflow.id}
-                          {...storeWorkflow}
-                        />
+                        <WorkflowCardMini key={storeWorkflow.id} {...storeWorkflow} />
                       ))}
                       {recommendations.storeWorkflows.length > 3 && (
                         <div className="pt-2">
@@ -578,7 +586,9 @@ export default function WorkflowDetailPage() {
                             variant="outline"
                             size="sm"
                             className="w-full"
-                            onClick={() => recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)}
+                            onClick={() =>
+                              recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)
+                            }
                           >
                             View All ({recommendations.storeWorkflows.length} workflows)
                           </Button>

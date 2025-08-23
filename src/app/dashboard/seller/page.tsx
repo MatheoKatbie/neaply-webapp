@@ -18,6 +18,7 @@ import { FileUpload } from '@/components/ui/file-upload'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { PlatformSelect } from '@/components/ui/platform-select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { WorkflowForm } from '@/components/workflow/WorkflowForm'
 import type { Category, Tag } from '@/types/workflow'
 
 // Validation rules based on Zod schema from API
@@ -58,9 +59,27 @@ const validationRules: Record<string, ValidationRule> = {
     required: true,
   },
   n8nMinVersion: {
-    required: true,
+    required: false, // Will be validated conditionally based on platform
   },
   n8nMaxVersion: {
+    required: false,
+  },
+  zapierMinVersion: {
+    required: false, // Will be validated conditionally based on platform
+  },
+  zapierMaxVersion: {
+    required: false,
+  },
+  makeMinVersion: {
+    required: false, // Will be validated conditionally based on platform
+  },
+  makeMaxVersion: {
+    required: false,
+  },
+  airtableScriptMinVersion: {
+    required: false, // Will be validated conditionally based on platform
+  },
+  airtableScriptMaxVersion: {
     required: false,
   },
   categoryIds: {
@@ -84,6 +103,12 @@ const fieldNames: Record<string, string> = {
   documentationUrl: 'Documentation',
   n8nMinVersion: 'Minimum n8n version',
   n8nMaxVersion: 'Maximum n8n version',
+  zapierMinVersion: 'Minimum Zapier version',
+  zapierMaxVersion: 'Maximum Zapier version',
+  makeMinVersion: 'Minimum Make version',
+  makeMaxVersion: 'Maximum Make version',
+  airtableScriptMinVersion: 'Minimum Airtable Script version',
+  airtableScriptMaxVersion: 'Maximum Airtable Script version',
   categoryIds: 'Categories',
   tagIds: 'Tags',
 }
@@ -144,7 +169,10 @@ const useFormValidation = (formData: WorkflowFormData) => {
       }
 
       if (field === 'n8nMinVersion' && rules.required && !value) {
-        return 'Minimum n8n version is required'
+        // Only validate n8n version if n8n is the selected platform
+        if (formData.platform === 'n8n') {
+          return 'Minimum n8n version is required'
+        }
       }
 
       if (field === 'n8nMinVersion' && value && value.trim()) {
@@ -178,6 +206,132 @@ const useFormValidation = (formData: WorkflowFormData) => {
           if (maxParts[i] > minParts[i]) break
           if (maxParts[i] < minParts[i]) {
             return 'Maximum n8n version must be greater than minimum n8n version'
+          }
+        }
+      }
+
+      if (field === 'zapierMinVersion' && rules.required && !value) {
+        // Only validate Zapier version if Zapier is the selected platform
+        if (formData.platform === 'zapier') {
+          return 'Minimum Zapier version is required'
+        }
+      }
+
+      if (field === 'zapierMinVersion' && value && value.trim()) {
+        const versionRegex = /^\d+\.\d+\.\d+$/
+        if (!versionRegex.test(value)) {
+          return 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        }
+      }
+
+      if (field === 'zapierMaxVersion' && value && value.trim()) {
+        const versionRegex = /^\d+\.\d+\.\d+$/
+        if (!versionRegex.test(value)) {
+          return 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        }
+      }
+
+      if (field === 'zapierMaxVersion' && value && value.trim()) {
+        const minVersion = formData.zapierMinVersion || '0.0.0'
+        const maxVersion = value
+
+        // Compare semantic versions properly
+        const minParts = minVersion.split('.').map(Number)
+        const maxParts = maxVersion.split('.').map(Number)
+
+        // Pad arrays to same length
+        while (minParts.length < maxParts.length) minParts.push(0)
+        while (maxParts.length < minParts.length) maxParts.push(0)
+
+        // Compare each part
+        for (let i = 0; i < minParts.length; i++) {
+          if (maxParts[i] > minParts[i]) break
+          if (maxParts[i] < minParts[i]) {
+            return 'Maximum Zapier version must be greater than minimum Zapier version'
+          }
+        }
+      }
+
+      if (field === 'makeMinVersion' && rules.required && !value) {
+        // Only validate Make version if Make is the selected platform
+        if (formData.platform === 'make') {
+          return 'Minimum Make version is required'
+        }
+      }
+
+      if (field === 'makeMinVersion' && value && value.trim()) {
+        const versionRegex = /^\d+\.\d+\.\d+$/
+        if (!versionRegex.test(value)) {
+          return 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        }
+      }
+
+      if (field === 'makeMaxVersion' && value && value.trim()) {
+        const versionRegex = /^\d+\.\d+\.\d+$/
+        if (!versionRegex.test(value)) {
+          return 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        }
+      }
+
+      if (field === 'makeMaxVersion' && value && value.trim()) {
+        const minVersion = formData.makeMinVersion || '0.0.0'
+        const maxVersion = value
+
+        // Compare semantic versions properly
+        const minParts = minVersion.split('.').map(Number)
+        const maxParts = maxVersion.split('.').map(Number)
+
+        // Pad arrays to same length
+        while (minParts.length < maxParts.length) minParts.push(0)
+        while (maxParts.length < minParts.length) maxParts.push(0)
+
+        // Compare each part
+        for (let i = 0; i < minParts.length; i++) {
+          if (maxParts[i] > minParts[i]) break
+          if (maxParts[i] < minParts[i]) {
+            return 'Maximum Make version must be greater than minimum Make version'
+          }
+        }
+      }
+
+      if (field === 'airtableScriptMinVersion' && rules.required && !value) {
+        // Only validate Airtable Script version if Airtable Script is the selected platform
+        if (formData.platform === 'airtable-script') {
+          return 'Minimum Airtable Script version is required'
+        }
+      }
+
+      if (field === 'airtableScriptMinVersion' && value && value.trim()) {
+        const versionRegex = /^\d+\.\d+\.\d+$/
+        if (!versionRegex.test(value)) {
+          return 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        }
+      }
+
+      if (field === 'airtableScriptMaxVersion' && value && value.trim()) {
+        const versionRegex = /^\d+\.\d+\.\d+$/
+        if (!versionRegex.test(value)) {
+          return 'Version must be in format X.Y.Z (e.g., 1.0.0)'
+        }
+      }
+
+      if (field === 'airtableScriptMaxVersion' && value && value.trim()) {
+        const minVersion = formData.airtableScriptMinVersion || '0.0.0'
+        const maxVersion = value
+
+        // Compare semantic versions properly
+        const minParts = minVersion.split('.').map(Number)
+        const maxParts = maxVersion.split('.').map(Number)
+
+        // Pad arrays to same length
+        while (minParts.length < maxParts.length) minParts.push(0)
+        while (maxParts.length < minParts.length) maxParts.push(0)
+
+        // Compare each part
+        for (let i = 0; i < minParts.length; i++) {
+          if (maxParts[i] > minParts[i]) break
+          if (maxParts[i] < minParts[i]) {
+            return 'Maximum Airtable Script version must be greater than minimum Airtable Script version'
           }
         }
       }
@@ -276,6 +430,12 @@ interface Workflow {
     semver: string
     n8nMinVersion?: string
     n8nMaxVersion?: string
+    zapierMinVersion?: string
+    zapierMaxVersion?: string
+    makeMinVersion?: string
+    makeMaxVersion?: string
+    airtableScriptMinVersion?: string
+    airtableScriptMaxVersion?: string
     jsonContent?: any
     isLatest: boolean
     createdAt: string
@@ -303,6 +463,12 @@ interface WorkflowFormData {
   jsonFile?: File
   n8nMinVersion?: string
   n8nMaxVersion?: string
+  zapierMinVersion?: string
+  zapierMaxVersion?: string
+  makeMinVersion?: string
+  makeMaxVersion?: string
+  airtableScriptMinVersion?: string
+  airtableScriptMaxVersion?: string
   categoryIds?: string[]
   tagIds?: string[]
 }
@@ -336,6 +502,12 @@ export default function SellerDashboard() {
     jsonFile: undefined,
     n8nMinVersion: '',
     n8nMaxVersion: '',
+    zapierMinVersion: '',
+    zapierMaxVersion: '',
+    makeMinVersion: '',
+    makeMaxVersion: '',
+    airtableScriptMinVersion: '',
+    airtableScriptMaxVersion: '',
     categoryIds: [],
     tagIds: [],
   })
@@ -459,6 +631,75 @@ export default function SellerDashboard() {
       validateField('n8nMaxVersion', formData.n8nMaxVersion)
     }
   }, [editingWorkflow, formData.n8nMinVersion, formData.n8nMaxVersion, markFieldAsTouched, validateField])
+
+  // Force validation when zapier versions change
+  useEffect(() => {
+    if (touched.zapierMinVersion || touched.zapierMaxVersion) {
+      validateField('zapierMinVersion', formData.zapierMinVersion)
+      validateField('zapierMaxVersion', formData.zapierMaxVersion)
+    }
+  }, [
+    formData.zapierMinVersion,
+    formData.zapierMaxVersion,
+    touched.zapierMinVersion,
+    touched.zapierMaxVersion,
+    validateField,
+  ])
+
+  // Force validation when editing workflow with existing zapier versions
+  useEffect(() => {
+    if (editingWorkflow && formData.zapierMinVersion && formData.zapierMaxVersion) {
+      // When editing, if we have a min version but no max version, mark as touched and validate
+      markFieldAsTouched('zapierMaxVersion')
+      validateField('zapierMaxVersion', formData.zapierMaxVersion)
+    }
+  }, [editingWorkflow, formData.zapierMinVersion, formData.zapierMaxVersion, markFieldAsTouched, validateField])
+
+  // Force validation when make versions change
+  useEffect(() => {
+    if (touched.makeMinVersion || touched.makeMaxVersion) {
+      validateField('makeMinVersion', formData.makeMinVersion)
+      validateField('makeMaxVersion', formData.makeMaxVersion)
+    }
+  }, [formData.makeMinVersion, formData.makeMaxVersion, touched.makeMinVersion, touched.makeMaxVersion, validateField])
+
+  // Force validation when editing workflow with existing make versions
+  useEffect(() => {
+    if (editingWorkflow && formData.makeMinVersion && formData.makeMaxVersion) {
+      // When editing, if we have a min version but no max version, mark as touched and validate
+      markFieldAsTouched('makeMaxVersion')
+      validateField('makeMaxVersion', formData.makeMaxVersion)
+    }
+  }, [editingWorkflow, formData.makeMinVersion, formData.makeMaxVersion, markFieldAsTouched, validateField])
+
+  // Force validation when airtable script versions change
+  useEffect(() => {
+    if (touched.airtableScriptMinVersion || touched.airtableScriptMaxVersion) {
+      validateField('airtableScriptMinVersion', formData.airtableScriptMinVersion)
+      validateField('airtableScriptMaxVersion', formData.airtableScriptMaxVersion)
+    }
+  }, [
+    formData.airtableScriptMinVersion,
+    formData.airtableScriptMaxVersion,
+    touched.airtableScriptMinVersion,
+    touched.airtableScriptMaxVersion,
+    validateField,
+  ])
+
+  // Force validation when editing workflow with existing airtable script versions
+  useEffect(() => {
+    if (editingWorkflow && formData.airtableScriptMinVersion && formData.airtableScriptMaxVersion) {
+      // When editing, if we have a min version but no max version, mark as touched and validate
+      markFieldAsTouched('airtableScriptMaxVersion')
+      validateField('airtableScriptMaxVersion', formData.airtableScriptMaxVersion)
+    }
+  }, [
+    editingWorkflow,
+    formData.airtableScriptMinVersion,
+    formData.airtableScriptMaxVersion,
+    markFieldAsTouched,
+    validateField,
+  ])
 
   // Helper function to delete image from bucket
   const deleteImageFromBucket = async (imageUrl: string) => {
@@ -685,6 +926,12 @@ export default function SellerDashboard() {
         jsonFile: undefined,
         n8nMinVersion: '',
         n8nMaxVersion: '',
+        zapierMinVersion: '',
+        zapierMaxVersion: '',
+        makeMinVersion: '',
+        makeMaxVersion: '',
+        airtableScriptMinVersion: '',
+        airtableScriptMaxVersion: '',
         categoryIds: [],
         tagIds: [],
       })
@@ -854,6 +1101,12 @@ export default function SellerDashboard() {
           jsonFile: undefined,
           n8nMinVersion: latestVersion?.n8nMinVersion || '',
           n8nMaxVersion: latestVersion?.n8nMaxVersion || '',
+          zapierMinVersion: latestVersion?.zapierMinVersion || '',
+          zapierMaxVersion: latestVersion?.zapierMaxVersion || '',
+          makeMinVersion: latestVersion?.makeMinVersion || '',
+          makeMaxVersion: latestVersion?.makeMaxVersion || '',
+          airtableScriptMinVersion: latestVersion?.airtableScriptMinVersion || '',
+          airtableScriptMaxVersion: latestVersion?.airtableScriptMaxVersion || '',
           categoryIds: fullWorkflow.categories?.map((cat: any) => cat.category.id.toString()) || [],
           tagIds: fullWorkflow.tags?.map((tag: any) => tag.tag.id.toString()) || [],
         })
@@ -874,6 +1127,12 @@ export default function SellerDashboard() {
           jsonFile: undefined,
           n8nMinVersion: '',
           n8nMaxVersion: '',
+          zapierMinVersion: '',
+          zapierMaxVersion: '',
+          makeMinVersion: '',
+          makeMaxVersion: '',
+          airtableScriptMinVersion: '',
+          airtableScriptMaxVersion: '',
           categoryIds: [],
           tagIds: [],
         })
@@ -1133,7 +1392,7 @@ export default function SellerDashboard() {
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth="2"
-                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
                                   ></path>
                                 </svg>
                               </div>
@@ -1188,6 +1447,12 @@ export default function SellerDashboard() {
                       jsonFile: undefined,
                       n8nMinVersion: '',
                       n8nMaxVersion: '',
+                      zapierMinVersion: '',
+                      zapierMaxVersion: '',
+                      makeMinVersion: '',
+                      makeMaxVersion: '',
+                      airtableScriptMinVersion: '',
+                      airtableScriptMaxVersion: '',
                       categoryIds: [],
                       tagIds: [],
                     })
@@ -1256,6 +1521,42 @@ export default function SellerDashboard() {
                         </div>
                       </div>
 
+                      {/* Zapier Versions skeleton */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      </div>
+
+                      {/* Make Versions skeleton */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      </div>
+
+                      {/* Airtable Script Versions skeleton */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      </div>
+
                       {/* Image Upload skeleton */}
                       <div className="space-y-2">
                         <Skeleton className="h-4 w-28" />
@@ -1288,324 +1589,33 @@ export default function SellerDashboard() {
                       </div>
                     </div>
                   ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="title">Title *</Label>
-                          <Input
-                            id="title"
-                            name="title"
-                            value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            onBlur={() => markFieldAsTouched('title')}
-                            placeholder="e.g., Advanced Email Automation"
-                            required
-                            maxLength={100}
-                            className={getFieldError('title') ? 'border-red-500' : ''}
-                          />
-                          {getFieldError('title') ? (
-                            <p className="text-xs text-red-500">{getFieldError('title')}</p>
-                          ) : (
-                            <p className="text-xs text-gray-500">{formData.title.length}/100 characters (min. 3)</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="basePriceCents">Price (€) *</Label>
-                          <Input
-                            id="basePriceCents"
-                            name="basePriceCents"
-                            type="number"
-                            min="0"
-                            max="1000"
-                            step="0.01"
-                            value={formData.basePriceCents / 100}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                basePriceCents: Math.round(parseFloat(e.target.value || '0') * 100),
-                              })
-                            }
-                            onBlur={() => markFieldAsTouched('basePriceCents')}
-                            placeholder="5.00"
-                            required
-                            className={getFieldError('basePriceCents') ? 'border-red-500' : ''}
-                          />
-                          {getFieldError('basePriceCents') && (
-                            <p className="text-xs text-red-500">{getFieldError('basePriceCents')}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="shortDesc">Short Description *</Label>
-                        <Input
-                          id="shortDesc"
-                          name="shortDesc"
-                          value={formData.shortDesc}
-                          onChange={(e) => setFormData({ ...formData, shortDesc: e.target.value })}
-                          onBlur={() => markFieldAsTouched('shortDesc')}
-                          placeholder="Brief description of your workflow..."
-                          required
-                          maxLength={200}
-                          className={getFieldError('shortDesc') ? 'border-red-500' : ''}
-                        />
-                        {getFieldError('shortDesc') ? (
-                          <p className="text-xs text-red-500">{getFieldError('shortDesc')}</p>
-                        ) : (
-                          <p className="text-xs text-gray-500">{formData.shortDesc.length}/200 characters (min. 10)</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="longDescMd">Detailed Description</Label>
-                        <textarea
-                          id="longDescMd"
-                          name="longDescMd"
-                          className={`flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                            getFieldError('longDescMd') ? 'border-red-500' : ''
-                          }`}
-                          value={formData.longDescMd}
-                          onChange={(e) => setFormData({ ...formData, longDescMd: e.target.value })}
-                          onBlur={() => markFieldAsTouched('longDescMd')}
-                          placeholder="Detailed description with features, requirements, etc..."
-                          maxLength={5000}
-                          rows={6}
-                        />
-                        {getFieldError('longDescMd') ? (
-                          <p className="text-xs text-red-500">{getFieldError('longDescMd')}</p>
-                        ) : (
-                          <p className="text-xs text-gray-500">
-                            {formData.longDescMd.length}/5000 characters (min. 50). Supports markdown.
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Platform Selection */}
-                      <div className="space-y-2 cursor-pointer">
-                        <PlatformSelect
-                          value={formData.platform}
-                          onValueChange={(platform) => {
-                            setFormData({ ...formData, platform })
-                            if (!touched.platform) {
-                              markFieldAsTouched('platform')
-                            }
-                          }}
-                          placeholder="Select the platform for your workflow..."
-                          error={getFieldError('platform') || undefined}
-                          required={true}
-                        />
-                      </div>
-
-                      {/* JSON Workflow Input */}
-                      <div className="space-y-2">
-                        <Label>Workflow JSON *</Label>
-                        <JsonInput
-                          value={formData.jsonContent}
-                          onChange={(jsonContent, isValid) => {
-                            setFormData({ ...formData, jsonContent })
-                            // Mark as touched when JSON is changed
-                            if (!touched.jsonContent) {
-                              markFieldAsTouched('jsonContent')
-                            }
-                          }}
-                          onFileSelect={(file) => {
-                            setFormData({ ...formData, jsonFile: file })
-                          }}
-                          placeholder="Paste your n8n workflow JSON here..."
-                          error={getFieldError('jsonContent') || undefined}
-                        />
-                        {getFieldError('jsonContent') && (
-                          <p className="text-xs text-red-500">{getFieldError('jsonContent')}</p>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="n8nMinVersion">Minimum n8n Version *</Label>
-                          <Input
-                            id="n8nMinVersion"
-                            name="n8nMinVersion"
-                            value={formData.n8nMinVersion || ''}
-                            onChange={(e) => setFormData({ ...formData, n8nMinVersion: e.target.value })}
-                            onBlur={() => markFieldAsTouched('n8nMinVersion')}
-                            placeholder="e.g., 1.0.0"
-                            className={getFieldError('n8nMinVersion') ? 'border-red-500' : ''}
-                            required
-                          />
-                          {getFieldError('n8nMinVersion') && (
-                            <p className="text-xs text-red-500">{getFieldError('n8nMinVersion')}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">Format: X.Y.Z (e.g., 1.0.0, 0.234.0)</p>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="n8nMaxVersion">Maximum n8n Version (Optional)</Label>
-                          <Input
-                            id="n8nMaxVersion"
-                            name="n8nMaxVersion"
-                            value={formData.n8nMaxVersion || ''}
-                            onChange={(e) => setFormData({ ...formData, n8nMaxVersion: e.target.value })}
-                            onBlur={() => markFieldAsTouched('n8nMaxVersion')}
-                            placeholder="e.g., 1.99.99"
-                            className={getFieldError('n8nMaxVersion') ? 'border-red-500' : ''}
-                          />
-                          {getFieldError('n8nMaxVersion') && (
-                            <p className="text-xs text-red-500">{getFieldError('n8nMaxVersion')}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            Format: X.Y.Z (e.g., 1.99.99) - Must be greater than minimum version
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label>Thumbnail Image</Label>
-                          <div className="max-w-sm">
-                            <ImageUpload
-                              value={formData.heroImageUrl}
-                              onChange={handleHeroImageUpload}
-                              onRemove={handleHeroImageRemove}
-                              disabled={isSubmitting || uploadingThumbnail}
-                              maxSizeMB={2}
-                              aspectRatio="thumbnail"
-                              placeholder="Upload a thumbnail image (300x200px recommended)"
-                              className="w-full"
-                              key={`image-upload-${editingWorkflow?.id || 'new'}`}
-                            />
-                          </div>
-                          {uploadingThumbnail && (
-                            <p className="text-sm text-muted-foreground">Uploading thumbnail...</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            Recommended: 300x200px (3:2 ratio) • Max 2MB • JPG, PNG, WebP
-                            {formData.heroImageFile && formData.heroImageUrl.startsWith('blob:') && (
-                              <span className="block text-orange-600 mt-1">
-                                ⚠️ Image will be uploaded when you save the workflow
-                              </span>
-                            )}
-                          </p>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Documentation *</Label>
-                          <div className="max-w-sm">
-                            <FileUpload
-                              value={formData.documentationUrl}
-                              onChange={handleDocumentationUpload}
-                              onRemove={handleDocumentationRemove}
-                              disabled={isSubmitting || uploadingDocumentation}
-                              maxSizeMB={10}
-                              acceptedTypes={['.pdf', '.docx', '.doc', '.txt', '.md', '.rtf']}
-                              placeholder="Upload documentation (PDF, DOCX, etc.)"
-                              className="w-full"
-                              required={true}
-                              selectedFile={formData.documentationFile}
-                              hasError={!!getFieldError('documentationUrl')}
-                              onBlur={() => markFieldAsTouched('documentationUrl')}
-                              key={`doc-upload-${editingWorkflow?.id || 'new'}`}
-                            />
-                          </div>
-                          {uploadingDocumentation && (
-                            <p className="text-sm text-muted-foreground">Uploading documentation...</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            Required • Max 10MB • PDF, DOCX, DOC, TXT, MD, RTF
-                            {formData.documentationFile && formData.documentationUrl.startsWith('blob:') && (
-                              <span className="block text-orange-600 mt-1">
-                                ⚠️ Document will be uploaded when you save the workflow
-                              </span>
-                            )}
-                          </p>
-                          {getFieldError('documentationUrl') && (
-                            <p className="text-xs text-red-500">{getFieldError('documentationUrl')}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <select
-                          id="status"
-                          name="status"
-                          value={formData.status}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              status: e.target.value as any,
-                            })
-                          }
-                          onBlur={() => markFieldAsTouched('status')}
-                          className={`flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                            getFieldError('status') ? 'border-red-500' : ''
-                          }`}
-                        >
-                          <option value="draft">Draft</option>
-                          <option value="published">Published</option>
-                          <option value="unlisted">Unlisted</option>
-                          <option value="disabled">Disabled</option>
-                        </select>
-                        {getFieldError('status') && <p className="text-xs text-red-500">{getFieldError('status')}</p>}
-                      </div>
-
-                      {/* Categories & Tags Section */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <MultiSelect
-                            label="Categories *"
-                            options={categories}
-                            selected={formData.categoryIds || []}
-                            onChange={(selected) => {
-                              setFormData({ ...formData, categoryIds: selected })
-                              markFieldAsTouched('categoryIds')
-                            }}
-                            placeholder="Select at least one category..."
-                            disabled={categoriesLoading}
-                            className="w-full"
-                          />
-                          {getFieldError('categoryIds') && (
-                            <p className="text-xs text-red-500">{getFieldError('categoryIds')}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <MultiSelect
-                            label="Tags *"
-                            options={tags}
-                            selected={formData.tagIds || []}
-                            onChange={(selected) => {
-                              setFormData({ ...formData, tagIds: selected })
-                              markFieldAsTouched('tagIds')
-                            }}
-                            placeholder="Select at least one tag..."
-                            disabled={tagsLoading}
-                            className="w-full"
-                          />
-                          {getFieldError('tagIds') && <p className="text-xs text-red-500">{getFieldError('tagIds')}</p>}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4 pt-4">
-                        <Button type="submit" disabled={isSubmitting || !isFormValid} className="flex-1">
-                          {isSubmitting ? 'Saving...' : editingWorkflow ? 'Update Workflow' : 'Create Workflow'}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={async () => {
-                            setShowCreateForm(false)
-                            setEditingWorkflow(null)
-                            setLoadingWorkflowData(false)
-                            // Refresh workflows to show any changes made
-                            await fetchWorkflows()
-                          }}
-                          disabled={isSubmitting}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
+                    <WorkflowForm
+                      formData={formData}
+                      onUpdate={(field, value) => setFormData({ ...formData, [field]: value })}
+                      errors={errors}
+                      touched={touched}
+                      onBlur={markFieldAsTouched}
+                      isSubmitting={isSubmitting}
+                      isFormValid={isFormValid}
+                      onSubmit={handleSubmit}
+                      onCancel={async () => {
+                        setShowCreateForm(false)
+                        setEditingWorkflow(null)
+                        setLoadingWorkflowData(false)
+                        await fetchWorkflows()
+                      }}
+                      categories={categories}
+                      tags={tags}
+                      categoriesLoading={categoriesLoading}
+                      tagsLoading={tagsLoading}
+                      uploadingThumbnail={uploadingThumbnail}
+                      uploadingDocumentation={uploadingDocumentation}
+                      onHeroImageUpload={handleHeroImageUpload}
+                      onHeroImageRemove={handleHeroImageRemove}
+                      onDocumentationUpload={handleDocumentationUpload}
+                      onDocumentationRemove={handleDocumentationRemove}
+                      editingWorkflow={editingWorkflow}
+                    />
                   )}
                 </CardContent>
               </Card>
@@ -1702,6 +1712,24 @@ export default function SellerDashboard() {
                                   )}
                                   {workflow.versions[0].n8nMaxVersion && (
                                     <span>Max n8n: {workflow.versions[0].n8nMaxVersion}</span>
+                                  )}
+                                  {workflow.versions[0].zapierMinVersion && (
+                                    <span>Min Zapier: {workflow.versions[0].zapierMinVersion}</span>
+                                  )}
+                                  {workflow.versions[0].zapierMaxVersion && (
+                                    <span>Max Zapier: {workflow.versions[0].zapierMaxVersion}</span>
+                                  )}
+                                  {workflow.versions[0].makeMinVersion && (
+                                    <span>Min Make: {workflow.versions[0].makeMinVersion}</span>
+                                  )}
+                                  {workflow.versions[0].makeMaxVersion && (
+                                    <span>Max Make: {workflow.versions[0].makeMaxVersion}</span>
+                                  )}
+                                  {workflow.versions[0].airtableScriptMinVersion && (
+                                    <span>Min Airtable Script: {workflow.versions[0].airtableScriptMinVersion}</span>
+                                  )}
+                                  {workflow.versions[0].airtableScriptMaxVersion && (
+                                    <span>Max Airtable Script: {workflow.versions[0].airtableScriptMaxVersion}</span>
                                   )}
                                 </>
                               )}
