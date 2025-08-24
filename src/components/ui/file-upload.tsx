@@ -254,7 +254,7 @@ export function FileUpload({
             </div>
           </div>
         ) : (
-          <div className="text-center p-6">
+          <div className="text-center p-6 bg-card">
             <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">{placeholder}</p>
