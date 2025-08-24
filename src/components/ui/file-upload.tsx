@@ -129,17 +129,18 @@ export function FileUpload({
   )
 
   const handleClick = useCallback(() => {
-    fileInputRef.current?.click()
-    if (onBlur) {
-      onBlur()
+    if (!disabled) {
+      fileInputRef.current?.click()
+      if (onBlur) {
+        onBlur()
+      }
     }
-  }, [onBlur])
+  }, [disabled, onBlur])
 
   const handleRemove = useCallback(() => {
-    onChange(null, '')
-    if (onRemove) {
-      onRemove()
-    }
+    setError(null)
+    onChange(null)
+    onRemove?.()
   }, [onChange, onRemove])
 
   const getFileIcon = (fileName: string) => {
@@ -200,28 +201,30 @@ export function FileUpload({
     <div className={cn('space-y-2', className)}>
       <div
         className={cn(
-          'border-2 border-dashed rounded-lg transition-colors cursor-pointer',
-          isDragOver && !disabled
-            ? 'border-blue-500 bg-blue-50'
-            : hasFile
-            ? 'border-border hover:border-gray-400'
-            : hasError && required && !isValid
-            ? 'border-red-300 bg-red-50'
-            : 'border-border hover:border-gray-400',
-          disabled && 'opacity-50 cursor-not-allowed'
+          'relative border-2 border-dashed rounded-lg transition-colors',
+          'min-h-[120px] flex items-center bg-card! justify-center cursor-pointer',
+          {
+            'border-primary': isDragOver && !disabled,
+            'border-border hover:border-gray-400/20': !isDragOver && !disabled && !hasFile,
+            'border-red-300 bg-red-50': hasError && required && !isValid,
+            'border-border': disabled || hasFile,
+            'cursor-not-allowed opacity-50': disabled,
+          }
         )}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        onClick={disabled ? undefined : handleClick}
+        onClick={handleClick}
       >
         {hasFile ? (
-          <div className="relative p-4 group">
-            <div className="flex items-center space-x-3">
-              <div className="text-muted-foreground">{getFileIcon(getDisplayFileName() || 'document')}</div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{getDisplayFileName()}</p>
-                <p className="text-xs text-muted-foreground">{getFileStatusText()}</p>
+          <div className="relative w-full h-full group">
+            <div className="flex items-center justify-center h-full p-4">
+              <div className="flex items-center space-x-3">
+                <div className="text-muted-foreground">{getFileIcon(getDisplayFileName() || 'document')}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{getDisplayFileName()}</p>
+                  <p className="text-xs text-muted-foreground">{getFileStatusText()}</p>
+                </div>
               </div>
             </div>
             <div className="absolute inset-0 bg-primary/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
@@ -254,13 +257,13 @@ export function FileUpload({
             </div>
           </div>
         ) : (
-          <div className="text-center p-6 bg-card">
-            <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <div className="text-center p-6">
+            <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">{placeholder}</p>
               <p className="text-xs text-muted-foreground">
                 {acceptedTypes.join(', ')} up to {maxSizeMB}MB
-                {required && <span className="text-red-500 ml-1">*</span>}
+                {required && <span className="text-destructive ml-1">*</span>}
               </p>
             </div>
           </div>
