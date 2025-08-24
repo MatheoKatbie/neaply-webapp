@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe, STRIPE_CONNECT_CONFIG } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
+import { getStripeAccountParams, getStripeAccountLinkParams, addLocaleToStripeOnboardingUrl } from '@/lib/stripe-locale'
 
 export async function GET(req: NextRequest) {
   try {
@@ -87,30 +88,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Stripe Connect account already exists' }, { status: 400 })
     }
 
-    // Create Stripe Connect Express account (faster onboarding)
+    const countryCode = dbUser.sellerProfile.countryCode || 'FR'
+
+    // Create Stripe Connect Express account with proper country-based configuration
+    const accountParams = getStripeAccountParams(
+      countryCode,
+      dbUser.email,
+      dbUser.sellerProfile.websiteUrl || undefined
+    )
+
     const account = await stripe.accounts.create({
-      type: 'express',
-      country: dbUser.sellerProfile.countryCode || 'FR',
-      email: dbUser.email,
-      business_type: 'individual',
+      ...accountParams,
       capabilities: STRIPE_CONNECT_CONFIG.requiredCapabilities,
-      business_profile: {
-        url: dbUser.sellerProfile.websiteUrl || undefined,
-        mcc: '5734', // Computer Software Stores
-      },
-      // Express accounts have faster onboarding
     })
 
     // Create Express onboarding link (faster process)
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const accountLink = await stripe.accountLinks.create({
-      account: account.id,
-      refresh_url: `${baseUrl}/dashboard/stripe/connect/refresh`,
-      return_url: `${baseUrl}/dashboard/stripe/connect/return`,
-      type: 'account_onboarding',
-      collect: 'eventually_due',
-      // Express onboarding is faster and simpler
-    })
+    const accountLinkParams = getStripeAccountLinkParams(account.id, countryCode, baseUrl)
+    const accountLink = await stripe.accountLinks.create(accountLinkParams)
 
     // Update seller profile with Stripe account info
     await prisma.sellerProfile.update({
@@ -122,10 +117,14 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    // Add locale parameter to the onboarding URL
+    const localizedOnboardingUrl = addLocaleToStripeOnboardingUrl(accountLink.url, countryCode)
+
     return NextResponse.json({
       success: true,
       accountId: account.id,
-      onboardingUrl: accountLink.url,
+      onboardingUrl: localizedOnboardingUrl,
+      countryCode: countryCode,
     })
   } catch (error: any) {
     console.error('Stripe Connect error:', error)
