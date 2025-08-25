@@ -223,7 +223,6 @@ export default function OrdersHistoryPage() {
                               <>
                                 <CopyButton 
                                   workflowId={item.workflowId}
-                                  showText={false}
                                 />
                                 <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
                                   <Download className="w-4 h-4 mr-2" />

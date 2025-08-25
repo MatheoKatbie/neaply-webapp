@@ -227,19 +227,7 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
         </TabsContent>
       </Tabs>
 
-      {/* Error Display */}
-      {(parseError || error) && (
-        <div className="border border-red-200 bg-red-50 rounded-md p-3">
-          <div className="text-sm text-red-700">{parseError || error}</div>
-        </div>
-      )}
 
-      {/* Success Indicator */}
-      {textContent && !parseError && !error && (
-        <div className="border border-green-200 bg-green-50 rounded-md p-3">
-          <div className="text-sm text-green-700">✓ Valid n8n workflow JSON detected</div>
-        </div>
-      )}
     </div>
   )
 }

@@ -1,8 +1,8 @@
 'use client'
 
-import { Label } from '@/components/ui/label'
-import { ImageUpload } from '@/components/ui/image-upload'
 import { FileUpload } from '@/components/ui/file-upload'
+import { ImageUpload } from '@/components/ui/image-upload'
+import { Label } from '@/components/ui/label'
 
 interface WorkflowMediaSectionProps {
   heroImageUrl: string

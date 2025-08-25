@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { DeleteConfirmationModal } from '@/components/ui/delete-confirmation-modal'
 import { SellerAnalytics } from '@/components/ui/seller-analytics'
 import { SellerPayouts } from '@/components/ui/seller-payouts'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -511,6 +512,9 @@ export default function SellerDashboard() {
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
   const [uploadingDocumentation, setUploadingDocumentation] = useState(false)
   const [loadingWorkflowData, setLoadingWorkflowData] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [workflowToDelete, setWorkflowToDelete] = useState<{ id: string; title: string } | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Initialize validation hook
   const {
@@ -1016,16 +1020,20 @@ export default function SellerDashboard() {
   }, [markFieldAsTouched])
 
   // Handle workflow deletion
-  const handleDelete = async (workflowId: string) => {
-    if (!confirm('Are you sure you want to delete this workflow? This action cannot be undone.')) {
-      return
-    }
+  const handleDeleteClick = (workflowId: string, workflowTitle: string) => {
+    setWorkflowToDelete({ id: workflowId, title: workflowTitle })
+    setDeleteModalOpen(true)
+  }
 
+  const handleDeleteConfirm = async () => {
+    if (!workflowToDelete) return
+
+    setIsDeleting(true)
     try {
       // First, get the workflow details to find the image
-      const workflowToDelete = workflows.find((w) => w.id === workflowId)
+      const workflow = workflows.find((w) => w.id === workflowToDelete.id)
 
-      const response = await fetch(`/api/workflows/${workflowId}`, {
+      const response = await fetch(`/api/workflows/${workflowToDelete.id}`, {
         method: 'DELETE',
       })
 
@@ -1035,9 +1043,9 @@ export default function SellerDashboard() {
       }
 
       // Delete the thumbnail image and documentation from bucket if they exist
-      if (workflowToDelete) {
+      if (workflow) {
         // Fetch full details to get heroImageUrl and documentationUrl
-        const fullWorkflow = await fetchWorkflowDetails(workflowId)
+        const fullWorkflow = await fetchWorkflowDetails(workflowToDelete.id)
         if (fullWorkflow?.heroImageUrl) {
           await deleteImageFromBucket(fullWorkflow.heroImageUrl)
         }
@@ -1047,8 +1055,18 @@ export default function SellerDashboard() {
       }
 
       await fetchWorkflows()
+      toast.success('Workflow deleted successfully!', {
+        description: `"${workflowToDelete.title}" has been removed from your store.`,
+      })
     } catch (err: any) {
       setError(err.message)
+      toast.error('Failed to delete workflow', {
+        description: err.message,
+      })
+    } finally {
+      setIsDeleting(false)
+      setDeleteModalOpen(false)
+      setWorkflowToDelete(null)
     }
   }
 
@@ -1747,7 +1765,7 @@ export default function SellerDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDelete(workflow.id)}
+                            onClick={() => handleDeleteClick(workflow.id, workflow.title)}
                             className="text-red-600 hover:text-red-700"
                           >
                             Delete
@@ -1791,6 +1809,16 @@ export default function SellerDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        open={deleteModalOpen}
+        onOpenChange={setDeleteModalOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Workflow"
+        itemName={workflowToDelete?.title}
+        isLoading={isDeleting}
+      />
     </div>
   )
 }
