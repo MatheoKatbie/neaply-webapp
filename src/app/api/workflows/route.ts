@@ -116,6 +116,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Authentication required - must be a seller' }, { status: 401 })
     }
 
+    // Vérification du statut Stripe Connect
+    if (!seller.sellerProfile?.stripeAccountId || !seller.sellerProfile?.stripeOnboardingCompleted) {
+      return NextResponse.json(
+        {
+          error: 'Stripe Connect setup required',
+          details: 'You must complete your Stripe Connect setup before creating workflows'
+        },
+        { status: 403 }
+      )
+    }
+
     // Parse et validation du body
     const body = await req.json()
     console.log('Received body:', body) // Debug

@@ -71,6 +71,17 @@ export async function middleware(req: NextRequest) {
     '/checkout/cancelled', // Allow checkout cancelled page without auth
   ]
 
+  // Routes admin qui nécessitent des privilèges admin
+  const adminRoutes = [
+    '/admin',
+    '/admin/dashboard',
+    '/admin/users',
+    '/admin/workflows',
+    '/admin/orders',
+    '/admin/reports',
+    '/admin/settings',
+  ]
+
   const { pathname } = req.nextUrl
 
   // Permettre l'accès aux routes publiques
@@ -98,6 +109,25 @@ export async function middleware(req: NextRequest) {
     const redirectUrl = new URL('/auth/login', req.url)
     redirectUrl.searchParams.set('redirectedFrom', pathname)
     return NextResponse.redirect(redirectUrl)
+  }
+
+  // Vérifier les privilèges admin pour les routes admin
+  if (adminRoutes.some(route => pathname.startsWith(route))) {
+    // Récupérer les données utilisateur depuis Supabase Auth
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user) {
+      // Vérifier le statut admin dans les métadonnées utilisateur
+      const isAdmin = user.user_metadata?.isAdmin === true
+
+      if (!isAdmin) {
+        // Rediriger vers la page d'accueil si l'utilisateur n'est pas admin
+        return NextResponse.redirect(new URL('/', req.url))
+      }
+    } else {
+      // Si pas d'utilisateur, rediriger vers la page d'accueil
+      return NextResponse.redirect(new URL('/', req.url))
+    }
   }
 
   return response

@@ -515,6 +515,10 @@ export default function SellerDashboard() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [workflowToDelete, setWorkflowToDelete] = useState<{ id: string; title: string } | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [stripeStatus, setStripeStatus] = useState<{
+    hasStripeAccount: boolean
+    onboardingCompleted: boolean
+  } | null>(null)
 
   // Initialize validation hook
   const {
@@ -534,6 +538,31 @@ export default function SellerDashboard() {
       router.push('/become-seller')
     }
   }, [user, loading, router])
+
+  // Check Stripe Connect status
+  const checkStripeStatus = useCallback(async () => {
+    try {
+      const response = await fetch('/api/stripe/connect')
+      if (response.ok) {
+        const data = await response.json()
+        setStripeStatus({
+          hasStripeAccount: !!data.data?.stripeAccountId,
+          onboardingCompleted: !!data.data?.stripeOnboardingCompleted,
+        })
+      } else {
+        setStripeStatus({
+          hasStripeAccount: false,
+          onboardingCompleted: false,
+        })
+      }
+    } catch (error) {
+      console.error('Failed to check Stripe status:', error)
+      setStripeStatus({
+        hasStripeAccount: false,
+        onboardingCompleted: false,
+      })
+    }
+  }, [])
 
   // Fetch workflows
   const fetchWorkflows = useCallback(async () => {
@@ -596,8 +625,9 @@ export default function SellerDashboard() {
       fetchWorkflows()
       fetchCategories()
       fetchTags()
+      checkStripeStatus()
     }
-  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags])
+  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags, checkStripeStatus])
 
   // Force validation when documentation file changes
   useEffect(() => {
@@ -1025,6 +1055,52 @@ export default function SellerDashboard() {
     setDeleteModalOpen(true)
   }
 
+  const handleCreateWorkflow = async () => {
+    // Check if Stripe Connect is set up
+    if (!stripeStatus?.hasStripeAccount || !stripeStatus?.onboardingCompleted) {
+      toast.error('Stripe Connect Required', {
+        description: 'You must complete your Stripe Connect setup before creating workflows. Please set up your payment account first.',
+        action: {
+          label: 'Set up Stripe',
+          onClick: () => router.push('/dashboard/stripe/connect'),
+        },
+      })
+      return
+    }
+
+    // Proceed with workflow creation
+    resetTouchedState()
+    setEditingWorkflow(null)
+    setLoadingWorkflowData(false)
+    setFormData({
+      title: '',
+      shortDesc: '',
+      longDescMd: '',
+      heroImageUrl: '',
+      heroImageFile: undefined,
+      documentationUrl: '',
+      documentationFile: undefined,
+      basePriceCents: 0,
+      currency: 'EUR',
+      status: 'draft',
+      jsonContent: undefined,
+      jsonFile: undefined,
+      n8nMinVersion: '',
+      n8nMaxVersion: '',
+      zapierMinVersion: '',
+      zapierMaxVersion: '',
+      makeMinVersion: '',
+      makeMaxVersion: '',
+      airtableScriptMinVersion: '',
+      airtableScriptMaxVersion: '',
+      categoryIds: [],
+      tagIds: [],
+    })
+    setShowCreateForm(true)
+    // Refresh workflows when switching to create mode
+    await fetchWorkflows()
+  }
+
   const handleDeleteConfirm = async () => {
     if (!workflowToDelete) return
 
@@ -1450,38 +1526,7 @@ export default function SellerDashboard() {
               <h2 className="text-xl font-semibold">Your Workflows</h2>
               {!showCreateForm && (
                 <Button
-                  onClick={async () => {
-                    resetTouchedState()
-                    setEditingWorkflow(null)
-                    setLoadingWorkflowData(false)
-                    setFormData({
-                      title: '',
-                      shortDesc: '',
-                      longDescMd: '',
-                      heroImageUrl: '',
-                      heroImageFile: undefined,
-                      documentationUrl: '',
-                      documentationFile: undefined,
-                      basePriceCents: 0,
-                      currency: 'EUR',
-                      status: 'draft',
-                      jsonContent: undefined,
-                      jsonFile: undefined,
-                      n8nMinVersion: '',
-                      n8nMaxVersion: '',
-                      zapierMinVersion: '',
-                      zapierMaxVersion: '',
-                      makeMinVersion: '',
-                      makeMaxVersion: '',
-                      airtableScriptMinVersion: '',
-                      airtableScriptMaxVersion: '',
-                      categoryIds: [],
-                      tagIds: [],
-                    })
-                    setShowCreateForm(true)
-                    // Refresh workflows when switching to create mode
-                    await fetchWorkflows()
-                  }}
+                  onClick={handleCreateWorkflow}
                 >
                   Add New Workflow
                 </Button>
@@ -1792,7 +1837,7 @@ export default function SellerDashboard() {
                       </div>
                       <h3 className="text-lg font-medium text-foreground">No workflows yet</h3>
                       <p className="text-muted-foreground">Get started by creating your first workflow.</p>
-                      <Button onClick={() => setShowCreateForm(true)}>Create Your First Workflow</Button>
+                      <Button onClick={handleCreateWorkflow}>Create Your First Workflow</Button>
                     </div>
                   </CardContent>
                 </Card>

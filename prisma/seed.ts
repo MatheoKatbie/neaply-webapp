@@ -16,6 +16,7 @@
 
 import { PrismaClient, Platform } from '@prisma/client'
 import { faker } from '@faker-js/faker'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -226,21 +227,6 @@ async function main() {
       users.push(user)
     }
 
-    // Create 1 admin
-    const admin = await prisma.user.create({
-      data: {
-        email: 'admin@flowmarket.com',
-        passwordHash: faker.internet.password(),
-        displayName: 'Admin User',
-        avatarUrl: null,
-        isSeller: false,
-        isAdmin: true,
-      },
-    })
-    users.push(admin)
-
-    console.log(`✅ Created ${users.length} users`)
-
     // Create seller profiles for sellers
     console.log('🏪 Creating seller profiles...')
     const sellers = users.filter((u) => u.isSeller)
@@ -347,9 +333,9 @@ async function main() {
           },
           extraAssets: faker.datatype.boolean()
             ? {
-                templates: ['template1.html', 'template2.html'],
-                documentation: 'guide.pdf',
-              }
+              templates: ['template1.html', 'template2.html'],
+              documentation: 'guide.pdf',
+            }
             : undefined,
           isLatest: true,
         },
