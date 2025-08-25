@@ -45,7 +45,7 @@ export default function StripeConnectRefreshPage() {
   }
 
   const goToDashboard = () => {
-    router.push('/dashboard')
+    router.push('/dashboard/seller')
   }
 
   if (loading) {

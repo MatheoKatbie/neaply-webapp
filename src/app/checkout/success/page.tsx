@@ -261,7 +261,7 @@ function CheckoutSuccessContent() {
               <Home className="w-4 h-4 mr-2" />
               Browse More Workflows
             </Button>
-            <Button onClick={() => router.push('/dashboard')} className="cursor-pointer">
+            <Button onClick={() => router.push('/dashboard/seller')} className="cursor-pointer">
               Go to Dashboard
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
