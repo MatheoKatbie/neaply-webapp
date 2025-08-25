@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import ClientLayout from './client-layout'
+import GoogleOneTapWrapper from '@/components/GoogleOneTapWrapper'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -55,6 +56,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <ClientLayout>{children}</ClientLayout>
+            <GoogleOneTapWrapper />
           </AuthProvider>
         </ThemeProvider>
       </body>
