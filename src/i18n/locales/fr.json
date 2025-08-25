@@ -1,0 +1,43 @@
+{
+    "common": {
+        "language": "Langue",
+        "english": "Anglais",
+        "french": "Français"
+    },
+    "footer": {
+        "description": "La première marketplace pour l'automatisation n8n. Découvrez des workflows prêts à l'emploi ou vendez vos propres workflows à la communauté d'automatisation.",
+        "browseWorkflows": "Parcourir les Workflows",
+        "becomeCreator": "Devenir Créateur",
+        "creatorDashboard": "Tableau de Bord Créateur",
+        "quickLinks": "Liens Rapides",
+        "marketplace": "Marketplace",
+        "favorites": "Favoris",
+        "myOrders": "Mes Commandes",
+        "settings": "Paramètres",
+        "support": "Support",
+        "helpCenter": "Centre d'Aide",
+        "contactUs": "Nous Contacter",
+        "termsOfService": "Conditions d'Utilisation",
+        "privacyPolicy": "Politique de Confidentialité",
+        "allRightsReserved": "Tous droits réservés."
+    },
+    "navigation": {
+        "home": "Accueil",
+        "marketplace": "Marketplace",
+        "favorites": "Favoris",
+        "orders": "Commandes",
+        "settings": "Paramètres",
+        "login": "Connexion",
+        "register": "Inscription",
+        "logout": "Déconnexion",
+        "profile": "Profil"
+    },
+    "homepage": {
+        "hero": {
+            "title": "La Première Marketplace pour les Workflows n8n",
+            "subtitle": "Découvrez des workflows d'automatisation prêts à l'emploi ou vendez les vôtres à la communauté",
+            "cta": "Explorer les Workflows",
+            "becomeSeller": "Devenir Créateur"
+        }
+    }
+}

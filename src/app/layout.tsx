@@ -3,8 +3,10 @@ import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { LanguageProvider } from '@/contexts/LanguageContext'
 import ClientLayout from './client-layout'
 import GoogleOneTapWrapper from '@/components/GoogleOneTapWrapper'
+
 
 const inter = Inter({
   variable: '--font-inter',
@@ -55,7 +57,9 @@ export default function RootLayout({
       <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`} suppressHydrationWarning={true}>
         <ThemeProvider>
           <AuthProvider>
-            <ClientLayout>{children}</ClientLayout>
+            <LanguageProvider>
+              <ClientLayout>{children}</ClientLayout>
+            </LanguageProvider>
             <GoogleOneTapWrapper />
           </AuthProvider>
         </ThemeProvider>
