@@ -50,7 +50,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </div>
 
                 {/* Main Content Area */}
-                <main className="flex-1 ml-64 p-6 pb-0"> {/* ml-64 to account for sidebar width, pb-0 to remove bottom padding */}
+                <main className="flex-1 ml-64 p-6 mb-4 pb-0"> {/* ml-64 to account for sidebar width, pb-0 to remove bottom padding */}
                     {children}
                 </main>
             </div>

@@ -165,7 +165,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
                                 <div className="flex items-center space-x-3">
                                     <Store className="h-5 w-5 text-green-600" />
                                     <div>
-                                        <Label htmlFor="isSeller" className="text-sm font-medium">Seller Access</Label>
+                                        <Label htmlFor="isSeller" className="text-sm font-medium">Creator Access</Label>
                                         <p className="text-xs text-muted-foreground">Can create and sell workflows</p>
                                     </div>
                                 </div>
@@ -178,12 +178,12 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
                         </div>
                     </div>
 
-                    {/* Seller Profile */}
+                    {/* Creator Profile */}
                     {formData.isSeller && (
                         <>
                             <Separator />
                             <div>
-                                <h3 className="text-lg font-medium mb-4">Seller Profile</h3>
+                                <h3 className="text-lg font-medium mb-4">Creator Profile</h3>
                                 <div className="space-y-4">
                                     <div>
                                         <Label htmlFor="storeName">Store Name</Label>
@@ -200,7 +200,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
                                             id="bio"
                                             value={formData.sellerProfile.bio}
                                             onChange={(e) => handleInputChange('sellerProfile.bio', e.target.value)}
-                                            placeholder="Enter seller bio"
+                                            placeholder="Enter creator bio"
                                             rows={3}
                                         />
                                     </div>
@@ -235,7 +235,7 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
                                         </div>
                                     </div>
                                     <div>
-                                        <Label htmlFor="status">Seller Status</Label>
+                                        <Label htmlFor="status">Creator Status</Label>
                                         <Select
                                             value={formData.sellerProfile.status}
                                             onValueChange={(value) => handleInputChange('sellerProfile.status', value)}

@@ -21,7 +21,7 @@ export default function Footer() {
             </div>
             <p className="text-muted-foreground mb-4 max-w-md">
               The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own
-              creations to the automation community.
+              workflows to the automation community.
             </p>
             <div className="flex space-x-4">
               <Button variant="outline" size="sm" asChild>
@@ -29,11 +29,11 @@ export default function Footer() {
               </Button>
               {!user?.isSeller ? (
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/become-seller">Become a Seller</Link>
+                  <Link href="/become-seller">Become a Creator</Link>
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/dashboard/seller">Seller Dashboard</Link>
+                  <Link href="/dashboard/seller">Creator Dashboard</Link>
                 </Button>
               )}
             </div>

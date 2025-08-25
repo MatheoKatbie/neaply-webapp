@@ -6,12 +6,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,19 +21,19 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import type { RememberedDevice, TwoFactorSetup, TwoFactorStatus } from '@/types/auth'
 import {
-    AlertTriangle,
-    Calendar,
-    Camera,
-    CheckCircle,
-    Copy,
-    Key,
-    MapPin,
-    Monitor,
-    Shield,
-    Smartphone,
-    Store,
-    Trash2,
-    User
+  AlertTriangle,
+  Calendar,
+  Camera,
+  CheckCircle,
+  Copy,
+  Key,
+  MapPin,
+  Monitor,
+  Shield,
+  Smartphone,
+  Store,
+  Trash2,
+  User
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -648,7 +648,7 @@ export default function SettingsPage() {
 
               <div className="flex items-center space-x-2">
                 <Badge variant={user.isSeller ? 'default' : 'secondary'}>
-                  {user.isSeller ? 'Seller Account' : 'Buyer Account'}
+                  {user.isSeller ? 'Creator Account' : 'Buyer Account'}
                 </Badge>
                 {user.isAdmin && <Badge variant="destructive">Admin</Badge>}
               </div>

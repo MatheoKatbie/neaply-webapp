@@ -135,7 +135,7 @@ export default function Navbar() {
                     className="font-inter inline-flex items-center justify-center h-10 px-5 bg-primary border border-border text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-background hover:text-foreground hover:shadow-lg cursor-pointer"
                     onClick={() => router.push('/become-seller')}
                   >
-                    Become a Seller
+                    Become a Creator
                   </button>
                 )}
                 {user.isSeller && (
@@ -143,7 +143,7 @@ export default function Navbar() {
                     className="font-inter inline-flex items-center justify-center h-10 px-5 bg-primary border border-border text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-background hover:text-foreground hover:shadow-lg cursor-pointer"
                     onClick={() => router.push('/dashboard/seller')}
                   >
-                    Seller Dashboard
+                    Creator Dashboard
                   </button>
                 )}
 
@@ -261,15 +261,13 @@ export default function Navbar() {
         {/* Mobile Menu with Animation */}
         <div
           ref={menuRef}
-          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${
-            isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-          }`}
+          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            }`}
           onClick={() => setIsMenuOpen(false)}
         >
           <div
-            className={`fixed top-0 right-0 w-80 h-full bg-background backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
-              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-            }`}
+            className={`fixed top-0 right-0 w-80 h-full bg-background backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+              }`}
             style={{ height: '100vh' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -344,7 +342,7 @@ export default function Navbar() {
                           setIsMenuOpen(false)
                         }}
                       >
-                        Become a Seller
+                        Become a Creator
                       </button>
                     )}
                     {user.isSeller && (
@@ -355,7 +353,7 @@ export default function Navbar() {
                           setIsMenuOpen(false)
                         }}
                       >
-                        Seller Dashboard
+                        Creator Dashboard
                       </button>
                     )}
 

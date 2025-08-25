@@ -313,8 +313,8 @@ export default function BecomeSellerPage() {
               </CardTitle>
               <CardDescription className="text-center">
                 {existingProfile
-                  ? 'Your seller profile has been successfully updated'
-                  : 'Your seller profile has been successfully created'}
+                  ? 'Your creator profile has been successfully updated'
+                  : 'Your creator profile has been successfully created'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -367,7 +367,7 @@ export default function BecomeSellerPage() {
                 {/* Benefits Section */}
                 <Card className="bg-gradient-to-br bg-background/90">
                   <CardHeader>
-                    <CardTitle className="text-2xl">Why Sell on FlowMarket?</CardTitle>
+                    <CardTitle className="text-2xl">Why Create on FlowMarket?</CardTitle>
                     <CardDescription className="">
                       Join thousands of creators monetizing their n8n workflows
                     </CardDescription>
@@ -470,8 +470,8 @@ export default function BecomeSellerPage() {
                 <CardTitle className="text-2xl">{existingProfile ? 'Your Store Information' : 'Store Setup'}</CardTitle>
                 <CardDescription>
                   {existingProfile
-                    ? 'Update your seller profile information'
-                    : 'Fill in this information to create your seller profile'}
+                    ? 'Update your creator profile information'
+                    : 'Fill in this information to create your creator profile'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -511,9 +511,8 @@ export default function BecomeSellerPage() {
                     <textarea
                       id="bio"
                       name="bio"
-                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                        validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
-                      }`}
+                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
+                        }`}
                       value={formData.bio}
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
@@ -616,8 +615,8 @@ export default function BecomeSellerPage() {
                           ? 'Updating...'
                           : 'Creating...'
                         : existingProfile
-                        ? 'Update Profile'
-                        : 'Create Store'}
+                          ? 'Update Profile'
+                          : 'Create Store'}
                     </Button>
 
                     <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>

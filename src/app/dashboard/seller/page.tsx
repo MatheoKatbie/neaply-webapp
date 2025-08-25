@@ -1368,7 +1368,7 @@ export default function SellerDashboard() {
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Seller Dashboard</h1>
+              <h1 className="text-3xl font-bold text-foreground">Creator Dashboard</h1>
               <p className="mt-2 text-lg text-muted-foreground">Manage your workflows and track your sales</p>
             </div>
           </div>

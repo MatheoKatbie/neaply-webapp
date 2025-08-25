@@ -188,7 +188,7 @@ export default async function AdminReports({
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-foreground">Reports Management</h1>
+                <h1 className="text-3xl font-bold text-foreground font-space-grotesk">Reports Management</h1>
                 <p className="text-muted-foreground">Review and handle user reports</p>
             </div>
 

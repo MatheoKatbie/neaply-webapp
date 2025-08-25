@@ -114,13 +114,13 @@ export default function AdminUsers({ users, totalCount, totalPages, currentPage 
             label: 'Role',
             options: [
                 { value: 'admin', label: 'Admin' },
-                { value: 'seller', label: 'Seller' },
+                { value: 'seller', label: 'Creator' },
                 { value: 'user', label: 'User' }
             ]
         },
         {
             key: 'sellerStatus',
-            label: 'Seller Status',
+            label: 'Creator Status',
             options: [
                 { value: 'active', label: 'Active' },
                 { value: 'suspended', label: 'Suspended' },
@@ -132,7 +132,7 @@ export default function AdminUsers({ users, totalCount, totalPages, currentPage 
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-foreground">Users Management</h1>
+                <h1 className="text-3xl font-bold text-foreground font-space-grotesk">Users Management</h1>
                 <p className="text-muted-foreground">Manage user accounts and permissions</p>
             </div>
 
@@ -180,7 +180,7 @@ export default function AdminUsers({ users, totalCount, totalPages, currentPage 
                                                 {user.isSeller && (
                                                     <Badge variant="secondary" className="bg-green-100 text-green-800">
                                                         <Store className="h-3 w-3 mr-1" />
-                                                        Seller
+                                                        Creator
                                                     </Badge>
                                                 )}
                                                 {!user.isAdmin && !user.isSeller && (

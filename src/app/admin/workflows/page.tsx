@@ -205,12 +205,12 @@ export default async function AdminWorkflows({
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-foreground">Workflows Management</h1>
+                <h1 className="text-3xl font-bold text-foreground font-space-grotesk">Workflows Management</h1>
                 <p className="text-muted-foreground">Review and manage workflow submissions</p>
             </div>
 
             <AdminSearchFilters
-                searchPlaceholder="Search workflows by title, description, or seller..."
+                searchPlaceholder="Search workflows by title, description, or creator..."
                 filters={filterOptions}
                 dateRangeFilter={true}
             />

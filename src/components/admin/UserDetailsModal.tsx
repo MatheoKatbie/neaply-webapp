@@ -65,7 +65,7 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
             return (
                 <Badge variant="secondary" className="bg-green-100 text-green-800">
                     <Store className="h-3 w-3 mr-1" />
-                    Seller
+                    Creator
                 </Badge>
             )
         } else {
@@ -169,12 +169,12 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
                         </div>
                     </div>
 
-                    {/* Seller Profile Information */}
+                    {/* Creator Profile Information */}
                     {user.sellerProfile && (
                         <>
                             <Separator />
                             <div>
-                                <h3 className="text-lg font-medium mb-3">Seller Profile</h3>
+                                <h3 className="text-lg font-medium mb-3">Creator Profile</h3>
                                 <div className="space-y-3">
                                     {user.sellerProfile.storeName && (
                                         <div className="flex items-center space-x-3">
@@ -236,7 +236,7 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
                                         <li>All workflows ({user._count.workflows})</li>
                                         <li>All orders ({user._count.orders})</li>
                                         <li>All reviews ({user._count.reviews})</li>
-                                        {user.sellerProfile && <li>Seller profile and store</li>}
+                                        {user.sellerProfile && <li>Creator profile and store</li>}
                                     </ul>
                                     <div className="flex space-x-2 pt-2">
                                         <Button
