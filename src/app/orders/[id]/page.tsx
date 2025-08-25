@@ -4,18 +4,20 @@ import Navbar from '@/components/Navbar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CopyButton } from '@/components/ui/copy-button'
 import { Separator } from '@/components/ui/separator'
+import { downloadWorkflowAsZip } from '@/lib/download-utils'
 import type { Order } from '@/types/payment'
 import {
-    AlertCircle,
-    ArrowLeft,
-    CheckCircle,
-    Clock,
-    CreditCard,
-    Download,
-    FileText,
-    Package,
-    XCircle
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  Download,
+  FileText,
+  Package,
+  XCircle
 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -124,10 +126,15 @@ export default function OrderDetailPage() {
     }
   }
 
-  const handleDownloadWorkflow = (workflowId: string) => {
-    // TODO: Implement download logic
-    console.log('Download workflow:', workflowId)
+  const handleDownloadZip = async (workflowId: string, workflowTitle: string) => {
+    try {
+      await downloadWorkflowAsZip(workflowId, workflowTitle)
+    } catch (error) {
+      console.error('Download error:', error)
+      alert('Failed to download workflow. Please try again.')
+    }
   }
+
 
   if (loading) {
     return (
@@ -246,10 +253,16 @@ export default function OrderDetailPage() {
 
                         <div className="flex flex-col space-y-2">
                           {order.status === 'paid' && (
-                            <Button size="sm" onClick={() => handleDownloadWorkflow(item.workflowId)}>
-                              <Download className="w-4 h-4 mr-2" />
-                              Download
-                            </Button>
+                            <div className="flex gap-2">
+                              <CopyButton 
+                                workflowId={item.workflowId}
+                                showText={false}
+                              />
+                              <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
+                                <Download className="w-4 h-4 mr-2" />
+                                ZIP
+                              </Button>
+                            </div>
                           )}
                           <Button
                             size="sm"

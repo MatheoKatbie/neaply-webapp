@@ -4,6 +4,8 @@ import Navbar from '@/components/Navbar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CopyButton } from '@/components/ui/copy-button'
+import { downloadWorkflowAsZip } from '@/lib/download-utils'
 import type { Order } from '@/types/payment'
 import { AlertCircle, Calendar, ChevronRight, CreditCard, Download, FileText, Package, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
@@ -87,36 +89,15 @@ export default function OrdersHistoryPage() {
     }
   }
 
-  const handleDownloadWorkflow = async (workflowId: string, workflowTitle: string) => {
+  const handleDownloadZip = async (workflowId: string, workflowTitle: string) => {
     try {
-      const response = await fetch(`/api/workflows/${workflowId}/download`, {
-        credentials: 'include',
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to download workflow')
-      }
-      
-      const data = await response.json()
-      
-      // Create and download the JSON file
-      const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
-        type: 'application/json',
-      })
-      
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      await downloadWorkflowAsZip(workflowId, workflowTitle)
     } catch (error) {
-      console.error('Error downloading workflow:', error)
+      console.error('Download error:', error)
       alert('Failed to download workflow. Please try again.')
     }
   }
+
 
   if (loading) {
     return (
@@ -239,10 +220,16 @@ export default function OrdersHistoryPage() {
 
                           <div className="flex items-center space-x-2">
                             {order.status === 'paid' && (
-                              <Button size="sm" onClick={() => handleDownloadWorkflow(item.workflowId, item.workflow.title)}>
-                                <Download className="w-4 h-4 mr-2" />
-                                Download
-                              </Button>
+                              <>
+                                <CopyButton 
+                                  workflowId={item.workflowId}
+                                  showText={false}
+                                />
+                                <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
+                                  <Download className="w-4 h-4 mr-2" />
+                                  ZIP
+                                </Button>
+                              </>
                             )}
                             <Button
                               size="sm"

@@ -11,12 +11,14 @@ import { useEffect, useState } from 'react'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
+import { CopyButton } from '@/components/ui/copy-button'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
 import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
 import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
+import { downloadWorkflowAsZip } from '@/lib/download-utils'
 import {
   ArrowLeft,
   BarChart3,
@@ -201,36 +203,15 @@ export default function WorkflowDetailPage() {
     console.log('Purchase workflow:', workflowId)
   }
 
-  const handleDownload = async (workflowId: string, workflowTitle: string) => {
+  const handleDownloadZip = async (workflowId: string, workflowTitle: string) => {
     try {
-      const response = await fetch(`/api/workflows/${workflowId}/download`, {
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to download workflow')
-      }
-
-      const data = await response.json()
-
-      // Create and download the JSON file
-      const blob = new Blob([JSON.stringify(data.workflow, null, 2)], {
-        type: 'application/json',
-      })
-
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      await downloadWorkflowAsZip(workflowId, workflowTitle)
     } catch (error) {
-      console.error('Error downloading workflow:', error)
+      console.error('Download error:', error)
       alert('Failed to download workflow. Please try again.')
     }
   }
+
 
   if (loading) {
     return (
@@ -525,13 +506,21 @@ export default function WorkflowDetailPage() {
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
-                      <Button
-                        onClick={() => handleDownload(workflowId, workflow.title)}
-                        className="w-full bg-blue-600 hover:bg-blue-700"
-                      >
-                        <Download className="w-5 h-5 mr-2" />
-                        Download Workflow
-                      </Button>
+                      <div className="flex gap-2">
+                        <CopyButton 
+                          workflowId={workflowId}
+                          className="flex-1"
+                        />
+                        <Button
+                          onClick={() => handleDownloadZip(workflowId, workflow.title)}
+                          size='sm'
+                          className="flex-1"
+                          variant='outline'
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download ZIP
+                        </Button>
+                      </div>
                       <p className="text-sm text-muted-foreground text-center">You already own this workflow</p>
                     </div>
                   ) : (
