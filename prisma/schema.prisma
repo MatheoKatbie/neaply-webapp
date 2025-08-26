@@ -18,6 +18,7 @@ enum WorkflowStatus {
   published
   unlisted
   disabled
+  pack_only
 }
 
 enum ReviewStatus {

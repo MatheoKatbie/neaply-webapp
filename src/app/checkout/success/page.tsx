@@ -7,7 +7,7 @@ import type { Order } from '@/types/payment'
 import { ArrowRight, CheckCircle, Copy, Download, Home } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
-import { downloadWorkflowAsZip } from '@/lib/download-utils'
+import { downloadWorkflowAsZip, downloadPackAsZip } from '@/lib/download-utils'
 import { CopyButton } from '@/components/ui/copy-button'
 
 function CheckoutSuccessContent() {
@@ -62,6 +62,15 @@ function CheckoutSuccessContent() {
     } catch (error) {
       console.error('Download error:', error)
       alert('Failed to download workflow. Please try again.')
+    }
+  }
+
+  const handleDownloadPack = async (packId: string, packTitle: string) => {
+    try {
+      await downloadPackAsZip(packId, packTitle)
+    } catch (error) {
+      console.error('Download pack error:', error)
+      alert('Failed to download pack. Please try again.')
     }
   }
 
@@ -125,7 +134,7 @@ function CheckoutSuccessContent() {
               <CheckCircle className="w-10 h-10 text-green-500" />
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Payment Successful!</h1>
-            <p className="text-lg text-muted-foreground">Thank you for your purchase. Your workflows are ready for download.</p>
+            <p className="text-lg text-muted-foreground">Thank you for your purchase. Your workflows and packs are ready for download.</p>
           </div>
 
           {/* Order Details */}
@@ -161,7 +170,7 @@ function CheckoutSuccessContent() {
                 </div>
               </div>
 
-              {/* Order Items */}
+              {/* Order Items (Workflows) */}
               <div>
                 <h3 className="text-lg font-semibold mb-4">Your Workflows</h3>
                 <div className="space-y-4">
@@ -208,6 +217,54 @@ function CheckoutSuccessContent() {
                   ))}
                 </div>
               </div>
+
+              {order.packItems && order.packItems.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold mb-4">Your Packs</h3>
+                  <div className="space-y-4">
+                    {order.packItems.map((packItem) => (
+                      <div key={packItem.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          {packItem.pack.heroImageUrl ? (
+                            <img
+                              src={packItem.pack.heroImageUrl}
+                              alt={packItem.pack.title}
+                              className="w-12 h-12 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                              <Download className="w-6 h-6 text-blue-600" />
+                            </div>
+                          )}
+                          <div>
+                            <h4 className="font-medium">{packItem.pack.title}</h4>
+                            {packItem.pack.workflows && (
+                              <p className="text-sm text-muted-foreground">{packItem.pack.workflows.length} workflows included</p>
+                            )}
+                            <p className="text-sm font-medium text-green-600">
+                              {formatPrice(packItem.unitPriceCents, order.currency)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button size="sm" onClick={() => handleDownloadPack(packItem.packId, packItem.pack.title)} className="bg-blue-600 hover:bg-blue-700">
+                            <Download className="w-4 h-4 mr-2" />
+                            Download Pack
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => router.push(`/packs/${packItem.packId}`)}
+                            className="cursor-pointer"
+                          >
+                            View Pack
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 

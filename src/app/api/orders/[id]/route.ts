@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const { id: orderId } = await params
 
-    // Fetch order with related data
+    // Fetch order with related data including workflows and pack items
     const order = await prisma.order.findUnique({
       where: {
         id: orderId,
@@ -39,6 +39,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 id: true,
                 name: true,
                 features: true,
+              },
+            },
+          },
+        },
+        packItems: {
+          include: {
+            pack: {
+              include: {
+                workflows: {
+                  include: {
+                    workflow: {
+                      select: { id: true, title: true, slug: true },
+                    },
+                  },
+                  orderBy: { sortOrder: 'asc' },
+                },
               },
             },
           },

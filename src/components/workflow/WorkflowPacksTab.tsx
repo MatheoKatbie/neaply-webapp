@@ -450,16 +450,19 @@ export function WorkflowPacksTab({ categories, tags, workflows, onTabChange }: W
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="packCurrency">Currency</Label>
-                                    <select
-                                        id="packCurrency"
+                                    <Select
                                         value={packFormData.currency || 'EUR'}
-                                        onChange={(e) => setPackFormData({ ...packFormData, currency: e.target.value })}
-                                        className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        onValueChange={(value) => setPackFormData({ ...packFormData, currency: value })}
                                     >
-                                        <option value="EUR">EUR (€)</option>
-                                        <option value="USD">USD ($)</option>
-                                        <option value="GBP">GBP (£)</option>
-                                    </select>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select currency" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="EUR">EUR (€)</SelectItem>
+                                            <SelectItem value="USD">USD ($)</SelectItem>
+                                            <SelectItem value="GBP">GBP (£)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <p className="text-xs text-muted-foreground">Currency for pricing</p>
                                 </div>
                                 <div className="space-y-2">

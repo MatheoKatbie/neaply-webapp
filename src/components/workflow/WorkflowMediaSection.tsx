@@ -113,14 +113,14 @@ export function WorkflowMediaSection({
           value={status || 'draft'}
           onChange={(e) => onUpdate('status', e.target.value)}
           onBlur={() => onBlur('status')}
-          className={`flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-            errors.status ? 'border-red-500' : ''
-          }`}
+          className={`flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.status ? 'border-red-500' : ''
+            }`}
         >
           <option value="draft">Draft</option>
           <option value="published">Published</option>
           <option value="unlisted">Unlisted</option>
           <option value="disabled">Disabled</option>
+          <option value="pack_only">Pack Only</option>
         </select>
         {errors.status && <p className="text-xs text-red-500">{errors.status}</p>}
         <p className="text-xs text-muted-foreground">

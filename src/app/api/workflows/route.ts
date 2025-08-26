@@ -39,7 +39,7 @@ const createWorkflowSchema = z
     documentationUrl: z.string().url('Documentation URL must be valid').optional().or(z.literal('')),
     basePriceCents: z.number().min(0, 'Base price cannot be negative').max(100000, 'Base price cannot exceed €1000.00'),
     currency: z.string().default('EUR'),
-    status: z.enum(['draft', 'published', 'unlisted', 'disabled']).default('draft'),
+    status: z.enum(['draft', 'published', 'unlisted', 'disabled', 'pack_only']).default('draft'),
     platform: z.enum(['n8n', 'zapier', 'make', 'airtable_script']).optional(),
     jsonContent: z.any().optional(),
     n8nMinVersion: z
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
           documentationUrl: validatedData.documentationUrl || null,
           basePriceCents: validatedData.basePriceCents,
           currency: validatedData.currency,
-          status: validatedData.status,
+          status: validatedData.status as any,
           platform: validatedData.platform || null,
         },
       })
@@ -288,7 +288,7 @@ export async function GET(req: NextRequest) {
       sellerId: seller.id,
     }
 
-    if (status && ['draft', 'published', 'unlisted', 'disabled'].includes(status)) {
+    if (status && ['draft', 'published', 'unlisted', 'disabled', 'pack_only'].includes(status)) {
       where.status = status
     }
 

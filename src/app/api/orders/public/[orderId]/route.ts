@@ -10,7 +10,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Invalid order ID' }, { status: 400 })
     }
 
-    // Fetch order with items and workflow details
+    // Fetch order with items and workflow details, plus pack items
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -30,6 +30,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 id: true,
                 name: true,
                 priceCents: true,
+              },
+            },
+          },
+        },
+        packItems: {
+          include: {
+            pack: {
+              include: {
+                workflows: {
+                  include: {
+                    workflow: {
+                      select: { id: true, title: true, slug: true },
+                    },
+                  },
+                  orderBy: { sortOrder: 'asc' },
+                },
               },
             },
           },
@@ -67,6 +83,28 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         subtotalCents: item.subtotalCents,
         workflow: item.workflow,
         pricingPlan: item.pricingPlan,
+      })),
+      packItems: order.packItems.map((pi) => ({
+        id: pi.id,
+        packId: pi.packId,
+        unitPriceCents: pi.unitPriceCents,
+        quantity: pi.quantity,
+        subtotalCents: pi.subtotalCents,
+        pack: {
+          id: pi.pack.id,
+          title: pi.pack.title,
+          slug: pi.pack.slug,
+          heroImageUrl: pi.pack.heroImageUrl || undefined,
+          workflows: pi.pack.workflows.map((pw) => ({
+            workflowId: pw.workflowId,
+            sortOrder: pw.sortOrder,
+            workflow: {
+              id: pw.workflow.id,
+              title: pw.workflow.title,
+              slug: pw.workflow.slug,
+            },
+          })),
+        },
       })),
       payments: order.payments.map((payment) => ({
         id: payment.id,

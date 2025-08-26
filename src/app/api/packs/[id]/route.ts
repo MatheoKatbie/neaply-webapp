@@ -181,7 +181,7 @@ export async function PUT(
                 where: {
                     id: { in: validated.workflowIds },
                     sellerId: user.id,
-                    status: { in: ['published', 'unlisted'] }
+                    status: { in: ['published', 'unlisted', 'pack_only'] }
                 }
             })
 

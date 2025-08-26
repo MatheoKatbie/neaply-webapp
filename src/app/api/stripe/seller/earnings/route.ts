@@ -63,16 +63,29 @@ export async function GET(req: NextRequest) {
         startDate = now - 30 * 24 * 60 * 60 * 1000
     }
 
-    // Get orders from database for the seller
+    // Get orders from database for the seller (workflows or packs)
     const orders = await prisma.order.findMany({
       where: {
-        items: {
-          some: {
-            workflow: {
-              sellerId: user.id,
+        OR: [
+          {
+            items: {
+              some: {
+                workflow: {
+                  sellerId: user.id,
+                },
+              },
             },
           },
-        },
+          {
+            packItems: {
+              some: {
+                pack: {
+                  sellerId: user.id,
+                },
+              },
+            },
+          },
+        ],
         status: 'paid',
         paidAt: {
           gte: new Date(startDate),
@@ -82,6 +95,17 @@ export async function GET(req: NextRequest) {
         items: {
           include: {
             workflow: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        packItems: {
+          include: {
+            pack: {
               select: {
                 id: true,
                 title: true,
@@ -166,6 +190,29 @@ export async function GET(req: NextRequest) {
       .sort((a: any, b: any) => (b.revenue || 0) - (a.revenue || 0))
       .slice(0, 5)
 
+    // Group by pack for top packs
+    const packSales = orders.reduce((acc, order) => {
+      order.packItems?.forEach((pi: any) => {
+        const packId = pi.pack.id
+        if (!acc[packId]) {
+          acc[packId] = {
+            packId,
+            title: pi.pack.title,
+            slug: pi.pack.slug,
+            sales: 0,
+            revenue: 0,
+          }
+        }
+        acc[packId].sales += 1
+        acc[packId].revenue += pi.subtotalCents || 0
+      })
+      return acc
+    }, {} as Record<string, any>)
+
+    const topPacks = Object.values(packSales)
+      .sort((a: any, b: any) => (b.revenue || 0) - (a.revenue || 0))
+      .slice(0, 5)
+
     return NextResponse.json({
       success: true,
       data: {
@@ -196,14 +243,25 @@ export async function GET(req: NextRequest) {
           totalCents: order.totalCents || 0,
           currency: order.currency || 'eur',
           paidAt: order.paidAt,
-          items: order.items.map((item) => ({
-            workflowTitle: item.workflow.title,
-            workflowSlug: item.workflow.slug,
-            unitPriceCents: item.unitPriceCents || 0,
-            subtotalCents: item.subtotalCents || 0,
-          })),
+          items: [
+            ...order.items.map((item) => ({
+              type: 'workflow' as const,
+              title: item.workflow.title,
+              slug: item.workflow.slug,
+              unitPriceCents: item.unitPriceCents || 0,
+              subtotalCents: item.subtotalCents || 0,
+            })),
+            ...order.packItems.map((pi) => ({
+              type: 'pack' as const,
+              title: pi.pack.title,
+              slug: pi.pack.slug,
+              unitPriceCents: pi.unitPriceCents || 0,
+              subtotalCents: pi.subtotalCents || 0,
+            })),
+          ],
         })),
         topWorkflows,
+        topPacks,
         pagination: {
           hasMore: transfers.has_more || false,
           nextCursor: transfers.data.length > 0 ? transfers.data[transfers.data.length - 1]?.id : null,
