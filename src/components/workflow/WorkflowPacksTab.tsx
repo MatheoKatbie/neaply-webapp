@@ -602,22 +602,22 @@ export function WorkflowPacksTab({
             )}
 
             {/* Workflow Packs List */}
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-4">
                 {paginatedPacks.map((pack) => (
                     <Card key={pack.id}>
-                        <CardContent className="p-6">
+                        <CardContent className="p-4">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-start space-x-4 flex-1">
                                     {/* Pack Icon */}
                                     <div className="flex-shrink-0">
-                                        <div className="w-40 h-32 rounded-lg bg-muted border flex items-center justify-center">
-                                            <Package className="w-12 h-12 text-muted-foreground" />
+                                        <div className="w-32 h-24 rounded-lg bg-muted border flex items-center justify-center">
+                                            <Package className="w-10 h-10 text-muted-foreground" />
                                         </div>
                                     </div>
 
                                     {/* Content */}
                                     <div className="flex-1">
-                                        <div className="flex items-center space-x-3 mb-2">
+                                        <div className="flex items-center space-x-3 mb-1.5">
                                             <h3 className="text-lg font-semibold">{pack.title}</h3>
                                             <Badge className={getStatusColor(pack.status)}>
                                                 {STATUS_LABELS[pack.status] || pack.status}
@@ -628,10 +628,10 @@ export function WorkflowPacksTab({
                                                 </Badge>
                                             )}
                                         </div>
-                                        <p className="text-muted-foreground mb-4">{pack.shortDesc}</p>
+                                        <p className="text-muted-foreground mb-2">{pack.shortDesc}</p>
 
                                         {/* Categories and Tags */}
-                                        <div className="space-y-2 mb-4">
+                                        <div className="space-y-1.5 mb-3">
                                             {pack.categories && pack.categories.length > 0 && (
                                                 <div className="flex flex-wrap gap-1">
                                                     {pack.categories.map((cat) => (
@@ -666,8 +666,8 @@ export function WorkflowPacksTab({
 
                                         {/* Workflows in Pack */}
                                         {pack.workflows.length > 0 && (
-                                            <div className="mt-4">
-                                                <h4 className="text-sm font-medium mb-2">Workflows in this pack:</h4>
+                                            <div className="mt-3">
+                                                <h4 className="text-sm font-medium mb-1.5">Workflows in this pack:</h4>
                                                 <div className="flex flex-wrap gap-2">
                                                     {pack.workflows.slice(0, 6).map((item) => (
                                                         <Badge key={item.id} variant="outline" className="text-xs">

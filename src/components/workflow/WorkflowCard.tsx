@@ -20,13 +20,13 @@ export function WorkflowCard({ workflow, onEdit, onDelete, isEditing = false }: 
 
     return (
         <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4">
                 <div className="flex justify-between items-start">
                     <div className="flex items-start space-x-4 flex-1">
                         {/* Thumbnail Preview */}
                         <div className="flex-shrink-0">
                             {workflow.heroImageUrl ? (
-                                <div className="w-40 h-32 rounded-lg overflow-hidden bg-muted border">
+                                <div className="w-32 h-24 rounded-lg overflow-hidden bg-muted border">
                                     <img
                                         src={workflow.heroImageUrl}
                                         alt={workflow.title}
@@ -46,7 +46,7 @@ export function WorkflowCard({ workflow, onEdit, onDelete, isEditing = false }: 
                                     />
                                 </div>
                             ) : (
-                                <div className="w-40 h-32 rounded-lg bg-muted border flex items-center justify-center">
+                                <div className="w-32 h-24 rounded-lg bg-muted border flex items-center justify-center">
                                     <svg
                                         className="w-10 h-10 text-gray-400"
                                         fill="none"
@@ -66,16 +66,16 @@ export function WorkflowCard({ workflow, onEdit, onDelete, isEditing = false }: 
 
                         {/* Content */}
                         <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-2">
+                            <div className="flex items-center space-x-3 mb-1.5">
                                 <h3 className="text-lg font-semibold">{workflow.title}</h3>
                                 <Badge className={getStatusColor(workflow.status)}>
                                     {STATUS_LABELS[workflow.status] || workflow.status}
                                 </Badge>
                             </div>
-                            <p className="text-muted-foreground mb-4">{workflow.shortDesc}</p>
+                            <p className="text-muted-foreground mb-2">{workflow.shortDesc}</p>
 
                             {/* Categories and Tags */}
-                            <div className="space-y-2 mb-4">
+                            <div className="space-y-1.5 mb-3">
                                 {workflow.categories && workflow.categories.length > 0 && (
                                     <div className="flex flex-wrap gap-1">
                                         {workflow.categories.map((cat: any) => (
