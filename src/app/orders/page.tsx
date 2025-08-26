@@ -98,6 +98,28 @@ export default function OrdersHistoryPage() {
     }
   }
 
+  const handleDownloadPackZip = async (packId: string, packTitle: string) => {
+    try {
+      const response = await fetch(`/api/packs/${packId}/download`)
+      if (!response.ok) {
+        throw new Error('Failed to download pack')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${packTitle}.zip`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Download error:', error)
+      alert('Failed to download pack. Please try again.')
+    }
+  }
+
 
   if (loading) {
     return (
@@ -193,53 +215,108 @@ export default function OrdersHistoryPage() {
                   <CardContent className="p-6">
                     <div className="space-y-4">
                       <h4 className="font-medium text-foreground">Items Purchased:</h4>
-                      {order.items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
-                          <Link href={`workflow/${item.workflowId}`} className="flex items-center space-x-4">
-                            {item.workflow.heroImageUrl ? (
-                              <img
-                                src={item.workflow.heroImageUrl}
-                                alt={item.workflow.title}
-                                className="w-12 h-12 object-cover rounded-lg"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <FileText className="w-6 h-6 text-blue-600" />
-                              </div>
-                            )}
-                            <div>
-                              <h5 className="font-medium text-foreground">{item.workflow.title}</h5>
-                              {item.pricingPlan && (
-                                <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
-                              )}
-                              <p className="text-sm font-medium text-green-600">
-                                {formatPrice(item.unitPriceCents, order.currency)}
-                              </p>
-                            </div>
-                          </Link>
 
-                          <div className="flex items-center space-x-2">
-                            {order.status === 'paid' && (
-                              <>
-                                <CopyButton 
-                                  workflowId={item.workflowId}
-                                />
-                                <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
-                                  <Download className="w-4 h-4 mr-2" />
-                                  ZIP
+                      {/* Individual Workflow Items */}
+                      {order.items && order.items.length > 0 && (
+                        <div className="space-y-3">
+                          {order.items.map((item) => (
+                            <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                              <Link href={`workflow/${item.workflowId}`} className="flex items-center space-x-4">
+                                {item.workflow.heroImageUrl ? (
+                                  <img
+                                    src={item.workflow.heroImageUrl}
+                                    alt={item.workflow.title}
+                                    className="w-12 h-12 object-cover rounded-lg"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <FileText className="w-6 h-6 text-blue-600" />
+                                  </div>
+                                )}
+                                <div>
+                                  <h5 className="font-medium text-foreground">{item.workflow.title}</h5>
+                                  {item.pricingPlan && (
+                                    <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
+                                  )}
+                                  <p className="text-sm font-medium text-green-600">
+                                    {formatPrice(item.unitPriceCents, order.currency)}
+                                  </p>
+                                </div>
+                              </Link>
+
+                              <div className="flex items-center space-x-2">
+                                {order.status === 'paid' && (
+                                  <>
+                                    <CopyButton
+                                      workflowId={item.workflowId}
+                                    />
+                                    <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
+                                      <Download className="w-4 h-4 mr-2" />
+                                      ZIP
+                                    </Button>
+                                  </>
+                                )}
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => router.push(`/workflow/${item.workflowId}`)}
+                                >
+                                  View Workflow
                                 </Button>
-                              </>
-                            )}
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => router.push(`/workflow/${item.workflowId}`)}
-                            >
-                              View Workflow
-                            </Button>
-                          </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      )}
+
+                      {/* Pack Items */}
+                      {order.packItems && order.packItems.length > 0 && (
+                        <div className="space-y-3">
+                          {order.packItems.map((packItem) => (
+                            <div key={packItem.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                              <div className="flex items-center space-x-4">
+                                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                  <Package className="w-6 h-6 text-purple-600" />
+                                </div>
+                                <div>
+                                  <h5 className="font-medium text-foreground">{packItem.pack.title}</h5>
+                                  <p className="text-sm text-muted-foreground">
+                                    Pack with {packItem.pack.workflows?.length || 0} workflows
+                                  </p>
+                                  <p className="text-sm font-medium text-green-600">
+                                    {formatPrice(packItem.unitPriceCents, order.currency)}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                {order.status === 'paid' && (
+                                  <>
+                                    <Button variant='outline' size="sm" onClick={() => handleDownloadPackZip(packItem.pack.id, packItem.pack.title)}>
+                                      <Download className="w-4 h-4 mr-2" />
+                                      ZIP
+                                    </Button>
+                                  </>
+                                )}
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => router.push(`/packs/${packItem.pack.id}`)}
+                                >
+                                  View Pack
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Show message if no items found */}
+                      {(!order.items || order.items.length === 0) && (!order.packItems || order.packItems.length === 0) && (
+                        <div className="text-center py-4 text-muted-foreground">
+                          <p>No items found for this order.</p>
+                        </div>
+                      )}
                     </div>
 
                     {order.status === 'paid' && order.paidAt && (

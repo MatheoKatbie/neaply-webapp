@@ -55,6 +55,27 @@ export async function GET(request: NextRequest) {
               },
             },
           },
+          packItems: {
+            include: {
+              pack: {
+                include: {
+                  workflows: {
+                    include: {
+                      workflow: {
+                        select: {
+                          id: true,
+                          title: true,
+                          slug: true,
+                          heroImageUrl: true,
+                        },
+                      },
+                    },
+                    orderBy: { sortOrder: 'asc' },
+                  },
+                },
+              },
+            },
+          },
           payments: true,
         },
         orderBy: {
