@@ -320,6 +320,15 @@ export function WorkflowPacksTab({ categories, tags, workflows, onTabChange }: W
         }
     }
 
+    // Human-friendly labels for statuses
+    const STATUS_LABELS: Record<string, string> = {
+        published: 'Published',
+        draft: 'Draft',
+        unlisted: 'Unlisted',
+        disabled: 'Disabled',
+        pack_only: 'Pack Only',
+    }
+
     if (isLoadingPacks) {
         return (
             <div className="space-y-6">
@@ -610,7 +619,9 @@ export function WorkflowPacksTab({ categories, tags, workflows, onTabChange }: W
                                         <div className="flex-1">
                                             <div className="flex items-center space-x-3 mb-2">
                                                 <h3 className="text-lg font-semibold">{pack.title}</h3>
-                                                <Badge className={getStatusColor(pack.status)}>{pack.status}</Badge>
+                                                <Badge className={getStatusColor(pack.status)}>
+                                                    {STATUS_LABELS[pack.status] || pack.status}
+                                                </Badge>
                                                 {pack.platform && (
                                                     <Badge variant="secondary" className="text-xs">
                                                         {pack.platform}

@@ -1328,6 +1328,15 @@ export default function SellerDashboard() {
     }
   }
 
+  // Human-friendly labels for statuses
+  const STATUS_LABELS: Record<string, string> = {
+    published: 'Published',
+    draft: 'Draft',
+    unlisted: 'Unlisted',
+    disabled: 'Disabled',
+    pack_only: 'Pack Only',
+  }
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen bg-background p-6 pt-24">
@@ -1569,7 +1578,9 @@ export default function SellerDashboard() {
                               <h3 className="font-medium">{item.title}</h3>
                               <p className="text-sm text-muted-foreground">{item.shortDesc}</p>
                               <div className="flex items-center space-x-2 mt-2">
-                                <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
+                                <Badge className={getStatusColor(item.status)}>
+                                  {STATUS_LABELS[item.status] || item.status}
+                                </Badge>
                                 {type === 'workflow' ? (
                                   <span className="text-sm text-muted-foreground">{item._count.orderItems} sales</span>
                                 ) : (
@@ -1812,7 +1823,9 @@ export default function SellerDashboard() {
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
                               <h3 className="text-lg font-semibold">{workflow.title}</h3>
-                              <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
+                              <Badge className={getStatusColor(workflow.status)}>
+                                {STATUS_LABELS[workflow.status] || workflow.status}
+                              </Badge>
                             </div>
                             <p className="text-muted-foreground mb-4">{workflow.shortDesc}</p>
 
