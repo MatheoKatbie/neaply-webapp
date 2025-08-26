@@ -5,7 +5,10 @@ import { Bot, Clock, Database, Globe, Shield, TrendingUp, Workflow as WorkflowIc
 import React, { useEffect, useMemo, useRef } from 'react'
 
 interface AutoThumbnailProps {
-  workflow: Pick<Workflow, 'id' | 'title' | 'shortDesc' | 'longDescMd' | 'categories' | 'tags'> & { platform?: string }
+  workflow: Pick<Workflow, 'id' | 'title' | 'shortDesc' | 'categories' | 'tags'> & {
+    longDescMd?: string
+    platform?: string
+  }
   className?: string
   size?: 'sm' | 'md' | 'lg'
 }
@@ -82,7 +85,7 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
     const complexity = Math.min(
       Math.max(
         ((workflow.shortDesc?.length || 0) + (workflow.longDescMd?.length || 0)) / 50 +
-          (workflow.categories?.length || 0) * 0.3,
+        (workflow.categories?.length || 0) * 0.3,
         0.3
       ),
       1

@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { getTagLogoWithFallback } from '@/lib/tag-logos'
 import { X } from 'lucide-react'
 import * as React from 'react'
 
@@ -24,6 +25,7 @@ interface MultiSelectProps {
   disabled?: boolean
   className?: string
   label?: string
+  showLogos?: boolean
 }
 
 export function MultiSelect({
@@ -35,6 +37,7 @@ export function MultiSelect({
   disabled = false,
   className,
   label,
+  showLogos = false,
 }: MultiSelectProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState('')
@@ -114,7 +117,18 @@ export function MultiSelect({
               <span className="text-muted-foreground">{placeholder}</span>
             ) : (
               selectedOptions.map((option) => (
-                <Badge key={option.id} variant="secondary" className="h-6 px-2 py-0 text-xs">
+                <Badge key={option.id} variant="secondary" className="h-6 px-2 py-0 text-xs flex items-center gap-1">
+                  {showLogos && (
+                    <img
+                      src={getTagLogoWithFallback(option.name)}
+                      alt={`${option.name} logo`}
+                      className="w-3 h-3 object-contain"
+                      onError={(e) => {
+                        // Hide the image if it fails to load
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  )}
                   {option.name}
                   {!disabled && (
                     <span
@@ -194,6 +208,17 @@ export function MultiSelect({
                         </div>
                       )}
                     </div>
+                    {showLogos && (
+                      <img
+                        src={getTagLogoWithFallback(option.name)}
+                        alt={`${option.name} logo`}
+                        className="w-4 h-4 object-contain flex-shrink-0"
+                        onError={(e) => {
+                          // Hide the image if it fails to load
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    )}
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium">{option.name}</span>
                       {option._count && (

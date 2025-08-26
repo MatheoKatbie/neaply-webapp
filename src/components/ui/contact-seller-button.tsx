@@ -3,12 +3,12 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { Globe, Mail, MapPin, MessageCircle, Phone, User } from 'lucide-react'
@@ -59,9 +59,9 @@ export function ContactSellerButton({
   const handleEmailContact = () => {
     if (!seller.supportEmail) return
 
-    const emailSubject = encodeURIComponent(subject || 'Contact from FlowMarket')
+    const emailSubject = encodeURIComponent(subject || 'Contact from Neaply')
     const emailBody = encodeURIComponent(
-      `Hello ${seller.displayName},\n\n${message}\n\nBest regards,\n${senderName || 'A FlowMarket user'}`
+      `Hello ${seller.displayName},\n\n${message}\n\nBest regards,\n${senderName || 'A Neaply user'}`
     )
 
     window.open(`mailto:${seller.supportEmail}?subject=${emailSubject}&body=${emailBody}`, '_blank')
@@ -103,7 +103,7 @@ export function ContactSellerButton({
             </div>
             <div>
               <p className="font-semibold">{seller.storeName || seller.displayName}</p>
-              <p className="text-sm text-muted-foreground font-normal">Seller on FlowMarket</p>
+              <p className="text-sm text-muted-foreground font-normal">Seller on Neaply</p>
             </div>
           </DialogTitle>
           <DialogDescription>Choose how you'd like to contact this seller</DialogDescription>

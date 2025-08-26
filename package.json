@@ -12,7 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:clear": "node scripts/clear-database.js",
     "debug:webhooks": "node scripts/debug-webhooks.js",
-    "create-admin": "node scripts/create-admin.js"
+    "create-admin": "node scripts/create-admin.js",
+    "download-logos:advanced": "node scripts/download-logos-advanced.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

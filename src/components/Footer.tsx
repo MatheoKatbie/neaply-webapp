@@ -19,8 +19,7 @@ export default function Footer() {
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <img src="/images/logo_flowmarket_256.svg" alt="FlowMarket" className="h-8 w-auto" />
-              <span className="font-space-grotesk text-xl font-bold text-foreground">Flow Market</span>
+              <span className="font-space-grotesk text-xl font-bold text-foreground">Neaply</span>
             </div>
             <p className="text-muted-foreground mb-4 max-w-md">
               {t('footer.description')}
@@ -100,7 +99,7 @@ export default function Footer() {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <div className="text-muted-foreground text-sm">© {currentYear} Flow Market. {t('footer.allRightsReserved')}</div>
+          <div className="text-muted-foreground text-sm">© {currentYear} Neaply. {t('footer.allRightsReserved')}</div>
 
           <div className="flex items-center space-x-6">
             <LanguageSelector />

@@ -59,7 +59,7 @@ export function AdminSidebar() {
             {/* Footer Section */}
             <div className="p-4 border-t border-border bg-background">
                 <div className="text-xs text-muted-foreground text-center">
-                    FlowMarket Admin Panel
+                    Neaply Admin Panel
                 </div>
             </div>
         </div>

@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { PlatformBadge } from '@/components/ui/platform-badge'
+import { getTagLogoWithFallback } from '@/lib/tag-logos'
 import { Star, Users } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -96,6 +97,31 @@ export function WorkflowCardMini({
             {categories.length > 2 && (
               <Badge variant="outline" className="text-xs px-2 py-0.5">
                 +{categories.length - 2}
+              </Badge>
+            )}
+          </div>
+        )}
+
+        {/* Tags */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2">
+            {tags.slice(0, 3).map((tag, index) => (
+              <Badge key={index} variant="outline" className="text-xs text-muted-foreground px-2 py-0.5 flex items-center gap-1">
+                <img
+                  src={getTagLogoWithFallback(tag)}
+                  alt={`${tag} logo`}
+                  className="w-3 h-3 object-contain"
+                  onError={(e) => {
+                    // Hide the image if it fails to load
+                    e.currentTarget.style.display = 'none'
+                  }}
+                />
+                #{tag}
+              </Badge>
+            ))}
+            {tags.length > 3 && (
+              <Badge variant="outline" className="text-xs px-2 py-0.5">
+                +{tags.length - 3}
               </Badge>
             )}
           </div>

@@ -101,10 +101,10 @@ ${pack.workflows.map((pw, index) => `${index + 1}. ${pw.workflow.title}`).join('
 
 ## Support
 
-If you need help with these workflows, please contact the seller through the FlowMarket platform.
+If you need help with these workflows, please contact the seller through the Neaply platform.
 
 ---
-Downloaded from FlowMarket
+Downloaded from Neaply
 Pack ID: ${pack.id}
 `
 

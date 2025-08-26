@@ -309,7 +309,7 @@ export default function BecomeSellerPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-center text-green-600">
-                {existingProfile ? 'Profile Updated!' : 'Welcome to Flow Market!'}
+                {existingProfile ? 'Profile Updated!' : 'Welcome to Neaply!'}
               </CardTitle>
               <CardDescription className="text-center">
                 {existingProfile
@@ -351,10 +351,10 @@ export default function BecomeSellerPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            {existingProfile ? 'Edit Your Seller Profile' : 'Become a Seller on Flow Market'}
+            {existingProfile ? 'Edit Your Seller Profile' : 'Become a Seller on Neaply'}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            {existingProfile ? 'Update your store information' : 'Start selling your n8n workflows today'}
+            {existingProfile ? 'Update your store information' : 'Start selling your automation workflows today'}
           </p>
         </div>
 
@@ -367,9 +367,9 @@ export default function BecomeSellerPage() {
                 {/* Benefits Section */}
                 <Card className="bg-gradient-to-br bg-background/90">
                   <CardHeader>
-                    <CardTitle className="text-2xl">Why Create on FlowMarket?</CardTitle>
+                    <CardTitle className="text-2xl">Why Create on Neaply?</CardTitle>
                     <CardDescription className="">
-                      Join thousands of creators monetizing their n8n workflows
+                      Join thousands of creators monetizing their automation workflows
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -386,7 +386,7 @@ export default function BecomeSellerPage() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold">Upload Your Workflows</h3>
-                        <p className="">Share your n8n creations with the community</p>
+                        <p className="">Share your automation creations with the community</p>
                       </div>
                     </div>
 
