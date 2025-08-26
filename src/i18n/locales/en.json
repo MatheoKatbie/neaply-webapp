@@ -1,0 +1,43 @@
+{
+    "common": {
+        "language": "Language",
+        "english": "English",
+        "french": "French"
+    },
+    "footer": {
+        "description": "The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own workflows to the automation community.",
+        "browseWorkflows": "Browse Workflows",
+        "becomeCreator": "Become a Creator",
+        "creatorDashboard": "Creator Dashboard",
+        "quickLinks": "Quick Links",
+        "marketplace": "Marketplace",
+        "favorites": "Favorites",
+        "myOrders": "My Orders",
+        "settings": "Settings",
+        "support": "Support",
+        "helpCenter": "Help Center",
+        "contactUs": "Contact Us",
+        "termsOfService": "Terms of Service",
+        "privacyPolicy": "Privacy Policy",
+        "allRightsReserved": "All rights reserved."
+    },
+    "navigation": {
+        "home": "Home",
+        "marketplace": "Marketplace",
+        "favorites": "Favorites",
+        "orders": "Orders",
+        "settings": "Settings",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "profile": "Profile"
+    },
+    "homepage": {
+        "hero": {
+            "title": "The Premier Marketplace for n8n Workflows",
+            "subtitle": "Discover ready-to-use automation workflows or sell your own to the community",
+            "cta": "Explore Workflows",
+            "becomeSeller": "Become a Creator"
+        }
+    }
+}

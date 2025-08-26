@@ -188,7 +188,7 @@ function CheckoutSuccessContent() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <CopyButton 
+                        <CopyButton
                           workflowId={item.workflowId}
                         />
                         <Button size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)} className="bg-blue-600 hover:bg-blue-700">
@@ -247,7 +247,7 @@ function CheckoutSuccessContent() {
                   <div>
                     <p className="font-medium">Need help?</p>
                     <p className="text-sm text-muted-foreground">
-                      Check the workflow documentation or contact the seller for support.
+                      Check the workflow documentation or contact the creator for support.
                     </p>
                   </div>
                 </div>
@@ -261,7 +261,7 @@ function CheckoutSuccessContent() {
               <Home className="w-4 h-4 mr-2" />
               Browse More Workflows
             </Button>
-            <Button onClick={() => router.push('/dashboard')} className="cursor-pointer">
+            <Button onClick={() => router.push('/dashboard/seller')} className="cursor-pointer">
               Go to Dashboard
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>

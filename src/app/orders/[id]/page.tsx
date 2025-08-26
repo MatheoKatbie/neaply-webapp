@@ -256,7 +256,7 @@ export default function OrderDetailPage() {
                             <div className="flex gap-2">
                               <CopyButton 
                                 workflowId={item.workflowId}
-                                showText={false}
+                    
                               />
                               <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
                                 <Download className="w-4 h-4 mr-2" />

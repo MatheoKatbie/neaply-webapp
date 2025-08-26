@@ -9,12 +9,16 @@ import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { DeleteConfirmationModal } from '@/components/ui/delete-confirmation-modal'
 import { SellerAnalytics } from '@/components/ui/seller-analytics'
 import { SellerPayouts } from '@/components/ui/seller-payouts'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WorkflowForm } from '@/components/workflow/WorkflowForm'
+import { WorkflowPacksTab } from '@/components/workflow/WorkflowPacksTab'
 import type { Category, Tag } from '@/types/workflow'
+
+
 
 // Validation rules based on Zod schema from API
 type ValidationRule =
@@ -511,6 +515,25 @@ export default function SellerDashboard() {
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
   const [uploadingDocumentation, setUploadingDocumentation] = useState(false)
   const [loadingWorkflowData, setLoadingWorkflowData] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [workflowToDelete, setWorkflowToDelete] = useState<{ id: string; title: string } | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [stripeStatus, setStripeStatus] = useState<{
+    hasStripeAccount: boolean
+    onboardingCompleted: boolean
+  } | null>(null)
+  const [workflowPacksCount, setWorkflowPacksCount] = useState(0)
+  const [packPublishedCount, setPackPublishedCount] = useState(0)
+  const [recentPacks, setRecentPacks] = useState<any[]>([])
+  const [analyticsOverview, setAnalyticsOverview] = useState<{
+    totalWorkflows: number
+    totalPacks: number
+    totalFavorites: number
+    totalRevenueCents: number
+    totalSales: number
+  } | null>(null)
+
+
 
   // Initialize validation hook
   const {
@@ -530,6 +553,31 @@ export default function SellerDashboard() {
       router.push('/become-seller')
     }
   }, [user, loading, router])
+
+  // Check Stripe Connect status
+  const checkStripeStatus = useCallback(async () => {
+    try {
+      const response = await fetch('/api/stripe/connect')
+      if (response.ok) {
+        const data = await response.json()
+        setStripeStatus({
+          hasStripeAccount: !!data.data?.stripeAccountId,
+          onboardingCompleted: !!data.data?.stripeOnboardingCompleted,
+        })
+      } else {
+        setStripeStatus({
+          hasStripeAccount: false,
+          onboardingCompleted: false,
+        })
+      }
+    } catch (error) {
+      console.error('Failed to check Stripe status:', error)
+      setStripeStatus({
+        hasStripeAccount: false,
+        onboardingCompleted: false,
+      })
+    }
+  }, [])
 
   // Fetch workflows
   const fetchWorkflows = useCallback(async () => {
@@ -587,13 +635,64 @@ export default function SellerDashboard() {
     }
   }, [])
 
+  // Fetch workflow packs count for current seller (all statuses)
+  const fetchWorkflowPacks = useCallback(async () => {
+    try {
+      if (!user?.id) return
+      const statuses = ['draft', 'published', 'unlisted', 'disabled'] as const
+      const requests = statuses.map((status) =>
+        fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&status=${status}&limit=1`)
+      )
+      const responses = await Promise.all(requests)
+      const jsons = await Promise.all(responses.map((r) => r.json()))
+      const total = jsons.reduce((sum, j) => sum + (j.pagination?.total || 0), 0)
+      const publishedRes = jsons[statuses.indexOf('published')]
+      const published = publishedRes?.pagination?.total || 0
+      setWorkflowPacksCount(total)
+      setPackPublishedCount(published)
+    } catch (err: any) {
+      console.error('Failed to fetch workflow packs:', err.message)
+    }
+  }, [user?.id])
+
+  // Fetch recent packs for activity (default: published/unlisted)
+  const fetchRecentPacks = useCallback(async () => {
+    try {
+      if (!user?.id) return
+      const response = await fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&limit=5&page=1`)
+      if (!response.ok) return
+      const data = await response.json()
+      setRecentPacks(data.packs || [])
+    } catch (err) {
+      // ignore
+    }
+  }, [user?.id])
+
+  // Fetch analytics overview (includes packs + workflows)
+  const fetchAnalyticsOverview = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/seller/analytics?months=12`)
+      if (!res.ok) return
+      const json = await res.json()
+      if (json?.data?.overview) {
+        setAnalyticsOverview(json.data.overview)
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [])
+
   useEffect(() => {
     if (user?.isSeller) {
       fetchWorkflows()
       fetchCategories()
       fetchTags()
+      fetchWorkflowPacks()
+      fetchRecentPacks()
+      fetchAnalyticsOverview()
+      checkStripeStatus()
     }
-  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags])
+  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags, fetchWorkflowPacks, fetchRecentPacks, fetchAnalyticsOverview, checkStripeStatus])
 
   // Force validation when documentation file changes
   useEffect(() => {
@@ -1016,16 +1115,66 @@ export default function SellerDashboard() {
   }, [markFieldAsTouched])
 
   // Handle workflow deletion
-  const handleDelete = async (workflowId: string) => {
-    if (!confirm('Are you sure you want to delete this workflow? This action cannot be undone.')) {
+  const handleDeleteClick = (workflowId: string, workflowTitle: string) => {
+    setWorkflowToDelete({ id: workflowId, title: workflowTitle })
+    setDeleteModalOpen(true)
+  }
+
+  const handleCreateWorkflow = async () => {
+    // Check if Stripe Connect is set up
+    if (!stripeStatus?.hasStripeAccount || !stripeStatus?.onboardingCompleted) {
+      toast.error('Stripe Connect Required', {
+        description: 'You must complete your Stripe Connect setup before creating workflows. Please set up your payment account first.',
+        action: {
+          label: 'Set up Stripe',
+          onClick: () => router.push('/dashboard/stripe/connect'),
+        },
+      })
       return
     }
 
+    // Proceed with workflow creation
+    resetTouchedState()
+    setEditingWorkflow(null)
+    setLoadingWorkflowData(false)
+    setFormData({
+      title: '',
+      shortDesc: '',
+      longDescMd: '',
+      heroImageUrl: '',
+      heroImageFile: undefined,
+      documentationUrl: '',
+      documentationFile: undefined,
+      basePriceCents: 0,
+      currency: 'EUR',
+      status: 'draft',
+      jsonContent: undefined,
+      jsonFile: undefined,
+      n8nMinVersion: '',
+      n8nMaxVersion: '',
+      zapierMinVersion: '',
+      zapierMaxVersion: '',
+      makeMinVersion: '',
+      makeMaxVersion: '',
+      airtableScriptMinVersion: '',
+      airtableScriptMaxVersion: '',
+      categoryIds: [],
+      tagIds: [],
+    })
+    setShowCreateForm(true)
+    // Refresh workflows when switching to create mode
+    await fetchWorkflows()
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!workflowToDelete) return
+
+    setIsDeleting(true)
     try {
       // First, get the workflow details to find the image
-      const workflowToDelete = workflows.find((w) => w.id === workflowId)
+      const workflow = workflows.find((w) => w.id === workflowToDelete.id)
 
-      const response = await fetch(`/api/workflows/${workflowId}`, {
+      const response = await fetch(`/api/workflows/${workflowToDelete.id}`, {
         method: 'DELETE',
       })
 
@@ -1035,9 +1184,9 @@ export default function SellerDashboard() {
       }
 
       // Delete the thumbnail image and documentation from bucket if they exist
-      if (workflowToDelete) {
+      if (workflow) {
         // Fetch full details to get heroImageUrl and documentationUrl
-        const fullWorkflow = await fetchWorkflowDetails(workflowId)
+        const fullWorkflow = await fetchWorkflowDetails(workflowToDelete.id)
         if (fullWorkflow?.heroImageUrl) {
           await deleteImageFromBucket(fullWorkflow.heroImageUrl)
         }
@@ -1047,8 +1196,18 @@ export default function SellerDashboard() {
       }
 
       await fetchWorkflows()
+      toast.success('Workflow deleted successfully!', {
+        description: `"${workflowToDelete.title}" has been removed from your store.`,
+      })
     } catch (err: any) {
       setError(err.message)
+      toast.error('Failed to delete workflow', {
+        description: err.message,
+      })
+    } finally {
+      setIsDeleting(false)
+      setDeleteModalOpen(false)
+      setWorkflowToDelete(null)
     }
   }
 
@@ -1274,7 +1433,7 @@ export default function SellerDashboard() {
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Seller Dashboard</h1>
+              <h1 className="text-3xl font-bold text-foreground">Creator Dashboard</h1>
               <p className="mt-2 text-lg text-muted-foreground">Manage your workflows and track your sales</p>
             </div>
           </div>
@@ -1287,9 +1446,10 @@ export default function SellerDashboard() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="workflows">Workflows ({workflows.length})</TabsTrigger>
+            <TabsTrigger value="packs">Packs ({workflowPacksCount})</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
           </TabsList>
@@ -1298,10 +1458,10 @@ export default function SellerDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium">Total Workflows</CardTitle>
+                  <CardTitle className="text-sm font-medium">Total Items</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{workflows.length}</div>
+                  <div className="text-2xl font-bold">{workflows.length + workflowPacksCount}</div>
                 </CardContent>
               </Card>
 
@@ -1310,7 +1470,7 @@ export default function SellerDashboard() {
                   <CardTitle className="text-sm font-medium">Published</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{workflows.filter((w) => w.status === 'published').length}</div>
+                  <div className="text-2xl font-bold">{workflows.filter((w) => w.status === 'published').length + packPublishedCount}</div>
                 </CardContent>
               </Card>
 
@@ -1319,7 +1479,7 @@ export default function SellerDashboard() {
                   <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{workflows.reduce((sum, w) => sum + w._count.orderItems, 0)}</div>
+                  <div className="text-2xl font-bold">{analyticsOverview?.totalSales ?? 0}</div>
                 </CardContent>
               </Card>
 
@@ -1328,12 +1488,7 @@ export default function SellerDashboard() {
                   <CardTitle className="text-sm font-medium">Revenue</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {formatPrice(
-                      workflows.reduce((sum, w) => sum + w._count.orderItems * w.basePriceCents, 0),
-                      'EUR'
-                    )}
-                  </div>
+                  <div className="text-2xl font-bold">{formatPrice(analyticsOverview?.totalRevenueCents ?? 0, 'EUR')}</div>
                 </CardContent>
               </Card>
             </div>
@@ -1341,12 +1496,12 @@ export default function SellerDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Your latest workflow updates</CardDescription>
+                <CardDescription>Your latest workflows and packs updates</CardDescription>
               </CardHeader>
               <CardContent>
-                {workflows.length === 0 ? (
+                {workflows.length === 0 && recentPacks.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-muted-foreground mb-4">No workflows yet</p>
+                    <p className="text-muted-foreground mb-4">No items yet</p>
                     <Button
                       onClick={() => {
                         resetTouchedState()
@@ -1354,73 +1509,83 @@ export default function SellerDashboard() {
                         setActiveTab('workflows')
                       }}
                     >
-                      Create Your First Workflow
+                      Create Your First Item
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {workflows.slice(0, 5).map((workflow) => (
-                      <div key={workflow.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4 flex-1">
-                          {/* Thumbnail Preview */}
-                          <div className="flex-shrink-0">
-                            {workflow.heroImageUrl ? (
-                              <div className="w-24 h-16 rounded-md overflow-hidden bg-muted border">
-                                <img
-                                  src={workflow.heroImageUrl}
-                                  alt={workflow.title}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    // Fallback to placeholder if image fails to load
-                                    const target = e.target as HTMLImageElement
-                                    target.style.display = 'none'
-                                    target.parentElement!.innerHTML = `
+                    {[
+                      ...workflows.map((w) => ({ type: 'workflow' as const, updatedAt: w.updatedAt, item: w })),
+                      ...recentPacks.map((p: any) => ({ type: 'pack' as const, updatedAt: p.updatedAt || p.createdAt, item: p })),
+                    ]
+                      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                      .slice(0, 5)
+                      .map(({ type, item }) => (
+                        <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center space-x-4 flex-1">
+                            {/* Thumbnail Preview */}
+                            <div className="flex-shrink-0">
+                              {type === 'workflow' && item.heroImageUrl ? (
+                                <div className="w-24 h-16 rounded-md overflow-hidden bg-muted border">
+                                  <img
+                                    src={item.heroImageUrl}
+                                    alt={item.title}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      // Fallback to placeholder if image fails to load
+                                      const target = e.target as HTMLImageElement
+                                      target.style.display = 'none'
+                                      target.parentElement!.innerHTML = `
                                       <div class="w-full h-full flex items-center justify-center bg-muted text-gray-400">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
                                       </div>
                                     `
-                                  }}
-                                />
-                              </div>
-                            ) : (
-                              <div className="w-24 h-16 rounded-md bg-muted border flex items-center justify-center">
-                                <svg
-                                  className="w-6 h-6 text-gray-400"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                  ></path>
-                                </svg>
-                              </div>
-                            )}
-                          </div>
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-24 h-16 rounded-md bg-muted border flex items-center justify-center">
+                                  <svg
+                                    className="w-6 h-6 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    ></path>
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
 
-                          {/* Content */}
-                          <div>
-                            <h3 className="font-medium">{workflow.title}</h3>
-                            <p className="text-sm text-muted-foreground">{workflow.shortDesc}</p>
-                            <div className="flex items-center space-x-2 mt-2">
-                              <Badge className={getStatusColor(workflow.status)}>{workflow.status}</Badge>
-                              <span className="text-sm text-muted-foreground">{workflow._count.orderItems} sales</span>
+                            {/* Content */}
+                            <div>
+                              <h3 className="font-medium">{item.title}</h3>
+                              <p className="text-sm text-muted-foreground">{item.shortDesc}</p>
+                              <div className="flex items-center space-x-2 mt-2">
+                                <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
+                                {type === 'workflow' ? (
+                                  <span className="text-sm text-muted-foreground">{item._count.orderItems} sales</span>
+                                ) : (
+                                  <span className="text-sm text-muted-foreground">{item._count?.favorites || 0} favorites</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium">{formatPrice(item.basePriceCents, item.currency)}</div>
+                            <div className="text-sm text-muted-foreground">
+                              Updated {new Date(type === 'workflow' ? item.updatedAt : item.updatedAt || item.createdAt).toLocaleDateString()}
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-medium">{formatPrice(workflow.basePriceCents, workflow.currency)}</div>
-                          <div className="text-sm text-muted-foreground">
-                            Updated {new Date(workflow.updatedAt).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 )}
               </CardContent>
@@ -1432,38 +1597,7 @@ export default function SellerDashboard() {
               <h2 className="text-xl font-semibold">Your Workflows</h2>
               {!showCreateForm && (
                 <Button
-                  onClick={async () => {
-                    resetTouchedState()
-                    setEditingWorkflow(null)
-                    setLoadingWorkflowData(false)
-                    setFormData({
-                      title: '',
-                      shortDesc: '',
-                      longDescMd: '',
-                      heroImageUrl: '',
-                      heroImageFile: undefined,
-                      documentationUrl: '',
-                      documentationFile: undefined,
-                      basePriceCents: 0,
-                      currency: 'EUR',
-                      status: 'draft',
-                      jsonContent: undefined,
-                      jsonFile: undefined,
-                      n8nMinVersion: '',
-                      n8nMaxVersion: '',
-                      zapierMinVersion: '',
-                      zapierMaxVersion: '',
-                      makeMinVersion: '',
-                      makeMaxVersion: '',
-                      airtableScriptMinVersion: '',
-                      airtableScriptMaxVersion: '',
-                      categoryIds: [],
-                      tagIds: [],
-                    })
-                    setShowCreateForm(true)
-                    // Refresh workflows when switching to create mode
-                    await fetchWorkflows()
-                  }}
+                  onClick={handleCreateWorkflow}
                 >
                   Add New Workflow
                 </Button>
@@ -1747,7 +1881,7 @@ export default function SellerDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDelete(workflow.id)}
+                            onClick={() => handleDeleteClick(workflow.id, workflow.title)}
                             className="text-red-600 hover:text-red-700"
                           >
                             Delete
@@ -1774,12 +1908,21 @@ export default function SellerDashboard() {
                       </div>
                       <h3 className="text-lg font-medium text-foreground">No workflows yet</h3>
                       <p className="text-muted-foreground">Get started by creating your first workflow.</p>
-                      <Button onClick={() => setShowCreateForm(true)}>Create Your First Workflow</Button>
+                      <Button onClick={handleCreateWorkflow}>Create Your First Workflow</Button>
                     </div>
                   </CardContent>
                 </Card>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="packs" className="space-y-6">
+            <WorkflowPacksTab
+              categories={categories}
+              tags={tags}
+              workflows={workflows}
+              onTabChange={setActiveTab}
+            />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
@@ -1791,6 +1934,16 @@ export default function SellerDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        open={deleteModalOpen}
+        onOpenChange={setDeleteModalOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Workflow"
+        itemName={workflowToDelete?.title}
+        isLoading={isDeleting}
+      />
     </div>
   )
 }

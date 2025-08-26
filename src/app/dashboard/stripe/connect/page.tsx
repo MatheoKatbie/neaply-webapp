@@ -101,7 +101,7 @@ export default function StripeConnectPage() {
 
       if (response.ok) {
         const data = await response.json()
-        // Redirect to Stripe onboarding
+        // Redirect directly to Stripe with locale already set
         window.location.href = data.onboardingUrl
       } else {
         const errorData = await response.json()

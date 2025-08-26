@@ -91,12 +91,23 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     console.log('Processing checkout session completed:', session.id)
     console.log('Session metadata:', session.metadata)
 
-    const { orderId, userId, workflowId, pricingPlanId } = session.metadata || {}
+    const { orderId, userId, workflowId, pricingPlanId, packId, orderType } = session.metadata || {}
 
-    console.log('Extracted metadata:', { orderId, userId, workflowId, pricingPlanId })
+    console.log('Extracted metadata:', { orderId, userId, workflowId, pricingPlanId, packId, orderType })
 
-    if (!orderId || !userId || !workflowId) {
+    if (!orderId || !userId) {
       console.error('Missing required metadata in checkout session:', session.metadata)
+      return
+    }
+
+    // Check if this is a pack order or workflow order
+    const isPackOrder = orderType === 'pack'
+    if (!isPackOrder && !workflowId) {
+      console.error('Missing workflowId for workflow order:', session.metadata)
+      return
+    }
+    if (isPackOrder && !packId) {
+      console.error('Missing packId for pack order:', session.metadata)
       return
     }
 
@@ -153,6 +164,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
               workflow: true,
             },
           },
+          packItems: {
+            include: {
+              pack: true,
+            },
+          },
         },
       })
 
@@ -184,6 +200,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             items: {
               include: {
                 workflow: true,
+              },
+            },
+            packItems: {
+              include: {
+                pack: true,
               },
             },
           },
@@ -232,31 +253,77 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           console.log('Payment record created successfully')
         }
 
-        // Increment sales count for each workflow in the order
-        console.log('Incrementing sales count for workflows')
-        for (const item of updatedOrder.items) {
-          console.log('Updating workflow sales count:', item.workflowId)
-          await tx.workflow.update({
-            where: { id: item.workflowId },
-            data: {
-              salesCount: {
-                increment: item.quantity,
+        // Increment sales count for workflows or packs
+        if (updatedOrder.items.length > 0) {
+          console.log('Incrementing sales count for workflows')
+          for (const item of updatedOrder.items) {
+            console.log('Updating workflow sales count:', item.workflowId)
+            await tx.workflow.update({
+              where: { id: item.workflowId },
+              data: {
+                salesCount: {
+                  increment: item.quantity,
+                },
               },
-            },
-          })
+            })
+          }
+        }
+
+        if (updatedOrder.packItems.length > 0) {
+          console.log('Incrementing sales count for packs')
+          for (const packItem of updatedOrder.packItems) {
+            console.log('Updating pack sales count:', packItem.packId)
+            await tx.workflowPack.update({
+              where: { id: packItem.packId },
+              data: {
+                salesCount: {
+                  increment: packItem.quantity,
+                },
+              },
+            })
+
+            // Also increment individual workflow sales for pack workflows
+            const packWithWorkflows = await tx.workflowPack.findUnique({
+              where: { id: packItem.packId },
+              include: {
+                workflows: true,
+              },
+            })
+
+            if (packWithWorkflows) {
+              for (const packWorkflow of packWithWorkflows.workflows) {
+                await tx.workflow.update({
+                  where: { id: packWorkflow.workflowId },
+                  data: {
+                    salesCount: {
+                      increment: packItem.quantity,
+                    },
+                  },
+                })
+              }
+            }
+          }
         }
 
         // Create audit log
         console.log('Creating audit log')
+        const auditAction = updatedOrder.packItems.length > 0 ? 'pack.purchased' : 'order.completed'
+        const entityType = updatedOrder.packItems.length > 0 ? 'pack' : 'order'
+        const entityId = updatedOrder.packItems.length > 0 ? updatedOrder.packItems[0].packId : orderId
+
         await tx.auditLog.create({
           data: {
             userId,
-            action: 'order.completed',
-            entityType: 'order',
-            entityId: orderId,
+            action: auditAction,
+            entityType,
+            entityId,
             metadata: {
               orderId,
-              workflowId,
+              ...(workflowId && { workflowId }),
+              ...(updatedOrder.packItems.length > 0 && {
+                packId: updatedOrder.packItems[0].packId,
+                packTitle: updatedOrder.packItems[0].pack.title
+              }),
               pricingPlanId: pricingPlanId || null, // Handle empty string case
               amount: session.amount_total,
               currency: session.currency,

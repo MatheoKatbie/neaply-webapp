@@ -2,18 +2,18 @@
 import CustomWorkflowBackground from '@/components/CustomWorkflowBackground'
 import { Button } from '@/components/ui/button'
 import {
-    ArrowRight,
-    Cpu,
-    Globe,
-    Palette,
-    Rocket,
-    Shield,
-    Sparkles,
-    Star,
-    TrendingUp,
-    Users,
-    Workflow,
-    Zap
+  ArrowRight,
+  Cpu,
+  Globe,
+  Palette,
+  Rocket,
+  Shield,
+  Sparkles,
+  Star,
+  TrendingUp,
+  Users,
+  Workflow,
+  Zap
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
