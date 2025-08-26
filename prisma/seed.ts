@@ -138,6 +138,16 @@ async function main() {
     if (INCLUDE_MOCK_DATA) {
       // Clear existing data (only in development)
       console.log('🧹 Clearing existing data...')
+      await prisma.packReviewHelpfulVote.deleteMany()
+      await prisma.packReview.deleteMany()
+      await prisma.packFavorite.deleteMany()
+      await prisma.packReport.deleteMany()
+      await prisma.packOrderItem.deleteMany()
+      await prisma.packPricingPlan.deleteMany()
+      await prisma.workflowPackTag.deleteMany()
+      await prisma.workflowPackCategory.deleteMany()
+      await prisma.workflowPackItem.deleteMany()
+      await prisma.workflowPack.deleteMany()
       await prisma.workflowTag.deleteMany()
       await prisma.workflowCategory.deleteMany()
       await prisma.workflowCompatibility.deleteMany()
@@ -390,60 +400,226 @@ async function main() {
       })
     }
 
+    // Create workflow packs
+    console.log('📦 Creating workflow packs...')
+    const workflowPacks = []
+    const packTitles = [
+      'E-commerce Automation Suite',
+      'Social Media Management Pack',
+      'Customer Support Bundle',
+      'Data Processing Collection',
+      'Marketing Automation Kit',
+      'Business Intelligence Pack',
+      'File Management Suite',
+      'API Integration Bundle',
+      'Notification Hub Pack',
+      'Analytics & Reporting Kit',
+    ]
+
+    for (let i = 0; i < 10; i++) {
+      const seller = faker.helpers.arrayElement(sellers)
+      const title = packTitles[i] || faker.lorem.words(3) + ' Pack'
+      const salesCount = faker.number.int({ min: 0, max: 200 })
+      const ratingCount = faker.number.int({ min: 0, max: Math.floor(salesCount * 0.4) })
+
+      // Select 3-8 workflows for this pack
+      const sellerWorkflows = workflows.filter(w => w.sellerId === seller.id && w.status === 'published')
+      const selectedWorkflows = faker.helpers.arrayElements(sellerWorkflows, Math.min(faker.number.int({ min: 3, max: 8 }), sellerWorkflows.length))
+
+      if (selectedWorkflows.length === 0) continue
+
+      const pack = await prisma.workflowPack.create({
+        data: {
+          sellerId: seller.id,
+          title,
+          slug: faker.helpers.slugify(title).toLowerCase() + '-' + Date.now().toString(36),
+          shortDesc: faker.lorem.sentence(),
+          longDescMd: faker.lorem.paragraphs(2),
+          heroImageUrl: faker.image.url({ width: 800, height: 400 }),
+          platform: faker.helpers.arrayElement([
+            Platform.n8n,
+            Platform.zapier,
+            Platform.make,
+            Platform.airtable_script,
+          ]),
+          status: faker.helpers.arrayElement(['published', 'published', 'published', 'draft']), // 75% published
+          basePriceCents: faker.number.int({ min: 2999, max: 49999 }), // €29.99 to €499.99
+          currency: 'EUR',
+          salesCount,
+          ratingAvg: ratingCount > 0 ? faker.number.float({ min: 3.5, max: 5.0, fractionDigits: 1 }) : 0,
+          ratingCount,
+        },
+      })
+
+      // Add workflows to the pack
+      for (let j = 0; j < selectedWorkflows.length; j++) {
+        await prisma.workflowPackItem.create({
+          data: {
+            packId: pack.id,
+            workflowId: selectedWorkflows[j].id,
+            sortOrder: j,
+          },
+        })
+      }
+
+      // Add categories to the pack
+      const numCategories = faker.number.int({ min: 1, max: 3 })
+      const selectedCategories = faker.helpers.arrayElements(createdCategories, numCategories)
+      for (const category of selectedCategories) {
+        await prisma.workflowPackCategory.create({
+          data: {
+            packId: pack.id,
+            categoryId: category.id,
+          },
+        })
+      }
+
+      // Add tags to the pack
+      const numTags = faker.number.int({ min: 2, max: 5 })
+      const selectedTags = faker.helpers.arrayElements(createdTags, numTags)
+      for (const tag of selectedTags) {
+        await prisma.workflowPackTag.create({
+          data: {
+            packId: pack.id,
+            tagId: tag.id,
+          },
+        })
+      }
+
+      // Create pricing plans for the pack
+      await prisma.packPricingPlan.create({
+        data: {
+          packId: pack.id,
+          name: 'Complete Pack',
+          priceCents: pack.basePriceCents,
+          currency: pack.currency,
+          features: [
+            `${selectedWorkflows.length} workflows included`,
+            'Complete documentation',
+            'Priority support',
+            'Lifetime updates',
+            'Commercial license'
+          ],
+          isActive: true,
+          sortOrder: 0,
+        },
+      })
+
+      workflowPacks.push(pack)
+    }
+    console.log(`✅ Created ${workflowPacks.length} workflow packs`)
+
     // Create orders and payments
     console.log('🛒 Creating orders...')
     const buyers = users.filter((u) => !u.isSeller && !u.isAdmin)
     const publishedWorkflows = workflows.filter((w) => w.status === 'published')
+    const publishedPacks = workflowPacks.filter((p) => p.status === 'published')
 
     for (let i = 0; i < 50; i++) {
       const buyer = faker.helpers.arrayElement(buyers)
-      const workflow = faker.helpers.arrayElement(publishedWorkflows)
-      const pricingPlan = await prisma.pricingPlan.findFirst({
-        where: { workflowId: workflow.id },
-      })
+      const isPackOrder = faker.datatype.boolean(0.3) // 30% chance of pack order
 
-      if (pricingPlan) {
-        const order = await prisma.order.create({
-          data: {
-            userId: buyer.id,
-            status: faker.helpers.arrayElement(['paid', 'paid', 'paid', 'pending']), // 75% paid
-            totalCents: pricingPlan.priceCents,
-            currency: workflow.currency,
-            provider: 'stripe',
-            providerIntent: faker.string.alphanumeric(20),
-            paidAt: faker.date.recent({ days: 30 }),
-          },
+      if (isPackOrder && publishedPacks.length > 0) {
+        // Create pack order
+        const pack = faker.helpers.arrayElement(publishedPacks)
+        const packPricingPlan = await prisma.packPricingPlan.findFirst({
+          where: { packId: pack.id },
         })
 
-        await prisma.orderItem.create({
-          data: {
-            orderId: order.id,
-            workflowId: workflow.id,
-            pricingPlanId: pricingPlan.id,
-            unitPriceCents: pricingPlan.priceCents,
-            quantity: 1,
-            subtotalCents: pricingPlan.priceCents,
-          },
-        })
-
-        if (order.status === 'paid') {
-          await prisma.payment.create({
+        if (packPricingPlan) {
+          const order = await prisma.order.create({
             data: {
-              orderId: order.id,
+              userId: buyer.id,
+              status: faker.helpers.arrayElement(['paid', 'paid', 'paid', 'pending']), // 75% paid
+              totalCents: packPricingPlan.priceCents,
+              currency: pack.currency,
               provider: 'stripe',
-              providerCharge: faker.string.alphanumeric(20),
-              amountCents: order.totalCents,
-              currency: order.currency,
-              status: 'succeeded',
-              processedAt: order.paidAt || new Date(),
-              rawPayload: {
-                id: faker.string.alphanumeric(20),
-                amount: order.totalCents,
-                currency: order.currency.toLowerCase(),
-                status: 'succeeded',
-              },
+              providerIntent: faker.string.alphanumeric(20),
+              paidAt: faker.date.recent({ days: 30 }),
             },
           })
+
+          await prisma.packOrderItem.create({
+            data: {
+              orderId: order.id,
+              packId: pack.id,
+              pricingPlanId: packPricingPlan.id,
+              unitPriceCents: packPricingPlan.priceCents,
+              quantity: 1,
+              subtotalCents: packPricingPlan.priceCents,
+            },
+          })
+
+          if (order.status === 'paid') {
+            await prisma.payment.create({
+              data: {
+                orderId: order.id,
+                provider: 'stripe',
+                providerCharge: faker.string.alphanumeric(20),
+                amountCents: order.totalCents,
+                currency: order.currency,
+                status: 'succeeded',
+                processedAt: order.paidAt || new Date(),
+                rawPayload: {
+                  id: faker.string.alphanumeric(20),
+                  amount: order.totalCents,
+                  currency: order.currency.toLowerCase(),
+                  status: 'succeeded',
+                },
+              },
+            })
+          }
+        }
+      } else {
+        // Create workflow order
+        const workflow = faker.helpers.arrayElement(publishedWorkflows)
+        const pricingPlan = await prisma.pricingPlan.findFirst({
+          where: { workflowId: workflow.id },
+        })
+
+        if (pricingPlan) {
+          const order = await prisma.order.create({
+            data: {
+              userId: buyer.id,
+              status: faker.helpers.arrayElement(['paid', 'paid', 'paid', 'pending']), // 75% paid
+              totalCents: pricingPlan.priceCents,
+              currency: workflow.currency,
+              provider: 'stripe',
+              providerIntent: faker.string.alphanumeric(20),
+              paidAt: faker.date.recent({ days: 30 }),
+            },
+          })
+
+          await prisma.orderItem.create({
+            data: {
+              orderId: order.id,
+              workflowId: workflow.id,
+              pricingPlanId: pricingPlan.id,
+              unitPriceCents: pricingPlan.priceCents,
+              quantity: 1,
+              subtotalCents: pricingPlan.priceCents,
+            },
+          })
+
+          if (order.status === 'paid') {
+            await prisma.payment.create({
+              data: {
+                orderId: order.id,
+                provider: 'stripe',
+                providerCharge: faker.string.alphanumeric(20),
+                amountCents: order.totalCents,
+                currency: order.currency,
+                status: 'succeeded',
+                processedAt: order.paidAt || new Date(),
+                rawPayload: {
+                  id: faker.string.alphanumeric(20),
+                  amount: order.totalCents,
+                  currency: order.currency.toLowerCase(),
+                  status: 'succeeded',
+                },
+              },
+            })
+          }
         }
       }
     }
@@ -499,14 +675,27 @@ async function main() {
     // Create favorites
     console.log('❤️  Creating favorites...')
     for (const buyer of buyers) {
-      const numFavorites = faker.number.int({ min: 0, max: 5 })
-      const favoriteWorkflows = faker.helpers.arrayElements(publishedWorkflows, numFavorites)
+      const numWorkflowFavorites = faker.number.int({ min: 0, max: 5 })
+      const favoriteWorkflows = faker.helpers.arrayElements(publishedWorkflows, numWorkflowFavorites)
 
       for (const workflow of favoriteWorkflows) {
         await prisma.favorite.create({
           data: {
             userId: buyer.id,
             workflowId: workflow.id,
+          },
+        })
+      }
+
+      // Create pack favorites
+      const numPackFavorites = faker.number.int({ min: 0, max: 3 })
+      const favoritePacks = faker.helpers.arrayElements(publishedPacks, numPackFavorites)
+
+      for (const pack of favoritePacks) {
+        await prisma.packFavorite.create({
+          data: {
+            userId: buyer.id,
+            packId: pack.id,
           },
         })
       }

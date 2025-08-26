@@ -89,15 +89,20 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  sellerProfile SellerProfile?
-  workflows     Workflow[]
-  orders        Order[]
-  reviews       Review[]
-  favorites     Favorite[]
-  payouts       Payout[]
-  auditLogs     AuditLog[]
-  reports       Report[]       @relation("UserReports")
-  reviewHelpfulVotes ReviewHelpfulVote[]
+  sellerProfile          SellerProfile?
+  workflows              Workflow[]
+  orders                 Order[]
+  reviews                Review[]
+  favorites              Favorite[]
+  payouts                Payout[]
+  auditLogs              AuditLog[]
+  reports                Report[]                @relation("UserReports")
+  reviewHelpfulVotes     ReviewHelpfulVote[]
+  workflowPacks          WorkflowPack[]
+  packReviews            PackReview[]
+  packFavorites          PackFavorite[]
+  packReports            PackReport[]            @relation("UserPackReports")
+  packReviewHelpfulVotes PackReviewHelpfulVote[]
 
   @@index([email])
 }
@@ -114,13 +119,13 @@ model SellerProfile {
   countryCode  String?
   payoutMethod Json?
   status       SellerProfileStatus @default(active)
-  
+
   // Stripe Connect fields
-  stripeAccountId String?          // Stripe Connect account ID
-  stripeOnboardingCompleted Boolean @default(false)
-  stripeOnboardingUrl String?      // URL for onboarding completion
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  stripeAccountId           String? // Stripe Connect account ID
+  stripeOnboardingCompleted Boolean  @default(false)
+  stripeOnboardingUrl       String? // URL for onboarding completion
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 
 /**
@@ -129,24 +134,24 @@ model SellerProfile {
  * ============================
  */
 model Workflow {
-  id             String         @id @default(uuid()) @db.Uuid
-  sellerId       String         @db.Uuid
-  seller         User           @relation(fields: [sellerId], references: [id], onDelete: Restrict)
-  title          String
-  slug           String         @unique
-  shortDesc      String
-  longDescMd     String?
-  heroImageUrl   String?
-  documentationUrl String?      // URL vers le fichier de documentation (PDF, DOCX, etc.)
-  platform       Platform?      // Platform for the workflow (n8n, Zapier, Make, Airtable Script)
-  status         WorkflowStatus @default(draft)
-  basePriceCents Int            @default(0)
-  currency       String         @default("EUR")
-  salesCount     Int            @default(0)
-  ratingAvg      Decimal        @default(0.0)
-  ratingCount    Int            @default(0)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id               String         @id @default(uuid()) @db.Uuid
+  sellerId         String         @db.Uuid
+  seller           User           @relation(fields: [sellerId], references: [id], onDelete: Restrict)
+  title            String
+  slug             String         @unique
+  shortDesc        String
+  longDescMd       String?
+  heroImageUrl     String?
+  documentationUrl String? // URL vers le fichier de documentation (PDF, DOCX, etc.)
+  platform         Platform? // Platform for the workflow (n8n, Zapier, Make, Airtable Script)
+  status           WorkflowStatus @default(draft)
+  basePriceCents   Int            @default(0)
+  currency         String         @default("EUR")
+  salesCount       Int            @default(0)
+  ratingAvg        Decimal        @default(0.0)
+  ratingCount      Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   versions   WorkflowVersion[]
   categories WorkflowCategory[]
@@ -157,6 +162,7 @@ model Workflow {
   favorites  Favorite[]
   compat     WorkflowCompatibility[]
   Report     Report[]
+  packItems  WorkflowPackItem[]
 
   @@index([status, updatedAt])
 }
@@ -185,10 +191,11 @@ model WorkflowVersion {
  * ============================
  */
 model Category {
-  id        String             @id @default(uuid()) @db.Uuid
-  name      String             @unique
-  slug      String             @unique
-  workflows WorkflowCategory[]
+  id             String                 @id @default(uuid()) @db.Uuid
+  name           String                 @unique
+  slug           String                 @unique
+  workflows      WorkflowCategory[]
+  packCategories WorkflowPackCategory[]
 }
 
 model WorkflowCategory {
@@ -201,10 +208,11 @@ model WorkflowCategory {
 }
 
 model Tag {
-  id        String        @id @default(uuid()) @db.Uuid
-  name      String        @unique
-  slug      String        @unique
-  workflows WorkflowTag[]
+  id              String            @id @default(uuid()) @db.Uuid
+  name            String            @unique
+  slug            String            @unique
+  workflows       WorkflowTag[]
+  WorkflowPackTag WorkflowPackTag[]
 }
 
 model WorkflowTag {
@@ -269,8 +277,9 @@ model Order {
   createdAt      DateTime    @default(now())
   paidAt         DateTime?
 
-  items    OrderItem[]
-  payments Payment[]
+  items     OrderItem[]
+  payments  Payment[]
+  packItems PackOrderItem[]
 
   @@index([userId, status, createdAt])
 }
@@ -320,13 +329,13 @@ model Review {
   status     ReviewStatus @default(published)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
-  
+
   // Helpful votes from other users
   helpfulCount Int @default(0)
-  
+
   workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Track helpful votes
   helpfulVotes ReviewHelpfulVote[]
 
@@ -344,12 +353,12 @@ model ReviewHelpfulVote {
   id       String @id @default(uuid()) @db.Uuid
   reviewId String @db.Uuid
   userId   String @db.Uuid
-  
+
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   createdAt DateTime @default(now())
-  
+
   @@unique([reviewId, userId]) // one vote per user per review
   @@index([reviewId])
 }
@@ -414,11 +423,175 @@ model AuditLog {
  * ============================
  */
 model WorkflowCompatibility {
-  workflowId String @db.Uuid
+  workflowId String              @db.Uuid
   n8nVersion String
   status     CompatibilityStatus
 
   workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
   @@id([workflowId, n8nVersion])
+}
+
+/**
+ * ============================
+ * Workflow Packs
+ * ============================
+ */
+model WorkflowPack {
+  id             String         @id @default(uuid()) @db.Uuid
+  sellerId       String         @db.Uuid
+  seller         User           @relation(fields: [sellerId], references: [id], onDelete: Restrict)
+  title          String
+  slug           String         @unique
+  shortDesc      String
+  longDescMd     String?
+  heroImageUrl   String?
+  platform       Platform? // Primary platform for the pack
+  status         WorkflowStatus @default(draft)
+  basePriceCents Int            @default(0)
+  currency       String         @default("EUR")
+  salesCount     Int            @default(0)
+  ratingAvg      Decimal        @default(0.0)
+  ratingCount    Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  workflows  WorkflowPackItem[]
+  categories WorkflowPackCategory[]
+  tags       WorkflowPackTag[]
+  plans      PackPricingPlan[]
+  orderItems PackOrderItem[]
+  reviews    PackReview[]
+  favorites  PackFavorite[]
+  Report     PackReport[]
+
+  @@index([status, updatedAt])
+}
+
+model WorkflowPackItem {
+  id         String   @id @default(uuid()) @db.Uuid
+  packId     String   @db.Uuid
+  workflowId String   @db.Uuid
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  pack     WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  workflow Workflow     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@unique([packId, workflowId]) // Prevent duplicate workflows in same pack
+  @@index([packId, sortOrder])
+}
+
+model WorkflowPackCategory {
+  packId     String       @db.Uuid
+  categoryId String       @db.Uuid
+  pack       WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  category   Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([packId, categoryId])
+}
+
+model WorkflowPackTag {
+  packId String       @db.Uuid
+  tagId  String       @db.Uuid
+  pack   WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  tag    Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([packId, tagId])
+}
+
+model PackPricingPlan {
+  id         String       @id @default(uuid()) @db.Uuid
+  packId     String       @db.Uuid
+  pack       WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  name       String // "Standard", "Pro", etc.
+  priceCents Int
+  currency   String       @default("EUR")
+  features   String[] // Marketing features list
+  isActive   Boolean      @default(true)
+  sortOrder  Int          @default(0)
+
+  orderItems PackOrderItem[]
+
+  @@index([packId, isActive, sortOrder])
+}
+
+model PackOrderItem {
+  id             String  @id @default(uuid()) @db.Uuid
+  orderId        String  @db.Uuid
+  packId         String  @db.Uuid
+  pricingPlanId  String? @db.Uuid
+  unitPriceCents Int
+  quantity       Int     @default(1)
+  subtotalCents  Int
+
+  order       Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  pack        WorkflowPack     @relation(fields: [packId], references: [id], onDelete: Restrict)
+  pricingPlan PackPricingPlan? @relation(fields: [pricingPlanId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([packId])
+}
+
+model PackReview {
+  id        String       @id @default(uuid()) @db.Uuid
+  packId    String       @db.Uuid
+  userId    String       @db.Uuid
+  rating    Int          @db.SmallInt // 1-5 stars
+  title     String?      @db.VarChar(200)
+  bodyMd    String?      @db.Text
+  status    ReviewStatus @default(published)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Helpful votes from other users
+  helpfulCount Int @default(0)
+
+  pack WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Track helpful votes
+  helpfulVotes PackReviewHelpfulVote[]
+
+  @@unique([packId, userId]) // one review per user per pack
+  @@index([packId, status, createdAt])
+  @@index([rating, createdAt])
+}
+
+model PackReviewHelpfulVote {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @db.Uuid
+  userId   String @db.Uuid
+
+  review PackReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([reviewId, userId]) // one vote per user per review
+  @@index([reviewId])
+}
+
+model PackFavorite {
+  userId    String       @db.Uuid
+  packId    String       @db.Uuid
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pack      WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@id([userId, packId])
+}
+
+model PackReport {
+  id         String       @id @default(uuid()) @db.Uuid
+  reporterId String?      @db.Uuid
+  packId     String       @db.Uuid
+  reason     String
+  status     ReportStatus @default(open)
+  createdAt  DateTime     @default(now())
+
+  reporter User?        @relation("UserPackReports", fields: [reporterId], references: [id], onDelete: SetNull)
+  pack     WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  @@index([packId, status, createdAt])
 }

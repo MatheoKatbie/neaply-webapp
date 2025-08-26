@@ -7,23 +7,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DollarSign, Heart, Package, RefreshCw, Star, TrendingUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Cell,
-    Line,
-    LineChart,
-    Pie,
-    PieChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts'
 
 interface AnalyticsData {
   overview: {
     totalWorkflows: number
+    totalPacks: number
     totalFavorites: number
     totalRevenueCents: number
     totalSales: number
@@ -31,6 +32,8 @@ interface AnalyticsData {
   salesOverTime: {
     month: string
     workflowsSold: number
+    packsSold: number
+    itemsSold: number
     totalSales: number
     revenueCents: number
   }[]
@@ -39,6 +42,16 @@ interface AnalyticsData {
     title: string
     status: string
     salesCount: number
+    rating: number
+    ratingCount: number
+    favoritesCount: number
+    reviewsCount: number
+    paidOrdersCount: number
+  }[]
+  topPacks: {
+    id: string
+    title: string
+    status: string
     rating: number
     ratingCount: number
     favoritesCount: number
@@ -169,7 +182,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Analytics Dashboard</h2>
-          <p className="text-muted-foreground mt-1">Track your workflow performance and sales trends</p>
+          <p className="text-muted-foreground mt-1">Track your workflows and packs performance and sales trends</p>
         </div>
         <div className="flex items-center gap-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -205,12 +218,12 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Favorites</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Packs</CardTitle>
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.overview.totalFavorites}</div>
-            <p className="text-xs text-muted-foreground">Across all workflows</p>
+            <div className="text-2xl font-bold">{data.overview.totalPacks}</div>
+            <p className="text-xs text-muted-foreground">All statuses included</p>
           </CardContent>
         </Card>
 
@@ -242,8 +255,8 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
         {/* Sales Over Time Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Workflows Sold Over Time</CardTitle>
-            <CardDescription>Number of workflows sold per month</CardDescription>
+            <CardTitle>Items Sold Over Time</CardTitle>
+            <CardDescription>Workflows and packs sold per month</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -254,11 +267,11 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
                   <YAxis fontSize={12} />
                   <Tooltip
                     labelFormatter={(value) => formatMonth(value as string)}
-                    formatter={(value: number) => [value, 'Workflows Sold']}
+                    formatter={(value: number) => [value, 'Items Sold']}
                   />
                   <Line
                     type="monotone"
-                    dataKey="workflowsSold"
+                    dataKey="itemsSold"
                     stroke="#3B82F6"
                     strokeWidth={2}
                     dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
@@ -385,6 +398,68 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
             {data.topWorkflows.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 No workflows found. Create your first workflow to see analytics.
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Top Packs Table */}
+      <div className="mt-8" />
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Performing Packs</CardTitle>
+          <CardDescription>Your best-selling packs ranked by paid orders</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4 font-medium">Pack</th>
+                  <th className="text-left py-3 px-4 font-medium">Status</th>
+                  <th className="text-left py-3 px-4 font-medium">Paid Orders</th>
+                  <th className="text-left py-3 px-4 font-medium">Rating</th>
+                  <th className="text-left py-3 px-4 font-medium">Favorites</th>
+                  <th className="text-left py-3 px-4 font-medium">Reviews</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.topPacks.map((pack) => (
+                  <tr key={pack.id} className="border-b hover:bg-background">
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-foreground truncate max-w-xs">{pack.title}</div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <Badge
+                        variant={pack.status === 'published' ? 'default' : 'secondary'}
+                        className={pack.status === 'published' ? 'bg-green-100 text-green-800' : ''}
+                      >
+                        {STATUS_LABELS[pack.status as keyof typeof STATUS_LABELS] || pack.status}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4 font-medium">{pack.paidOrdersCount}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{pack.rating.toFixed(1)}</span>
+                        <span className="text-muted-foreground text-sm">({pack.ratingCount})</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-1">
+                        <Heart className="w-4 h-4 text-red-500" />
+                        <span>{pack.favoritesCount}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">{pack.reviewsCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {data.topPacks.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                No packs found. Create your first pack to see analytics.
               </div>
             )}
           </div>

@@ -54,12 +54,14 @@ export function PlatformSelect({
   error,
   required = false,
 }: PlatformSelectProps) {
-  const selectedPlatform = platforms.find((platform) => platform.value === value)
+  // Ensure value is never undefined or empty string
+  const safeValue = value || ''
+  const selectedPlatform = platforms.find((platform) => platform.value === safeValue)
 
   return (
     <div className="space-y-2 cursor-pointer">
       <Label className={cn(required && "after:content-['*'] after:ml-0.5 after:text-red-500")}>Platform</Label>
-      <Select value={value} onValueChange={onValueChange}>
+      <Select value={safeValue} onValueChange={onValueChange}>
         <SelectTrigger className={cn('w-full', error && 'border-red-500 focus:border-red-500')}>
           <SelectValue placeholder={placeholder}>
             {selectedPlatform && (
