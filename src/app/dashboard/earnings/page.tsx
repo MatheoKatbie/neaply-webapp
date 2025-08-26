@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/hooks/useAuth'
-import { StripeConnectStatus } from '@/components/StripeConnectStatus'
+import StripeConnectStatus from '@/components/StripeConnectStatus'
 import SellerEarningsDashboard from '@/components/SellerEarningsDashboard'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
