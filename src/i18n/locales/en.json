@@ -101,5 +101,87 @@
         "security": "Enterprise-grade security"
       }
     }
+  },
+  "becomeSeller": {
+    "title": "Become a Seller on Neaply",
+    "editTitle": "Edit Your Seller Profile",
+    "subtitle": "Start selling your automation workflows today",
+    "editSubtitle": "Update your store information",
+    "whyCreate": "Why Create on Neaply?",
+    "whyCreateDescription": "Join thousands of creators monetizing their automation workflows",
+    "benefits": {
+      "upload": {
+        "title": "Upload Your Workflows",
+        "description": "Share your automation creations with the community"
+      },
+      "earn": {
+        "title": "Earn Money",
+        "description": "Set your prices and receive instant payments"
+      },
+      "grow": {
+        "title": "Grow Your Audience",
+        "description": "Build your reputation and customer base"
+      }
+    },
+    "trust": {
+      "title": "Secure & Trusted",
+      "ssl": "SSL encrypted payments",
+      "payouts": "Instant payouts",
+      "support": "24/7 customer support"
+    },
+    "form": {
+      "storeSetup": "Store Setup",
+      "storeInfo": "Your Store Information",
+      "description": "Fill in this information to create your creator profile",
+      "editDescription": "Update your creator profile information",
+      "storeName": "Store Name",
+      "storeNamePlaceholder": "e.g., FlowAutomation Pro",
+      "storeNameHelp": "This name will be displayed on your public profile and workflows.",
+      "bio": "Store Description",
+      "bioPlaceholder": "Describe your expertise, specialties, and what customers can expect from your workflows...",
+      "bioHelp": "Help customers trust you.",
+      "website": "Website (optional)",
+      "websitePlaceholder": "https://yoursite.com",
+      "websiteHelp": "Add your website to gain credibility",
+      "supportEmail": "Support Email (optional)",
+      "supportEmailPlaceholder": "support@yoursite.com",
+      "supportEmailHelp": "Email for customer support",
+      "phone": "Phone Number (optional)",
+      "phonePlaceholder": "Enter your phone number",
+      "phoneHelp": "Phone for business communication",
+      "country": "Country",
+      "countryHelp": "Your business location",
+      "createStore": "Create Store",
+      "updateProfile": "Update Profile",
+      "creating": "Creating...",
+      "updating": "Updating...",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "storeNameRequired": "Store name is required",
+      "storeNameMin": "Store name must be at least 2 characters",
+      "storeNameMax": "Store name cannot exceed 50 characters",
+      "bioMin": "Bio must be at least 10 characters",
+      "bioMax": "Bio cannot exceed 500 characters",
+      "websiteInvalid": "Website URL must be valid (e.g., https://example.com)",
+      "emailInvalid": "Support email must be valid",
+      "phoneMin": "Phone number must be at least 8 digits",
+      "phoneMax": "Phone number cannot exceed 20 characters",
+      "countryRequired": "Country is required",
+      "countryMin": "Country code is required and must be at least 2 characters",
+      "countryMax": "Country code cannot exceed 3 characters"
+    },
+    "success": {
+      "title": "Welcome to Neaply!",
+      "editTitle": "Profile Updated!",
+      "description": "Your creator profile has been successfully created",
+      "editDescription": "Your creator profile has been successfully updated",
+      "redirecting": "You can now start selling your workflows! Redirecting to your dashboard...",
+      "editRedirecting": "Redirecting to your dashboard..."
+    },
+    "terms": "By creating your store, you agree to our",
+    "sellerTerms": "seller terms",
+    "and": "and",
+    "privacyPolicy": "privacy policy"
   }
 }

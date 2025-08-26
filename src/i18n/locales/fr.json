@@ -101,5 +101,87 @@
         "security": "Sécurité de niveau entreprise"
       }
     }
+  },
+  "becomeSeller": {
+    "title": "Devenir Vendeur sur Neaply",
+    "editTitle": "Modifier Votre Profil Vendeur",
+    "subtitle": "Commencez à vendre vos workflows d'automatisation dès aujourd'hui",
+    "editSubtitle": "Mettez à jour les informations de votre boutique",
+    "whyCreate": "Pourquoi Créer sur Neaply ?",
+    "whyCreateDescription": "Rejoignez des milliers de créateurs qui monétisent leurs workflows d'automatisation",
+    "benefits": {
+      "upload": {
+        "title": "Téléchargez Vos Workflows",
+        "description": "Partagez vos créations d'automatisation avec la communauté"
+      },
+      "earn": {
+        "title": "Gagnez de l'Argent",
+        "description": "Fixez vos prix et recevez des paiements instantanés"
+      },
+      "grow": {
+        "title": "Développez Votre Audience",
+        "description": "Construisez votre réputation et votre base de clients"
+      }
+    },
+    "trust": {
+      "title": "Sécurisé et Fiable",
+      "ssl": "Paiements chiffrés SSL",
+      "payouts": "Paiements instantanés",
+      "support": "Support client 24/7"
+    },
+    "form": {
+      "storeSetup": "Configuration de la Boutique",
+      "storeInfo": "Informations de Votre Boutique",
+      "description": "Remplissez ces informations pour créer votre profil créateur",
+      "editDescription": "Mettez à jour les informations de votre profil créateur",
+      "storeName": "Nom de la Boutique",
+      "storeNamePlaceholder": "ex., FlowAutomation Pro",
+      "storeNameHelp": "Ce nom sera affiché sur votre profil public et vos workflows.",
+      "bio": "Description de la Boutique",
+      "bioPlaceholder": "Décrivez votre expertise, vos spécialités et ce que les clients peuvent attendre de vos workflows...",
+      "bioHelp": "Aidez les clients à vous faire confiance.",
+      "website": "Site Web (optionnel)",
+      "websitePlaceholder": "https://votresite.com",
+      "websiteHelp": "Ajoutez votre site web pour gagner en crédibilité",
+      "supportEmail": "Email de Support (optionnel)",
+      "supportEmailPlaceholder": "support@votresite.com",
+      "supportEmailHelp": "Email pour le support client",
+      "phone": "Numéro de Téléphone (optionnel)",
+      "phonePlaceholder": "Entrez votre numéro de téléphone",
+      "phoneHelp": "Téléphone pour la communication professionnelle",
+      "country": "Pays",
+      "countryHelp": "Votre localisation professionnelle",
+      "createStore": "Créer la Boutique",
+      "updateProfile": "Mettre à Jour le Profil",
+      "creating": "Création...",
+      "updating": "Mise à jour...",
+      "cancel": "Annuler"
+    },
+    "validation": {
+      "storeNameRequired": "Le nom de la boutique est requis",
+      "storeNameMin": "Le nom de la boutique doit faire au moins 2 caractères",
+      "storeNameMax": "Le nom de la boutique ne peut pas dépasser 50 caractères",
+      "bioMin": "La description doit faire au moins 10 caractères",
+      "bioMax": "La description ne peut pas dépasser 500 caractères",
+      "websiteInvalid": "L'URL du site web doit être valide (ex., https://exemple.com)",
+      "emailInvalid": "L'email de support doit être valide",
+      "phoneMin": "Le numéro de téléphone doit faire au moins 8 chiffres",
+      "phoneMax": "Le numéro de téléphone ne peut pas dépasser 20 caractères",
+      "countryRequired": "Le pays est requis",
+      "countryMin": "Le code pays est requis et doit faire au moins 2 caractères",
+      "countryMax": "Le code pays ne peut pas dépasser 3 caractères"
+    },
+    "success": {
+      "title": "Bienvenue sur Neaply !",
+      "editTitle": "Profil Mis à Jour !",
+      "description": "Votre profil créateur a été créé avec succès",
+      "editDescription": "Votre profil créateur a été mis à jour avec succès",
+      "redirecting": "Vous pouvez maintenant commencer à vendre vos workflows ! Redirection vers votre tableau de bord...",
+      "editRedirecting": "Redirection vers votre tableau de bord..."
+    },
+    "terms": "En créant votre boutique, vous acceptez nos",
+    "sellerTerms": "conditions vendeur",
+    "and": "et",
+    "privacyPolicy": "politique de confidentialité"
   }
 }

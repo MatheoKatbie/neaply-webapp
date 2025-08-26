@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PhoneInputComponent } from '@/components/ui/phone-input'
 import { useAuth } from '@/hooks/useAuth'
+import { useTranslation } from '@/hooks/useTranslation'
 import { COUNTRIES } from '@/lib/countries'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -31,60 +32,67 @@ interface ValidationErrors {
 }
 
 // Validation functions
-const validateStoreName = (value: string): string | undefined => {
-  if (!value) return 'Store name is required'
-  if (value.length < 2) return 'Store name must be at least 2 characters'
-  if (value.length > 50) return 'Store name cannot exceed 50 characters'
+const validateStoreName = (value: string, t: (key: string) => string): string | undefined => {
+  if (!value) return t('becomeSeller.validation.storeNameRequired')
+  if (value.length < 2) return t('becomeSeller.validation.storeNameMin')
+  if (value.length > 50) return t('becomeSeller.validation.storeNameMax')
   return undefined
 }
 
-const validateBio = (value: string): string | undefined => {
-  if (value && value.length < 10) return 'Bio must be at least 10 characters'
-  if (value && value.length > 500) return 'Bio cannot exceed 500 characters'
+const validateBio = (value: string, t: (key: string) => string): string | undefined => {
+  if (value && value.length < 10) return t('becomeSeller.validation.bioMin')
+  if (value && value.length > 500) return t('becomeSeller.validation.bioMax')
   return undefined
 }
 
-const validateWebsiteUrl = (value: string): string | undefined => {
+const validateWebsiteUrl = (value: string, t: (key: string) => string): string | undefined => {
   if (!value) return undefined // Optional field
   try {
     new URL(value)
     return undefined
   } catch {
-    return 'Website URL must be valid (e.g., https://example.com)'
+    return t('becomeSeller.validation.websiteInvalid')
   }
 }
 
-const validateSupportEmail = (value: string): string | undefined => {
+const validateSupportEmail = (value: string, t: (key: string) => string): string | undefined => {
   if (!value) return undefined // Optional field
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(value)) return 'Support email must be valid'
+  if (!emailRegex.test(value)) return t('becomeSeller.validation.emailInvalid')
   return undefined
 }
 
-const validatePhoneNumber = (value: string): string | undefined => {
+const validatePhoneNumber = (value: string, t: (key: string) => string): string | undefined => {
   if (!value) return undefined // Optional field
-  if (value.length < 8) return 'Phone number must be at least 8 digits'
-  if (value.length > 20) return 'Phone number cannot exceed 20 characters'
+  if (value.length < 8) return t('becomeSeller.validation.phoneMin')
+  if (value.length > 20) return t('becomeSeller.validation.phoneMax')
   return undefined
 }
 
-const validateCountryCode = (value: string): string | undefined => {
-  if (!value) return 'Country is required'
-  if (value.length < 2) return 'Country code is required and must be at least 2 characters'
-  if (value.length > 3) return 'Country code cannot exceed 3 characters'
+const validateCountryCode = (value: string, t: (key: string) => string): string | undefined => {
+  if (!value) return t('becomeSeller.validation.countryRequired')
+  if (value.length < 2) return t('becomeSeller.validation.countryMin')
+  if (value.length > 3) return t('becomeSeller.validation.countryMax')
   return undefined
 }
 
 export default function BecomeSellerPage() {
   const { user, loading, refreshUser } = useAuth()
+  const { t, locale } = useTranslation()
   const router = useRouter()
+
+  // Set default country based on language
+  const getDefaultCountryCode = () => {
+    return locale === 'en' ? 'US' : 'FR'
+  }
+
   const [formData, setFormData] = useState<SellerFormData>({
     storeName: '',
     bio: '',
     websiteUrl: '',
     supportEmail: '',
     phoneNumber: '',
-    countryCode: 'FR',
+    countryCode: getDefaultCountryCode(),
   })
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -93,8 +101,8 @@ export default function BecomeSellerPage() {
   const [existingProfile, setExistingProfile] = useState<any>(null)
   const [countrySelectOpen, setCountrySelectOpen] = useState(false)
 
-  // Get default country (France)
-  const defaultCountry = COUNTRIES.find((country) => country.value === 'FR') || COUNTRIES[0]
+  // Get default country based on language
+  const defaultCountry = COUNTRIES.find((country) => country.value === getDefaultCountryCode()) || COUNTRIES[0]
 
   // Check if user already has a seller profile
   useEffect(() => {
@@ -116,11 +124,22 @@ export default function BecomeSellerPage() {
     checkExistingProfile()
   }, [user])
 
+  // Update default country when language changes
+  useEffect(() => {
+    const newDefaultCountry = getDefaultCountryCode()
+    if (formData.countryCode !== newDefaultCountry) {
+      setFormData((prev) => ({
+        ...prev,
+        countryCode: newDefaultCountry,
+      }))
+    }
+  }, [locale])
+
   // Real-time validation for optional fields
   useEffect(() => {
     // Phone number validation
     if (formData.phoneNumber) {
-      const error = validatePhoneNumber(formData.phoneNumber)
+      const error = validatePhoneNumber(formData.phoneNumber, t)
       setValidationErrors((prev) => ({
         ...prev,
         phoneNumber: error,
@@ -131,12 +150,12 @@ export default function BecomeSellerPage() {
         phoneNumber: undefined,
       }))
     }
-  }, [formData.phoneNumber])
+  }, [formData.phoneNumber, t])
 
   // Website URL validation
   useEffect(() => {
     if (formData.websiteUrl) {
-      const error = validateWebsiteUrl(formData.websiteUrl)
+      const error = validateWebsiteUrl(formData.websiteUrl, t)
       setValidationErrors((prev) => ({
         ...prev,
         websiteUrl: error,
@@ -147,12 +166,12 @@ export default function BecomeSellerPage() {
         websiteUrl: undefined,
       }))
     }
-  }, [formData.websiteUrl])
+  }, [formData.websiteUrl, t])
 
   // Support email validation
   useEffect(() => {
     if (formData.supportEmail) {
-      const error = validateSupportEmail(formData.supportEmail)
+      const error = validateSupportEmail(formData.supportEmail, t)
       setValidationErrors((prev) => ({
         ...prev,
         supportEmail: error,
@@ -163,7 +182,7 @@ export default function BecomeSellerPage() {
         supportEmail: undefined,
       }))
     }
-  }, [formData.supportEmail])
+  }, [formData.supportEmail, t])
 
   // Real-time validation function
   const validateField = (field: keyof SellerFormData, value: string) => {
@@ -171,22 +190,22 @@ export default function BecomeSellerPage() {
 
     switch (field) {
       case 'storeName':
-        error = validateStoreName(value)
+        error = validateStoreName(value, t)
         break
       case 'bio':
-        error = validateBio(value)
+        error = validateBio(value, t)
         break
       case 'websiteUrl':
-        error = validateWebsiteUrl(value)
+        error = validateWebsiteUrl(value, t)
         break
       case 'supportEmail':
-        error = validateSupportEmail(value)
+        error = validateSupportEmail(value, t)
         break
       case 'phoneNumber':
-        error = validatePhoneNumber(value)
+        error = validatePhoneNumber(value, t)
         break
       case 'countryCode':
-        error = validateCountryCode(value)
+        error = validateCountryCode(value, t)
         break
     }
 
@@ -309,12 +328,10 @@ export default function BecomeSellerPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-center text-green-600">
-                {existingProfile ? 'Profile Updated!' : 'Welcome to Neaply!'}
+                {existingProfile ? t('becomeSeller.success.editTitle') : t('becomeSeller.success.title')}
               </CardTitle>
               <CardDescription className="text-center">
-                {existingProfile
-                  ? 'Your creator profile has been successfully updated'
-                  : 'Your creator profile has been successfully created'}
+                {existingProfile ? t('becomeSeller.success.editDescription') : t('becomeSeller.success.description')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -333,9 +350,7 @@ export default function BecomeSellerPage() {
                   />
                 </svg>
                 <p className="text-sm text-muted-foreground">
-                  {existingProfile
-                    ? 'Redirecting to your dashboard...'
-                    : 'You can now start selling your workflows! Redirecting to your dashboard...'}
+                  {existingProfile ? t('becomeSeller.success.editRedirecting') : t('becomeSeller.success.redirecting')}
                 </p>
               </div>
             </CardContent>
@@ -351,10 +366,10 @@ export default function BecomeSellerPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            {existingProfile ? 'Edit Your Seller Profile' : 'Become a Seller on Neaply'}
+            {existingProfile ? t('becomeSeller.editTitle') : t('becomeSeller.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            {existingProfile ? 'Update your store information' : 'Start selling your automation workflows today'}
+            {existingProfile ? t('becomeSeller.editSubtitle') : t('becomeSeller.subtitle')}
           </p>
         </div>
 
@@ -367,10 +382,8 @@ export default function BecomeSellerPage() {
                 {/* Benefits Section */}
                 <Card className="bg-gradient-to-br bg-background/90">
                   <CardHeader>
-                    <CardTitle className="text-2xl">Why Create on Neaply?</CardTitle>
-                    <CardDescription className="">
-                      Join thousands of creators monetizing their automation workflows
-                    </CardDescription>
+                    <CardTitle className="text-2xl">{t('becomeSeller.whyCreate')}</CardTitle>
+                    <CardDescription className="">{t('becomeSeller.whyCreateDescription')}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="flex items-start space-x-4">
@@ -385,8 +398,8 @@ export default function BecomeSellerPage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold">Upload Your Workflows</h3>
-                        <p className="">Share your automation creations with the community</p>
+                        <h3 className="text-lg font-semibold">{t('becomeSeller.benefits.upload.title')}</h3>
+                        <p className="">{t('becomeSeller.benefits.upload.description')}</p>
                       </div>
                     </div>
 
@@ -402,8 +415,8 @@ export default function BecomeSellerPage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold">Earn Money</h3>
-                        <p className="">Set your prices and receive instant payments</p>
+                        <h3 className="text-lg font-semibold">{t('becomeSeller.benefits.earn.title')}</h3>
+                        <p className="">{t('becomeSeller.benefits.earn.description')}</p>
                       </div>
                     </div>
 
@@ -419,8 +432,8 @@ export default function BecomeSellerPage() {
                         </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold">Grow Your Audience</h3>
-                        <p className="">Build your reputation and customer base</p>
+                        <h3 className="text-lg font-semibold">{t('becomeSeller.benefits.grow.title')}</h3>
+                        <p className="">{t('becomeSeller.benefits.grow.description')}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -430,33 +443,33 @@ export default function BecomeSellerPage() {
 
             {/* Trust Indicators */}
             <Card className="bg-background border-green-200">
-              <CardContent className="pt-6">
+              <CardContent>
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
                     <svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground">Secure & Trusted</h3>
+                  <h3 className="text-lg font-semibold text-foreground">{t('becomeSeller.trust.title')}</h3>
                 </div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center space-x-2">
                     <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>SSL encrypted payments</span>
+                    <span>{t('becomeSeller.trust.ssl')}</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Instant payouts</span>
+                    <span>{t('becomeSeller.trust.payouts')}</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>24/7 customer support</span>
+                    <span>{t('becomeSeller.trust.support')}</span>
                   </li>
                 </ul>
               </CardContent>
@@ -467,11 +480,11 @@ export default function BecomeSellerPage() {
           <div>
             <Card className="sticky top-8">
               <CardHeader>
-                <CardTitle className="text-2xl">{existingProfile ? 'Your Store Information' : 'Store Setup'}</CardTitle>
+                <CardTitle className="text-2xl">
+                  {existingProfile ? t('becomeSeller.form.storeInfo') : t('becomeSeller.form.storeSetup')}
+                </CardTitle>
                 <CardDescription>
-                  {existingProfile
-                    ? 'Update your creator profile information'
-                    : 'Fill in this information to create your creator profile'}
+                  {existingProfile ? t('becomeSeller.form.editDescription') : t('becomeSeller.form.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -483,7 +496,7 @@ export default function BecomeSellerPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="storeName">Store Name *</Label>
+                    <Label htmlFor="storeName">{t('becomeSeller.form.storeName')} *</Label>
                     <Input
                       id="storeName"
                       name="storeName"
@@ -492,7 +505,7 @@ export default function BecomeSellerPage() {
                       value={formData.storeName}
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
-                      placeholder="e.g., FlowAutomation Pro"
+                      placeholder={t('becomeSeller.form.storeNamePlaceholder')}
                       maxLength={50}
                       className={validationErrors.storeName ? 'border-red-500 focus:border-red-500' : ''}
                     />
@@ -500,23 +513,23 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-red-600">{validationErrors.storeName}</p>
                     ) : (
                       <p className="text-xs text-muted-foreground">
-                        {formData.storeName.length}/50 characters (min. 2). This name will be displayed on your public
-                        profile and workflows.
+                        {formData.storeName.length}/50 characters (min. 2). {t('becomeSeller.form.storeNameHelp')}
                       </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="bio">Store Description</Label>
+                    <Label htmlFor="bio">{t('becomeSeller.form.bio')}</Label>
                     <textarea
                       id="bio"
                       name="bio"
-                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
-                        }`}
+                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
+                      }`}
                       value={formData.bio}
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
-                      placeholder="Describe your expertise, specialties, and what customers can expect from your workflows..."
+                      placeholder={t('becomeSeller.form.bioPlaceholder')}
                       maxLength={500}
                       rows={4}
                     />
@@ -524,14 +537,14 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-red-600">{validationErrors.bio}</p>
                     ) : (
                       <p className="text-xs text-muted-foreground">
-                        {formData.bio.length}/500 characters (min. 10). Help customers trust you.
+                        {formData.bio.length}/500 characters (min. 10). {t('becomeSeller.form.bioHelp')}
                       </p>
                     )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="websiteUrl">Website (optional)</Label>
+                      <Label htmlFor="websiteUrl">{t('becomeSeller.form.website')}</Label>
                       <Input
                         id="websiteUrl"
                         name="websiteUrl"
@@ -539,18 +552,18 @@ export default function BecomeSellerPage() {
                         value={formData.websiteUrl}
                         onChange={handleInputChange}
                         onBlur={handleInputBlur}
-                        placeholder="https://yoursite.com"
+                        placeholder={t('becomeSeller.form.websitePlaceholder')}
                         className={validationErrors.websiteUrl ? 'border-red-500 focus:border-red-500' : ''}
                       />
                       {validationErrors.websiteUrl ? (
                         <p className="text-xs text-red-600">{validationErrors.websiteUrl}</p>
                       ) : (
-                        <p className="text-xs text-muted-foreground">Add your website to gain credibility</p>
+                        <p className="text-xs text-muted-foreground">{t('becomeSeller.form.websiteHelp')}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="supportEmail">Support Email (optional)</Label>
+                      <Label htmlFor="supportEmail">{t('becomeSeller.form.supportEmail')}</Label>
                       <Input
                         id="supportEmail"
                         name="supportEmail"
@@ -558,26 +571,27 @@ export default function BecomeSellerPage() {
                         value={formData.supportEmail}
                         onChange={handleInputChange}
                         onBlur={handleInputBlur}
-                        placeholder="support@yoursite.com"
+                        placeholder={t('becomeSeller.form.supportEmailPlaceholder')}
                         className={validationErrors.supportEmail ? 'border-red-500 focus:border-red-500' : ''}
                       />
                       {validationErrors.supportEmail ? (
                         <p className="text-xs text-red-600">{validationErrors.supportEmail}</p>
                       ) : (
-                        <p className="text-xs text-muted-foreground">Email for customer support</p>
+                        <p className="text-xs text-muted-foreground">{t('becomeSeller.form.supportEmailHelp')}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2 col-span-1">
-                      <Label htmlFor="phoneNumber">Phone Number (optional)</Label>
+                      <Label htmlFor="phoneNumber">{t('becomeSeller.form.phone')}</Label>
                       <PhoneInputComponent
                         value={formData.phoneNumber}
                         onChange={(value) => {
                           setFormData((prev) => ({ ...prev, phoneNumber: value || '' }))
                         }}
-                        placeholder="Enter your phone number"
+                        placeholder={t('becomeSeller.form.phonePlaceholder')}
+                        defaultCountry={getDefaultCountryCode()}
                       />
                       {validationErrors.phoneNumber ? (
                         <p className="text-xs text-red-600">{validationErrors.phoneNumber}</p>
@@ -586,13 +600,13 @@ export default function BecomeSellerPage() {
                           {formData.phoneNumber
                             ? `${formData.phoneNumber.replace(/\D/g, '').length} digits (min. 8)`
                             : '0 digits (min. 8)'}{' '}
-                          - Phone for business communication
+                          - {t('becomeSeller.form.phoneHelp')}
                         </p>
                       )}
                     </div>
 
                     <div className="space-y-2 col-span-1">
-                      <Label htmlFor="countryCode">Country *</Label>
+                      <Label htmlFor="countryCode">{t('becomeSeller.form.country')} *</Label>
                       <CountrySelect
                         id="countryCode"
                         open={countrySelectOpen}
@@ -604,7 +618,7 @@ export default function BecomeSellerPage() {
                       {validationErrors.countryCode && (
                         <p className="text-xs text-red-600">{validationErrors.countryCode}</p>
                       )}
-                      <p className="text-xs text-muted-foreground">Your business location</p>
+                      <p className="text-xs text-muted-foreground">{t('becomeSeller.form.countryHelp')}</p>
                     </div>
                   </div>
 
@@ -612,15 +626,15 @@ export default function BecomeSellerPage() {
                     <Button type="submit" className="flex-1" disabled={isLoading || !isFormValid()}>
                       {isLoading
                         ? existingProfile
-                          ? 'Updating...'
-                          : 'Creating...'
+                          ? t('becomeSeller.form.updating')
+                          : t('becomeSeller.form.creating')
                         : existingProfile
-                          ? 'Update Profile'
-                          : 'Create Store'}
+                        ? t('becomeSeller.form.updateProfile')
+                        : t('becomeSeller.form.createStore')}
                     </Button>
 
                     <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>
-                      Cancel
+                      {t('becomeSeller.form.cancel')}
                     </Button>
                   </div>
                 </form>
@@ -628,13 +642,13 @@ export default function BecomeSellerPage() {
                 {!existingProfile && (
                   <div className="mt-6 pt-6 border-t">
                     <p className="text-xs text-muted-foreground text-center">
-                      By creating your store, you agree to our{' '}
+                      {t('becomeSeller.terms')}{' '}
                       <Link href="/terms-sellers" className="underline hover:text-muted-foreground">
-                        seller terms
+                        {t('becomeSeller.sellerTerms')}
                       </Link>{' '}
-                      and{' '}
+                      {t('becomeSeller.and')}{' '}
                       <Link href="/privacy" className="underline hover:text-muted-foreground">
-                        privacy policy
+                        {t('becomeSeller.privacyPolicy')}
                       </Link>
                       .
                     </p>
