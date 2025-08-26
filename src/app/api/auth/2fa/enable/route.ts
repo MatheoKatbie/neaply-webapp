@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     // Verify the TOTP code
     const secret = Secret.fromBase32(tempSecret)
     const totp = new TOTP({
-      issuer: 'FlowMarket',
+      issuer: 'Neaply',
       label: user.email || 'User',
       algorithm: 'SHA1',
       digits: 6,

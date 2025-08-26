@@ -14,30 +14,30 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://flowmarket.com'),
-  title: 'FlowMarket - Buy & Create n8n Workflows | Automation Marketplace',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://neaply.com'),
+  title: 'Neaply - Buy & Create Automation Workflows | Multi-Platform Marketplace',
   description:
-    'The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or create your own workflows for the automation community. Join thousands of users automating their workflows.',
-  keywords: 'n8n, workflows, automation, marketplace, buy workflows, create workflows, no-code automation',
+    'The premier marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows for Make, n8n, Zapier, and more. Create and sell your automation solutions to the global community.',
+  keywords: 'automation, workflows, marketplace, make, n8n, zapier, airtable, no-code automation, buy workflows, create workflows',
   openGraph: {
-    title: 'FlowMarket - Buy & Sell n8n Workflows',
+    title: 'Neaply - Buy & Sell Automation Workflows',
     description:
-      'The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own creations.',
+      'The premier marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows or sell your own creations.',
     type: 'website',
-    url: 'https://flowmarket.com',
+    url: 'https://neaply.com',
     images: [
       {
         url: '/images/hero.png',
         width: 1200,
         height: 630,
-        alt: 'FlowMarket - n8n Workflow Marketplace',
+        alt: 'Neaply - Multi-Platform Automation Marketplace',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FlowMarket - Buy & Sell n8n Workflows',
-    description: 'The premier marketplace for n8n workflow automation.',
+    title: 'Neaply - Buy & Sell Automation Workflows',
+    description: 'The premier marketplace for automation workflows across multiple platforms.',
     images: ['/images/hero.png'],
   },
 }

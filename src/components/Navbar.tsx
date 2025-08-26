@@ -88,8 +88,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-14">
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/images/logo_flowmarket_256.png" alt="Flow Market Logo" width={30} height={30} />
-              <span className="font-space-grotesk text-xl font-bold text-foreground">Flow Market</span>
+              <span className="font-space-grotesk text-xl font-bold text-foreground">Neaply</span>
             </Link>
           </div>
 
@@ -274,8 +273,8 @@ export default function Navbar() {
             {/* Mobile Menu Header */}
             <div className="flex items-center justify-between p-6 border-b border-border bg-background">
               <div className="flex items-center gap-2">
-                <Image src="/images/logo_flowmarket_256.png" alt="Flow Market Logo" width={24} height={24} />
-                <span className="font-space-grotesk text-lg font-bold text-foreground">Flow Market</span>
+                <Image src="/images/logo_flowmarket_256.png" alt="Neaply Logo" width={24} height={24} />
+                <span className="font-space-grotesk text-lg font-bold text-foreground">Neaply</span>
               </div>
               <button
                 onClick={() => setIsMenuOpen(false)}

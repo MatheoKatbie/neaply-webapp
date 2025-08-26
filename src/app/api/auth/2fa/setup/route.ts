@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     // Generate a new secret for TOTP
     const secret = new Secret({ size: 32 })
     const totp = new TOTP({
-      issuer: 'FlowMarket',
+      issuer: 'Neaply',
       label: user.email || 'User',
       algorithm: 'SHA1',
       digits: 6,

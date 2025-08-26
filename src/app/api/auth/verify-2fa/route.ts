@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
       const secret = Secret.fromBase32(totpSecret)
       const totp = new TOTP({
-        issuer: 'FlowMarket',
+        issuer: 'Neaply',
         label: user.email || 'User',
         algorithm: 'SHA1',
         digits: 6,

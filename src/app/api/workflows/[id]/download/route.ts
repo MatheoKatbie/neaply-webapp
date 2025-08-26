@@ -91,7 +91,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (format === 'zip') {
       // Create a ZIP file with JSON and documentation
       const zip = new JSZip()
-      
+
       // Add the workflow JSON
       const workflowJson = {
         workflow: latestVersion.jsonContent,
@@ -101,9 +101,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           downloadedAt: new Date().toISOString(),
         },
       }
-      
+
       zip.file(`${workflow.title.replace(/[^a-zA-Z0-9]/g, '_')}.json`, JSON.stringify(workflowJson, null, 2))
-      
+
       // Add documentation as markdown
       const documentation = `# ${workflow.title}
 
@@ -131,17 +131,17 @@ ${workflow.longDescMd || ''}
 3. Configure triggers and actions based on the workflow nodes
 
 ## Support
-For support with this workflow, please contact the seller through the FlowMarket platform.
+For support with this workflow, please contact the seller through the Neaply platform.
 
 ---
-*Downloaded from FlowMarket - The Ultimate n8n Workflow Marketplace*
+*Downloaded from Neaply - The Ultimate Multi-Platform Automation Marketplace*
 `
-      
+
       zip.file('README.md', documentation)
-      
+
       // Generate the ZIP file
       const zipBuffer = await zip.generateAsync({ type: 'arraybuffer' })
-      
+
       // Return the ZIP file
       return new NextResponse(zipBuffer, {
         headers: {

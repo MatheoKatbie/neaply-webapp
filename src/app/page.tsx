@@ -304,7 +304,7 @@ export default function Home() {
 
               <p className="text-xl sm:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed font-light">
                 Step into a world where your automation dreams become reality. Join thousands of creators who've already
-                discovered the magic of FlowMarket.
+                discovered the magic of Neaply.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
