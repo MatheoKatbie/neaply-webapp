@@ -4,9 +4,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params
+
         // Get authenticated user
         const supabase = await createClient()
         const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -16,7 +18,7 @@ export async function POST(
 
         // Check if pack exists
         const pack = await prisma.workflowPack.findUnique({
-            where: { id: params.id }
+            where: { id }
         })
 
         if (!pack) {
@@ -28,7 +30,7 @@ export async function POST(
             where: {
                 userId_packId: {
                     userId: user.id,
-                    packId: params.id
+                    packId: id
                 }
             }
         })
@@ -41,7 +43,7 @@ export async function POST(
         await prisma.packFavorite.create({
             data: {
                 userId: user.id,
-                packId: params.id
+                packId: id
             }
         })
 
@@ -54,9 +56,11 @@ export async function POST(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params
+
         // Get authenticated user
         const supabase = await createClient()
         const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -69,7 +73,7 @@ export async function DELETE(
             where: {
                 userId_packId: {
                     userId: user.id,
-                    packId: params.id
+                    packId: id
                 }
             }
         })
