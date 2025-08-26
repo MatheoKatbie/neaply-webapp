@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { WorkflowForm } from '@/components/workflow/WorkflowForm'
 import { WorkflowCard } from '@/components/workflow/WorkflowCard'
+import { PaginationControls } from '@/components/ui/pagination-controls'
+import { usePagination } from '@/hooks/usePagination'
 import type { Category, Tag, Workflow } from '@/types/workflow'
 import type { WorkflowFormData } from '@/hooks/useFormValidation'
 
@@ -65,6 +68,29 @@ export function SellerWorkflowsTab({
     onDocumentationRemove,
     onCreateWorkflow,
 }: SellerWorkflowsTabProps) {
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 6 // Show 6 workflows per page
+
+    // Filter workflows to exclude the one being edited
+    const filteredWorkflows = workflows.filter((workflow) => !editingWorkflow || workflow.id !== editingWorkflow.id)
+
+    // Use pagination hook
+    const {
+        currentItems: paginatedWorkflows,
+        currentPage: paginationPage,
+        totalPages,
+        goToPage,
+    } = usePagination({
+        items: filteredWorkflows,
+        itemsPerPage,
+        initialPage: currentPage,
+    })
+
+    // Update current page when pagination changes
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page)
+        goToPage(page)
+    }
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -227,19 +253,17 @@ export function SellerWorkflowsTab({
             )}
 
             <div className="grid grid-cols-1 gap-6">
-                {workflows
-                    .filter((workflow) => !editingWorkflow || workflow.id !== editingWorkflow.id)
-                    .map((workflow) => (
-                        <WorkflowCard
-                            key={workflow.id}
-                            workflow={workflow}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            isEditing={editingWorkflow?.id === workflow.id}
-                        />
-                    ))}
+                {paginatedWorkflows.map((workflow) => (
+                    <WorkflowCard
+                        key={workflow.id}
+                        workflow={workflow}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        isEditing={editingWorkflow?.id === workflow.id}
+                    />
+                ))}
 
-                {workflows.length === 0 && !showCreateForm && (
+                {filteredWorkflows.length === 0 && !showCreateForm && (
                     <Card>
                         <CardContent className="p-12 text-center">
                             <div className="space-y-4">
@@ -261,6 +285,17 @@ export function SellerWorkflowsTab({
                     </Card>
                 )}
             </div>
+
+            {/* Pagination */}
+            {filteredWorkflows.length > 0 && !showCreateForm && totalPages > 1 && (
+                <PaginationControls
+                    items={filteredWorkflows}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                    className="mt-8"
+                />
+            )}
         </div>
     )
 }

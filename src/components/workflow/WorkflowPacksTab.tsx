@@ -14,6 +14,8 @@ import { DeleteConfirmationModal } from '@/components/ui/delete-confirmation-mod
 import { PlatformSelect } from '@/components/ui/platform-select'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { WorkflowMultiSelect } from '@/components/ui/workflow-multi-select'
+import { PaginationControls } from '@/components/ui/pagination-controls'
+import { usePagination } from '@/hooks/usePagination'
 import { Package, Plus, Edit, Trash2, Eye, Star, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Category, Tag } from '@/types/workflow'
@@ -118,6 +120,29 @@ export function WorkflowPacksTab({
     const { user } = useAuth()
     const [showCreatePackForm, setShowCreatePackForm] = useState(false)
     const [editingPack, setEditingPack] = useState<WorkflowPack | null>(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 4 // Show 4 packs per page
+
+    // Filter packs to exclude the one being edited
+    const filteredPacks = workflowPacks.filter((pack) => !editingPack || pack.id !== editingPack.id)
+
+    // Use pagination hook
+    const {
+        currentItems: paginatedPacks,
+        currentPage: paginationPage,
+        totalPages,
+        goToPage,
+    } = usePagination({
+        items: filteredPacks,
+        itemsPerPage,
+        initialPage: currentPage,
+    })
+
+    // Update current page when pagination changes
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page)
+        goToPage(page)
+    }
     const [packFormData, setPackFormData] = useState<WorkflowPackFormData>({
         title: '',
         shortDesc: '',
@@ -578,112 +603,110 @@ export function WorkflowPacksTab({
 
             {/* Workflow Packs List */}
             <div className="grid grid-cols-1 gap-6">
-                {workflowPacks
-                    .filter((pack) => !editingPack || pack.id !== editingPack.id)
-                    .map((pack) => (
-                        <Card key={pack.id}>
-                            <CardContent className="p-6">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex items-start space-x-4 flex-1">
-                                        {/* Pack Icon */}
-                                        <div className="flex-shrink-0">
-                                            <div className="w-40 h-32 rounded-lg bg-muted border flex items-center justify-center">
-                                                <Package className="w-12 h-12 text-muted-foreground" />
-                                            </div>
+                {paginatedPacks.map((pack) => (
+                    <Card key={pack.id}>
+                        <CardContent className="p-6">
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-start space-x-4 flex-1">
+                                    {/* Pack Icon */}
+                                    <div className="flex-shrink-0">
+                                        <div className="w-40 h-32 rounded-lg bg-muted border flex items-center justify-center">
+                                            <Package className="w-12 h-12 text-muted-foreground" />
                                         </div>
+                                    </div>
 
-                                        {/* Content */}
-                                        <div className="flex-1">
-                                            <div className="flex items-center space-x-3 mb-2">
-                                                <h3 className="text-lg font-semibold">{pack.title}</h3>
-                                                <Badge className={getStatusColor(pack.status)}>
-                                                    {STATUS_LABELS[pack.status] || pack.status}
+                                    {/* Content */}
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-3 mb-2">
+                                            <h3 className="text-lg font-semibold">{pack.title}</h3>
+                                            <Badge className={getStatusColor(pack.status)}>
+                                                {STATUS_LABELS[pack.status] || pack.status}
+                                            </Badge>
+                                            {pack.platform && (
+                                                <Badge variant="secondary" className="text-xs">
+                                                    {pack.platform}
                                                 </Badge>
-                                                {pack.platform && (
-                                                    <Badge variant="secondary" className="text-xs">
-                                                        {pack.platform}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <p className="text-muted-foreground mb-4">{pack.shortDesc}</p>
+                                            )}
+                                        </div>
+                                        <p className="text-muted-foreground mb-4">{pack.shortDesc}</p>
 
-                                            {/* Categories and Tags */}
-                                            <div className="space-y-2 mb-4">
-                                                {pack.categories && pack.categories.length > 0 && (
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {pack.categories.map((cat) => (
-                                                            <Badge key={cat.category.id} variant="secondary" className="text-xs">
-                                                                {cat.category.name}
-                                                            </Badge>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                                {pack.tags && pack.tags.length > 0 && (
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {pack.tags.map((tag) => (
-                                                            <Badge key={tag.tag.id} variant="outline" className="text-xs text-muted-foreground">
-                                                                #{tag.tag.name}
-                                                            </Badge>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Pack Stats */}
-                                            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-                                                <span>Price: {formatPrice(pack.basePriceCents, pack.currency)}</span>
-                                                <span>Workflows: {pack.workflows.length}/10</span>
-                                                <span>Sales: {pack.salesCount}</span>
-                                                <span>Favorites: {pack._count.favorites}</span>
-                                                <span>Reviews: {pack._count.reviews}</span>
-                                                {pack.ratingCount > 0 && (
-                                                    <span>★ {Number(pack.ratingAvg).toFixed(1)} ({pack.ratingCount})</span>
-                                                )}
-                                            </div>
-
-                                            {/* Workflows in Pack */}
-                                            {pack.workflows.length > 0 && (
-                                                <div className="mt-4">
-                                                    <h4 className="text-sm font-medium mb-2">Workflows in this pack:</h4>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {pack.workflows.slice(0, 6).map((item) => (
-                                                            <Badge key={item.id} variant="outline" className="text-xs">
-                                                                {item.workflow.title}
-                                                            </Badge>
-                                                        ))}
-                                                        {pack.workflows.length > 6 && (
-                                                            <Badge variant="outline" className="text-xs text-muted-foreground">
-                                                                +{pack.workflows.length - 6} more
-                                                            </Badge>
-                                                        )}
-                                                    </div>
+                                        {/* Categories and Tags */}
+                                        <div className="space-y-2 mb-4">
+                                            {pack.categories && pack.categories.length > 0 && (
+                                                <div className="flex flex-wrap gap-1">
+                                                    {pack.categories.map((cat) => (
+                                                        <Badge key={cat.category.id} variant="secondary" className="text-xs">
+                                                            {cat.category.name}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {pack.tags && pack.tags.length > 0 && (
+                                                <div className="flex flex-wrap gap-1">
+                                                    {pack.tags.map((tag) => (
+                                                        <Badge key={tag.tag.id} variant="outline" className="text-xs text-muted-foreground">
+                                                            #{tag.tag.name}
+                                                        </Badge>
+                                                    ))}
                                                 </div>
                                             )}
                                         </div>
-                                    </div>
 
-                                    {/* Actions */}
-                                    <div className="flex space-x-2 ml-4">
-                                        <Button size="sm" variant="outline" onClick={() => handleEditPack(pack)}>
-                                            <Edit className="w-4 h-4 mr-1" />
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handlePackDeleteClick(pack.id, pack.title)}
-                                            className="text-red-600 hover:text-red-700"
-                                        >
-                                            <Trash2 className="w-4 h-4 mr-1" />
-                                            Delete
-                                        </Button>
+                                        {/* Pack Stats */}
+                                        <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+                                            <span>Price: {formatPrice(pack.basePriceCents, pack.currency)}</span>
+                                            <span>Workflows: {pack.workflows.length}/10</span>
+                                            <span>Sales: {pack.salesCount}</span>
+                                            <span>Favorites: {pack._count.favorites}</span>
+                                            <span>Reviews: {pack._count.reviews}</span>
+                                            {pack.ratingCount > 0 && (
+                                                <span>★ {Number(pack.ratingAvg).toFixed(1)} ({pack.ratingCount})</span>
+                                            )}
+                                        </div>
+
+                                        {/* Workflows in Pack */}
+                                        {pack.workflows.length > 0 && (
+                                            <div className="mt-4">
+                                                <h4 className="text-sm font-medium mb-2">Workflows in this pack:</h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {pack.workflows.slice(0, 6).map((item) => (
+                                                        <Badge key={item.id} variant="outline" className="text-xs">
+                                                            {item.workflow.title}
+                                                        </Badge>
+                                                    ))}
+                                                    {pack.workflows.length > 6 && (
+                                                        <Badge variant="outline" className="text-xs text-muted-foreground">
+                                                            +{pack.workflows.length - 6} more
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    ))}
 
-                {workflowPacks.length === 0 && !showCreatePackForm && (
+                                {/* Actions */}
+                                <div className="flex space-x-2 ml-4">
+                                    <Button size="sm" variant="outline" onClick={() => handleEditPack(pack)}>
+                                        <Edit className="w-4 h-4 mr-1" />
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handlePackDeleteClick(pack.id, pack.title)}
+                                        className="text-red-600 hover:text-red-700"
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-1" />
+                                        Delete
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+
+                {filteredPacks.length === 0 && !showCreatePackForm && (
                     <Card>
                         <CardContent className="p-12 text-center">
                             <div className="space-y-4">
@@ -719,6 +742,17 @@ export function WorkflowPacksTab({
                     </Card>
                 )}
             </div>
+
+            {/* Pagination */}
+            {filteredPacks.length > 0 && !showCreatePackForm && totalPages > 1 && (
+                <PaginationControls
+                    items={filteredPacks}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                    className="mt-8"
+                />
+            )}
 
             {/* Delete Confirmation Modal */}
             <DeleteConfirmationModal
