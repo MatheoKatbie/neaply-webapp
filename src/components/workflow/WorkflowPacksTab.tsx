@@ -100,12 +100,22 @@ interface WorkflowPacksTabProps {
     categories: Category[]
     tags: Tag[]
     workflows: Workflow[]
+    workflowPacks: WorkflowPack[]
+    isLoadingPacks: boolean
     onTabChange?: (tab: string) => void
+    onRefreshPacks?: () => void
 }
 
-export function WorkflowPacksTab({ categories, tags, workflows, onTabChange }: WorkflowPacksTabProps) {
+export function WorkflowPacksTab({
+    categories,
+    tags,
+    workflows,
+    workflowPacks,
+    isLoadingPacks,
+    onTabChange,
+    onRefreshPacks
+}: WorkflowPacksTabProps) {
     const { user } = useAuth()
-    const [workflowPacks, setWorkflowPacks] = useState<WorkflowPack[]>([])
     const [showCreatePackForm, setShowCreatePackForm] = useState(false)
     const [editingPack, setEditingPack] = useState<WorkflowPack | null>(null)
     const [packFormData, setPackFormData] = useState<WorkflowPackFormData>({
@@ -124,41 +134,6 @@ export function WorkflowPacksTab({ categories, tags, workflows, onTabChange }: W
     const [packDeleteModalOpen, setPackDeleteModalOpen] = useState(false)
     const [packToDelete, setPackToDelete] = useState<{ id: string; title: string } | null>(null)
     const [isDeletingPack, setIsDeletingPack] = useState(false)
-    const [isLoadingPacks, setIsLoadingPacks] = useState(true)
-
-    // Fetch workflow packs
-    const fetchWorkflowPacks = useCallback(async () => {
-        try {
-            if (!user?.id) return
-
-            setIsLoadingPacks(true)
-            // Fetch all statuses for the current user
-            const statuses = ['draft', 'published', 'unlisted', 'disabled'] as const
-            const allPacks: WorkflowPack[] = []
-
-            for (const status of statuses) {
-                const response = await fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&status=${status}&limit=100`)
-                if (response.ok) {
-                    const data = await response.json()
-                    if (data.packs && Array.isArray(data.packs)) {
-                        allPacks.push(...data.packs)
-                    }
-                }
-            }
-
-            setWorkflowPacks(allPacks)
-        } catch (err: any) {
-            console.error('Failed to fetch workflow packs:', err.message)
-            toast.error('Failed to load workflow packs')
-        } finally {
-            setIsLoadingPacks(false)
-        }
-    }, [user?.id])
-
-    // Load packs on component mount
-    useEffect(() => {
-        fetchWorkflowPacks()
-    }, [fetchWorkflowPacks])
 
     // Handle pack form submission
     const handlePackSubmit = async (e: React.FormEvent) => {
@@ -207,7 +182,9 @@ export function WorkflowPacksTab({ categories, tags, workflows, onTabChange }: W
             })
             setShowCreatePackForm(false)
             setEditingPack(null)
-            await fetchWorkflowPacks()
+            if (onRefreshPacks) {
+                await onRefreshPacks()
+            }
 
             toast.success(
                 editingPack ? 'Workflow pack updated successfully!' : 'Workflow pack created successfully!',
@@ -244,7 +221,7 @@ export function WorkflowPacksTab({ categories, tags, workflows, onTabChange }: W
                 throw new Error(data.error || 'Failed to delete workflow pack')
             }
 
-            await fetchWorkflowPacks()
+            await onRefreshPacks?.()
             toast.success('Workflow pack deleted successfully!', {
                 description: `"${packToDelete.title}" has been removed from your store.`,
             })

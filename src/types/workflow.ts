@@ -3,8 +3,9 @@ export interface Workflow {
   title: string
   slug: string
   shortDesc: string
-  longDescMd?: string
   heroImageUrl?: string
+  documentationUrl?: string
+  platform?: string
   status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
   basePriceCents: number
   currency: string
@@ -13,14 +14,6 @@ export interface Workflow {
   ratingCount: number
   createdAt: string
   updatedAt: string
-  sellerId: string
-  seller: {
-    displayName: string
-    sellerProfile?: {
-      storeName: string
-      slug: string
-    }
-  }
   categories?: {
     category: {
       id: string
@@ -35,13 +28,60 @@ export interface Workflow {
       slug: string
     }
   }[]
-  versions?: WorkflowVersion[]
-  plans?: PricingPlan[]
-  _count?: {
+  versions?: {
+    id: string
+    semver: string
+    n8nMinVersion?: string
+    n8nMaxVersion?: string
+    zapierMinVersion?: string
+    zapierMaxVersion?: string
+    makeMinVersion?: string
+    makeMaxVersion?: string
+    airtableScriptMinVersion?: string
+    airtableScriptMaxVersion?: string
+    jsonContent?: any
+    isLatest: boolean
+    createdAt: string
+  }[]
+  _count: {
     reviews: number
     favorites: number
     orderItems: number
   }
+}
+
+// Human-friendly labels for statuses
+export const STATUS_LABELS: Record<string, string> = {
+  published: 'Published',
+  draft: 'Draft',
+  unlisted: 'Unlisted',
+  disabled: 'Disabled',
+  pack_only: 'Pack Only',
+}
+
+// Get status color utility function
+export const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'published':
+      return 'bg-green-100 text-green-800'
+    case 'draft':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'unlisted':
+      return 'bg-muted text-gray-800'
+    case 'disabled':
+      return 'bg-red-100 text-red-800'
+    default:
+      return 'bg-muted text-gray-800'
+  }
+}
+
+// Format price utility function
+export const formatPrice = (cents: number, currency: string) => {
+  const amount = cents / 100
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+  }).format(amount)
 }
 
 export interface WorkflowVersion {
