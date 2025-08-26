@@ -18,6 +18,7 @@ import { PaginationControls } from '@/components/ui/pagination-controls'
 import { usePagination } from '@/hooks/usePagination'
 import { Package, Plus, Edit, Trash2, Eye, Star, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
+import { getTagLogoWithFallback } from '@/lib/tag-logos'
 import type { Category, Tag } from '@/types/workflow'
 
 // Types for workflow packs
@@ -534,6 +535,7 @@ export function WorkflowPacksTab({
                                         }}
                                         placeholder="Select at least one tag..."
                                         className="w-full"
+                                        showLogos={true}
                                     />
                                     <p className="text-xs text-muted-foreground">Add relevant tags to help users discover your pack</p>
                                 </div>
@@ -573,6 +575,7 @@ export function WorkflowPacksTab({
                                         placeholder="Select workflows to include in this pack..."
                                         maxSelection={10}
                                         className="w-full"
+                                        showLogos={true}
                                     />
                                 )}
                                 <p className="text-xs text-muted-foreground">
@@ -644,7 +647,16 @@ export function WorkflowPacksTab({
                                             {pack.tags && pack.tags.length > 0 && (
                                                 <div className="flex flex-wrap gap-1">
                                                     {pack.tags.map((tag) => (
-                                                        <Badge key={tag.tag.id} variant="outline" className="text-xs text-muted-foreground">
+                                                        <Badge key={tag.tag.id} variant="outline" className="text-xs text-muted-foreground flex items-center gap-1">
+                                                            <img
+                                                                src={getTagLogoWithFallback(tag.tag.name)}
+                                                                alt={`${tag.tag.name} logo`}
+                                                                className="w-3 h-3 object-contain"
+                                                                onError={(e) => {
+                                                                    // Hide the image if it fails to load
+                                                                    e.currentTarget.style.display = 'none'
+                                                                }}
+                                                            />
                                                             #{tag.tag.name}
                                                         </Badge>
                                                     ))}

@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { getTagLogoWithFallback } from '@/lib/tag-logos'
 import type { Workflow } from '@/types/workflow'
 import { formatPrice, getStatusColor, STATUS_LABELS } from '@/types/workflow'
 
@@ -88,7 +89,16 @@ export function WorkflowCard({ workflow, onEdit, onDelete, isEditing = false }: 
                                 {workflow.tags && workflow.tags.length > 0 && (
                                     <div className="flex flex-wrap gap-1">
                                         {workflow.tags.map((tag: any) => (
-                                            <Badge key={tag.tag.id} variant="outline" className="text-xs text-muted-foreground">
+                                            <Badge key={tag.tag.id} variant="outline" className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <img
+                                                    src={getTagLogoWithFallback(tag.tag.name)}
+                                                    alt={`${tag.tag.name} logo`}
+                                                    className="w-3 h-3 object-contain"
+                                                    onError={(e) => {
+                                                        // Hide the image if it fails to load
+                                                        e.currentTarget.style.display = 'none'
+                                                    }}
+                                                />
                                                 #{tag.tag.name}
                                             </Badge>
                                         ))}

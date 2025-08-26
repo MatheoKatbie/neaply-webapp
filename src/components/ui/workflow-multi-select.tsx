@@ -28,6 +28,7 @@ interface WorkflowMultiSelectProps {
     className?: string
     label?: string
     maxSelection?: number
+    showLogos?: boolean
 }
 
 export function WorkflowMultiSelect({
@@ -40,6 +41,7 @@ export function WorkflowMultiSelect({
     className,
     label,
     maxSelection = 10,
+    showLogos = false,
 }: WorkflowMultiSelectProps) {
     const [isOpen, setIsOpen] = React.useState(false)
     const [searchTerm, setSearchTerm] = React.useState('')
@@ -130,7 +132,18 @@ export function WorkflowMultiSelect({
                             <span className="text-muted-foreground">{placeholder}</span>
                         ) : (
                             selectedWorkflows.map((workflow) => (
-                                <Badge key={workflow.id} variant="secondary" className="h-6 px-2 py-0 text-xs">
+                                <Badge key={workflow.id} variant="secondary" className="h-6 px-2 py-0 text-xs flex items-center gap-1">
+                                    {showLogos && workflow.heroImageUrl && (
+                                        <img
+                                            src={workflow.heroImageUrl}
+                                            alt={`${workflow.title} thumbnail`}
+                                            className="w-3 h-3 object-cover rounded"
+                                            onError={(e) => {
+                                                // Hide the image if it fails to load
+                                                e.currentTarget.style.display = 'none'
+                                            }}
+                                        />
+                                    )}
                                     {workflow.title}
                                     {!disabled && (
                                         <span
@@ -220,6 +233,17 @@ export function WorkflowMultiSelect({
                                                     </div>
                                                 )}
                                             </div>
+                                            {showLogos && workflow.heroImageUrl && (
+                                                <img
+                                                    src={workflow.heroImageUrl}
+                                                    alt={`${workflow.title} thumbnail`}
+                                                    className="w-8 h-8 object-cover rounded flex-shrink-0"
+                                                    onError={(e) => {
+                                                        // Hide the image if it fails to load
+                                                        e.currentTarget.style.display = 'none'
+                                                    }}
+                                                />
+                                            )}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-sm font-medium truncate">{workflow.title}</span>
