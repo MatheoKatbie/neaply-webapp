@@ -1,43 +1,105 @@
 {
-    "common": {
-        "language": "Language",
-        "english": "English",
-        "french": "French"
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "french": "French"
+  },
+  "footer": {
+    "description": "The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own workflows to the automation community.",
+    "browseWorkflows": "Browse Workflows",
+    "becomeCreator": "Become a Creator",
+    "creatorDashboard": "Creator Dashboard",
+    "quickLinks": "Quick Links",
+    "marketplace": "Marketplace",
+    "favorites": "Favorites",
+    "myOrders": "My Orders",
+    "settings": "Settings",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "contactUs": "Contact Us",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "allRightsReserved": "All rights reserved."
+  },
+  "navigation": {
+    "home": "Home",
+    "marketplace": "Marketplace",
+    "favorites": "Favorites",
+    "orders": "Orders",
+    "settings": "Settings",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile",
+    "yourStore": "Your Store",
+    "becomeCreator": "Become a Creator",
+    "creatorDashboard": "Creator Dashboard",
+    "ordersHistory": "Orders History",
+    "helpSupport": "Help & Support",
+    "darkMode": "Dark Mode"
+  },
+  "homepage": {
+    "hero": {
+      "title": "The Ultimate",
+      "subtitle": "Automation Hub",
+      "description": "Where n8n, Make, Airtable, and Zapier workflows come together. Discover, share, and monetize your automation creations in one unified marketplace.",
+      "exploreGallery": "Explore Gallery",
+      "startCreating": "Start Creating"
     },
-    "footer": {
-        "description": "The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own workflows to the automation community.",
-        "browseWorkflows": "Browse Workflows",
-        "becomeCreator": "Become a Creator",
-        "creatorDashboard": "Creator Dashboard",
-        "quickLinks": "Quick Links",
-        "marketplace": "Marketplace",
-        "favorites": "Favorites",
-        "myOrders": "My Orders",
-        "settings": "Settings",
-        "support": "Support",
-        "helpCenter": "Help Center",
-        "contactUs": "Contact Us",
-        "termsOfService": "Terms of Service",
-        "privacyPolicy": "Privacy Policy",
-        "allRightsReserved": "All rights reserved."
+    "stats": {
+      "workflows": "15K+",
+      "workflowsLabel": "Magical Workflows",
+      "creators": "10K+",
+      "creatorsLabel": "Creative Minds",
+      "revenue": "$3M+",
+      "revenueLabel": "Dreams Realized"
     },
-    "navigation": {
-        "home": "Home",
-        "marketplace": "Marketplace",
-        "favorites": "Favorites",
-        "orders": "Orders",
-        "settings": "Settings",
-        "login": "Login",
-        "register": "Register",
-        "logout": "Logout",
-        "profile": "Profile"
+    "features": {
+      "discover": "Discover the Magic",
+      "title": "Why Creators Choose Us",
+      "subtitle": "A sanctuary for automation artisans where creativity meets functionality in perfect harmony.",
+      "security": {
+        "title": "Fortress Security",
+        "description": "Your creations are protected by military-grade encryption and our guardian community of verified artisans.",
+        "feature": "Military-grade protection"
+      },
+      "prosperity": {
+        "title": "Instant Prosperity",
+        "description": "Transform your passion into profit with our enchanted marketplace that turns workflows into wealth.",
+        "feature": "Monetize instantly"
+      },
+      "deploy": {
+        "title": "Lightning Deploy",
+        "description": "Watch your workflows come alive instantly with our magical one-click deployment spells.",
+        "feature": "One-click magic"
+      },
+      "quality": {
+        "title": "Artisan Quality",
+        "description": "Every workflow is blessed by our council of automation wizards before joining the gallery.",
+        "feature": "Wizard-approved"
+      },
+      "community": {
+        "title": "Sacred Circle",
+        "description": "Join our mystical community of creators where knowledge flows freely and dreams take flight.",
+        "feature": "Creator community"
+      },
+      "support": {
+        "title": "Divine Support",
+        "description": "Our celestial support team guides you through every step of your automation journey.",
+        "feature": "24/7 guidance"
+      },
+      "exploreAll": "Explore All Features"
     },
-    "homepage": {
-        "hero": {
-            "title": "The Premier Marketplace for n8n Workflows",
-            "subtitle": "Discover ready-to-use automation workflows or sell your own to the community",
-            "cta": "Explore Workflows",
-            "becomeSeller": "Become a Creator"
-        }
+    "cta": {
+      "title": "Ready to Create Magic?",
+      "description": "Step into a world where your automation dreams become reality. Join thousands of creators who've already discovered the magic of Neaply.",
+      "beginJourney": "Begin Your Journey",
+      "exploreGallery": "Explore Gallery",
+      "trustIndicators": {
+        "creators": "Trusted by 8K+ creators",
+        "uptime": "99.9% uptime guarantee",
+        "security": "Enterprise-grade security"
+      }
     }
+  }
 }

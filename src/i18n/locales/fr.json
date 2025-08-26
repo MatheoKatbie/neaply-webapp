@@ -1,43 +1,105 @@
 {
-    "common": {
-        "language": "Langue",
-        "english": "Anglais",
-        "french": "Français"
+  "common": {
+    "language": "Langue",
+    "english": "Anglais",
+    "french": "Français"
+  },
+  "footer": {
+    "description": "La première marketplace pour l'automatisation n8n. Découvrez des workflows prêts à l'emploi ou vendez vos propres workflows à la communauté d'automatisation.",
+    "browseWorkflows": "Parcourir les Workflows",
+    "becomeCreator": "Devenir Créateur",
+    "creatorDashboard": "Tableau de Bord Créateur",
+    "quickLinks": "Liens Rapides",
+    "marketplace": "Marketplace",
+    "favorites": "Favoris",
+    "myOrders": "Mes Commandes",
+    "settings": "Paramètres",
+    "support": "Support",
+    "helpCenter": "Centre d'Aide",
+    "contactUs": "Nous Contacter",
+    "termsOfService": "Conditions d'Utilisation",
+    "privacyPolicy": "Politique de Confidentialité",
+    "allRightsReserved": "Tous droits réservés."
+  },
+  "navigation": {
+    "home": "Accueil",
+    "marketplace": "Marketplace",
+    "favorites": "Favoris",
+    "orders": "Commandes",
+    "settings": "Paramètres",
+    "login": "Connexion",
+    "register": "Inscription",
+    "logout": "Déconnexion",
+    "profile": "Profil",
+    "yourStore": "Votre Boutique",
+    "becomeCreator": "Devenir Créateur",
+    "creatorDashboard": "Tableau de Bord Créateur",
+    "ordersHistory": "Historique des Commandes",
+    "helpSupport": "Aide & Support",
+    "darkMode": "Mode Sombre"
+  },
+  "homepage": {
+    "hero": {
+      "title": "Le Centre d'Automatisation",
+      "subtitle": "Ultime",
+      "description": "Où les workflows n8n, Make, Airtable et Zapier se réunissent. Découvrez, partagez et monétisez vos créations d'automatisation dans une marketplace unifiée.",
+      "exploreGallery": "Explorer la Galerie",
+      "startCreating": "Commencer à Créer"
     },
-    "footer": {
-        "description": "La première marketplace pour l'automatisation n8n. Découvrez des workflows prêts à l'emploi ou vendez vos propres workflows à la communauté d'automatisation.",
-        "browseWorkflows": "Parcourir les Workflows",
-        "becomeCreator": "Devenir Créateur",
-        "creatorDashboard": "Tableau de Bord Créateur",
-        "quickLinks": "Liens Rapides",
-        "marketplace": "Marketplace",
-        "favorites": "Favoris",
-        "myOrders": "Mes Commandes",
-        "settings": "Paramètres",
-        "support": "Support",
-        "helpCenter": "Centre d'Aide",
-        "contactUs": "Nous Contacter",
-        "termsOfService": "Conditions d'Utilisation",
-        "privacyPolicy": "Politique de Confidentialité",
-        "allRightsReserved": "Tous droits réservés."
+    "stats": {
+      "workflows": "15K+",
+      "workflowsLabel": "Workflows Magiques",
+      "creators": "10K+",
+      "creatorsLabel": "Esprits Créatifs",
+      "revenue": "3M€+",
+      "revenueLabel": "Rêves Réalisés"
     },
-    "navigation": {
-        "home": "Accueil",
-        "marketplace": "Marketplace",
-        "favorites": "Favoris",
-        "orders": "Commandes",
-        "settings": "Paramètres",
-        "login": "Connexion",
-        "register": "Inscription",
-        "logout": "Déconnexion",
-        "profile": "Profil"
+    "features": {
+      "discover": "Découvrez la Magie",
+      "title": "Pourquoi les Créateurs Nous Choisissent",
+      "subtitle": "Un sanctuaire pour les artisans de l'automatisation où créativité et fonctionnalité se rencontrent en parfaite harmonie.",
+      "security": {
+        "title": "Sécurité Forteresse",
+        "description": "Vos créations sont protégées par un chiffrement de niveau militaire et notre communauté gardienne d'artisans vérifiés.",
+        "feature": "Protection militaire"
+      },
+      "prosperity": {
+        "title": "Prospérité Instantanée",
+        "description": "Transformez votre passion en profit avec notre marketplace enchantée qui transforme les workflows en richesse.",
+        "feature": "Monétisez instantanément"
+      },
+      "deploy": {
+        "title": "Déploiement Éclair",
+        "description": "Regardez vos workflows prendre vie instantanément avec nos sorts de déploiement magiques en un clic.",
+        "feature": "Magie en un clic"
+      },
+      "quality": {
+        "title": "Qualité Artisanale",
+        "description": "Chaque workflow est béni par notre conseil de sorciers de l'automatisation avant de rejoindre la galerie.",
+        "feature": "Approuvé par les sorciers"
+      },
+      "community": {
+        "title": "Cercle Sacré",
+        "description": "Rejoignez notre communauté mystique de créateurs où la connaissance circule librement et les rêves prennent leur envol.",
+        "feature": "Communauté de créateurs"
+      },
+      "support": {
+        "title": "Support Divin",
+        "description": "Notre équipe de support céleste vous guide à chaque étape de votre voyage d'automatisation.",
+        "feature": "Guidance 24/7"
+      },
+      "exploreAll": "Explorer Toutes les Fonctionnalités"
     },
-    "homepage": {
-        "hero": {
-            "title": "La Première Marketplace pour les Workflows n8n",
-            "subtitle": "Découvrez des workflows d'automatisation prêts à l'emploi ou vendez les vôtres à la communauté",
-            "cta": "Explorer les Workflows",
-            "becomeSeller": "Devenir Créateur"
-        }
+    "cta": {
+      "title": "Prêt à Créer de la Magie ?",
+      "description": "Entrez dans un monde où vos rêves d'automatisation deviennent réalité. Rejoignez des milliers de créateurs qui ont déjà découvert la magie de Neaply.",
+      "beginJourney": "Commencer Votre Voyage",
+      "exploreGallery": "Explorer la Galerie",
+      "trustIndicators": {
+        "creators": "Approuvé par 8K+ créateurs",
+        "uptime": "Garantie de disponibilité 99,9%",
+        "security": "Sécurité de niveau entreprise"
+      }
     }
+  }
 }

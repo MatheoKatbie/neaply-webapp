@@ -40,14 +40,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }, [])
 
     const changeLanguage = (newLocale: Locale) => {
+        if (newLocale === locale) return // No change needed
+        
         setLocale(newLocale)
         setMessages(newLocale === 'fr' ? frMessages : enMessages)
 
         // Save to cookie
         document.cookie = `locale=${newLocale}; path=/; max-age=31536000`
 
-        // Reload page to apply changes
-        window.location.reload()
+        // Update HTML lang attribute
+        if (typeof document !== 'undefined') {
+            document.documentElement.lang = newLocale
+        }
     }
 
     const t = (key: string): string => {

@@ -7,7 +7,6 @@ import { LanguageProvider } from '@/contexts/LanguageContext'
 import ClientLayout from './client-layout'
 import GoogleOneTapWrapper from '@/components/GoogleOneTapWrapper'
 
-
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
@@ -18,7 +17,8 @@ export const metadata: Metadata = {
   title: 'Neaply - Buy & Create Automation Workflows | Multi-Platform Marketplace',
   description:
     'The premier marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows for Make, n8n, Zapier, and more. Create and sell your automation solutions to the global community.',
-  keywords: 'automation, workflows, marketplace, make, n8n, zapier, airtable, no-code automation, buy workflows, create workflows',
+  keywords:
+    'automation, workflows, marketplace, make, n8n, zapier, airtable, no-code automation, buy workflows, create workflows',
   openGraph: {
     title: 'Neaply - Buy & Sell Automation Workflows',
     description:
@@ -53,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`} suppressHydrationWarning={true}>
         <ThemeProvider>
           <AuthProvider>
