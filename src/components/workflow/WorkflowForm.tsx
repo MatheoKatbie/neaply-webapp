@@ -21,7 +21,7 @@ interface WorkflowFormData {
   documentationFile?: File
   basePriceCents: number
   currency: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
   platform?: string
   jsonContent?: any
   jsonFile?: File

@@ -22,6 +22,7 @@ export interface Order {
   createdAt: string
   paidAt?: string
   items: OrderItem[]
+  packItems: PackItem[]
   payments: Payment[]
 }
 
@@ -56,6 +57,32 @@ export interface Payment {
   status: 'succeeded' | 'failed' | 'refunded' | 'partial_refund'
   processedAt: string
   rawPayload?: any
+}
+
+// Pack purchases
+export interface PackItem {
+  id: string
+  orderId: string
+  packId: string
+  unitPriceCents: number
+  quantity: number
+  subtotalCents: number
+  pack: {
+    id: string
+    title: string
+    slug: string
+    heroImageUrl?: string
+    // Included workflows in the pack (for display only)
+    workflows?: Array<{
+      workflowId: string
+      sortOrder: number
+      workflow: {
+        id: string
+        title: string
+        slug: string
+      }
+    }>
+  }
 }
 
 export interface StripeWebhookEvent {

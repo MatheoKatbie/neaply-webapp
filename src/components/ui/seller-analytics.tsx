@@ -72,6 +72,7 @@ const STATUS_COLORS = {
   draft: '#6B7280',
   unlisted: '#F59E0B',
   disabled: '#EF4444',
+  pack_only: '#6366F1',
 }
 
 const STATUS_LABELS = {
@@ -79,6 +80,7 @@ const STATUS_LABELS = {
   draft: 'Draft',
   unlisted: 'Unlisted',
   disabled: 'Disabled',
+  pack_only: 'Pack Only',
 }
 
 function formatCurrency(cents: number, currency = 'EUR') {

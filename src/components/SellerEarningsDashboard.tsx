@@ -48,12 +48,22 @@ interface EarningsData {
     totalCents: number
     currency: string
     paidAt: string
-    items: Array<{
-      workflowTitle: string
-      workflowSlug: string
-      unitPriceCents: number
-      subtotalCents: number
-    }>
+    items: Array<
+      | {
+        type: 'workflow'
+        title: string
+        slug: string
+        unitPriceCents: number
+        subtotalCents: number
+      }
+      | {
+        type: 'pack'
+        title: string
+        slug: string
+        unitPriceCents: number
+        subtotalCents: number
+      }
+    >
   }>
   topWorkflows: Array<{
     workflowId: string
@@ -269,7 +279,7 @@ export default function SellerEarningsDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Recent Sales</CardTitle>
-              <CardDescription>Your latest workflow sales and revenue</CardDescription>
+              <CardDescription>Your latest workflow and pack sales</CardDescription>
             </CardHeader>
             <CardContent>
               {earningsData?.orders.length ? (
@@ -277,7 +287,11 @@ export default function SellerEarningsDashboard() {
                   {earningsData.orders.map((order) => (
                     <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="space-y-1">
-                        <p className="font-medium">{order.items.map((item) => item.workflowTitle).join(', ')}</p>
+                        <p className="font-medium">
+                          {order.items
+                            .map((item) => `${item.type === 'pack' ? 'Pack: ' : ''}${item.title}`)
+                            .join(', ')}
+                        </p>
                         <p className="text-sm text-muted-foreground">{new Date(order.paidAt).toLocaleDateString()}</p>
                       </div>
                       <div className="text-right">
@@ -318,6 +332,32 @@ export default function SellerEarningsDashboard() {
                 </div>
               ) : (
                 <p className="text-center text-muted-foreground py-8">No workflow sales in this period</p>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Performing Packs</CardTitle>
+              <CardDescription>Your best-selling packs by revenue</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {Array.isArray((earningsData as any)?.topPacks) && (earningsData as any).topPacks.length ? (
+                <div className="space-y-4">
+                  {(earningsData as any).topPacks.map((pack: any) => (
+                    <div key={pack.packId} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <p className="font-medium">{pack.title}</p>
+                        <p className="text-sm text-muted-foreground">{pack.sales} sales</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">{formatCurrency(pack.revenue, earningsData!.summary.currency)}</p>
+                        <Badge variant="outline">{pack.sales} sold</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">No pack sales in this period</p>
               )}
             </CardContent>
           </Card>

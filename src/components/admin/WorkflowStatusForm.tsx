@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface WorkflowStatusFormProps {
     workflowId: string
-    defaultStatus: 'draft' | 'published' | 'unlisted' | 'disabled'
+    defaultStatus: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
     action: (formData: FormData) => void
 }
 
@@ -26,6 +26,7 @@ export function WorkflowStatusForm({ workflowId, defaultStatus, action }: Workfl
                     <SelectItem value="published">Published</SelectItem>
                     <SelectItem value="unlisted">Unlisted</SelectItem>
                     <SelectItem value="disabled">Disabled</SelectItem>
+                    <SelectItem value="pack_only">Pack Only</SelectItem>
                 </SelectContent>
             </Select>
             <Button variant="outline" size="sm">Apply</Button>

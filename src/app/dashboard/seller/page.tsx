@@ -403,7 +403,7 @@ interface Workflow {
   heroImageUrl?: string
   documentationUrl?: string
   platform?: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
   basePriceCents: number
   currency: string
   salesCount: number
@@ -457,7 +457,7 @@ interface WorkflowFormData {
   documentationFile?: File
   basePriceCents: number
   currency: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
   platform?: string
   jsonContent?: any
   jsonFile?: File

@@ -61,6 +61,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                                 id: true,
                                 title: true,
                                 slug: true,
+                                shortDesc: true,
+                                longDescMd: true,
+                                documentationUrl: true,
                             }
                         }
                     },
@@ -82,7 +85,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         // Add README file for the pack
         const readmeContent = `# ${pack.title}
 
-${pack.shortDesc}
+${pack.longDescMd || pack.shortDesc}
 
 ## Included Workflows
 
@@ -119,6 +122,53 @@ Pack ID: ${pack.id}
 
                     // Add workflow JSON to zip
                     zip.file(filename, JSON.stringify(workflowVersion.jsonContent, null, 2))
+
+                    // If workflow has a documentation file in storage, fetch and include it
+                    try {
+                        const docUrl = (packWorkflow.workflow as any).documentationUrl as string | undefined
+                        if (docUrl) {
+                            let fileBuffer: ArrayBuffer | null = null
+                            let fileName = 'documentation'
+
+                            // Support formats:
+                            // - Absolute URL (https://...)
+                            // - storage://bucket/path/to/file.ext
+                            // - bucket/path/to/file.ext
+                            if (/^https?:\/\//i.test(docUrl)) {
+                                const res = await fetch(docUrl)
+                                if (res.ok) {
+                                    fileBuffer = await res.arrayBuffer()
+                                    const urlPath = new URL(docUrl)
+                                    fileName = urlPath.pathname.split('/').pop() || fileName
+                                }
+                            } else {
+                                // Use Supabase Storage signed URL to fetch private file
+                                const storageRef = docUrl.replace(/^storage:\/\//, '')
+                                const firstSlash = storageRef.indexOf('/')
+                                const bucket = storageRef.slice(0, firstSlash)
+                                const path = storageRef.slice(firstSlash + 1)
+                                const supabase = await createClient()
+                                const { data: signed, error: signErr } = await supabase.storage
+                                    .from(bucket)
+                                    .createSignedUrl(path, 60)
+                                if (!signErr && signed?.signedUrl) {
+                                    const res = await fetch(signed.signedUrl)
+                                    if (res.ok) {
+                                        fileBuffer = await res.arrayBuffer()
+                                        fileName = path.split('/').pop() || fileName
+                                    }
+                                }
+                            }
+
+                            if (fileBuffer) {
+                                const extMatch = fileName.match(/\.([a-zA-Z0-9]+)$/)
+                                const ext = extMatch ? `.${extMatch[1]}` : ''
+                                zip.file(`${cleanTitle.replace(/\s+/g, '_')}_DOCUMENTATION${ext}`, fileBuffer)
+                            }
+                        }
+                    } catch (docErr) {
+                        console.error(`Failed to include documentation for workflow ${packWorkflow.workflow.id}:`, docErr)
+                    }
                 }
             } catch (error) {
                 console.error(`Error processing workflow ${packWorkflow.workflow.id}:`, error)

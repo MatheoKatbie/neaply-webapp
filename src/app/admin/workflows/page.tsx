@@ -110,7 +110,7 @@ export default async function AdminWorkflows({
         const workflowId = formData.get('workflowId') as string
         const status = formData.get('status') as string
         if (!workflowId || !status) return
-        const allowed = new Set(['draft', 'published', 'unlisted', 'disabled'])
+        const allowed = new Set(['draft', 'published', 'unlisted', 'disabled', 'pack_only'])
         if (!allowed.has(status)) return
         await prisma.workflow.update({
             where: { id: workflowId },
@@ -187,7 +187,8 @@ export default async function AdminWorkflows({
                 { value: 'published', label: 'Published' },
                 { value: 'draft', label: 'Draft' },
                 { value: 'disabled', label: 'Disabled' },
-                { value: 'unlisted', label: 'Unlisted' }
+                { value: 'unlisted', label: 'Unlisted' },
+                { value: 'pack_only', label: 'Pack Only' }
             ]
         },
         {

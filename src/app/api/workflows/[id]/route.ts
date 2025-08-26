@@ -48,7 +48,7 @@ const updateWorkflowSchema = z
       .max(100000, 'Base price cannot exceed €1000.00')
       .optional(),
     currency: z.string().optional(),
-    status: z.enum(['draft', 'published', 'unlisted', 'disabled']).optional(),
+    status: z.enum(['draft', 'published', 'unlisted', 'disabled', 'pack_only']).optional(),
     platform: z.enum(['n8n', 'zapier', 'make', 'airtable_script']).optional(),
     jsonContent: z.any().optional(),
     n8nMinVersion: z
@@ -255,7 +255,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       // Mettre à jour le workflow
       const updatedWorkflow = await tx.workflow.update({
         where: { id: workflowId },
-        data: workflowUpdateData,
+        data: workflowUpdateData as any,
       })
 
       // Mettre à jour ou créer la version si du JSON est fourni
