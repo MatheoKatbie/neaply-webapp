@@ -16,15 +16,6 @@ export interface WorkflowNode {
   alwaysOutputData?: boolean
   executeOnce?: boolean
   disabled?: boolean
-  continueOnFail?: boolean
-  retryOnFail?: boolean
-  maxTries?: number
-  waitBetweenTries?: number
-  timeout?: number
-  notes?: string
-  alwaysOutputData?: boolean
-  executeOnce?: boolean
-  disabled?: boolean
 }
 
 export interface WorkflowConnection {
