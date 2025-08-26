@@ -135,6 +135,28 @@ export default function OrderDetailPage() {
     }
   }
 
+  const handleDownloadPackZip = async (packId: string, packTitle: string) => {
+    try {
+      const response = await fetch(`/api/packs/${packId}/download`)
+      if (!response.ok) {
+        throw new Error('Failed to download pack')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${packTitle}.zip`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Download error:', error)
+      alert('Failed to download pack. Please try again.')
+    }
+  }
+
 
   if (loading) {
     return (
@@ -225,55 +247,112 @@ export default function OrderDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {order.items.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          {item.workflow.heroImageUrl ? (
-                            <img
-                              src={item.workflow.heroImageUrl}
-                              alt={item.workflow.title}
-                              className="w-16 h-16 object-cover rounded-lg"
-                            />
-                          ) : (
-                            <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
-                              <FileText className="w-8 h-8 text-blue-600" />
+                    {/* Individual Workflow Items */}
+                    {order.items && order.items.length > 0 && (
+                      <>
+                        {order.items.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                            <div className="flex items-center space-x-4">
+                              {item.workflow.heroImageUrl ? (
+                                <img
+                                  src={item.workflow.heroImageUrl}
+                                  alt={item.workflow.title}
+                                  className="w-16 h-16 object-cover rounded-lg"
+                                />
+                              ) : (
+                                <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  <FileText className="w-8 h-8 text-blue-600" />
+                                </div>
+                              )}
+                              <div className="flex-1">
+                                <h4 className="font-medium text-foreground">{item.workflow.title}</h4>
+                                {item.pricingPlan && <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>}
+                                <div className="flex items-center space-x-4 mt-2">
+                                  <span className="text-sm text-muted-foreground">Quantity: {item.quantity}</span>
+                                  <span className="text-sm font-medium text-green-600">
+                                    {formatPrice(item.unitPriceCents, order.currency)}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                          )}
-                          <div className="flex-1">
-                            <h4 className="font-medium text-foreground">{item.workflow.title}</h4>
-                            {item.pricingPlan && <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>}
-                            <div className="flex items-center space-x-4 mt-2">
-                              <span className="text-sm text-muted-foreground">Quantity: {item.quantity}</span>
-                              <span className="text-sm font-medium text-green-600">
-                                {formatPrice(item.unitPriceCents, order.currency)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
 
-                        <div className="flex flex-col space-y-2">
-                          {order.status === 'paid' && (
-                            <div className="flex gap-2">
-                              <CopyButton 
-                                workflowId={item.workflowId}
-                    
-                              />
-                              <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
-                                <Download className="w-4 h-4 mr-2" />
-                                ZIP
+                            <div className="flex flex-col space-y-2">
+                              {order.status === 'paid' && (
+                                <div className="flex gap-2">
+                                  <CopyButton
+                                    workflowId={item.workflowId}
+                                  />
+                                  <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    ZIP
+                                  </Button>
+                                </div>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => router.push(`/workflow/${item.workflowId}`)}
+                              >
+                                View Details
                               </Button>
                             </div>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => router.push(`/workflow/${item.workflowId}`)}
-                          >
-                            View Details
-                          </Button>
-                        </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+
+                    {/* Pack Items */}
+                    {order.packItems && order.packItems.length > 0 && (
+                      <>
+                        {order.packItems.map((packItem) => (
+                          <div key={packItem.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <Package className="w-8 h-8 text-purple-600" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-medium text-foreground">{packItem.pack.title}</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  Pack with {packItem.pack.workflows?.length || 0} workflows
+                                </p>
+                                <div className="flex items-center space-x-4 mt-2">
+                                  <span className="text-sm text-muted-foreground">Quantity: {packItem.quantity}</span>
+                                  <span className="text-sm font-medium text-green-600">
+                                    {formatPrice(packItem.unitPriceCents, order.currency)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col space-y-2">
+                              {order.status === 'paid' && (
+                                <div className="flex gap-2">
+                                  <Button variant='outline' size="sm" onClick={() => handleDownloadPackZip(packItem.pack.id, packItem.pack.title)}>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    ZIP
+                                  </Button>
+                                </div>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => router.push(`/packs/${packItem.pack.id}`)}
+                              >
+                                View Pack
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+
+                    {/* Show message if no items found */}
+                    {(!order.items || order.items.length === 0) && (!order.packItems || order.packItems.length === 0) && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                        <p>No items found for this order.</p>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -378,12 +457,6 @@ export default function OrderDetailPage() {
                     <Button variant="outline" className="w-full">
                       Contact Support
                     </Button>
-                    {order.status === 'paid' && (
-                      <Button className="w-full bg-green-600 hover:bg-green-700">
-                        <Download className="w-4 h-4 mr-2" />
-                        Download All Items
-                      </Button>
-                    )}
                   </div>
                 </CardContent>
               </Card>
