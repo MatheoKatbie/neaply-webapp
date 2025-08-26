@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase-server'
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Get authenticated user
     const supabase = await createClient()
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    const { id: accountId } = params
+    const { id: accountId } = await params
 
     // Retrieve the Stripe account
     const account = await stripe.accounts.retrieve(accountId)
