@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
@@ -80,7 +80,10 @@ export default function Home() {
         const wfTrendingJson = await wfTrendingRes.value.json()
         setTrendingWorkflows(wfTrendingJson.data || wfTrendingJson.workflows || [])
       } else {
-        console.warn('Failed to load trending workflows:', wfTrendingRes.status === 'rejected' ? wfTrendingRes.reason : 'API error')
+        console.warn(
+          'Failed to load trending workflows:',
+          wfTrendingRes.status === 'rejected' ? wfTrendingRes.reason : 'API error'
+        )
         setTrendingWorkflows([])
       }
 
@@ -90,7 +93,10 @@ export default function Home() {
         setNewestWorkflows(wfNewestJson.data || wfNewestJson.workflows || [])
         setNewestHasMore(wfNewestJson.pagination?.hasNext || false)
       } else {
-        console.warn('Failed to load newest workflows:', wfNewestRes.status === 'rejected' ? wfNewestRes.reason : 'API error')
+        console.warn(
+          'Failed to load newest workflows:',
+          wfNewestRes.status === 'rejected' ? wfNewestRes.reason : 'API error'
+        )
         setNewestWorkflows([])
         setNewestHasMore(false)
       }
@@ -154,7 +160,7 @@ export default function Home() {
       const data = await response.json()
       const newWorkflows = data.data || data.workflows || []
 
-      setNewestWorkflows(prev => [...prev, ...newWorkflows])
+      setNewestWorkflows((prev) => [...prev, ...newWorkflows])
       setNewestPage(nextPage)
       setNewestHasMore(data.pagination?.hasNext || false)
     } catch (error) {
@@ -277,7 +283,9 @@ export default function Home() {
                   key={idx}
                   aria-label={`Go to store ${idx + 1}`}
                   onClick={() => setActiveStore(idx)}
-                  className={`h-1.5 rounded-full transition-all ${activeStore === idx ? 'w-10 bg-white' : 'w-6 bg-white/40'}`}
+                  className={`h-1.5 rounded-full transition-all ${
+                    activeStore === idx ? 'w-10 bg-white' : 'w-6 bg-white/40'
+                  }`}
                 />
               ))}
             </div>
@@ -314,7 +322,11 @@ export default function Home() {
                 >
                   {/* Background image */}
                   {wf.heroImage ? (
-                    <img src={wf.heroImage} alt={wf.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
+                    <img
+                      src={wf.heroImage}
+                      alt={wf.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                    />
                   ) : (
                     <div className="absolute inset-0">
                       <AutoThumbnail
@@ -331,16 +343,41 @@ export default function Home() {
                       />
                     </div>
                   )}
+
+                  {/* Rating - top left */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+                      <svg className="w-3 h-3 fill-yellow-400 text-yellow-400" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                      <span className="text-xs font-medium text-white">({wf.rating?.toFixed(1) || '0.0'})</span>
+                    </div>
+                  </div>
+
+                  {/* Price - top right */}
+                  <div className="absolute top-3 right-3 z-10">
+                    <div className="bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+                      <span className="text-xs font-space-grotesk font-bold text-green-400">
+                        {wf.price === 0
+                          ? 'Free'
+                          : new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency: 'USD',
+                            }).format(wf.price / 100)}
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Hover darken overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
                   {/* Title overlay */}
-                  <div className="relative z-10 p-4 text-white h-full flex flex-col justify-end transition-transform duration-300 group-hover:-translate-y-3">
+                  <div className="relative z-10 p-4 text-white h-full flex flex-col justify-end transition-transform duration-300 group-hover:-translate-y-12">
                     <div className="font-space-grotesk text-base md:text-lg line-clamp-1">{wf.title}</div>
                     <div className="text-sm text-white/80 line-clamp-2 mt-1">{wf.description}</div>
                   </div>
                   {/* Hover CTA slides from bottom */}
                   <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center transition-all duration-300 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0">
-                    <span className="px-4 py-2 rounded-full bg-white/90 text-background font-medium">See Details</span>
+                    <span className="px-4 py-2 rounded-full bg-white text-background font-medium">See Details</span>
                   </div>
                 </a>
               </div>
@@ -359,7 +396,11 @@ export default function Home() {
                   className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-card border border-border block"
                 >
                   {wf.heroImage ? (
-                    <img src={wf.heroImage} alt={wf.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
+                    <img
+                      src={wf.heroImage}
+                      alt={wf.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                    />
                   ) : (
                     <div className="absolute inset-0">
                       <AutoThumbnail
@@ -376,8 +417,33 @@ export default function Home() {
                       />
                     </div>
                   )}
+
+                  {/* Rating - top left */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+                      <svg className="w-3 h-3 fill-yellow-400 text-yellow-400" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                      <span className="text-xs font-medium text-white">({wf.rating?.toFixed(1) || '0.0'})</span>
+                    </div>
+                  </div>
+
+                  {/* Price - top right */}
+                  <div className="absolute top-3 right-3 z-10">
+                    <div className="bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+                      <span className="text-xs font-space-grotesk font-bold text-green-400">
+                        {wf.price === 0
+                          ? 'Free'
+                          : new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency: 'USD',
+                            }).format(wf.price / 100)}
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
-                  <div className="relative z-10 p-4 text-white h-full flex flex-col justify-end transition-transform duration-300 group-hover:-translate-y-3">
+                  <div className="relative z-10 p-4 text-white h-full flex flex-col justify-end transition-transform duration-300 group-hover:-translate-y-12">
                     <div className="font-space-grotesk text-base md:text-lg line-clamp-1">{wf.title}</div>
                     <div className="text-sm text-white/80 line-clamp-2 mt-1">{wf.description}</div>
                   </div>
@@ -388,20 +454,21 @@ export default function Home() {
               </div>
             ))}
             {/* Loading skeleton for new workflows */}
-            {isLoadingNewest && Array.from({ length: 4 }).map((_, i) => (
-              <div key={`loading-${i}`} className="space-y-2">
-                <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
-              </div>
-            ))}
+            {isLoadingNewest &&
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={`loading-${i}`} className="space-y-2">
+                  <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
+                </div>
+              ))}
           </div>
           {newestHasMore && (
-            <div className="text-center mt-4">
+            <div className="text-center mt-8">
               <Button
                 onClick={loadMoreNewest}
                 disabled={isLoadingNewest}
                 className="bg-secondary hover:bg-white/10 text-white rounded-full disabled:opacity-50"
               >
-                {isLoadingNewest ? 'Loading...' : 'Load More Newest Workflows'}
+                {isLoadingNewest ? 'Loading...' : 'Load More Workflows'}
               </Button>
             </div>
           )}

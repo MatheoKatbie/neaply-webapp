@@ -36,8 +36,20 @@ export default function Navbar() {
   ]
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 0)
-    window.addEventListener('scroll', onScroll)
+    let ticking = false
+
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrolled = window.scrollY > 10 // Add small threshold to prevent micro-movements
+          setIsScrolled(scrolled)
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -178,7 +190,7 @@ export default function Navbar() {
 
               {/* Mobile Search Dropdown */}
               {isSearchFocused && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-50">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-50 animate-in slide-in-from-top-2 fade-in-0 duration-200">
                   <div className="p-3 border-b border-white/10">
                     <div className="flex items-center justify-between text-white/60 text-xs">
                       <span>Press Enter to search</span>
@@ -207,14 +219,22 @@ export default function Navbar() {
 
           {/* Animated search (md+) moves from centered below to right of logo */}
           <div
-            className={`hidden md:block absolute transition-all duration-300 ease-out will-change-transform transform-gpu ${isHomepage && !isScrolled
-              ? 'left-1/2 top-full mt-3 w-[48rem] max-w-3xl -translate-x-1/2 translate-y-0'
-              : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2'
-              }`}
+            className={`hidden md:block absolute transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform transform-gpu ${
+              isHomepage && !isScrolled
+                ? 'left-1/2 top-full mt-3 w-[48rem] max-w-3xl -translate-x-1/2 translate-y-0 scale-100 opacity-100'
+                : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2 scale-100 opacity-100'
+            }`}
+            style={{
+              transformOrigin: isHomepage && !isScrolled ? 'center top' : 'left center',
+              backfaceVisibility: 'hidden',
+              perspective: '1000px',
+              containIntrinsicSize: '48rem 3rem',
+              contentVisibility: 'auto',
+            }}
           >
             <form onSubmit={handleSearch} className="relative">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]" />
                 <Input
                   ref={searchRef}
                   value={searchQuery}
@@ -222,9 +242,11 @@ export default function Navbar() {
                   onFocus={() => setIsSearchFocused(true)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search in Neaply"
-                  className="pl-10 pr-20 h-10 bg-secondary border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20"
+                  className={`pl-10 pr-20 bg-secondary border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+                    isHomepage && !isScrolled ? 'h-12 text-base' : 'h-10 text-sm'
+                  }`}
                 />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/40 text-xs">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/40 text-xs transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]">
                   <Command className="w-3 h-3" />
                   <span>K</span>
                 </div>
@@ -232,7 +254,7 @@ export default function Navbar() {
 
               {/* Search Dropdown */}
               {isSearchFocused && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-50">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-50 animate-in slide-in-from-top-2 fade-in-0 duration-200">
                   <div className="p-3 border-b border-white/10">
                     <div className="flex items-center justify-between text-white/60 text-xs">
                       <span>Press Enter to search</span>
@@ -266,7 +288,7 @@ export default function Navbar() {
           <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 font-space-grotesk">
             <div className="flex items-baseline space-x-6">
               <Link
-                href="/marketplace"
+                href="/"
                 className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
               >
                 <Trans i18nKey="navigation.marketplace" />
@@ -315,7 +337,7 @@ export default function Navbar() {
               <div className="flex items-center space-x-3">
                 {!user.isSeller && (
                   <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10 text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10  rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-white"
                     onClick={() => router.push('/become-seller')}
                   >
                     <Trans i18nKey="navigation.becomeCreator" />
@@ -323,7 +345,7 @@ export default function Navbar() {
                 )}
                 {user.isSeller && (
                   <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10 text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-white"
                     onClick={() => router.push('/dashboard/seller')}
                   >
                     <Trans i18nKey="navigation.creatorDashboard" />
@@ -444,20 +466,23 @@ export default function Navbar() {
 
         {/* Smooth spacer to prevent background glitch during animation */}
         <div
-          className={`transition-all duration-300 ease-out ${isHomepage ? (isScrolled ? 'md:h-0' : 'md:h-20') : 'md:h-0'
-            } h-0`}
+          className={`transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+            isHomepage ? (isScrolled ? 'md:h-0 md:opacity-0' : 'md:h-20 md:opacity-100') : 'md:h-0 md:opacity-0'
+          } h-0 opacity-0`}
         />
 
         {/* Mobile Menu with Animation */}
         <div
           ref={menuRef}
-          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-            }`}
+          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${
+            isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
           onClick={() => setIsMenuOpen(false)}
         >
           <div
-            className={`fixed top-0 right-0 w-80 h-full bg-background backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-              }`}
+            className={`fixed top-0 right-0 w-80 h-full bg-background backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
             style={{ height: '100vh' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -479,8 +504,6 @@ export default function Navbar() {
 
             {/* Mobile Menu Content */}
             <div className="p-6 space-y-6 bg-background">
-
-
               {/* Theme Toggle for Mobile */}
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">
@@ -490,7 +513,7 @@ export default function Navbar() {
               {/* Navigation Links */}
               <div className="space-y-1 font-space-grotesk">
                 <Link
-                  href="/marketplace"
+                  href="/"
                   className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >

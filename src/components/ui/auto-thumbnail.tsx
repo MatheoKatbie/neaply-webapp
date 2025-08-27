@@ -1,8 +1,38 @@
 'use client'
 
 import type { Workflow } from '@/types/workflow'
-import { Bot, Clock, Database, Globe, Shield, TrendingUp, Workflow as WorkflowIcon, Zap } from 'lucide-react'
-import React, { useEffect, useMemo, useRef } from 'react'
+import {
+  Bot,
+  Clock,
+  Database,
+  Globe,
+  Shield,
+  TrendingUp,
+  Workflow as WorkflowIcon,
+  Zap,
+  Mail,
+  ShoppingCart,
+  Calendar,
+  Users,
+  FileText,
+  Image as ImageIcon,
+  Code,
+  BarChart3,
+  Settings,
+  Smartphone,
+  Cloud,
+  Lock,
+  Search,
+  MessageSquare,
+  Video,
+  Music,
+  MapPin,
+  Layers,
+  GitBranch,
+  Puzzle,
+} from 'lucide-react'
+import React, { useMemo } from 'react'
+import { cn } from '@/lib/utils'
 
 interface AutoThumbnailProps {
   workflow: Pick<Workflow, 'id' | 'title' | 'shortDesc' | 'categories' | 'tags'> & {
@@ -14,255 +44,374 @@ interface AutoThumbnailProps {
 }
 
 const ICONS = {
+  // Core workflow types
   default: Zap,
   workflow: WorkflowIcon,
-  database: Database,
-  ai: Bot,
-  webhook: Globe,
-  security: Shield,
   automation: Clock,
-  analytics: TrendingUp,
+
+  // Data & Analytics
+  database: Database,
+  analytics: BarChart3,
+  data: Database,
+  reporting: BarChart3,
+
+  // AI & ML
+  ai: Bot,
+  ml: Bot,
+  gpt: Bot,
+  chatbot: MessageSquare,
+
+  // Communication
+  email: Mail,
+  notification: MessageSquare,
+  sms: Smartphone,
+  slack: MessageSquare,
+  teams: Users,
+
+  // E-commerce & Business
+  ecommerce: ShoppingCart,
+  payment: ShoppingCart,
+  crm: Users,
+  invoice: FileText,
+  sales: TrendingUp,
+
+  // Integration & API
+  webhook: Globe,
+  api: Code,
+  integration: Puzzle,
+  sync: GitBranch,
+
+  // Content & Media
+  content: FileText,
+  image: ImageIcon,
+  video: Video,
+  social: Users,
+  blog: FileText,
+
+  // Security & Auth
+  security: Shield,
+  auth: Lock,
+  backup: Shield,
+
+  // Productivity
+  calendar: Calendar,
+  task: FileText,
+  project: Layers,
+  form: FileText,
+  document: FileText,
+
+  // Technical
+  monitoring: BarChart3,
+  deployment: Settings,
+  testing: Settings,
+  ci: GitBranch,
+
+  // Location & Search
+  location: MapPin,
+  search: Search,
+
+  // Cloud & Infrastructure
+  cloud: Cloud,
+  storage: Database,
+  server: Settings,
 }
 
-const COLOR_PALETTES = [
-  // Modern gradients
-  ['#667eea', '#764ba2'],
-  ['#f093fb', '#f5576c'],
-  ['#4facfe', '#00f2fe'],
-  ['#43e97b', '#38f9d7'],
-  ['#fa709a', '#fee140'],
-  ['#a8edea', '#fed6e3'],
-  ['#ffecd2', '#fcb69f'],
-  ['#ff9a9e', '#fecfef'],
-  ['#a18cd1', '#fbc2eb'],
-  ['#fad0c4', '#ffd1ff'],
-  // Tech-inspired gradients
-  ['#2c3e50', '#3498db'],
-  ['#8e44ad', '#9b59b6'],
-  ['#e74c3c', '#c0392b'],
-  ['#27ae60', '#2ecc71'],
-  ['#f39c12', '#e67e22'],
-  ['#1abc9c', '#16a085'],
-  ['#34495e', '#2c3e50'],
-  ['#e67e22', '#d35400'],
+// Professional color schemes that work well with the dark theme
+const COLOR_SCHEMES = [
+  // Blue spectrum - professional and trustworthy
+  {
+    primary: '#3B82F6', // blue-500
+    secondary: '#1D4ED8', // blue-700
+    accent: '#60A5FA', // blue-400
+    light: '#DBEAFE', // blue-100
+  },
+  // Purple spectrum - creative and modern
+  {
+    primary: '#8B5CF6', // purple-500
+    secondary: '#7C3AED', // purple-600
+    accent: '#A78BFA', // purple-400
+    light: '#EDE9FE', // purple-100
+  },
+  // Green spectrum - growth and success
+  {
+    primary: '#10B981', // emerald-500
+    secondary: '#059669', // emerald-600
+    accent: '#34D399', // emerald-400
+    light: '#D1FAE5', // emerald-100
+  },
+  // Orange spectrum - energy and enthusiasm
+  {
+    primary: '#F59E0B', // amber-500
+    secondary: '#D97706', // amber-600
+    accent: '#FCD34D', // amber-300
+    light: '#FEF3C7', // amber-100
+  },
+  // Teal spectrum - balance and stability
+  {
+    primary: '#14B8A6', // teal-500
+    secondary: '#0D9488', // teal-600
+    accent: '#5EEAD4', // teal-300
+    light: '#CCFBF1', // teal-100
+  },
+  // Rose spectrum - warm and approachable
+  {
+    primary: '#F43F5E', // rose-500
+    secondary: '#E11D48', // rose-600
+    accent: '#FB7185', // rose-400
+    light: '#FFE4E6', // rose-100
+  },
+  // Indigo spectrum - deep and sophisticated
+  {
+    primary: '#6366F1', // indigo-500
+    secondary: '#4F46E5', // indigo-600
+    accent: '#818CF8', // indigo-400
+    light: '#E0E7FF', // indigo-100
+  },
+  // Cyan spectrum - fresh and modern
+  {
+    primary: '#06B6D4', // cyan-500
+    secondary: '#0891B2', // cyan-600
+    accent: '#67E8F9', // cyan-300
+    light: '#CFFAFE', // cyan-100
+  },
 ]
 
 export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThumbnailProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>(0)
-
   // Generate deterministic values based on workflow data
-  const { colors, icon, patterns, complexity } = useMemo(() => {
+  const { colorScheme, icon, pattern, displayData } = useMemo(() => {
     const hash = workflow.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)
     const titleHash = workflow.title.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)
-    const descHash = (workflow.shortDesc || '')
-      .split('')
-      .reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)
 
-    // Select color palette
-    const paletteIndex = hash % COLOR_PALETTES.length
-    const colors = COLOR_PALETTES[paletteIndex]
+    // Select color scheme based on hash
+    const schemeIndex = hash % COLOR_SCHEMES.length
+    const colorScheme = COLOR_SCHEMES[schemeIndex]
 
-    // Select icon based on content
+    // Enhanced icon detection based on content
     let iconKey = 'default'
-    const content = `${workflow.title} ${workflow.shortDesc} ${workflow.platform || ''}`.toLowerCase()
+    const content = `${workflow.title} ${workflow.shortDesc} ${workflow.platform || ''} ${
+      workflow.categories?.map((cat) => (typeof cat === 'string' ? cat : cat.category?.name || '')).join(' ') || ''
+    }`.toLowerCase()
 
-    if (content.includes('database') || content.includes('sql') || content.includes('data')) {
-      iconKey = 'database'
-    } else if (content.includes('ai') || content.includes('ml') || content.includes('gpt')) {
+    // AI & ML keywords
+    if (
+      content.includes('ai') ||
+      content.includes('ml') ||
+      content.includes('gpt') ||
+      content.includes('openai') ||
+      content.includes('chatbot') ||
+      content.includes('machine learning')
+    ) {
       iconKey = 'ai'
-    } else if (content.includes('webhook') || content.includes('api')) {
+    }
+    // Database & Data keywords
+    else if (
+      content.includes('database') ||
+      content.includes('sql') ||
+      content.includes('postgres') ||
+      content.includes('mysql') ||
+      content.includes('mongodb') ||
+      content.includes('data')
+    ) {
+      iconKey = 'database'
+    }
+    // Communication keywords
+    else if (
+      content.includes('email') ||
+      content.includes('mail') ||
+      content.includes('notification') ||
+      content.includes('alert')
+    ) {
+      iconKey = 'email'
+    } else if (
+      content.includes('slack') ||
+      content.includes('discord') ||
+      content.includes('teams') ||
+      content.includes('chat')
+    ) {
+      iconKey = 'slack'
+    }
+    // E-commerce keywords
+    else if (
+      content.includes('ecommerce') ||
+      content.includes('shop') ||
+      content.includes('payment') ||
+      content.includes('stripe') ||
+      content.includes('paypal') ||
+      content.includes('order')
+    ) {
+      iconKey = 'ecommerce'
+    }
+    // CRM & Sales keywords
+    else if (
+      content.includes('crm') ||
+      content.includes('sales') ||
+      content.includes('lead') ||
+      content.includes('customer') ||
+      content.includes('hubspot') ||
+      content.includes('salesforce')
+    ) {
+      iconKey = 'crm'
+    }
+    // API & Integration keywords
+    else if (
+      content.includes('webhook') ||
+      content.includes('api') ||
+      content.includes('integration') ||
+      content.includes('sync') ||
+      content.includes('connect')
+    ) {
       iconKey = 'webhook'
-    } else if (content.includes('security') || content.includes('auth')) {
+    }
+    // Security keywords
+    else if (
+      content.includes('security') ||
+      content.includes('auth') ||
+      content.includes('login') ||
+      content.includes('password') ||
+      content.includes('backup')
+    ) {
       iconKey = 'security'
-    } else if (content.includes('analytics') || content.includes('report')) {
+    }
+    // Analytics & Reporting keywords
+    else if (
+      content.includes('analytics') ||
+      content.includes('report') ||
+      content.includes('dashboard') ||
+      content.includes('metric') ||
+      content.includes('tracking')
+    ) {
       iconKey = 'analytics'
-    } else if (content.includes('automation') || content.includes('schedule')) {
+    }
+    // Content & Social keywords
+    else if (
+      content.includes('social') ||
+      content.includes('twitter') ||
+      content.includes('facebook') ||
+      content.includes('instagram') ||
+      content.includes('linkedin')
+    ) {
+      iconKey = 'social'
+    } else if (
+      content.includes('content') ||
+      content.includes('blog') ||
+      content.includes('post') ||
+      content.includes('article') ||
+      content.includes('publish')
+    ) {
+      iconKey = 'content'
+    }
+    // Calendar & Scheduling keywords
+    else if (
+      content.includes('calendar') ||
+      content.includes('schedule') ||
+      content.includes('appointment') ||
+      content.includes('meeting') ||
+      content.includes('booking')
+    ) {
+      iconKey = 'calendar'
+    }
+    // Form & Document keywords
+    else if (
+      content.includes('form') ||
+      content.includes('document') ||
+      content.includes('pdf') ||
+      content.includes('invoice') ||
+      content.includes('contract')
+    ) {
+      iconKey = 'form'
+    }
+    // Automation keywords
+    else if (
+      content.includes('automation') ||
+      content.includes('automate') ||
+      content.includes('workflow') ||
+      content.includes('process')
+    ) {
       iconKey = 'automation'
     }
 
-    // Determine complexity based on description length and categories
-    const complexity = Math.min(
-      Math.max(
-        ((workflow.shortDesc?.length || 0) + (workflow.longDescMd?.length || 0)) / 50 +
-        (workflow.categories?.length || 0) * 0.3,
-        0.3
-      ),
-      1
-    )
+    // Pattern selection based on category/content
+    let pattern = 'minimal' // default
+    if (content.includes('ai') || content.includes('ml') || content.includes('tech')) {
+      pattern = 'circuit'
+    } else if (content.includes('data') || content.includes('analytics')) {
+      pattern = 'grid'
+    } else if (content.includes('social') || content.includes('creative')) {
+      pattern = 'organic'
+    }
 
-    // Generate pattern type
-    const patterns = (titleHash + descHash) % 3 // 0: geometric, 1: organic, 2: tech
+    // Display data for text overlay
+    const categoryText =
+      workflow.categories && workflow.categories.length > 0
+        ? typeof workflow.categories[0] === 'string'
+          ? workflow.categories[0]
+          : workflow.categories[0]?.category?.name || 'Workflow'
+        : 'Workflow'
+
+    const displayData = {
+      title: workflow.title,
+      category: categoryText,
+      platform: workflow.platform || 'n8n',
+    }
 
     return {
-      colors,
+      colorScheme,
       icon: ICONS[iconKey as keyof typeof ICONS],
-      patterns,
-      complexity,
+      pattern,
+      displayData,
     }
   }, [workflow])
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Set canvas size
-    const dpr = window.devicePixelRatio || 1
-    const rect = canvas.getBoundingClientRect()
-    canvas.width = rect.width * dpr
-    canvas.height = rect.height * dpr
-    ctx.scale(dpr, dpr)
-
-    // Clear canvas
-    ctx.clearRect(0, 0, rect.width, rect.height)
-
-    const width = rect.width
-    const height = rect.height
-    const time = Date.now() * 0.001
-
-    // Create gradient background
-    const gradient = ctx.createLinearGradient(0, 0, width, height)
-    gradient.addColorStop(0, colors[0])
-    gradient.addColorStop(1, colors[1])
-
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, width, height)
-
-    // Add subtle noise pattern
-    ctx.globalAlpha = 0.1
-    for (let i = 0; i < 50; i++) {
-      const x = Math.random() * width
-      const y = Math.random() * height
-      const size = Math.random() * 3 + 1
-
-      ctx.fillStyle = `hsl(${Math.random() * 360}, 50%, 50%)`
-      ctx.beginPath()
-      ctx.arc(x, y, size, 0, Math.PI * 2)
-      ctx.fill()
+  // Background patterns as SVG components
+  const renderPattern = () => {
+    switch (pattern) {
+      case 'grid':
+        return (
+          <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="white" strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        )
+      case 'circuit':
+        return (
+          <svg className="absolute inset-0 w-full h-full opacity-8" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="circuit" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path
+                  d="M10 10h20M30 10v20M30 30H10M10 30V10"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <circle cx="10" cy="10" r="2" fill="white" opacity="0.6" />
+                <circle cx="30" cy="30" r="2" fill="white" opacity="0.6" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#circuit)" />
+          </svg>
+        )
+      case 'organic':
+        return (
+          <svg className="absolute inset-0 w-full h-full opacity-6" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="organic" width="60" height="60" patternUnits="userSpaceOnUse">
+                <circle cx="15" cy="15" r="8" fill="none" stroke="white" strokeWidth="1" opacity="0.4" />
+                <circle cx="45" cy="45" r="6" fill="none" stroke="white" strokeWidth="1" opacity="0.3" />
+                <circle cx="30" cy="30" r="4" fill="white" opacity="0.2" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#organic)" />
+          </svg>
+        )
+      default:
+        return null
     }
-    ctx.globalAlpha = 1
-
-    // Draw geometric patterns based on type
-    if (patterns === 0) {
-      // Geometric patterns
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
-      ctx.lineWidth = 1
-
-      // Grid pattern
-      const gridSize = 20
-      for (let x = 0; x < width; x += gridSize) {
-        ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x, height)
-        ctx.stroke()
-      }
-      for (let y = 0; y < height; y += gridSize) {
-        ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.lineTo(width, y)
-        ctx.stroke()
-      }
-
-      // Diagonal lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)'
-      for (let i = 0; i < 5; i++) {
-        const offset = (time * 20 + i * 50) % (width + height)
-        ctx.beginPath()
-        ctx.moveTo(offset, 0)
-        ctx.lineTo(offset - height, height)
-        ctx.stroke()
-      }
-    } else if (patterns === 1) {
-      // Organic patterns (circles and curves)
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
-
-      for (let i = 0; i < 8; i++) {
-        const x = (Math.sin(time * 0.5 + i) * 0.3 + 0.5) * width
-        const y = (Math.cos(time * 0.3 + i) * 0.3 + 0.5) * height
-        const radius = Math.sin(time + i) * 10 + 30
-
-        ctx.beginPath()
-        ctx.arc(x, y, radius, 0, Math.PI * 2)
-        ctx.fill()
-      }
-    } else {
-      // Tech patterns (circuit-like)
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
-      ctx.lineWidth = 2
-
-      // Circuit paths
-      for (let i = 0; i < 6; i++) {
-        const startX = Math.random() * width
-        const startY = Math.random() * height
-
-        ctx.beginPath()
-        ctx.moveTo(startX, startY)
-
-        let x = startX
-        let y = startY
-
-        for (let j = 0; j < 4; j++) {
-          if (Math.random() > 0.5) {
-            x += Math.random() * 100 - 50
-          } else {
-            y += Math.random() * 100 - 50
-          }
-          ctx.lineTo(x, y)
-        }
-        ctx.stroke()
-      }
-    }
-
-    // Add floating particles
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
-    for (let i = 0; i < 15; i++) {
-      const x = (Math.sin(time * 0.5 + i * 0.5) * 0.4 + 0.5) * width
-      const y = (Math.cos(time * 0.3 + i * 0.7) * 0.4 + 0.5) * height
-      const size = Math.sin(time + i) * 2 + 3
-
-      ctx.beginPath()
-      ctx.arc(x, y, size, 0, Math.PI * 2)
-      ctx.fill()
-    }
-
-    // Add complexity-based overlay
-    if (complexity > 0.5) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
-      ctx.fillRect(0, 0, width, height)
-    }
-
-    // Draw central icon background
-    const iconSize = Math.min(width, height) * 0.2
-    const iconX = width / 2
-    const iconY = height / 2
-
-    // Icon background
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'
-    ctx.beginPath()
-    ctx.arc(iconX, iconY, iconSize * 0.8, 0, Math.PI * 2)
-    ctx.fill()
-
-    // Icon border
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.arc(iconX, iconY, iconSize * 0.8, 0, Math.PI * 2)
-    ctx.stroke()
-
-    // Animate
-    animationRef.current = requestAnimationFrame(() => {
-      // Re-render on next frame for subtle animation
-    })
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
-  }, [colors, icon, patterns, complexity])
+  }
 
   const sizeClasses = {
     sm: 'h-24 w-full',
@@ -270,19 +419,60 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
     lg: 'h-64 w-full',
   }
 
-  return (
-    <div className={`relative overflow-hidden rounded-lg ${sizeClasses[size]} ${className}`}>
-      <canvas ref={canvasRef} className="w-full h-full" style={{ display: 'block' }} />
+  const iconSizes = {
+    sm: 'w-6 h-6',
+    md: 'w-10 h-10',
+    lg: 'w-12 h-12',
+  }
 
-      {/* Icon overlay */}
+  const textSizes = {
+    sm: { title: 'text-sm', category: 'text-xs', platform: 'text-xs' },
+    md: { title: 'text-lg', category: 'text-sm', platform: 'text-xs' },
+    lg: { title: 'text-xl', category: 'text-base', platform: 'text-sm' },
+  }
+
+  return (
+    <div className={cn('relative overflow-hidden rounded-lg', sizeClasses[size], className)}>
+      {/* Gradient Background */}
+      <div
+        className="absolute inset-0 transition-all duration-300"
+        style={{
+          background: `linear-gradient(135deg, ${colorScheme.primary} 0%, ${colorScheme.secondary} 100%)`,
+        }}
+      />
+
+      {/* Background Pattern */}
+      {renderPattern()}
+
+      {/* Overlay for better contrast with overlays */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30" />
+
+      {/* Centered Icon - positioned to not interfere with top/corner overlays */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="bg-background/20 backdrop-blur-sm rounded-full p-4 border border-white/30">
-          {React.createElement(icon, { className: 'w-8 h-8 text-primary-foreground' })}
+        <div
+          className="rounded-full p-3 backdrop-blur-sm border border-white/20 transition-all duration-300 hover:scale-110 opacity-80"
+          style={{ backgroundColor: `${colorScheme.accent}20` }}
+        >
+          {React.createElement(icon, {
+            className: cn(iconSizes[size], 'text-white drop-shadow-lg'),
+          })}
         </div>
       </div>
 
-      {/* Subtle overlay for better text contrast */}
-      <div className="absolute inset-0 bg-primary/5" />
+      {/* Bottom subtle platform indicator - won't interfere with top overlays */}
+      <div className="absolute bottom-3 right-3 opacity-50">
+        <div
+          className="px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm"
+          style={{ backgroundColor: `${colorScheme.primary}30`, color: 'white' }}
+        >
+          {displayData.platform}
+        </div>
+      </div>
+
+      {/* Category accent - subtle bottom left corner */}
+      <div className="absolute bottom-3 left-3 opacity-60">
+        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colorScheme.accent }} />
+      </div>
     </div>
   )
 }

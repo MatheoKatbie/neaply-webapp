@@ -31,7 +31,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {!isAuthPage && <Navbar />}
       <main className="flex-1">{children}</main>
       {!isAuthPage && <Footer />}
-      <Footer />
       <Toaster position="bottom-right" richColors closeButton duration={5000} />
     </div>
   )
