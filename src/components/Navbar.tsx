@@ -170,7 +170,7 @@ export default function Navbar() {
               <div className="flex items-center space-x-3">
                 {!user.isSeller && (
                   <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-[#1B272C] hover:bg-[#243238] text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-primary/90 cursor-pointer"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-[#1B272C] hover:bg-white/10 text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
                     onClick={() => router.push('/become-seller')}
                   >
                     <Trans i18nKey="navigation.becomeCreator" />
@@ -178,7 +178,7 @@ export default function Navbar() {
                 )}
                 {user.isSeller && (
                   <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-[#1B272C] hover:bg-[#243238] text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-primary/90 cursor-pointer"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-[#1B272C] hover:bg-white/10 text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
                     onClick={() => router.push('/dashboard/seller')}
                   >
                     <Trans i18nKey="navigation.creatorDashboard" />
