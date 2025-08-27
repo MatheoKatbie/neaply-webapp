@@ -33,6 +33,7 @@ import {
 } from 'lucide-react'
 import React, { useMemo } from 'react'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 interface AutoThumbnailProps {
   workflow: Pick<Workflow, 'id' | 'title' | 'shortDesc' | 'categories' | 'tags'> & {
@@ -331,7 +332,7 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
     }
 
     // Pattern selection based on category/content
-    let pattern = 'minimal' // default
+    let pattern = 'grid' // default - always show a pattern
     if (content.includes('ai') || content.includes('ml') || content.includes('tech')) {
       pattern = 'circuit'
     } else if (content.includes('data') || content.includes('analytics')) {
@@ -351,7 +352,7 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
     const displayData = {
       title: workflow.title,
       category: categoryText,
-      platform: workflow.platform || 'n8n',
+      platform: workflow.platform,
     }
 
     return {
@@ -409,7 +410,16 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
           </svg>
         )
       default:
-        return null
+        return (
+          <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="grid-default" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="white" strokeWidth="1" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-default)" />
+          </svg>
+        )
     }
   }
 
@@ -459,20 +469,57 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
         </div>
       </div>
 
-      {/* Bottom subtle platform indicator - won't interfere with top overlays */}
-      <div className="absolute bottom-3 right-3 opacity-50">
-        <div
-          className="px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm"
-          style={{ backgroundColor: `${colorScheme.primary}30`, color: 'white' }}
-        >
-          {displayData.platform}
+      {/* Bottom subtle platform indicator - only show if platform is defined */}
+      {displayData.platform && (
+        <div className="absolute bottom-3 right-3 opacity-50">
+          <div
+            className="px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm flex items-center gap-1"
+            style={{ backgroundColor: `${colorScheme.primary}30`, color: 'white' }}
+          >
+            {displayData.platform === 'n8n' && (
+              <Image
+                src="/images/company-logo/n8n-logo.png"
+                alt="n8n"
+                width={12}
+                height={12}
+                className="w-3 h-3 object-contain"
+              />
+            )}
+            {displayData.platform === 'zapier' && (
+              <Image
+                src="/images/company-logo/zapier-logo.png"
+                alt="Zapier"
+                width={12}
+                height={12}
+                className="w-3 h-3 object-contain"
+              />
+            )}
+            {displayData.platform === 'make' && (
+              <Image
+                src="/images/company-logo/make-logo.png"
+                alt="Make"
+                width={12}
+                height={12}
+                className="w-3 h-3 object-contain"
+              />
+            )}
+            {displayData.platform === 'airtable_script' && (
+              <Image
+                src="/images/company-logo/airtable-logo.png"
+                alt="Airtable"
+                width={12}
+                height={12}
+                className="w-3 h-3 object-contain"
+              />
+            )}
+            {!['n8n', 'zapier', 'make', 'airtable_script'].includes(displayData.platform) && (
+              <div className="w-3 h-3 bg-white/20 rounded-sm flex items-center justify-center">
+                <span className="text-[8px] font-bold text-white">{displayData.platform.charAt(0).toUpperCase()}</span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Category accent - subtle bottom left corner */}
-      <div className="absolute bottom-3 left-3 opacity-60">
-        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: colorScheme.accent }} />
-      </div>
+      )}
     </div>
   )
 }

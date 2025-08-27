@@ -24,8 +24,14 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
+  const searchDropdownRef = useRef<HTMLDivElement>(null)
   const isHomepage = pathname === '/'
   const [isScrolled, setIsScrolled] = useState(false)
+
+  // Debug effect for search focus
+  useEffect(() => {
+    console.log('isSearchFocused changed to:', isSearchFocused)
+  }, [isSearchFocused])
 
   // Example search suggestions
   const searchSuggestions = [
@@ -37,12 +43,21 @@ export default function Navbar() {
 
   useEffect(() => {
     let ticking = false
+    let lastScrollY = 0
 
     const onScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          const scrolled = window.scrollY > 10 // Add small threshold to prevent micro-movements
-          setIsScrolled(scrolled)
+          const currentScrollY = window.scrollY
+          // Use a higher threshold and add hysteresis to prevent glitching
+          const scrolled = currentScrollY > 50
+
+          // Only update state if there's a meaningful change
+          if (Math.abs(currentScrollY - lastScrollY) > 5) {
+            setIsScrolled(scrolled)
+            lastScrollY = currentScrollY
+          }
+
           ticking = false
         })
         ticking = true
@@ -131,7 +146,14 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
       }
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      // Close search dropdown when clicking outside
+      if (
+        isSearchFocused &&
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node) &&
+        searchDropdownRef.current &&
+        !searchDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsSearchFocused(false)
       }
     }
@@ -140,7 +162,7 @@ export default function Navbar() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [])
+  }, [isSearchFocused])
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -190,7 +212,10 @@ export default function Navbar() {
 
               {/* Mobile Search Dropdown */}
               {isSearchFocused && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-50 animate-in slide-in-from-top-2 fade-in-0 duration-200">
+                <div
+                  ref={searchDropdownRef}
+                  className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
+                >
                   <div className="p-3 border-b border-white/10">
                     <div className="flex items-center justify-between text-white/60 text-xs">
                       <span>Press Enter to search</span>
@@ -239,7 +264,10 @@ export default function Navbar() {
                   ref={searchRef}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
+                  onFocus={() => {
+                    console.log('DESKTOP FOCUS DETECTED! Setting isSearchFocused to true')
+                    setIsSearchFocused(true)
+                  }}
                   onKeyDown={handleKeyDown}
                   placeholder="Search in Neaply"
                   className={`pl-10 pr-20 bg-secondary border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
@@ -251,39 +279,52 @@ export default function Navbar() {
                   <span>K</span>
                 </div>
               </div>
-
-              {/* Search Dropdown */}
-              {isSearchFocused && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-50 animate-in slide-in-from-top-2 fade-in-0 duration-200">
-                  <div className="p-3 border-b border-white/10">
-                    <div className="flex items-center justify-between text-white/60 text-xs">
-                      <span>Press Enter to search</span>
-                      <div className="flex items-center gap-1">
-                        <span>⌘K</span>
-                        <span>to focus</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-2">
-                    <div className="text-white/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
-                    {searchSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        tabIndex={-1}
-                        onClick={() => handleSuggestionClick(suggestion.query)}
-                        className="w-full text-left px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group"
-                      >
-                        <span>{suggestion.text}</span>
-                        <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </form>
           </div>
+
+          {/* Search Dropdown - Completely outside transformed container */}
+          {/* DEBUG: isSearchFocused = {isSearchFocused ? 'true' : 'false'} */}
+          {isSearchFocused && (
+            <div
+              ref={searchDropdownRef}
+              className="hidden md:block absolute bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
+              style={{
+                backgroundColor: 'red !important',
+                border: '2px solid yellow !important',
+                minHeight: '200px',
+                minWidth: '400px',
+                top: isHomepage && !isScrolled ? '120px' : '50px',
+                left: isHomepage && !isScrolled ? '50%' : '44px',
+                transform: isHomepage && !isScrolled ? 'translateX(-50%)' : 'none',
+              }}
+            >
+              <div className="p-3 border-b border-white/10">
+                <div className="flex items-center justify-between text-white/60 text-xs">
+                  <span>Press Enter to search</span>
+                  <div className="flex items-center gap-1">
+                    <span>⌘K</span>
+                    <span>to focus</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-2">
+                <div className="text-white/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
+                {searchSuggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => handleSuggestionClick(suggestion.query)}
+                    className="w-full text-left px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group cursor-pointer"
+                  >
+                    <span>{suggestion.text}</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 font-space-grotesk">
             <div className="flex items-baseline space-x-6">
