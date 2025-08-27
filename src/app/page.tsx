@@ -1,6 +1,8 @@
 'use client'
 import CustomWorkflowBackground from '@/components/CustomWorkflowBackground'
 import { Button } from '@/components/ui/button'
+import { Trans } from '@/components/ui/Trans'
+import { useTranslation } from '@/hooks/useTranslation'
 import {
   ArrowRight,
   Cpu,
@@ -13,7 +15,7 @@ import {
   TrendingUp,
   Users,
   Workflow,
-  Zap
+  Zap,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
@@ -22,6 +24,7 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null)
   const featuresRef = useRef<HTMLDivElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     const observerOptions = {
@@ -65,19 +68,22 @@ export default function Home() {
             <div className="space-y-6">
               <h1 className="text-5xl sm:text-7xl lg:text-8xl font-space-grotesk font-bold tracking-tight leading-tight">
                 <div className="relative inline-block">
-                  <span className="text-foreground">The Ultimate</span>
+                  <span className="text-foreground">
+                    <Trans i18nKey="homepage.hero.title" />
+                  </span>
                   <div className="absolute -inset-1 bg-gray-200/30 blur-lg -z-10 animate-pulse"></div>
                 </div>
                 <br />
                 <div className="relative inline-block mt-4">
-                  <span className="text-muted-foreground">Automation Hub</span>
+                  <span className="text-muted-foreground">
+                    <Trans i18nKey="homepage.hero.subtitle" />
+                  </span>
                   <div className="absolute -inset-1 bg-gray-300/30 blur-xl -z-10 animate-pulse"></div>
                 </div>
               </h1>
 
               <p className="text-xl sm:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-light">
-                Where n8n, Make, Airtable, and Zapier workflows come together. Discover, share, and monetize your
-                automation creations in one unified marketplace.
+                <Trans i18nKey="homepage.hero.description" />
               </p>
             </div>
 
@@ -89,7 +95,7 @@ export default function Home() {
               >
                 <Link href="/workflows" className="relative flex items-center gap-3">
                   <Palette className="w-5 h-5" />
-                  Explore Gallery
+                  <Trans i18nKey="homepage.hero.exploreGallery" />
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -101,7 +107,7 @@ export default function Home() {
               >
                 <Link href="/auth/register" className="flex items-center gap-3">
                   <Rocket className="w-5 h-5 text-muted-foreground" />
-                  Start Creating
+                  <Trans i18nKey="homepage.hero.startCreating" />
                 </Link>
               </Button>
             </div>
@@ -109,16 +115,28 @@ export default function Home() {
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-20">
               <div className="group text-center p-6 rounded-3xl bg-background backdrop-blur-sm border border-border hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">15K+</div>
-                <div className="text-muted-foreground font-medium">Magical Workflows</div>
+                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">
+                  <Trans i18nKey="homepage.stats.workflows" />
+                </div>
+                <div className="text-muted-foreground font-medium">
+                  <Trans i18nKey="homepage.stats.workflowsLabel" />
+                </div>
               </div>
               <div className="group text-center p-6 rounded-3xl bg-muted backdrop-blur-sm border border-border hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">10K+</div>
-                <div className="text-muted-foreground font-medium">Creative Minds</div>
+                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">
+                  <Trans i18nKey="homepage.stats.creators" />
+                </div>
+                <div className="text-muted-foreground font-medium">
+                  <Trans i18nKey="homepage.stats.creatorsLabel" />
+                </div>
               </div>
               <div className="group text-center p-6 rounded-3xl bg-background backdrop-blur-sm border border-border hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">$3M+</div>
-                <div className="text-muted-foreground font-medium">Dreams Realized</div>
+                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">
+                  <Trans i18nKey="homepage.stats.revenue" />
+                </div>
+                <div className="text-muted-foreground font-medium">
+                  <Trans i18nKey="homepage.stats.revenueLabel" />
+                </div>
               </div>
             </div>
           </div>
@@ -132,13 +150,13 @@ export default function Home() {
           <div className="text-center mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background border border-border text-sm font-medium text-muted-foreground mb-6 shadow-sm">
               <Globe className="w-4 h-4" />
-              Discover the Magic
+              <Trans i18nKey="homepage.features.discover" />
             </div>
             <h2 className="text-4xl sm:text-6xl font-space-grotesk font-bold mb-6 leading-tight text-foreground">
-              Why Creators Choose Us
+              <Trans i18nKey="homepage.features.title" />
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-light">
-              A sanctuary for automation artisans where creativity meets functionality in perfect harmony.
+              <Trans i18nKey="homepage.features.subtitle" />
             </p>
           </div>
 
@@ -152,15 +170,14 @@ export default function Home() {
                   <Shield className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-foreground transition-colors duration-300">
-                  Fortress Security
+                  <Trans i18nKey="homepage.features.security.title" />
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Your creations are protected by military-grade encryption and our guardian community of verified
-                  artisans.
+                  <Trans i18nKey="homepage.features.security.description" />
                 </p>
                 <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
                   <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
-                  Military-grade protection
+                  <Trans i18nKey="homepage.features.security.feature" />
                 </div>
               </div>
             </div>
@@ -173,14 +190,14 @@ export default function Home() {
                   <TrendingUp className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  Instant Prosperity
+                  <Trans i18nKey="homepage.features.prosperity.title" />
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Transform your passion into profit with our enchanted marketplace that turns workflows into wealth.
+                  <Trans i18nKey="homepage.features.prosperity.description" />
                 </p>
                 <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-muted-foreground transition-colors duration-300">
                   <div className="w-2 h-2 bg-gray-700 rounded-full mr-2"></div>
-                  Monetize instantly
+                  <Trans i18nKey="homepage.features.prosperity.feature" />
                 </div>
               </div>
             </div>
@@ -193,14 +210,14 @@ export default function Home() {
                   <Zap className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  Lightning Deploy
+                  <Trans i18nKey="homepage.features.deploy.title" />
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Watch your workflows come alive instantly with our magical one-click deployment spells.
+                  <Trans i18nKey="homepage.features.deploy.description" />
                 </p>
                 <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-muted-foreground transition-colors duration-300">
                   <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
-                  One-click magic
+                  <Trans i18nKey="homepage.features.deploy.feature" />
                 </div>
               </div>
             </div>
@@ -213,14 +230,14 @@ export default function Home() {
                   <Cpu className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-gray-800 transition-colors duration-300">
-                  Artisan Quality
+                  <Trans i18nKey="homepage.features.quality.title" />
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Every workflow is blessed by our council of automation wizards before joining the gallery.
+                  <Trans i18nKey="homepage.features.quality.description" />
                 </p>
                 <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-gray-800 transition-colors duration-300">
                   <div className="w-2 h-2 bg-gray-800 rounded-full mr-2"></div>
-                  Wizard-approved
+                  <Trans i18nKey="homepage.features.quality.feature" />
                 </div>
               </div>
             </div>
@@ -233,14 +250,14 @@ export default function Home() {
                   <Users className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  Sacred Circle
+                  <Trans i18nKey="homepage.features.community.title" />
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Join our mystical community of creators where knowledge flows freely and dreams take flight.
+                  <Trans i18nKey="homepage.features.community.description" />
                 </p>
                 <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-muted-foreground transition-colors duration-300">
                   <div className="w-2 h-2 bg-background0 rounded-full mr-2"></div>
-                  Creator community
+                  <Trans i18nKey="homepage.features.community.feature" />
                 </div>
               </div>
             </div>
@@ -253,14 +270,14 @@ export default function Home() {
                   <Star className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-foreground transition-colors duration-300">
-                  Divine Support
+                  <Trans i18nKey="homepage.features.support.title" />
                 </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Our celestial support team guides you through every step of your automation journey.
+                  <Trans i18nKey="homepage.features.support.description" />
                 </p>
                 <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
                   <div className="w-2 h-2 bg-gray-900 rounded-full mr-2"></div>
-                  24/7 guidance
+                  <Trans i18nKey="homepage.features.support.feature" />
                 </div>
               </div>
             </div>
@@ -270,7 +287,9 @@ export default function Home() {
           <div className="text-center">
             <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-gray-800 transition-colors duration-300 cursor-pointer">
               <Workflow className="w-5 h-5" />
-              <span className="font-medium">Explore All Features</span>
+              <span className="font-medium">
+                <Trans i18nKey="homepage.features.exploreAll" />
+              </span>
               <ArrowRight className="w-4 h-4" />
             </div>
           </div>
@@ -299,12 +318,13 @@ export default function Home() {
               </div>
 
               <h2 className="text-4xl sm:text-6xl font-space-grotesk font-bold mb-8 leading-tight">
-                <span className="text-foreground">Ready to Create Magic?</span>
+                <span className="text-foreground">
+                  <Trans i18nKey="homepage.cta.title" />
+                </span>
               </h2>
 
               <p className="text-xl sm:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-                Step into a world where your automation dreams become reality. Join thousands of creators who've already
-                discovered the magic of Neaply.
+                <Trans i18nKey="homepage.cta.description" />
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -315,7 +335,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gray-400/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <Link href="/auth/register" className="relative flex items-center gap-3">
                     <Sparkles className="w-6 h-6" />
-                    Begin Your Journey
+                    <Trans i18nKey="homepage.cta.beginJourney" />
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
                   </Link>
                 </Button>
@@ -327,7 +347,7 @@ export default function Home() {
                 >
                   <Link href="/workflows" className="flex items-center gap-3">
                     <Globe className="w-6 h-6 text-muted-foreground" />
-                    Explore Gallery
+                    <Trans i18nKey="homepage.cta.exploreGallery" />
                   </Link>
                 </Button>
               </div>
@@ -336,15 +356,21 @@ export default function Home() {
               <div className="mt-16 flex flex-wrap justify-center items-center gap-8 text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium">Trusted by 8K+ creators</span>
+                  <span className="text-sm font-medium">
+                    <Trans i18nKey="homepage.cta.trustIndicators.creators" />
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium">99.9% uptime guarantee</span>
+                  <span className="text-sm font-medium">
+                    <Trans i18nKey="homepage.cta.trustIndicators.uptime" />
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-gray-800 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium">Enterprise-grade security</span>
+                  <span className="text-sm font-medium">
+                    <Trans i18nKey="homepage.cta.trustIndicators.security" />
+                  </span>
                 </div>
               </div>
             </div>

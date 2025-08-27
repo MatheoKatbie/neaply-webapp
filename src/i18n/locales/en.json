@@ -1,43 +1,187 @@
 {
-    "common": {
-        "language": "Language",
-        "english": "English",
-        "french": "French"
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "french": "French"
+  },
+  "footer": {
+    "description": "The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own workflows to the automation community.",
+    "browseWorkflows": "Browse Workflows",
+    "becomeCreator": "Become a Creator",
+    "creatorDashboard": "Creator Dashboard",
+    "quickLinks": "Quick Links",
+    "marketplace": "Marketplace",
+    "favorites": "Favorites",
+    "myOrders": "My Orders",
+    "settings": "Settings",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "contactUs": "Contact Us",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "allRightsReserved": "All rights reserved."
+  },
+  "navigation": {
+    "home": "Home",
+    "marketplace": "Marketplace",
+    "favorites": "Favorites",
+    "orders": "Orders",
+    "settings": "Settings",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile",
+    "yourStore": "Your Store",
+    "becomeCreator": "Become a Creator",
+    "creatorDashboard": "Creator Dashboard",
+    "ordersHistory": "Orders History",
+    "helpSupport": "Help & Support",
+    "darkMode": "Dark Mode"
+  },
+  "homepage": {
+    "hero": {
+      "title": "The Ultimate",
+      "subtitle": "Automation Hub",
+      "description": "Where n8n, Make, Airtable, and Zapier workflows come together. Discover, share, and monetize your automation creations in one unified marketplace.",
+      "exploreGallery": "Explore Gallery",
+      "startCreating": "Start Creating"
     },
-    "footer": {
-        "description": "The premier marketplace for n8n workflow automation. Discover ready-to-use workflows or sell your own workflows to the automation community.",
-        "browseWorkflows": "Browse Workflows",
-        "becomeCreator": "Become a Creator",
-        "creatorDashboard": "Creator Dashboard",
-        "quickLinks": "Quick Links",
-        "marketplace": "Marketplace",
-        "favorites": "Favorites",
-        "myOrders": "My Orders",
-        "settings": "Settings",
-        "support": "Support",
-        "helpCenter": "Help Center",
-        "contactUs": "Contact Us",
-        "termsOfService": "Terms of Service",
-        "privacyPolicy": "Privacy Policy",
-        "allRightsReserved": "All rights reserved."
+    "stats": {
+      "workflows": "15K+",
+      "workflowsLabel": "Magical Workflows",
+      "creators": "10K+",
+      "creatorsLabel": "Creative Minds",
+      "revenue": "$3M+",
+      "revenueLabel": "Dreams Realized"
     },
-    "navigation": {
-        "home": "Home",
-        "marketplace": "Marketplace",
-        "favorites": "Favorites",
-        "orders": "Orders",
-        "settings": "Settings",
-        "login": "Login",
-        "register": "Register",
-        "logout": "Logout",
-        "profile": "Profile"
+    "features": {
+      "discover": "Discover the Magic",
+      "title": "Why Creators Choose Us",
+      "subtitle": "A sanctuary for automation artisans where creativity meets functionality in perfect harmony.",
+      "security": {
+        "title": "Fortress Security",
+        "description": "Your creations are protected by military-grade encryption and our guardian community of verified artisans.",
+        "feature": "Military-grade protection"
+      },
+      "prosperity": {
+        "title": "Instant Prosperity",
+        "description": "Transform your passion into profit with our enchanted marketplace that turns workflows into wealth.",
+        "feature": "Monetize instantly"
+      },
+      "deploy": {
+        "title": "Lightning Deploy",
+        "description": "Watch your workflows come alive instantly with our magical one-click deployment spells.",
+        "feature": "One-click magic"
+      },
+      "quality": {
+        "title": "Artisan Quality",
+        "description": "Every workflow is blessed by our council of automation wizards before joining the gallery.",
+        "feature": "Wizard-approved"
+      },
+      "community": {
+        "title": "Sacred Circle",
+        "description": "Join our mystical community of creators where knowledge flows freely and dreams take flight.",
+        "feature": "Creator community"
+      },
+      "support": {
+        "title": "Divine Support",
+        "description": "Our celestial support team guides you through every step of your automation journey.",
+        "feature": "24/7 guidance"
+      },
+      "exploreAll": "Explore All Features"
     },
-    "homepage": {
-        "hero": {
-            "title": "The Premier Marketplace for n8n Workflows",
-            "subtitle": "Discover ready-to-use automation workflows or sell your own to the community",
-            "cta": "Explore Workflows",
-            "becomeSeller": "Become a Creator"
-        }
+    "cta": {
+      "title": "Ready to Create Magic?",
+      "description": "Step into a world where your automation dreams become reality. Join thousands of creators who've already discovered the magic of Neaply.",
+      "beginJourney": "Begin Your Journey",
+      "exploreGallery": "Explore Gallery",
+      "trustIndicators": {
+        "creators": "Trusted by 8K+ creators",
+        "uptime": "99.9% uptime guarantee",
+        "security": "Enterprise-grade security"
+      }
     }
+  },
+  "becomeSeller": {
+    "title": "Become a Seller on Neaply",
+    "editTitle": "Edit Your Seller Profile",
+    "subtitle": "Start selling your automation workflows today",
+    "editSubtitle": "Update your store information",
+    "whyCreate": "Why Create on Neaply?",
+    "whyCreateDescription": "Join thousands of creators monetizing their automation workflows",
+    "benefits": {
+      "upload": {
+        "title": "Upload Your Workflows",
+        "description": "Share your automation creations with the community"
+      },
+      "earn": {
+        "title": "Earn Money",
+        "description": "Set your prices and receive instant payments"
+      },
+      "grow": {
+        "title": "Grow Your Audience",
+        "description": "Build your reputation and customer base"
+      }
+    },
+    "trust": {
+      "title": "Secure & Trusted",
+      "ssl": "SSL encrypted payments",
+      "payouts": "Instant payouts",
+      "support": "24/7 customer support"
+    },
+    "form": {
+      "storeSetup": "Store Setup",
+      "storeInfo": "Your Store Information",
+      "description": "Fill in this information to create your creator profile",
+      "editDescription": "Update your creator profile information",
+      "storeName": "Store Name",
+      "storeNamePlaceholder": "e.g., FlowAutomation Pro",
+      "storeNameHelp": "This name will be displayed on your public profile and workflows.",
+      "bio": "Store Description",
+      "bioPlaceholder": "Describe your expertise, specialties, and what customers can expect from your workflows...",
+      "bioHelp": "Help customers trust you.",
+      "website": "Website (optional)",
+      "websitePlaceholder": "https://yoursite.com",
+      "websiteHelp": "Add your website to gain credibility",
+      "supportEmail": "Support Email (optional)",
+      "supportEmailPlaceholder": "support@yoursite.com",
+      "supportEmailHelp": "Email for customer support",
+      "phone": "Phone Number (optional)",
+      "phonePlaceholder": "Enter your phone number",
+      "phoneHelp": "Phone for business communication",
+      "country": "Country",
+      "countryHelp": "Your business location",
+      "createStore": "Create Store",
+      "updateProfile": "Update Profile",
+      "creating": "Creating...",
+      "updating": "Updating...",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "storeNameRequired": "Store name is required",
+      "storeNameMin": "Store name must be at least 2 characters",
+      "storeNameMax": "Store name cannot exceed 50 characters",
+      "bioMin": "Bio must be at least 10 characters",
+      "bioMax": "Bio cannot exceed 500 characters",
+      "websiteInvalid": "Website URL must be valid (e.g., https://example.com)",
+      "emailInvalid": "Support email must be valid",
+      "phoneMin": "Phone number must be at least 8 digits",
+      "phoneMax": "Phone number cannot exceed 20 characters",
+      "countryRequired": "Country is required",
+      "countryMin": "Country code is required and must be at least 2 characters",
+      "countryMax": "Country code cannot exceed 3 characters"
+    },
+    "success": {
+      "title": "Welcome to Neaply!",
+      "editTitle": "Profile Updated!",
+      "description": "Your creator profile has been successfully created",
+      "editDescription": "Your creator profile has been successfully updated",
+      "redirecting": "You can now start selling your workflows! Redirecting to your dashboard...",
+      "editRedirecting": "Redirecting to your dashboard..."
+    },
+    "terms": "By creating your store, you agree to our",
+    "sellerTerms": "seller terms",
+    "and": "and",
+    "privacyPolicy": "privacy policy"
+  }
 }

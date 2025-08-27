@@ -11,6 +11,7 @@ interface PhoneInputComponentProps {
   placeholder?: string
   className?: string
   disabled?: boolean
+  defaultCountry?: string
 }
 
 export function PhoneInputComponent({
@@ -19,9 +20,10 @@ export function PhoneInputComponent({
   placeholder = 'Enter phone number',
   className,
   disabled = false,
+  defaultCountry = 'FR',
 }: PhoneInputComponentProps) {
   const [selectedCountry, setSelectedCountry] = useState<SelectMenuOption>(
-    COUNTRIES.find((country) => country.value === 'FR') || COUNTRIES[0]
+    COUNTRIES.find((country) => country.value === defaultCountry) || COUNTRIES[0]
   )
   const [phoneNumber, setPhoneNumber] = useState('')
   const [countrySelectOpen, setCountrySelectOpen] = useState(false)
@@ -29,7 +31,7 @@ export function PhoneInputComponent({
   const countrySelectRef = useRef<HTMLDivElement>(null)
   const isInitialized = useRef(false)
 
-  // Initialize with default country (France)
+  // Initialize with default country
   useEffect(() => {
     if (value && !isInitialized.current) {
       // Try to parse existing phone number to extract country and number
@@ -43,6 +45,14 @@ export function PhoneInputComponent({
       isInitialized.current = true
     }
   }, [value])
+
+  // Update selected country when defaultCountry prop changes
+  useEffect(() => {
+    const newDefaultCountry = COUNTRIES.find((country) => country.value === defaultCountry)
+    if (newDefaultCountry && selectedCountry.value !== defaultCountry) {
+      setSelectedCountry(newDefaultCountry)
+    }
+  }, [defaultCountry, selectedCountry.value])
 
   // Memoize the onChange callback to prevent infinite loops
   const notifyParent = useCallback(

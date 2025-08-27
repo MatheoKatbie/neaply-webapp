@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/hooks/useAuth'
 import { LanguageSelector } from '@/components/ui/language-selector'
-import { useLanguage } from '@/contexts/LanguageContext'
+import { useTranslation } from '@/hooks/useTranslation'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { Trans } from '@/components/ui/Trans'
 import Link from 'next/link'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
   const { user } = useAuth()
-  const { t } = useLanguage()
+  const { t } = useTranslation()
 
   return (
     <footer className="bg-background border-t border-border mt-auto">
@@ -22,19 +24,25 @@ export default function Footer() {
               <span className="font-space-grotesk text-xl font-bold text-foreground">Neaply</span>
             </div>
             <p className="text-muted-foreground mb-4 max-w-md">
-              {t('footer.description')}
+              <Trans i18nKey="footer.description" />
             </p>
             <div className="flex space-x-4">
               <Button variant="outline" size="sm" asChild>
-                <Link href="/marketplace">{t('footer.browseWorkflows')}</Link>
+                <Link href="/marketplace">
+                  <Trans i18nKey="footer.browseWorkflows" />
+                </Link>
               </Button>
               {!user?.isSeller ? (
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/become-seller">{t('footer.becomeCreator')}</Link>
+                  <Link href="/become-seller">
+                    <Trans i18nKey="footer.becomeCreator" />
+                  </Link>
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/dashboard/seller">{t('footer.creatorDashboard')}</Link>
+                  <Link href="/dashboard/seller">
+                    <Trans i18nKey="footer.creatorDashboard" />
+                  </Link>
                 </Button>
               )}
             </div>
@@ -42,26 +50,28 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-space-grotesk font-semibold text-foreground mb-4">{t('footer.quickLinks')}</h3>
+            <h3 className="font-space-grotesk font-semibold text-foreground mb-4">
+              <Trans i18nKey="footer.quickLinks" />
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/marketplace" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.marketplace')}
+                  <Trans i18nKey="footer.marketplace" />
                 </Link>
               </li>
               <li>
                 <Link href="/favorites" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.favorites')}
+                  <Trans i18nKey="footer.favorites" />
                 </Link>
               </li>
               <li>
                 <Link href="/orders" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.myOrders')}
+                  <Trans i18nKey="footer.myOrders" />
                 </Link>
               </li>
               <li>
                 <Link href="/settings" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.settings')}
+                  <Trans i18nKey="footer.settings" />
                 </Link>
               </li>
             </ul>
@@ -69,26 +79,28 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="font-space-grotesk font-semibold text-foreground mb-4">{t('footer.support')}</h3>
+            <h3 className="font-space-grotesk font-semibold text-foreground mb-4">
+              <Trans i18nKey="footer.support" />
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.helpCenter')}
+                  <Trans i18nKey="footer.helpCenter" />
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.contactUs')}
+                  <Trans i18nKey="footer.contactUs" />
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.termsOfService')}
+                  <Trans i18nKey="footer.termsOfService" />
                 </Link>
               </li>
               <li>
                 <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.privacyPolicy')}
+                  <Trans i18nKey="footer.privacyPolicy" />
                 </Link>
               </li>
             </ul>
@@ -99,9 +111,12 @@ export default function Footer() {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <div className="text-muted-foreground text-sm">© {currentYear} Neaply. {t('footer.allRightsReserved')}</div>
+          <div className="text-muted-foreground text-sm">
+            © {currentYear} Neaply. <Trans i18nKey="footer.allRightsReserved" />
+          </div>
 
           <div className="flex items-center space-x-6">
+            <ThemeToggle />
             <LanguageSelector />
             <Link
               href="https://twitter.com/flowmarket"

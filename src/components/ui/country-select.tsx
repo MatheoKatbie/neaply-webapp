@@ -110,11 +110,7 @@ export default function CountrySelector({
                 <hr />
               </div>
 
-              <div
-                className={
-                  'max-h-64 scrollbar scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-600 scrollbar-thumb-rounded scrollbar-thin overflow-y-scroll'
-                }
-              >
+              <div className={'max-h-64 overflow-y-auto'}>
                 {COUNTRIES.filter((country) => country.title.toLowerCase().startsWith(query.toLowerCase())).length ===
                 0 ? (
                   <li className="text-foreground cursor-default select-none relative py-2 pl-3 pr-9">

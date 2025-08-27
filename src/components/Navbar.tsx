@@ -1,8 +1,9 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { Trans } from '@/components/ui/Trans'
 import { useAuth } from '@/hooks/useAuth'
+import { useTranslation } from '@/hooks/useTranslation'
 import { Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -16,9 +17,9 @@ export default function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut, loading } = useAuth()
+  const { t } = useTranslation()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
-
   const isHomepage = pathname === '/'
 
   // Fetch seller profile to get store slug
@@ -98,14 +99,14 @@ export default function Navbar() {
                 href="/marketplace"
                 className="font-inter text-muted-foreground hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-accent"
               >
-                Marketplace
+                <Trans i18nKey="navigation.marketplace" />
               </Link>
               {user && user.isSeller && (
                 <Link
                   href={`/store/${storeSlug || user.id}`}
                   className="font-inter text-muted-foreground hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-accent"
                 >
-                  Your Store
+                  <Trans i18nKey="navigation.yourStore" />
                 </Link>
               )}
               {user && (
@@ -113,14 +114,13 @@ export default function Navbar() {
                   href="/favorites"
                   className="font-inter text-muted-foreground hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-accent flex items-center gap-1"
                 >
-                  Favorites
+                  <Trans i18nKey="navigation.favorites" />
                 </Link>
               )}
             </div>
           </div>
 
           <div className="hidden md:flex items-center space-x-3">
-            <ThemeToggle />
             {loading ? (
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-20 bg-muted rounded-full animate-pulse"></div>
@@ -134,7 +134,7 @@ export default function Navbar() {
                     className="font-inter inline-flex items-center justify-center h-10 px-5 bg-primary border border-border text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-background hover:text-foreground hover:shadow-lg cursor-pointer"
                     onClick={() => router.push('/become-seller')}
                   >
-                    Become a Creator
+                    <Trans i18nKey="navigation.becomeCreator" />
                   </button>
                 )}
                 {user.isSeller && (
@@ -142,7 +142,7 @@ export default function Navbar() {
                     className="font-inter inline-flex items-center justify-center h-10 px-5 bg-primary border border-border text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-background hover:text-foreground hover:shadow-lg cursor-pointer"
                     onClick={() => router.push('/dashboard/seller')}
                   >
-                    Creator Dashboard
+                    <Trans i18nKey="navigation.creatorDashboard" />
                   </button>
                 )}
 
@@ -190,7 +190,7 @@ export default function Navbar() {
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200 cursor-pointer"
                         >
-                          Orders History
+                          <Trans i18nKey="navigation.ordersHistory" />
                         </button>
                         <button
                           onClick={() => {
@@ -199,7 +199,7 @@ export default function Navbar() {
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200 cursor-pointer"
                         >
-                          Help & Support
+                          <Trans i18nKey="navigation.helpSupport" />
                         </button>
                         <button
                           onClick={() => {
@@ -208,14 +208,14 @@ export default function Navbar() {
                           }}
                           className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200 cursor-pointer"
                         >
-                          Settings
+                          <Trans i18nKey="navigation.settings" />
                         </button>
                         <div className="border-t border-border my-1"></div>
                         <button
                           onClick={handleLogout}
                           className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors duration-200 cursor-pointer"
                         >
-                          Logout
+                          <Trans i18nKey="navigation.logout" />
                         </button>
                       </div>
                     </div>
@@ -229,13 +229,13 @@ export default function Navbar() {
                   className="font-inter inline-flex items-center justify-center h-10 px-5 bg-transparent border border-black text-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-lg cursor-pointer"
                   onClick={() => router.push('/auth/login')}
                 >
-                  Login
+                  <Trans i18nKey="navigation.login" />
                 </button>
                 <button
                   className="font-inter inline-flex items-center justify-center h-10 px-5 bg-primary border border-black text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-800 hover:shadow-lg cursor-pointer"
                   onClick={() => router.push('/auth/register')}
                 >
-                  Register
+                  <Trans i18nKey="navigation.register" />
                 </button>
               </div>
             )}
@@ -260,13 +260,15 @@ export default function Navbar() {
         {/* Mobile Menu with Animation */}
         <div
           ref={menuRef}
-          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-            }`}
+          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${
+            isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
           onClick={() => setIsMenuOpen(false)}
         >
           <div
-            className={`fixed top-0 right-0 w-80 h-full bg-background backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-              }`}
+            className={`fixed top-0 right-0 w-80 h-full bg-background backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
             style={{ height: '100vh' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -290,8 +292,9 @@ export default function Navbar() {
             <div className="p-6 space-y-6 bg-background">
               {/* Theme Toggle for Mobile */}
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">Dark Mode</span>
-                <ThemeToggle />
+                <span className="text-sm font-medium text-foreground">
+                  <Trans i18nKey="navigation.darkMode" />
+                </span>
               </div>
               {/* Navigation Links */}
               <div className="space-y-1">
@@ -300,7 +303,7 @@ export default function Navbar() {
                   className="block text-muted-foreground hover:text-foreground py-3 text-base font-medium transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Marketplace
+                  <Trans i18nKey="navigation.marketplace" />
                 </Link>
                 {user && user.isSeller && (
                   <Link
@@ -308,7 +311,7 @@ export default function Navbar() {
                     className="block text-muted-foreground hover:text-foreground py-3 text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Your Store
+                    <Trans i18nKey="navigation.yourStore" />
                   </Link>
                 )}
                 {user && (
@@ -318,7 +321,7 @@ export default function Navbar() {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Heart className="h-4 w-4" />
-                    Favorites
+                    <Trans i18nKey="navigation.favorites" />
                   </Link>
                 )}
               </div>
@@ -341,7 +344,7 @@ export default function Navbar() {
                           setIsMenuOpen(false)
                         }}
                       >
-                        Become a Creator
+                        <Trans i18nKey="navigation.becomeCreator" />
                       </button>
                     )}
                     {user.isSeller && (
@@ -352,7 +355,7 @@ export default function Navbar() {
                           setIsMenuOpen(false)
                         }}
                       >
-                        Creator Dashboard
+                        <Trans i18nKey="navigation.creatorDashboard" />
                       </button>
                     )}
 
@@ -364,7 +367,7 @@ export default function Navbar() {
                       }}
                       className="w-full text-muted-foreground hover:text-foreground py-3 px-4 text-sm font-medium transition-colors duration-200 text-left"
                     >
-                      Orders History
+                      <Trans i18nKey="navigation.ordersHistory" />
                     </button>
                     <button
                       onClick={() => {
@@ -373,7 +376,7 @@ export default function Navbar() {
                       }}
                       className="w-full text-muted-foreground hover:text-foreground py-3 px-4 text-sm font-medium transition-colors duration-200 text-left"
                     >
-                      Help & Support
+                      <Trans i18nKey="navigation.helpSupport" />
                     </button>
                     <button
                       onClick={() => {
@@ -382,7 +385,7 @@ export default function Navbar() {
                       }}
                       className="w-full text-muted-foreground hover:text-foreground py-3 px-4 text-sm font-medium transition-colors duration-200 text-left"
                     >
-                      Settings
+                      <Trans i18nKey="navigation.settings" />
                     </button>
                     <button
                       onClick={() => {
@@ -391,7 +394,7 @@ export default function Navbar() {
                       }}
                       className="w-full text-destructive hover:text-destructive py-3 px-4 text-sm font-medium transition-colors duration-200 text-left"
                     >
-                      Logout
+                      <Trans i18nKey="navigation.logout" />
                     </button>
                   </div>
                 ) : (
@@ -404,7 +407,7 @@ export default function Navbar() {
                         setIsMenuOpen(false)
                       }}
                     >
-                      Login
+                      <Trans i18nKey="navigation.login" />
                     </button>
                     <button
                       className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-gray-800"
@@ -413,7 +416,7 @@ export default function Navbar() {
                         setIsMenuOpen(false)
                       }}
                     >
-                      Register
+                      <Trans i18nKey="navigation.register" />
                     </button>
                   </div>
                 )}
