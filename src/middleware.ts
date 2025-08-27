@@ -103,6 +103,16 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
+  // Public API routes for marketplace and homepage
+  if (pathname.startsWith('/api/marketplace/') ||
+    pathname.startsWith('/api/packs') ||
+    pathname.startsWith('/api/store/list') ||
+    pathname.startsWith('/api/search') ||
+    pathname.startsWith('/api/categories') ||
+    pathname.startsWith('/api/tags')) {
+    return response
+  }
+
 
 
   // Vérifier si l'utilisateur est authentifié pour les routes protégées
