@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Toaster } from 'sonner'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useAuth } from '@/hooks/useAuth'
@@ -24,6 +25,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <Toaster position="bottom-right" richColors closeButton duration={5000} />
     </div>
   )
 }

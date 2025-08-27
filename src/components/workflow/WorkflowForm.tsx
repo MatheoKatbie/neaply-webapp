@@ -86,6 +86,7 @@ export function WorkflowForm({
   editingWorkflow,
 }: WorkflowFormProps) {
   const [activeTab, setActiveTab] = useState('basic')
+  const [showErrors, setShowErrors] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   // Check if a tab is accessible based on form completion
@@ -96,7 +97,13 @@ export function WorkflowForm({
       case 'content':
         return !!(formData.title && formData.shortDesc && formData.basePriceCents >= 0 && formData.platform)
       case 'publishing':
-        return !!(formData.title && formData.shortDesc && formData.basePriceCents >= 0 && formData.platform && formData.jsonContent)
+        return !!(
+          formData.title &&
+          formData.shortDesc &&
+          formData.basePriceCents >= 0 &&
+          formData.platform &&
+          formData.jsonContent
+        )
       default:
         return false
     }
@@ -107,10 +114,25 @@ export function WorkflowForm({
 
   // Navigation functions
   const goToNextTab = () => {
+    // Validate current tab before proceeding
+    if (!isCurrentTabComplete()) {
+      setShowErrors(true)
+      // Scroll to top when there are errors
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+      return
+    }
+
     if (currentTabIndex < tabs.length - 1) {
       const nextTab = tabs[currentTabIndex + 1]
       if (isTabAccessible(nextTab)) {
         setActiveTab(nextTab)
+        setShowErrors(false) // Hide errors when moving to next tab
+        // Scroll to top when moving to next tab
+        if (formRef.current) {
+          formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
       }
     }
   }
@@ -130,32 +152,67 @@ export function WorkflowForm({
       case 'content':
         return !!(formData.platform && formData.jsonContent)
       case 'publishing':
-        return !!(formData.categoryIds && formData.categoryIds.length > 0)
+        // Don't validate publishing tab during navigation - only on final submit
+        return true
       default:
         return false
     }
   }
 
+  // Get errors for current tab only
+  const getCurrentTabErrors = () => {
+    const currentTabFields = {
+      basic: ['title', 'shortDesc', 'longDescMd', 'basePriceCents', 'platform'],
+      content: [
+        'jsonContent',
+        'n8nMinVersion',
+        'n8nMaxVersion',
+        'zapierMinVersion',
+        'zapierMaxVersion',
+        'makeMinVersion',
+        'makeMaxVersion',
+        'airtableScriptMinVersion',
+        'airtableScriptMaxVersion',
+      ],
+      publishing: ['status', 'categoryIds', 'tagIds', 'heroImageUrl', 'documentationUrl'],
+    }
+
+    const fields = currentTabFields[activeTab as keyof typeof currentTabFields] || []
+    const currentErrors: Record<string, string> = {}
+
+    fields.forEach((field) => {
+      if (errors[field]) {
+        currentErrors[field] = errors[field]
+      }
+    })
+
+    return currentErrors
+  }
+
   return (
     <form ref={formRef} onSubmit={onSubmit} className="space-y-6">
-      {/* Error Display at Top */}
-      {Object.keys(errors).length > 0 && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <div className="space-y-2">
-              <p className="font-medium">Please fix the following issues:</p>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                {Object.entries(errors).map(([field, error]) => (
-                  <li key={field}>
-                    <span className="font-medium">{field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}:</span> {error}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Error Display at Top - Only show errors for current tab when showErrors is true */}
+      {showErrors &&
+        (() => {
+          const currentErrors = getCurrentTabErrors()
+          return Object.keys(currentErrors).length > 0 ? (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="space-y-2">
+                  <p className="font-medium">Please fix the following issues:</p>
+                  <ul className="list-disc list-inside space-y-1 text-sm">
+                    {Object.entries(currentErrors).map(([field, error]) => (
+                      <li key={field}>
+                        <span>{error}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </AlertDescription>
+            </Alert>
+          ) : null
+        })()}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -188,6 +245,7 @@ export function WorkflowForm({
                 errors={errors}
                 touched={touched}
                 onBlur={onBlur}
+                showErrors={showErrors}
               />
             </CardContent>
           </Card>
@@ -215,6 +273,7 @@ export function WorkflowForm({
                 errors={errors}
                 touched={touched}
                 onBlur={onBlur}
+                showErrors={showErrors}
               />
             </CardContent>
           </Card>
@@ -250,6 +309,7 @@ export function WorkflowForm({
                 uploadingDocumentation={uploadingDocumentation}
                 categoriesLoading={categoriesLoading}
                 tagsLoading={tagsLoading}
+                showErrors={showErrors}
               />
             </CardContent>
           </Card>
@@ -281,7 +341,9 @@ export function WorkflowForm({
               type="submit"
               disabled={isSubmitting}
               onClick={() => {
-                if (Object.keys(errors).length > 0 && formRef.current) {
+                setShowErrors(true)
+                // Always scroll to top when submitting
+                if (formRef.current) {
                   formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
               }}
@@ -289,13 +351,7 @@ export function WorkflowForm({
               {isSubmitting ? 'Saving...' : editingWorkflow ? 'Update Workflow' : 'Create Workflow'}
             </Button>
           ) : (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={goToNextTab}
-              disabled={!isCurrentTabComplete()}
-              className="flex items-center gap-2"
-            >
+            <Button type="button" variant="outline" onClick={goToNextTab} className="flex items-center gap-2">
               Next
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -307,9 +363,6 @@ export function WorkflowForm({
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
           Step {currentTabIndex + 1} of {tabs.length}
-        </span>
-        <span>
-          Form completion: {Math.round(((tabs.length - Object.keys(errors).length) / tabs.length) * 100)}%
         </span>
       </div>
     </form>

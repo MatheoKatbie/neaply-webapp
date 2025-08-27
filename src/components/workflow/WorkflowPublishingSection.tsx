@@ -40,6 +40,7 @@ interface WorkflowPublishingSectionProps {
   uploadingDocumentation: boolean
   categoriesLoading: boolean
   tagsLoading: boolean
+  showErrors?: boolean
 }
 
 export function WorkflowPublishingSection({
@@ -65,6 +66,7 @@ export function WorkflowPublishingSection({
   uploadingDocumentation,
   categoriesLoading,
   tagsLoading,
+  showErrors = false,
 }: WorkflowPublishingSectionProps) {
   const [showOptionalFields, setShowOptionalFields] = useState(false)
 
@@ -98,9 +100,7 @@ export function WorkflowPublishingSection({
 
       {/* Categories - Required */}
       <div className="space-y-2">
-        <Label className={touched.categoryIds && errors.categoryIds ? 'text-red-500' : ''}>
-          Categories *
-        </Label>
+        <Label className={touched.categoryIds && errors.categoryIds ? 'text-red-500' : ''}>Categories *</Label>
         {categoriesLoading ? (
           <Skeleton className="h-10 w-full" />
         ) : (
@@ -118,7 +118,6 @@ export function WorkflowPublishingSection({
             required={true}
           />
         )}
-        {touched.categoryIds && errors.categoryIds && <p className="text-xs text-red-500">{errors.categoryIds}</p>}
         <p className="text-xs text-muted-foreground">Select at least one category to help users find your workflow</p>
       </div>
 
@@ -130,11 +129,7 @@ export function WorkflowPublishingSection({
         <div className="space-y-4">
           {heroImageUrl ? (
             <div className="relative">
-              <img
-                src={heroImageUrl}
-                alt="Hero preview"
-                className="w-full h-48 object-cover rounded-lg border"
-              />
+              <img src={heroImageUrl} alt="Hero preview" className="w-full h-48 object-cover rounded-lg border" />
               <Button
                 type="button"
                 variant="destructive"
@@ -150,9 +145,9 @@ export function WorkflowPublishingSection({
             <ImageUpload
               value={heroImageUrl}
               onChange={(file, url) => {
-                onHeroImageUpload(file);
-                if (file) onUpdate('heroImageFile', file);
-                if (url) onUpdate('heroImageUrl', url);
+                onHeroImageUpload(file)
+                if (file) onUpdate('heroImageFile', file)
+                if (url) onUpdate('heroImageUrl', url)
               }}
               placeholder="Upload hero image or paste URL"
               maxSizeMB={5}
@@ -171,7 +166,7 @@ export function WorkflowPublishingSection({
         <button
           type="button"
           onClick={() => setShowOptionalFields(!showOptionalFields)}
-          className="text-xs text-blue-600 hover:text-blue-800"
+          className="text-xs text-blue-600 hover:text-blue-800 cursor-pointer"
         >
           {showOptionalFields ? 'Hide' : 'Show'} optional fields
         </button>
@@ -205,7 +200,10 @@ export function WorkflowPublishingSection({
 
           {/* Documentation - Optional */}
           <div className="space-y-2">
-            <Label htmlFor="documentation" className={touched.documentationUrl && errors.documentationUrl ? 'text-red-500' : ''}>
+            <Label
+              htmlFor="documentation"
+              className={touched.documentationUrl && errors.documentationUrl ? 'text-red-500' : ''}
+            >
               Documentation (Optional)
             </Label>
             <div className="space-y-4">
@@ -229,9 +227,9 @@ export function WorkflowPublishingSection({
                 <FileUpload
                   value={documentationUrl}
                   onChange={(file, url) => {
-                    onDocumentationUpload(file);
-                    if (file) onUpdate('documentationFile', file);
-                    if (url) onUpdate('documentationUrl', url);
+                    onDocumentationUpload(file)
+                    if (file) onUpdate('documentationFile', file)
+                    if (url) onUpdate('documentationUrl', url)
                   }}
                   placeholder="Upload documentation file or paste URL"
                   maxSizeMB={10}
@@ -246,8 +244,6 @@ export function WorkflowPublishingSection({
               </p>
             </div>
           </div>
-
-
         </div>
       )}
 

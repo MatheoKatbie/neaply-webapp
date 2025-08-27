@@ -24,6 +24,7 @@ interface WorkflowContentSectionProps {
   errors: Record<string, string>
   touched: Record<string, boolean>
   onBlur: (field: string) => void
+  showErrors?: boolean
 }
 
 // Simplified platform configuration
@@ -69,6 +70,7 @@ export function WorkflowContentSection({
   errors,
   touched,
   onBlur,
+  showErrors = false,
 }: WorkflowContentSectionProps) {
   const [jsonValidation, setJsonValidation] = useState<{ isValid: boolean; error: string | null }>({
     isValid: true,
@@ -239,7 +241,7 @@ export function WorkflowContentSection({
             <button
               type="button"
               onClick={() => setShowVersions(!showVersions)}
-              className="text-xs text-blue-600 hover:text-blue-800"
+              className="text-xs text-blue-600 hover:text-blue-800 cursor-pointer"
             >
               {showVersions ? 'Hide' : 'Show'} version settings
             </button>
@@ -272,7 +274,9 @@ export function WorkflowContentSection({
                   onChange={(e) => onUpdate(getMaxVersionFieldName(), e.target.value)}
                   onBlur={() => onBlur(getMaxVersionFieldName())}
                   placeholder="e.g., 2.0.0"
-                  className={touched[getMaxVersionFieldName()] && errors[getMaxVersionFieldName()] ? 'border-red-500' : ''}
+                  className={
+                    touched[getMaxVersionFieldName()] && errors[getMaxVersionFieldName()] ? 'border-red-500' : ''
+                  }
                 />
                 {touched[getMaxVersionFieldName()] && errors[getMaxVersionFieldName()] && (
                   <p className="text-xs text-red-500">{errors[getMaxVersionFieldName()]}</p>
