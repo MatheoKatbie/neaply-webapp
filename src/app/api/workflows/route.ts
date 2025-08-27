@@ -37,27 +37,28 @@ const createWorkflowSchema = z
       .or(z.literal('')),
     heroImageUrl: z.string().url('Hero image URL must be valid').optional().or(z.literal('')),
     documentationUrl: z.string().url('Documentation URL must be valid').optional().or(z.literal('')),
-    basePriceCents: z.number().min(0, 'Base price cannot be negative').max(100000, 'Base price cannot exceed €1000.00'),
-    currency: z.string().default('EUR'),
-    status: z.enum(['draft', 'published', 'unlisted', 'disabled', 'pack_only']).default('draft'),
+    basePriceCents: z.number().min(0, 'Base price cannot be negative').max(1000000, 'Base price cannot exceed $10,000.00'),
+    currency: z.string().default('USD'),
+    status: z.enum(['draft', 'published', 'unlisted', 'disabled']).default('draft'),
     platform: z.enum(['n8n', 'zapier', 'make', 'airtable_script']).optional(),
     jsonContent: z.any().optional(),
     n8nMinVersion: z
       .string()
-      .min(1, 'Minimum n8n version is required')
-      .regex(/^\d+\.\d+\.\d+$/, 'Version must be in format X.Y.Z (e.g., 1.0.0)'),
+      .regex(/^\d+\.\d+\.\d+$/, 'Version must be in format X.Y.Z (e.g., 1.0.0)')
+      .optional()
+      .or(z.literal('')),
     n8nMaxVersion: z
       .string()
       .regex(/^\d+\.\d+\.\d+$/, 'Version must be in format X.Y.Z (e.g., 1.0.0)')
       .optional()
       .or(z.literal('')),
     categoryIds: z.array(z.string()).min(1, 'At least one category must be selected'),
-    tagIds: z.array(z.string()).min(1, 'At least one tag must be selected'),
+    tagIds: z.array(z.string()).optional(),
   })
   .refine(
     (data) => {
       // Validate that max version is greater than min version if both are provided
-      if (data.n8nMaxVersion && data.n8nMaxVersion.trim()) {
+      if (data.n8nMaxVersion && data.n8nMaxVersion.trim() && data.n8nMinVersion && data.n8nMinVersion.trim()) {
         return compareVersions(data.n8nMaxVersion, data.n8nMinVersion) > 0
       }
       return true
@@ -288,7 +289,7 @@ export async function GET(req: NextRequest) {
       sellerId: seller.id,
     }
 
-    if (status && ['draft', 'published', 'unlisted', 'disabled', 'pack_only'].includes(status)) {
+    if (status && ['draft', 'published', 'unlisted', 'disabled'].includes(status)) {
       where.status = status
     }
 

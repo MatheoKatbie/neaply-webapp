@@ -12,6 +12,7 @@ interface PhoneInputComponentProps {
   className?: string
   disabled?: boolean
   defaultCountry?: string
+  disableCountrySelect?: boolean
 }
 
 export function PhoneInputComponent({
@@ -21,6 +22,7 @@ export function PhoneInputComponent({
   className,
   disabled = false,
   defaultCountry = 'FR',
+  disableCountrySelect = false,
 }: PhoneInputComponentProps) {
   const [selectedCountry, setSelectedCountry] = useState<SelectMenuOption>(
     COUNTRIES.find((country) => country.value === defaultCountry) || COUNTRIES[0]
@@ -123,11 +125,11 @@ export function PhoneInputComponent({
         <div ref={countrySelectRef} className="relative flex-shrink-0">
           <button
             type="button"
-            onClick={() => setCountrySelectOpen(!countrySelectOpen)}
-            disabled={disabled}
+            onClick={() => !disableCountrySelect && setCountrySelectOpen(!countrySelectOpen)}
+            disabled={disabled || disableCountrySelect}
             className={cn(
               'flex items-center gap-1 px-2 py-3 border border-r-0 border-border rounded-l-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer min-w-0',
-              disabled && 'bg-muted cursor-not-allowed'
+              (disabled || disableCountrySelect) && 'bg-muted cursor-not-allowed'
             )}
           >
             <img

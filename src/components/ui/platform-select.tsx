@@ -60,7 +60,6 @@ export function PlatformSelect({
 
   return (
     <div className="space-y-2 cursor-pointer">
-      <Label className={cn(required && "after:content-['*'] after:ml-0.5 after:text-red-500")}>Platform</Label>
       <Select value={safeValue} onValueChange={onValueChange}>
         <SelectTrigger className={cn('w-full', error && 'border-red-500 focus:border-red-500')}>
           <SelectValue placeholder={placeholder}>
