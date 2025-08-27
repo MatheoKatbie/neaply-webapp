@@ -1,6 +1,5 @@
 export { WorkflowForm } from './WorkflowForm'
 export { WorkflowBasicInfo } from './WorkflowBasicInfo'
-export { WorkflowPlatformSection } from './WorkflowPlatformSection'
 export { WorkflowMediaSection } from './WorkflowMediaSection'
 export { WorkflowCategoriesSection } from './WorkflowCategoriesSection'
 export { WorkflowCard } from './WorkflowCard'

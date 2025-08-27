@@ -24,8 +24,8 @@ const validationRules: Record<string, ValidationRule> = {
         required: false,
     },
     basePriceCents: {
-        min: 0, // €0.00 (free)
-        max: 100000, // €1000.00
+        min: 0, // $0.00 (free)
+        max: 1000000, // $10,000.00
         required: true,
     },
     platform: {
@@ -35,7 +35,7 @@ const validationRules: Record<string, ValidationRule> = {
         required: true,
     },
     documentationUrl: {
-        required: true,
+        required: false,
     },
     n8nMinVersion: {
         required: false, // Will be validated conditionally based on platform
@@ -66,8 +66,8 @@ const validationRules: Record<string, ValidationRule> = {
         required: true,
     },
     tagIds: {
-        minArrayLength: 1,
-        required: true,
+        minArrayLength: 0,
+        required: false,
     },
 }
 
@@ -102,7 +102,7 @@ interface WorkflowFormData {
     documentationFile?: File
     basePriceCents: number
     currency: string
-    status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
+    status: 'draft' | 'published' | 'unlisted' | 'disabled'
     platform?: string
     jsonContent?: any
     jsonFile?: File
@@ -147,7 +147,7 @@ export const useFormValidation = (formData: WorkflowFormData) => {
                     return `Price cannot be negative`
                 }
                 if ('max' in rules && value > rules.max) {
-                    return `Price cannot exceed €${(rules.max / 100).toFixed(2)}`
+                    return `Price cannot exceed $${(rules.max / 100).toFixed(2)}`
                 }
             }
 
@@ -155,30 +155,15 @@ export const useFormValidation = (formData: WorkflowFormData) => {
                 return 'Workflow JSON is required'
             }
 
-            if (field === 'documentationUrl' && rules.required) {
-                // Check if we have either a URL or a selected file
-                const hasUrl = value && value.trim() && !value.startsWith('blob:')
-                const hasSelectedFile = formData.documentationFile
-                if (!hasUrl && !hasSelectedFile) {
-                    return 'Documentation is required'
-                }
+            if (field === 'documentationUrl' && value && value.startsWith('blob:')) {
                 // If we have a blob URL, we must have a selected file
-                if (value && value.startsWith('blob:') && !hasSelectedFile) {
-                    return 'Documentation is required'
-                }
-                // If we have a valid URL (not blob), it's considered valid
-                if (hasUrl) {
-                    return null
+                const hasSelectedFile = formData.documentationFile
+                if (!hasSelectedFile) {
+                    return 'Please select a documentation file'
                 }
             }
 
-            if (field === 'n8nMinVersion' && rules.required && !value) {
-                // Only validate n8n version if n8n is the selected platform
-                if (formData.platform === 'n8n') {
-                    return 'Minimum n8n version is required'
-                }
-            }
-
+            // Version validations are now optional for all platforms
             if (field === 'n8nMinVersion' && value && value.trim()) {
                 const versionRegex = /^\d+\.\d+\.\d+$/
                 if (!versionRegex.test(value)) {
@@ -214,12 +199,7 @@ export const useFormValidation = (formData: WorkflowFormData) => {
                 }
             }
 
-            if (field === 'zapierMinVersion' && rules.required && !value) {
-                // Only validate Zapier version if Zapier is the selected platform
-                if (formData.platform === 'zapier') {
-                    return 'Minimum Zapier version is required'
-                }
-            }
+            // Version validations are now optional for all platforms
 
             if (field === 'zapierMinVersion' && value && value.trim()) {
                 const versionRegex = /^\d+\.\d+\.\d+$/
@@ -256,12 +236,7 @@ export const useFormValidation = (formData: WorkflowFormData) => {
                 }
             }
 
-            if (field === 'makeMinVersion' && rules.required && !value) {
-                // Only validate Make version if Make is the selected platform
-                if (formData.platform === 'make') {
-                    return 'Minimum Make version is required'
-                }
-            }
+
 
             if (field === 'makeMinVersion' && value && value.trim()) {
                 const versionRegex = /^\d+\.\d+\.\d+$/
@@ -298,12 +273,7 @@ export const useFormValidation = (formData: WorkflowFormData) => {
                 }
             }
 
-            if (field === 'airtableScriptMinVersion' && rules.required && !value) {
-                // Only validate Airtable Script version if Airtable Script is the selected platform
-                if (formData.platform === 'airtable_script') {
-                    return 'Minimum Airtable Script version is required'
-                }
-            }
+
 
             if (field === 'airtableScriptMinVersion' && value && value.trim()) {
                 const versionRegex = /^\d+\.\d+\.\d+$/

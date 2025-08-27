@@ -71,7 +71,7 @@ export function WorkflowMediaSection({
         {/* Documentation */}
         <div className="space-y-2">
           <Label className={touched.documentationUrl && errors.documentationUrl ? 'text-red-500' : ''}>
-            Documentation *
+            Documentation
           </Label>
           <div className="max-w-sm">
             <FileUpload
@@ -83,7 +83,7 @@ export function WorkflowMediaSection({
               acceptedTypes={['.pdf', '.docx', '.doc', '.txt', '.md', '.rtf']}
               placeholder="Upload documentation (PDF, DOCX, etc.)"
               className="w-full"
-              required={true}
+              required={false}
               selectedFile={documentationFile}
               hasError={!!errors.documentationUrl}
               onBlur={() => onBlur('documentationUrl')}
@@ -91,7 +91,7 @@ export function WorkflowMediaSection({
           </div>
           {uploadingDocumentation && <p className="text-sm text-muted-foreground">Uploading documentation...</p>}
           <p className="text-xs text-muted-foreground">
-            Required • Max 10MB • PDF, DOCX, DOC, TXT, MD, RTF
+            Optional • Max 10MB • PDF, DOCX, DOC, TXT, MD, RTF
             {documentationFile && documentationUrl.startsWith('blob:') && (
               <span className="block text-orange-600 mt-1">
                 ⚠️ Document will be uploaded when you save the workflow
@@ -120,7 +120,7 @@ export function WorkflowMediaSection({
           <option value="published">Published</option>
           <option value="unlisted">Unlisted</option>
           <option value="disabled">Disabled</option>
-          <option value="pack_only">Pack Only</option>
+
         </select>
         {errors.status && <p className="text-xs text-red-500">{errors.status}</p>}
         <p className="text-xs text-muted-foreground">

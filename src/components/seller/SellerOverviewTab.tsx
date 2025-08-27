@@ -8,7 +8,6 @@ import { formatPrice, getStatusColor, STATUS_LABELS } from '@/types/workflow'
 
 interface SellerOverviewTabProps {
     workflows: Workflow[]
-    recentPacks: any[]
     analyticsOverview: {
         totalWorkflows: number
         totalPacks: number
@@ -16,8 +15,6 @@ interface SellerOverviewTabProps {
         totalRevenueCents: number
         totalSales: number
     } | null
-    workflowPacksCount: number
-    packPublishedCount: number
     onResetTouchedState: () => void
     onSetShowCreateForm: (show: boolean) => void
     onSetActiveTab: (tab: string) => void
@@ -25,10 +22,7 @@ interface SellerOverviewTabProps {
 
 export function SellerOverviewTab({
     workflows,
-    recentPacks,
     analyticsOverview,
-    workflowPacksCount,
-    packPublishedCount,
     onResetTouchedState,
     onSetShowCreateForm,
     onSetActiveTab,
@@ -38,10 +32,10 @@ export function SellerOverviewTab({
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium">Total Items</CardTitle>
+                        <CardTitle className="text-sm font-medium">Total Workflows</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{workflows.length + workflowPacksCount}</div>
+                        <div className="text-2xl font-bold">{workflows.length}</div>
                     </CardContent>
                 </Card>
 
@@ -50,7 +44,7 @@ export function SellerOverviewTab({
                         <CardTitle className="text-sm font-medium">Published</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{workflows.filter((w) => w.status === 'published').length + packPublishedCount}</div>
+                        <div className="text-2xl font-bold">{workflows.filter((w) => w.status === 'published').length}</div>
                     </CardContent>
                 </Card>
 
@@ -79,9 +73,9 @@ export function SellerOverviewTab({
                     <CardDescription>Your latest workflows and packs updates</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {workflows.length === 0 && recentPacks.length === 0 ? (
+                    {workflows.length === 0 ? (
                         <div className="text-center py-8">
-                            <p className="text-muted-foreground mb-4">No items yet</p>
+                            <p className="text-muted-foreground mb-4">No workflows yet</p>
                             <Button
                                 onClick={() => {
                                     onResetTouchedState()
@@ -89,23 +83,20 @@ export function SellerOverviewTab({
                                     onSetActiveTab('workflows')
                                 }}
                             >
-                                Create Your First Item
+                                Create Your First Workflow
                             </Button>
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {[
-                                ...workflows.map((w) => ({ type: 'workflow' as const, updatedAt: w.updatedAt, item: w })),
-                                ...recentPacks.map((p: any) => ({ type: 'pack' as const, updatedAt: p.updatedAt || p.createdAt, item: p })),
-                            ]
+                            {workflows
                                 .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
                                 .slice(0, 5)
-                                .map(({ type, item }) => (
+                                .map((item) => (
                                     <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
                                         <div className="flex items-center space-x-4 flex-1">
                                             {/* Thumbnail Preview */}
                                             <div className="flex-shrink-0">
-                                                {type === 'workflow' && item.heroImageUrl ? (
+                                                {item.heroImageUrl ? (
                                                     <div className="w-24 h-16 rounded-md overflow-hidden bg-muted border">
                                                         <img
                                                             src={item.heroImageUrl}
@@ -152,18 +143,14 @@ export function SellerOverviewTab({
                                                     <Badge className={getStatusColor(item.status)}>
                                                         {STATUS_LABELS[item.status] || item.status}
                                                     </Badge>
-                                                    {type === 'workflow' ? (
-                                                        <span className="text-sm text-muted-foreground">{item._count.orderItems} sales</span>
-                                                    ) : (
-                                                        <span className="text-sm text-muted-foreground">{item._count?.favorites || 0} favorites</span>
-                                                    )}
+                                                    <span className="text-sm text-muted-foreground">{item._count.orderItems} sales</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             <div className="font-medium">{formatPrice(item.basePriceCents, item.currency)}</div>
                                             <div className="text-sm text-muted-foreground">
-                                                Updated {new Date(type === 'workflow' ? item.updatedAt : item.updatedAt || item.createdAt).toLocaleDateString()}
+                                                Updated {new Date(item.updatedAt).toLocaleDateString()}
                                             </div>
                                         </div>
                                     </div>

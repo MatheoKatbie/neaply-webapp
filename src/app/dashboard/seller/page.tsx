@@ -11,7 +11,7 @@ import { DeleteConfirmationModal } from '@/components/ui/delete-confirmation-mod
 import { SellerAnalytics } from '@/components/ui/seller-analytics'
 import { SellerPayouts } from '@/components/ui/seller-payouts'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { WorkflowPacksTab } from '@/components/workflow/WorkflowPacksTab'
+
 import { SellerDashboardSkeleton } from '@/components/seller/SellerDashboardSkeleton'
 import { SellerOverviewTab } from '@/components/seller/SellerOverviewTab'
 import { SellerWorkflowsTab } from '@/components/seller/SellerWorkflowsTab'
@@ -38,8 +38,8 @@ export default function SellerDashboard() {
     heroImageFile: undefined,
     documentationUrl: '',
     documentationFile: undefined,
-    basePriceCents: 0, // €0.00 default (free)
-    currency: 'EUR',
+    basePriceCents: 0, // $0.00 default (free)
+    currency: 'USD',
     status: 'draft',
     platform: '',
     jsonContent: undefined,
@@ -66,11 +66,7 @@ export default function SellerDashboard() {
     hasStripeAccount: boolean
     onboardingCompleted: boolean
   } | null>(null)
-  const [workflowPacksCount, setWorkflowPacksCount] = useState(0)
-  const [packPublishedCount, setPackPublishedCount] = useState(0)
-  const [recentPacks, setRecentPacks] = useState<any[]>([])
-  const [workflowPacks, setWorkflowPacks] = useState<any[]>([])
-  const [isLoadingPacks, setIsLoadingPacks] = useState(false)
+
   const [analyticsOverview, setAnalyticsOverview] = useState<{
     totalWorkflows: number
     totalPacks: number
@@ -178,58 +174,7 @@ export default function SellerDashboard() {
     }
   }, [])
 
-  // Fetch workflow packs count for current seller (all statuses)
-  const fetchWorkflowPacks = useCallback(async () => {
-    try {
-      if (!user?.id) return
-      setIsLoadingPacks(true)
 
-      const statuses = ['draft', 'published', 'unlisted', 'disabled'] as const
-      const allPacks: any[] = []
-
-      // Fetch count for stats
-      const countRequests = statuses.map((status) =>
-        fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&status=${status}&limit=1`)
-      )
-      const countResponses = await Promise.all(countRequests)
-      const countJsons = await Promise.all(countResponses.map((r) => r.json()))
-      const total = countJsons.reduce((sum, j) => sum + (j.pagination?.total || 0), 0)
-      const publishedRes = countJsons[statuses.indexOf('published')]
-      const published = publishedRes?.pagination?.total || 0
-      setWorkflowPacksCount(total)
-      setPackPublishedCount(published)
-
-      // Fetch all packs for the tab
-      for (const status of statuses) {
-        const response = await fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&status=${status}&limit=100`)
-        if (response.ok) {
-          const data = await response.json()
-          if (data.packs && Array.isArray(data.packs)) {
-            allPacks.push(...data.packs)
-          }
-        }
-      }
-
-      setWorkflowPacks(allPacks)
-    } catch (err: any) {
-      console.error('Failed to fetch workflow packs:', err.message)
-    } finally {
-      setIsLoadingPacks(false)
-    }
-  }, [user?.id])
-
-  // Fetch recent packs for activity (default: published/unlisted)
-  const fetchRecentPacks = useCallback(async () => {
-    try {
-      if (!user?.id) return
-      const response = await fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&limit=5&page=1`)
-      if (!response.ok) return
-      const data = await response.json()
-      setRecentPacks(data.packs || [])
-    } catch (err) {
-      // ignore
-    }
-  }, [user?.id])
 
   // Fetch analytics overview (includes packs + workflows)
   const fetchAnalyticsOverview = useCallback(async () => {
@@ -250,12 +195,10 @@ export default function SellerDashboard() {
       fetchWorkflows()
       fetchCategories()
       fetchTags()
-      fetchWorkflowPacks()
-      fetchRecentPacks()
       fetchAnalyticsOverview()
       checkStripeStatus()
     }
-  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags, fetchWorkflowPacks, fetchRecentPacks, fetchAnalyticsOverview, checkStripeStatus])
+  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags, fetchAnalyticsOverview, checkStripeStatus])
 
   // Force validation when documentation file changes
   useEffect(() => {
@@ -560,7 +503,7 @@ export default function SellerDashboard() {
         documentationUrl: '',
         documentationFile: undefined,
         basePriceCents: 0,
-        currency: 'EUR',
+        currency: 'USD',
         status: 'draft',
         platform: '',
         jsonContent: undefined,
@@ -655,6 +598,38 @@ export default function SellerDashboard() {
     setDeleteModalOpen(true)
   }
 
+  // Handle workflow publish/unpublish
+  const handlePublishToggle = async (workflow: Workflow) => {
+    try {
+      const newStatus = workflow.status === 'draft' ? 'published' : 'draft'
+
+      const response = await fetch(`/api/workflows/${workflow.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to update workflow status')
+      }
+
+      await fetchWorkflows()
+
+      const action = newStatus === 'published' ? 'published' : 'unpublished'
+      toast.success(`Workflow ${action} successfully!`, {
+        description: `"${workflow.title}" has been ${action}.`,
+      })
+    } catch (err: any) {
+      setError(err.message)
+      toast.error(`Failed to ${workflow.status === 'draft' ? 'publish' : 'unpublish'} workflow`, {
+        description: err.message,
+      })
+    }
+  }
+
   const handleCreateWorkflow = async () => {
     if (!stripeStatus?.hasStripeAccount || !stripeStatus?.onboardingCompleted) {
       toast.error('Stripe Connect Required', {
@@ -679,7 +654,7 @@ export default function SellerDashboard() {
       documentationUrl: '',
       documentationFile: undefined,
       basePriceCents: 0,
-      currency: 'EUR',
+      currency: 'USD',
       status: 'draft',
       jsonContent: undefined,
       jsonFile: undefined,
@@ -856,10 +831,9 @@ export default function SellerDashboard() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="workflows">Workflows ({workflows.length})</TabsTrigger>
-            <TabsTrigger value="packs">Packs ({workflowPacksCount})</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
           </TabsList>
@@ -867,10 +841,7 @@ export default function SellerDashboard() {
           <TabsContent value="overview" className="space-y-6">
             <SellerOverviewTab
               workflows={workflows}
-              recentPacks={recentPacks}
               analyticsOverview={analyticsOverview}
-              workflowPacksCount={workflowPacksCount}
-              packPublishedCount={packPublishedCount}
               onResetTouchedState={resetTouchedState}
               onSetShowCreateForm={setShowCreateForm}
               onSetActiveTab={setActiveTab}
@@ -905,6 +876,7 @@ export default function SellerDashboard() {
               }}
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
+              onPublishToggle={handlePublishToggle}
               onHeroImageUpload={handleHeroImageUpload}
               onHeroImageRemove={handleHeroImageRemove}
               onDocumentationUpload={handleDocumentationUpload}
@@ -913,17 +885,7 @@ export default function SellerDashboard() {
             />
           </TabsContent>
 
-          <TabsContent value="packs" className="space-y-6">
-            <WorkflowPacksTab
-              categories={categories}
-              tags={tags}
-              workflows={workflows}
-              workflowPacks={workflowPacks}
-              isLoadingPacks={isLoadingPacks}
-              onTabChange={setActiveTab}
-              onRefreshPacks={fetchWorkflowPacks}
-            />
-          </TabsContent>
+
 
           <TabsContent value="analytics" className="space-y-6">
             <SellerAnalytics />

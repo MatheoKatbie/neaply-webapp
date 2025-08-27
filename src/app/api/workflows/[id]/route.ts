@@ -45,24 +45,24 @@ const updateWorkflowSchema = z
     basePriceCents: z
       .number()
       .min(0, 'Base price cannot be negative')
-      .max(100000, 'Base price cannot exceed €1000.00')
+      .max(1000000, 'Base price cannot exceed $10,000.00')
       .optional(),
     currency: z.string().optional(),
-    status: z.enum(['draft', 'published', 'unlisted', 'disabled', 'pack_only']).optional(),
+    status: z.enum(['draft', 'published', 'unlisted', 'disabled']).optional(),
     platform: z.enum(['n8n', 'zapier', 'make', 'airtable_script']).optional(),
     jsonContent: z.any().optional(),
     n8nMinVersion: z
       .string()
-      .min(1, 'Minimum n8n version is required')
       .regex(/^\d+\.\d+\.\d+$/, 'Version must be in format X.Y.Z (e.g., 1.0.0)')
-      .optional(),
+      .optional()
+      .or(z.literal('')),
     n8nMaxVersion: z
       .string()
       .regex(/^\d+\.\d+\.\d+$/, 'Version must be in format X.Y.Z (e.g., 1.0.0)')
       .optional()
       .or(z.literal('')),
     categoryIds: z.array(z.string()).min(1, 'At least one category must be selected').optional(),
-    tagIds: z.array(z.string()).min(1, 'At least one tag must be selected').optional(),
+    tagIds: z.array(z.string()).optional(),
   })
   .refine(
     (data) => {

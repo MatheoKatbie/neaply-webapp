@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { PlatformSelect } from '@/components/ui/platform-select'
 
 interface WorkflowBasicInfoProps {
   title: string
@@ -11,6 +12,7 @@ interface WorkflowBasicInfoProps {
   longDescMd: string
   basePriceCents: number
   currency: string
+  platform: string
   onUpdate: (field: string, value: any) => void
   errors: Record<string, string>
   touched: Record<string, boolean>
@@ -23,6 +25,7 @@ export function WorkflowBasicInfo({
   longDescMd,
   basePriceCents,
   currency,
+  platform,
   onUpdate,
   errors,
   touched,
@@ -55,6 +58,52 @@ export function WorkflowBasicInfo({
         />
         {touched.title && errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
         <p className="text-xs text-muted-foreground">3-100 characters • Be descriptive and clear</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="basePriceCents" className={touched.basePriceCents && errors.basePriceCents ? 'text-red-500' : ''}>
+            Price (USD) *
+          </Label>
+          <Input
+            id="basePriceCents"
+            name="basePriceCents"
+            type="number"
+            step="0.01"
+            min="0"
+            max="10000"
+            value={formatPrice(basePriceCents)}
+            onChange={(e) => onUpdate('basePriceCents', parsePrice(e.target.value))}
+            onBlur={() => onBlur('basePriceCents')}
+            placeholder="0.00"
+            className={touched.basePriceCents && errors.basePriceCents ? 'border-red-500' : ''}
+            required
+          />
+          {touched.basePriceCents && errors.basePriceCents && (
+            <p className="text-xs text-red-500">{errors.basePriceCents}</p>
+          )}
+          <p className="text-xs text-muted-foreground">$0.00 - $10,000.00 • Set to 0 for free workflows</p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="platform" className={touched.platform && errors.platform ? 'text-red-500' : ''}>
+            Platform *
+          </Label>
+          <PlatformSelect
+            value={platform}
+            onValueChange={(selectedPlatform) => {
+              onUpdate('platform', selectedPlatform)
+              if (!touched.platform) {
+                onBlur('platform')
+              }
+            }}
+            placeholder="Select the platform for your workflow..."
+            error={errors.platform}
+            required={true}
+          />
+          {touched.platform && errors.platform && <p className="text-xs text-red-500">{errors.platform}</p>}
+          <p className="text-xs text-muted-foreground">Choose the platform this workflow is designed for</p>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -96,52 +145,7 @@ export function WorkflowBasicInfo({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label
-            htmlFor="basePriceCents"
-            className={touched.basePriceCents && errors.basePriceCents ? 'text-red-500' : ''}
-          >
-            Price (€) *
-          </Label>
-          <Input
-            id="basePriceCents"
-            name="basePriceCents"
-            type="number"
-            step="0.01"
-            min="0"
-            max="1000"
-            value={formatPrice(basePriceCents)}
-            onChange={(e) => onUpdate('basePriceCents', parsePrice(e.target.value))}
-            onBlur={() => onBlur('basePriceCents')}
-            placeholder="0.00"
-            className={touched.basePriceCents && errors.basePriceCents ? 'border-red-500' : ''}
-            required
-          />
-          {touched.basePriceCents && errors.basePriceCents && (
-            <p className="text-xs text-red-500">{errors.basePriceCents}</p>
-          )}
-          <p className="text-xs text-muted-foreground">€0.00 - €1000.00 • Set to 0 for free workflows</p>
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="currency">Currency</Label>
-          <Select
-            value={currency}
-            onValueChange={(value) => onUpdate('currency', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="EUR">EUR (€)</SelectItem>
-              <SelectItem value="USD">USD ($)</SelectItem>
-              <SelectItem value="GBP">GBP (£)</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">Currency for pricing</p>
-        </div>
-      </div>
     </div>
   )
 }

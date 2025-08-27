@@ -8,6 +8,7 @@ import { WorkflowForm } from '@/components/workflow/WorkflowForm'
 import { WorkflowCard } from '@/components/workflow/WorkflowCard'
 import { PaginationControls } from '@/components/ui/pagination-controls'
 import { usePagination } from '@/hooks/usePagination'
+
 import type { Category, Tag, Workflow } from '@/types/workflow'
 import type { WorkflowFormData } from '@/hooks/useFormValidation'
 
@@ -33,6 +34,7 @@ interface SellerWorkflowsTabProps {
     onCancel: () => void
     onEdit: (workflow: Workflow) => void
     onDelete: (workflowId: string, workflowTitle: string) => void
+    onPublishToggle: (workflow: Workflow) => void
     onHeroImageUpload: (file: File | null, previewUrl?: string) => void
     onHeroImageRemove: () => void
     onDocumentationUpload: (file: File | null, previewUrl?: string) => void
@@ -62,6 +64,7 @@ export function SellerWorkflowsTab({
     onCancel,
     onEdit,
     onDelete,
+    onPublishToggle,
     onHeroImageUpload,
     onHeroImageRemove,
     onDocumentationUpload,
@@ -91,6 +94,12 @@ export function SellerWorkflowsTab({
         setCurrentPage(page)
         goToPage(page)
     }
+
+    // Handle cancel
+    const handleCancel = () => {
+        onCancel()
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -105,10 +114,15 @@ export function SellerWorkflowsTab({
             {showCreateForm && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>{editingWorkflow ? 'Edit Workflow' : 'Create New Workflow'}</CardTitle>
-                        <CardDescription>
-                            {editingWorkflow ? 'Update your workflow details' : 'Add a new workflow to your store'}
-                        </CardDescription>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle>{editingWorkflow ? 'Edit Workflow' : 'Create New Workflow'}</CardTitle>
+                                <CardDescription>
+                                    {editingWorkflow ? 'Update your workflow details' : 'Add a new workflow to your store'}
+                                </CardDescription>
+                            </div>
+
+                        </div>
                     </CardHeader>
                     <CardContent>
                         {loadingWorkflowData ? (
@@ -143,54 +157,6 @@ export function SellerWorkflowsTab({
                                 <div className="space-y-2">
                                     <Skeleton className="h-4 w-28" />
                                     <Skeleton className="h-48 w-full" />
-                                </div>
-
-                                {/* n8n Versions skeleton */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                </div>
-
-                                {/* Zapier Versions skeleton */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                </div>
-
-                                {/* Make Versions skeleton */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                </div>
-
-                                {/* Airtable Script Versions skeleton */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
                                 </div>
 
                                 {/* Image Upload skeleton */}
@@ -234,7 +200,7 @@ export function SellerWorkflowsTab({
                                 isSubmitting={isSubmitting}
                                 isFormValid={isFormValid}
                                 onSubmit={onSubmit}
-                                onCancel={onCancel}
+                                onCancel={handleCancel}
                                 categories={categories}
                                 tags={tags}
                                 categoriesLoading={categoriesLoading}
@@ -252,49 +218,55 @@ export function SellerWorkflowsTab({
                 </Card>
             )}
 
-            <div className="grid grid-cols-1 gap-6">
-                {paginatedWorkflows.map((workflow) => (
-                    <WorkflowCard
-                        key={workflow.id}
-                        workflow={workflow}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        isEditing={editingWorkflow?.id === workflow.id}
-                    />
-                ))}
+            {/* Only show workflows list when not creating a new workflow (but still show when editing) */}
+            {(!showCreateForm || editingWorkflow) && (
+                <>
+                    <div className="grid grid-cols-1 gap-6">
+                        {paginatedWorkflows.map((workflow) => (
+                            <WorkflowCard
+                                key={workflow.id}
+                                workflow={workflow}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                                onPublishToggle={onPublishToggle}
+                                isEditing={editingWorkflow?.id === workflow.id}
+                            />
+                        ))}
 
-                {filteredWorkflows.length === 0 && !showCreateForm && (
-                    <Card>
-                        <CardContent className="p-12 text-center">
-                            <div className="space-y-4">
-                                <div className="mx-auto h-12 w-12 bg-muted rounded-lg flex items-center justify-center">
-                                    <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                                        />
-                                    </svg>
-                                </div>
-                                <h3 className="text-lg font-medium text-foreground">No workflows yet</h3>
-                                <p className="text-muted-foreground">Get started by creating your first workflow.</p>
-                                <Button onClick={onCreateWorkflow}>Create Your First Workflow</Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
+                        {filteredWorkflows.length === 0 && !showCreateForm && (
+                            <Card>
+                                <CardContent className="p-12 text-center">
+                                    <div className="space-y-4">
+                                        <div className="mx-auto h-12 w-12 bg-muted rounded-lg flex items-center justify-center">
+                                            <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-lg font-medium text-foreground">No workflows yet</h3>
+                                        <p className="text-muted-foreground">Get started by creating your first workflow.</p>
+                                        <Button onClick={onCreateWorkflow}>Create Your First Workflow</Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
 
-            {/* Pagination */}
-            {filteredWorkflows.length > 0 && !showCreateForm && totalPages > 1 && (
-                <PaginationControls
-                    items={filteredWorkflows}
-                    itemsPerPage={itemsPerPage}
-                    currentPage={currentPage}
-                    onPageChange={handlePageChange}
-                    className="mt-8"
-                />
+                    {/* Pagination */}
+                    {filteredWorkflows.length > 0 && !showCreateForm && totalPages > 1 && (
+                        <PaginationControls
+                            items={filteredWorkflows}
+                            itemsPerPage={itemsPerPage}
+                            currentPage={currentPage}
+                            onPageChange={handlePageChange}
+                            className="mt-8"
+                        />
+                    )}
+                </>
             )}
         </div>
     )

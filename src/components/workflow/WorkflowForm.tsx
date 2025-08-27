@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 import { WorkflowBasicInfo } from './WorkflowBasicInfo'
-import { WorkflowPlatformSection } from './WorkflowPlatformSection'
-import { WorkflowMediaSection } from './WorkflowMediaSection'
-import { WorkflowCategoriesSection } from './WorkflowCategoriesSection'
+import { WorkflowContentSection } from '@/components/workflow/WorkflowContentSection'
+import { WorkflowPublishingSection } from '@/components/workflow/WorkflowPublishingSection'
 import type { Category, Tag } from '@/types/workflow'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -21,7 +22,7 @@ interface WorkflowFormData {
   documentationFile?: File
   basePriceCents: number
   currency: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled'
   platform?: string
   jsonContent?: any
   jsonFile?: File
@@ -60,7 +61,7 @@ interface WorkflowFormProps {
   editingWorkflow?: any
 }
 
-const tabs = ['basic', 'platform', 'media', 'categories'] as const
+const tabs = ['basic', 'content', 'publishing'] as const
 
 export function WorkflowForm({
   formData,
@@ -85,29 +86,17 @@ export function WorkflowForm({
   editingWorkflow,
 }: WorkflowFormProps) {
   const [activeTab, setActiveTab] = useState('basic')
+  const formRef = useRef<HTMLFormElement>(null)
 
   // Check if a tab is accessible based on form completion
   const isTabAccessible = (tabName: string) => {
     switch (tabName) {
       case 'basic':
         return true
-      case 'platform':
-        return !!(formData.title && formData.shortDesc && formData.basePriceCents >= 0)
-      case 'media':
-        // Check if platform is selected and content exists and is valid
-        if (!formData.platform || !formData.jsonContent) {
-          return false
-        }
-
-        // For Airtable Script, check if it's a valid string
-        if (formData.platform === 'airtable_script') {
-          return typeof formData.jsonContent === 'string' && formData.jsonContent.trim().length > 0
-        }
-
-        // For other platforms, check if it's a valid JSON object
-        return typeof formData.jsonContent === 'object' && formData.jsonContent !== null
-      case 'categories':
-        return !!formData.documentationUrl
+      case 'content':
+        return !!(formData.title && formData.shortDesc && formData.basePriceCents >= 0 && formData.platform)
+      case 'publishing':
+        return !!(formData.title && formData.shortDesc && formData.basePriceCents >= 0 && formData.platform && formData.jsonContent)
       default:
         return false
     }
@@ -137,49 +126,47 @@ export function WorkflowForm({
   const isCurrentTabComplete = () => {
     switch (activeTab) {
       case 'basic':
-        return !!(formData.title && formData.shortDesc && formData.basePriceCents >= 0)
-      case 'platform':
-        // Check if platform is selected and JSON content exists
-        if (!formData.platform || !formData.jsonContent) {
-          return false
-        }
-
-        // For Airtable Script, check if it's a string (JavaScript code)
-        if (formData.platform === 'airtable_script') {
-          return typeof formData.jsonContent === 'string' && formData.jsonContent.trim().length > 0
-        }
-
-        // For other platforms, check if it's a valid JSON object
-        return typeof formData.jsonContent === 'object' && formData.jsonContent !== null
-      case 'media':
-        return !!formData.documentationUrl
-      case 'categories':
-        return !!(
-          formData.categoryIds &&
-          formData.categoryIds.length > 0 &&
-          formData.tagIds &&
-          formData.tagIds.length > 0
-        )
+        return !!(formData.title && formData.shortDesc && formData.basePriceCents >= 0 && formData.platform)
+      case 'content':
+        return !!(formData.platform && formData.jsonContent)
+      case 'publishing':
+        return !!(formData.categoryIds && formData.categoryIds.length > 0)
       default:
         return false
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={onSubmit} className="space-y-6">
+      {/* Error Display at Top */}
+      {Object.keys(errors).length > 0 && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="space-y-2">
+              <p className="font-medium">Please fix the following issues:</p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                {Object.entries(errors).map(([field, error]) => (
+                  <li key={field}>
+                    <span className="font-medium">{field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}:</span> {error}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="basic" className="text-xs">
             Basic Info
           </TabsTrigger>
-          <TabsTrigger value="platform" className="text-xs" disabled={!isTabAccessible('platform')}>
-            Platform & JSON
+          <TabsTrigger value="content" className="text-xs" disabled={!isTabAccessible('content')}>
+            Workflow Content
           </TabsTrigger>
-          <TabsTrigger value="media" className="text-xs" disabled={!isTabAccessible('media')}>
-            Media & Status
-          </TabsTrigger>
-          <TabsTrigger value="categories" className="text-xs" disabled={!isTabAccessible('categories')}>
-            Categories & Tags
+          <TabsTrigger value="publishing" className="text-xs" disabled={!isTabAccessible('publishing')}>
+            Publishing
           </TabsTrigger>
         </TabsList>
 
@@ -196,6 +183,7 @@ export function WorkflowForm({
                 longDescMd={formData.longDescMd}
                 basePriceCents={formData.basePriceCents}
                 currency={formData.currency}
+                platform={formData.platform || ''}
                 onUpdate={onUpdate}
                 errors={errors}
                 touched={touched}
@@ -205,14 +193,14 @@ export function WorkflowForm({
           </Card>
         </TabsContent>
 
-        <TabsContent value="platform" className="space-y-6">
+        <TabsContent value="content" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Platform & Workflow</CardTitle>
-              <CardDescription>Select your platform and upload the workflow JSON</CardDescription>
+              <CardTitle>Workflow Content</CardTitle>
+              <CardDescription>Upload your workflow JSON or code</CardDescription>
             </CardHeader>
             <CardContent>
-              <WorkflowPlatformSection
+              <WorkflowContentSection
                 platform={formData.platform || ''}
                 jsonContent={formData.jsonContent}
                 n8nMinVersion={formData.n8nMinVersion || ''}
@@ -232,19 +220,23 @@ export function WorkflowForm({
           </Card>
         </TabsContent>
 
-        <TabsContent value="media" className="space-y-6">
+        <TabsContent value="publishing" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Media & Status</CardTitle>
-              <CardDescription>Upload images and documentation, set workflow status</CardDescription>
+              <CardTitle>Publishing</CardTitle>
+              <CardDescription>Add media, categories, and publish your workflow</CardDescription>
             </CardHeader>
             <CardContent>
-              <WorkflowMediaSection
+              <WorkflowPublishingSection
                 heroImageUrl={formData.heroImageUrl}
                 heroImageFile={formData.heroImageFile}
                 documentationUrl={formData.documentationUrl}
                 documentationFile={formData.documentationFile}
                 status={formData.status}
+                categoryIds={formData.categoryIds || []}
+                tagIds={formData.tagIds || []}
+                categories={categories}
+                tags={tags}
                 onUpdate={onUpdate}
                 onHeroImageUpload={onHeroImageUpload}
                 onHeroImageRemove={onHeroImageRemove}
@@ -256,27 +248,6 @@ export function WorkflowForm({
                 isSubmitting={isSubmitting}
                 uploadingThumbnail={uploadingThumbnail}
                 uploadingDocumentation={uploadingDocumentation}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="categories" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Categories & Tags</CardTitle>
-              <CardDescription>Help users discover your workflow with proper categorization</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <WorkflowCategoriesSection
-                categoryIds={formData.categoryIds || []}
-                tagIds={formData.tagIds || []}
-                categories={categories}
-                tags={tags}
-                onUpdate={onUpdate}
-                errors={errors}
-                touched={touched}
-                onBlur={onBlur}
                 categoriesLoading={categoriesLoading}
                 tagsLoading={tagsLoading}
               />
@@ -287,6 +258,12 @@ export function WorkflowForm({
 
       {/* Navigation Buttons */}
       <div className="flex items-center justify-between pt-6 border-t">
+        <div className="flex items-center gap-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+        </div>
+
         <div className="flex items-center gap-4">
           <Button
             type="button"
@@ -299,25 +276,30 @@ export function WorkflowForm({
             Previous
           </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={goToNextTab}
-            disabled={currentTabIndex === tabs.length - 1 || !isCurrentTabComplete()}
-            className="flex items-center gap-2"
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <div className="flex gap-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting || !isFormValid}>
-            {isSubmitting ? 'Saving...' : editingWorkflow ? 'Update Workflow' : 'Create Workflow'}
-          </Button>
+          {currentTabIndex === tabs.length - 1 ? (
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              onClick={() => {
+                if (Object.keys(errors).length > 0 && formRef.current) {
+                  formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+              }}
+            >
+              {isSubmitting ? 'Saving...' : editingWorkflow ? 'Update Workflow' : 'Create Workflow'}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={goToNextTab}
+              disabled={!isCurrentTabComplete()}
+              className="flex items-center gap-2"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -327,11 +309,7 @@ export function WorkflowForm({
           Step {currentTabIndex + 1} of {tabs.length}
         </span>
         <span>
-          {Object.keys(errors).length > 0 && (
-            <span className="text-red-500">
-              {Object.keys(errors).length} error{Object.keys(errors).length > 1 ? 's' : ''} to fix
-            </span>
-          )}
+          Form completion: {Math.round(((tabs.length - Object.keys(errors).length) / tabs.length) * 100)}%
         </span>
       </div>
     </form>

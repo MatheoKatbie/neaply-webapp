@@ -11,10 +11,11 @@ interface WorkflowCardProps {
     workflow: Workflow
     onEdit: (workflow: Workflow) => void
     onDelete: (workflowId: string, workflowTitle: string) => void
+    onPublishToggle: (workflow: Workflow) => void
     isEditing?: boolean
 }
 
-export function WorkflowCard({ workflow, onEdit, onDelete, isEditing = false }: WorkflowCardProps) {
+export function WorkflowCard({ workflow, onEdit, onDelete, onPublishToggle, isEditing = false }: WorkflowCardProps) {
     if (isEditing) {
         return null // Don't render if this workflow is being edited
     }
@@ -143,6 +144,14 @@ export function WorkflowCard({ workflow, onEdit, onDelete, isEditing = false }: 
                         </div>
                     </div>
                     <div className="flex space-x-2 ml-4">
+                        <Button
+                            size="sm"
+                            variant={workflow.status === 'draft' ? 'default' : 'outline'}
+                            onClick={() => onPublishToggle(workflow)}
+                            disabled={workflow.status === 'published'}
+                        >
+                            {workflow.status === 'draft' ? 'Publish' : 'Published'}
+                        </Button>
                         <Button size="sm" variant="outline" onClick={() => onEdit(workflow)}>
                             Edit
                         </Button>
