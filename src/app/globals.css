@@ -45,7 +45,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.22 0.024 210.5);
+  --background: oklch(0.235 0.024 210.5);
   --foreground: oklch(0.95 0.01 210.5);
   --card: oklch(0.26 0.024 210.5);
   --card-foreground: oklch(0.95 0.01 210.5);
@@ -60,7 +60,7 @@
   --accent: oklch(0.336 0.024 210.5);
   --accent-foreground: oklch(0.95 0.01 210.5);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.276 0.024 210.5);
+  --border: oklch(0.336 0.024 210.5);
   --input: oklch(0.276 0.024 210.5);
   --ring: oklch(0.336 0.024 210.5);
   --chart-1: oklch(0.646 0.222 41.116);
