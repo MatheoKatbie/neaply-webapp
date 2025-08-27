@@ -27,6 +27,13 @@ export default function Navbar() {
   const isHomepage = pathname === '/'
   const [isScrolled, setIsScrolled] = useState(false)
 
+  // Detect operating system for keyboard shortcut display
+  const [isMac, setIsMac] = useState(false)
+  
+  useEffect(() => {
+    setIsMac(navigator.platform.toUpperCase().indexOf('MAC') >= 0)
+  }, [])
+
   // Example search suggestions
   const searchSuggestions = [
     { text: 'Search "automation" in Neaply', query: 'automation' },
@@ -225,8 +232,17 @@ export default function Navbar() {
                   className="pl-10 pr-20 h-10 bg-secondary border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20"
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/40 text-xs">
-                  <Command className="w-3 h-3" />
-                  <span>K</span>
+                  {isMac ? (
+                    <>
+                      <span>⌘</span>
+                      <span>K</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Ctrl</span>
+                      <span>K</span>
+                    </>
+                  )}
                 </div>
               </div>
 
