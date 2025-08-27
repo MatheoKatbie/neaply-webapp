@@ -1,381 +1,411 @@
-'use client'
-import CustomWorkflowBackground from '@/components/CustomWorkflowBackground'
+"use client"
+
+import { useEffect, useMemo, useState } from 'react'
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Trans } from '@/components/ui/Trans'
-import { useTranslation } from '@/hooks/useTranslation'
-import {
-  ArrowRight,
-  Cpu,
-  Globe,
-  Palette,
-  Rocket,
-  Shield,
-  Sparkles,
-  Star,
-  TrendingUp,
-  Users,
-  Workflow,
-  Zap,
-} from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
+import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
+
+interface StoreCard {
+  userId: string
+  storeName: string
+  slug: string
+  bio: string | null
+  user: { displayName: string; avatarUrl: string | null }
+  workflowsCount: number
+}
 
 export default function Home() {
-  const heroRef = useRef<HTMLDivElement>(null)
-  const featuresRef = useRef<HTMLDivElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null)
-  const { t } = useTranslation()
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('all')
+  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'rating' | 'price-low' | 'price-high'>('popular')
+  const [trendingWorkflows, setTrendingWorkflows] = useState<any[]>([])
+  const [newestWorkflows, setNewestWorkflows] = useState<any[]>([])
+  const [packs, setPacks] = useState<any[]>([])
+  const [stores, setStores] = useState<StoreCard[]>([])
+  const [activeStore, setActiveStore] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Load more states
+  const [newestPage, setNewestPage] = useState(1)
+  const [newestHasMore, setNewestHasMore] = useState(true)
+  const [isLoadingNewest, setIsLoadingNewest] = useState(false)
+
+  const goTo = (idx: number) => {
+    if (stores.slice(0, 5).length === 0) return
+    if (isAnimating) return
+    setIsAnimating(true)
+    setActiveStore(idx)
+    setTimeout(() => setIsAnimating(false), 320)
+  }
+  const goPrev = () => goTo((activeStore - 1 + Math.min(stores.length, 5)) % Math.min(stores.length, 5))
+  const goNext = () => goTo((activeStore + 1) % Math.min(stores.length, 5))
+
+  // Auto-advance every 3s (stable, not tied to activeStore to avoid reset loop)
+  useEffect(() => {
+    const visible = Math.min(stores.length, 5)
+    if (visible <= 1) return
+    const id = setInterval(() => {
+      if (isAnimating) return
+      setIsAnimating(true)
+      setActiveStore((prev) => (prev + 1) % visible)
+      setTimeout(() => setIsAnimating(false), 320)
+    }, 3000)
+    return () => clearInterval(id)
+  }, [stores, isAnimating])
+
+  // Theme per request - now using CSS custom properties
+  const pageBg = 'hsl(var(--background))'
+  const topBorder = 'hsl(var(--accent))'
+
+  const loadData = async () => {
+    const qs = new URLSearchParams()
+    if (search) qs.set('search', search)
+    if (category && category !== 'all') qs.set('category', category)
+    if (sortBy) qs.set('sortBy', sortBy)
+
+    try {
+      const [wfTrendingRes, wfNewestRes, packRes, storeRes] = await Promise.allSettled([
+        fetch(`/api/marketplace/workflows?limit=8&sortBy=popular&${qs.toString()}`),
+        fetch(`/api/marketplace/workflows?limit=8&sortBy=newest&${qs.toString()}`),
+        fetch(`/api/packs?limit=6&status=published&${qs.toString()}`),
+        fetch(`/api/store/list?limit=5&sort=top-sales&${qs.toString()}`),
+      ])
+
+      // Handle trending workflows
+      if (wfTrendingRes.status === 'fulfilled' && wfTrendingRes.value.ok) {
+        const wfTrendingJson = await wfTrendingRes.value.json()
+        setTrendingWorkflows(wfTrendingJson.data || wfTrendingJson.workflows || [])
+      } else {
+        console.warn('Failed to load trending workflows:', wfTrendingRes.status === 'rejected' ? wfTrendingRes.reason : 'API error')
+        setTrendingWorkflows([])
+      }
+
+      // Handle newest workflows
+      if (wfNewestRes.status === 'fulfilled' && wfNewestRes.value.ok) {
+        const wfNewestJson = await wfNewestRes.value.json()
+        setNewestWorkflows(wfNewestJson.data || wfNewestJson.workflows || [])
+        setNewestHasMore(wfNewestJson.pagination?.hasNext || false)
+      } else {
+        console.warn('Failed to load newest workflows:', wfNewestRes.status === 'rejected' ? wfNewestRes.reason : 'API error')
+        setNewestWorkflows([])
+        setNewestHasMore(false)
+      }
+
+      // Handle packs
+      if (packRes.status === 'fulfilled' && packRes.value.ok) {
+        const packJson = await packRes.value.json()
+        setPacks(packJson.packs || [])
+      } else {
+        console.warn('Failed to load packs:', packRes.status === 'rejected' ? packRes.reason : 'API error')
+        setPacks([])
+      }
+
+      // Handle stores
+      if (storeRes.status === 'fulfilled' && storeRes.value.ok) {
+        const storeJson = await storeRes.value.json()
+        setStores(storeJson.stores || [])
+      } else {
+        console.warn('Failed to load stores:', storeRes.status === 'rejected' ? storeRes.reason : 'API error')
+        setStores([])
+      }
+
+      // Reset pagination when filters change
+      setNewestPage(1)
+    } catch (error) {
+      console.error('Error loading data:', error)
+      // Set empty arrays as fallback
+      setTrendingWorkflows([])
+      setNewestWorkflows([])
+      setPacks([])
+      setStores([])
+      setNewestHasMore(false)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px',
+    loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, category, sortBy])
+
+  const loadMoreNewest = async () => {
+    if (isLoadingNewest || !newestHasMore) return
+
+    setIsLoadingNewest(true)
+    const nextPage = newestPage + 1
+    const qs = new URLSearchParams()
+    if (search) qs.set('search', search)
+    if (category && category !== 'all') qs.set('category', category)
+    if (sortBy) qs.set('sortBy', sortBy)
+    qs.set('page', nextPage.toString())
+
+    try {
+      const response = await fetch(`/api/marketplace/workflows?limit=8&sortBy=newest&${qs.toString()}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const newWorkflows = data.data || data.workflows || []
+
+      setNewestWorkflows(prev => [...prev, ...newWorkflows])
+      setNewestPage(nextPage)
+      setNewestHasMore(data.pagination?.hasNext || false)
+    } catch (error) {
+      console.error('Error loading more newest workflows:', error)
+      // Don't update state on error, just log it
+    } finally {
+      setIsLoadingNewest(false)
     }
+  }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-in')
-        }
-      })
-    }, observerOptions)
+  if (isLoading) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+        <div className="border-t border-accent" />
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+          {/* Stores Skeleton */}
+          <div className="mb-8">
+            <div className="h-8 bg-card rounded-lg mb-3 animate-pulse" />
+            <div className="h-64 md:h-72 bg-card rounded-xl animate-pulse" />
+          </div>
 
-    const elements = [heroRef.current, featuresRef.current, ctaRef.current]
-    elements.forEach((el) => el && observer.observe(el))
+          {/* Trending Workflows Skeleton */}
+          <section className="mb-8">
+            <div className="h-8 bg-card rounded-lg mb-3 animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </section>
 
-    return () => observer.disconnect()
-  }, [])
+          {/* Newest Workflows Skeleton */}
+          <section className="mb-8">
+            <div className="h-8 bg-card rounded-lg mb-3 animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden pt-20">
-      {/* Hero Section */}
-      <div
-        ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 animate-fade-in bg-background"
-      >
-        <CustomWorkflowBackground />
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="space-y-12">
-            {/* Floating Elements - Simplified */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-20 left-10 w-20 h-20 bg-gray-200 rounded-full opacity-60 animate-float"></div>
-              <div className="absolute top-40 right-20 w-16 h-16 bg-gray-300 rounded-full opacity-50 animate-pulse"></div>
-              <div className="absolute bottom-32 left-20 w-12 h-12 bg-muted rounded-full opacity-40 animate-float"></div>
-              <div className="absolute bottom-20 right-10 w-24 h-24 bg-gray-400 rounded-full opacity-30 animate-pulse"></div>
-            </div>
+    <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+      <div className="border-t border-accent" />
 
-            {/* Main Headline */}
-            <div className="space-y-6">
-              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-space-grotesk font-bold tracking-tight leading-tight">
-                <div className="relative inline-block">
-                  <span className="text-foreground">
-                    <Trans i18nKey="homepage.hero.title" />
-                  </span>
-                  <div className="absolute -inset-1 bg-gray-200/30 blur-lg -z-10 animate-pulse"></div>
-                </div>
-                <br />
-                <div className="relative inline-block mt-4">
-                  <span className="text-muted-foreground">
-                    <Trans i18nKey="homepage.hero.subtitle" />
-                  </span>
-                  <div className="absolute -inset-1 bg-gray-300/30 blur-xl -z-10 animate-pulse"></div>
-                </div>
-              </h1>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+        {/* Top filters row removed per request */}
 
-              <p className="text-xl sm:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-light">
-                <Trans i18nKey="homepage.hero.description" />
-              </p>
-            </div>
+        {/* Featured Stores slider (max 5) */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-white font-space-grotesk text-2xl">Featured Stores</h2>
+          </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Button
-                size="lg"
-                className="group relative overflow-hidden bg-primary hover:bg-gray-800 text-primary-foreground px-10 py-5 text-lg font-semibold shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 rounded-2xl"
+          <div className="relative">
+            <div className="relative bg-card border border-border rounded-xl overflow-hidden h-64 md:h-72 group">
+              {/* Slides track */}
+              <div
+                className="absolute inset-0 flex transition-transform duration-300 ease-out"
+                style={{ transform: `translateX(-${activeStore * 100}%)` }}
               >
-                <Link href="/workflows" className="relative flex items-center gap-3">
-                  <Palette className="w-5 h-5" />
-                  <Trans i18nKey="homepage.hero.exploreGallery" />
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
+                {stores.slice(0, 5).map((s) => (
+                  <Link key={s.slug} href={`/store/${s.slug}`} className="min-w-full h-full block relative">
+                    {/* Background image */}
+                    <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.02]">
+                      <AutoThumbnail
+                        workflow={{
+                          id: s.userId,
+                          title: s.storeName,
+                          shortDesc: s.bio || s.user.displayName,
+                          longDescMd: '',
+                          categories: [],
+                          tags: [],
+                        }}
+                        size="lg"
+                        className="absolute inset-0 w-full h-full"
+                      />
+                    </div>
+                    {/* Gradient overlay for contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+                    {/* Text overlay */}
+                    <div className="relative z-10 p-5 text-white h-full flex flex-col justify-end">
+                      <div className="font-space-grotesk text-lg md:text-2xl">{s.storeName}</div>
+                      <div className="text-sm md:text-base opacity-90">{s.bio || 'Short Description'}</div>
+                      <div className="text-xs md:text-sm opacity-80 mt-1">{s.workflowsCount} workflows</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
 
-              <Button
-                size="lg"
-                variant="outline"
-                className="group relative bg-background backdrop-blur-md border-2 border-border hover:border-gray-500 hover:bg-background px-10 py-5 text-lg font-semibold text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105 rounded-2xl shadow-lg hover:shadow-xl"
+              {/* Arrows on-card, opposite sides */}
+              <button
+                aria-label="Previous store"
+                onClick={goPrev}
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 text-white hover:bg-black/50 transition-colors cursor-pointer"
               >
-                <Link href="/auth/register" className="flex items-center gap-3">
-                  <Rocket className="w-5 h-5 text-muted-foreground" />
-                  <Trans i18nKey="homepage.hero.startCreating" />
-                </Link>
+                <ChevronLeft className="w-5 h-5 mx-auto" />
+              </button>
+              <button
+                aria-label="Next store"
+                onClick={goNext}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 text-white hover:bg-black/50 transition-colors cursor-pointer"
+              >
+                <ChevronRight className="w-5 h-5 mx-auto" />
+              </button>
+            </div>
+
+            {/* Dots */}
+            <div className="flex items-center justify-center gap-2 mt-3">
+              {stores.slice(0, 5).map((_, idx) => (
+                <button
+                  key={idx}
+                  aria-label={`Go to store ${idx + 1}`}
+                  onClick={() => setActiveStore(idx)}
+                  className={`h-1.5 rounded-full transition-all ${activeStore === idx ? 'w-10 bg-white' : 'w-6 bg-white/40'}`}
+                />
+              ))}
+            </div>
+
+            {/* Mobile prev/next overlay */}
+            <div className="md:hidden absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2">
+              <button
+                aria-label="Previous store"
+                onClick={goPrev}
+                className="w-8 h-8 rounded-full bg-black/30 text-white hover:bg-black/40"
+              >
+                <ChevronLeft className="w-4 h-4 mx-auto" />
+              </button>
+              <button
+                aria-label="Next store"
+                onClick={goNext}
+                className="w-8 h-8 rounded-full bg-black/30 text-white hover:bg-black/40"
+              >
+                <ChevronRight className="w-4 h-4 mx-auto" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Trending Workflows */}
+        <section className="mb-8">
+          <h3 className="text-white font-space-grotesk mb-3 text-2xl">Trending workflows</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            {trendingWorkflows.map((wf) => (
+              <div key={wf.id} className="space-y-2">
+                <a
+                  href={`/workflow/${wf.id}`}
+                  className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-card border border-border block"
+                >
+                  {/* Background image */}
+                  {wf.heroImage ? (
+                    <img src={wf.heroImage} alt={wf.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
+                  ) : (
+                    <div className="absolute inset-0">
+                      <AutoThumbnail
+                        workflow={{
+                          id: wf.id,
+                          title: wf.title,
+                          shortDesc: wf.description,
+                          longDescMd: '',
+                          categories: wf.categories || [],
+                          tags: wf.tags || [],
+                        }}
+                        size="lg"
+                        className="absolute inset-0 w-full h-full"
+                      />
+                    </div>
+                  )}
+                  {/* Hover darken overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
+                  {/* Title overlay */}
+                  <div className="relative z-10 p-4 text-white h-full flex flex-col justify-end transition-transform duration-300 group-hover:-translate-y-3">
+                    <div className="font-space-grotesk text-base md:text-lg line-clamp-1">{wf.title}</div>
+                    <div className="text-sm text-white/80 line-clamp-2 mt-1">{wf.description}</div>
+                  </div>
+                  {/* Hover CTA slides from bottom */}
+                  <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center transition-all duration-300 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0">
+                    <span className="px-4 py-2 rounded-full bg-white/90 text-background font-medium">See Details</span>
+                  </div>
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Newest Workflows */}
+        <section className="mb-8">
+          <h3 className="text-white font-space-grotesk mb-3 text-2xl">Newest</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            {newestWorkflows.map((wf) => (
+              <div key={wf.id} className="space-y-2">
+                <a
+                  href={`/workflow/${wf.id}`}
+                  className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-card border border-border block"
+                >
+                  {wf.heroImage ? (
+                    <img src={wf.heroImage} alt={wf.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
+                  ) : (
+                    <div className="absolute inset-0">
+                      <AutoThumbnail
+                        workflow={{
+                          id: wf.id,
+                          title: wf.title,
+                          shortDesc: wf.description,
+                          longDescMd: '',
+                          categories: wf.categories || [],
+                          tags: wf.tags || [],
+                        }}
+                        size="lg"
+                        className="absolute inset-0 w-full h-full"
+                      />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
+                  <div className="relative z-10 p-4 text-white h-full flex flex-col justify-end transition-transform duration-300 group-hover:-translate-y-3">
+                    <div className="font-space-grotesk text-base md:text-lg line-clamp-1">{wf.title}</div>
+                    <div className="text-sm text-white/80 line-clamp-2 mt-1">{wf.description}</div>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center transition-all duration-300 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0">
+                    <span className="px-4 py-2 rounded-full bg-white text-background font-medium">See Details</span>
+                  </div>
+                </a>
+              </div>
+            ))}
+            {/* Loading skeleton for new workflows */}
+            {isLoadingNewest && Array.from({ length: 4 }).map((_, i) => (
+              <div key={`loading-${i}`} className="space-y-2">
+                <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
+              </div>
+            ))}
+          </div>
+          {newestHasMore && (
+            <div className="text-center mt-4">
+              <Button
+                onClick={loadMoreNewest}
+                disabled={isLoadingNewest}
+                className="bg-secondary hover:bg-white/10 text-white rounded-full disabled:opacity-50"
+              >
+                {isLoadingNewest ? 'Loading...' : 'Load More Newest Workflows'}
               </Button>
             </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-20">
-              <div className="group text-center p-6 rounded-3xl bg-background backdrop-blur-sm border border-border hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">
-                  <Trans i18nKey="homepage.stats.workflows" />
-                </div>
-                <div className="text-muted-foreground font-medium">
-                  <Trans i18nKey="homepage.stats.workflowsLabel" />
-                </div>
-              </div>
-              <div className="group text-center p-6 rounded-3xl bg-muted backdrop-blur-sm border border-border hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">
-                  <Trans i18nKey="homepage.stats.creators" />
-                </div>
-                <div className="text-muted-foreground font-medium">
-                  <Trans i18nKey="homepage.stats.creatorsLabel" />
-                </div>
-              </div>
-              <div className="group text-center p-6 rounded-3xl bg-background backdrop-blur-sm border border-border hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="text-4xl sm:text-5xl font-bold text-foreground mb-2">
-                  <Trans i18nKey="homepage.stats.revenue" />
-                </div>
-                <div className="text-muted-foreground font-medium">
-                  <Trans i18nKey="homepage.stats.revenueLabel" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Features Section - Interactive Hexagon Grid */}
-      <div ref={featuresRef} className="relative py-32 px-4 sm:px-6 lg:px-8 bg-background">
-        <div className="max-w-6xl mx-auto">
-          {/* Section Header */}
-          <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background border border-border text-sm font-medium text-muted-foreground mb-6 shadow-sm">
-              <Globe className="w-4 h-4" />
-              <Trans i18nKey="homepage.features.discover" />
-            </div>
-            <h2 className="text-4xl sm:text-6xl font-space-grotesk font-bold mb-6 leading-tight text-foreground">
-              <Trans i18nKey="homepage.features.title" />
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-light">
-              <Trans i18nKey="homepage.features.subtitle" />
-            </p>
-          </div>
-
-          {/* Interactive Feature Blocks */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {/* Feature 1 - Security */}
-            <div className="group relative bg-background rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-border hover:border-black">
-              <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-gray-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-foreground transition-colors duration-300">
-                  <Trans i18nKey="homepage.features.security.title" />
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  <Trans i18nKey="homepage.features.security.description" />
-                </p>
-                <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                  <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
-                  <Trans i18nKey="homepage.features.security.feature" />
-                </div>
-              </div>
-            </div>
-
-            {/* Feature 2 - Prosperity */}
-            <div className="group relative bg-background rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-border hover:border-gray-700">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-700/5 to-gray-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gray-700 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  <Trans i18nKey="homepage.features.prosperity.title" />
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  <Trans i18nKey="homepage.features.prosperity.description" />
-                </p>
-                <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  <div className="w-2 h-2 bg-gray-700 rounded-full mr-2"></div>
-                  <Trans i18nKey="homepage.features.prosperity.feature" />
-                </div>
-              </div>
-            </div>
-
-            {/* Feature 3 - Deploy */}
-            <div className="group relative bg-background rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-border hover:border-gray-600">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-600/5 to-gray-400/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gray-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Zap className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  <Trans i18nKey="homepage.features.deploy.title" />
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  <Trans i18nKey="homepage.features.deploy.description" />
-                </p>
-                <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  <div className="w-2 h-2 bg-gray-600 rounded-full mr-2"></div>
-                  <Trans i18nKey="homepage.features.deploy.feature" />
-                </div>
-              </div>
-            </div>
-
-            {/* Feature 4 - Quality */}
-            <div className="group relative bg-background rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-border hover:border-gray-800">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-800/5 to-gray-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gray-800 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Cpu className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-gray-800 transition-colors duration-300">
-                  <Trans i18nKey="homepage.features.quality.title" />
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  <Trans i18nKey="homepage.features.quality.description" />
-                </p>
-                <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-gray-800 transition-colors duration-300">
-                  <div className="w-2 h-2 bg-gray-800 rounded-full mr-2"></div>
-                  <Trans i18nKey="homepage.features.quality.feature" />
-                </div>
-              </div>
-            </div>
-
-            {/* Feature 5 - Community */}
-            <div className="group relative bg-background rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-border hover:border-gray-500">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-gray-300/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-background0 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Users className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  <Trans i18nKey="homepage.features.community.title" />
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  <Trans i18nKey="homepage.features.community.description" />
-                </p>
-                <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-muted-foreground transition-colors duration-300">
-                  <div className="w-2 h-2 bg-background0 rounded-full mr-2"></div>
-                  <Trans i18nKey="homepage.features.community.feature" />
-                </div>
-              </div>
-            </div>
-
-            {/* Feature 6 - Support */}
-            <div className="group relative bg-background rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-border hover:border-gray-900">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-900/5 to-black/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gray-900 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Star className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-foreground group-hover:text-foreground transition-colors duration-300">
-                  <Trans i18nKey="homepage.features.support.title" />
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  <Trans i18nKey="homepage.features.support.description" />
-                </p>
-                <div className="mt-6 flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-                  <div className="w-2 h-2 bg-gray-900 rounded-full mr-2"></div>
-                  <Trans i18nKey="homepage.features.support.feature" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom CTA */}
-          <div className="text-center">
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-gray-800 transition-colors duration-300 cursor-pointer">
-              <Workflow className="w-5 h-5" />
-              <span className="font-medium">
-                <Trans i18nKey="homepage.features.exploreAll" />
-              </span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div ref={ctaRef} className="relative py-32 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Floating decorative elements - Simplified */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-1/4 left-10 w-24 h-24 bg-gray-200/20 rounded-full blur-xl"></div>
-          </div>
-
-          <div className="relative p-16 rounded-[3rem] bg-background backdrop-blur-xl border-2 border-border shadow-2xl hover:shadow-3xl transition-all duration-500 group">
-            {/* Animated background gradient */}
-            <div className="absolute inset-0 bg-muted/20 rounded-[3rem] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-            <div className="relative">
-              {/* Icon with floating animation */}
-              <div className="relative mb-8">
-                <div className="w-24 h-24 mx-auto rounded-3xl bg-primary flex items-center justify-center shadow-2xl animate-float">
-                  <Workflow className="w-12 h-12 text-primary-foreground" />
-                </div>
-                <div className="absolute inset-0 w-24 h-24 mx-auto rounded-3xl bg-gray-400/40 blur-xl animate-pulse"></div>
-              </div>
-
-              <h2 className="text-4xl sm:text-6xl font-space-grotesk font-bold mb-8 leading-tight">
-                <span className="text-foreground">
-                  <Trans i18nKey="homepage.cta.title" />
-                </span>
-              </h2>
-
-              <p className="text-xl sm:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-                <Trans i18nKey="homepage.cta.description" />
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <Button
-                  size="lg"
-                  className="group relative overflow-hidden bg-primary hover:bg-gray-800 text-primary-foreground px-12 py-6 text-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 rounded-2xl"
-                >
-                  <div className="absolute inset-0 bg-gray-400/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <Link href="/auth/register" className="relative flex items-center gap-3">
-                    <Sparkles className="w-6 h-6" />
-                    <Trans i18nKey="homepage.cta.beginJourney" />
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
-                  </Link>
-                </Button>
-
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="group relative bg-background backdrop-blur-md border-2 border-border hover:border-gray-500 hover:bg-background px-12 py-6 text-xl font-bold text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-110 rounded-2xl shadow-xl hover:shadow-2xl"
-                >
-                  <Link href="/workflows" className="flex items-center gap-3">
-                    <Globe className="w-6 h-6 text-muted-foreground" />
-                    <Trans i18nKey="homepage.cta.exploreGallery" />
-                  </Link>
-                </Button>
-              </div>
-
-              {/* Trust indicators */}
-              <div className="mt-16 flex flex-wrap justify-center items-center gap-8 text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium">
-                    <Trans i18nKey="homepage.cta.trustIndicators.creators" />
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-gray-600 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium">
-                    <Trans i18nKey="homepage.cta.trustIndicators.uptime" />
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-gray-800 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium">
-                    <Trans i18nKey="homepage.cta.trustIndicators.security" />
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          )}
+        </section>
       </div>
     </div>
   )
