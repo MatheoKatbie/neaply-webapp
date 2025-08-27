@@ -168,7 +168,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
-        <div className="border-t" style={{ borderColor: topBorder }} />
+        <div className="border-t border-accent" />
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
           {/* Stores Skeleton */}
           <div className="mb-8">
@@ -206,7 +206,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
-      <div className="border-t" style={{ borderColor: topBorder }} />
+      <div className="border-t border-accent" />
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
         {/* Top filters row removed per request */}
