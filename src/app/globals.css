@@ -35,6 +35,7 @@
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
+  --color-navbar-background: var(--navbar-background);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --radius-sm: calc(var(--radius) - 4px);
@@ -45,7 +46,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.235 0.024 210.5);
+  --background: oklch(0.3005 0.0249 236.88);
   --foreground: oklch(0.95 0.01 210.5);
   --card: oklch(0.26 0.024 210.5);
   --card-foreground: oklch(0.95 0.01 210.5);
@@ -69,6 +70,7 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(0.224 0.024 210.5);
+  --navbar-background: oklch(0.3071 0.0216 226.09);
   --sidebar-foreground: oklch(0.95 0.01 210.5);
   --sidebar-primary: oklch(0.95 0.01 210.5);
   --sidebar-primary-foreground: oklch(0.196 0.024 210.5);
