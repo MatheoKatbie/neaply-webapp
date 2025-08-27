@@ -67,25 +67,65 @@ export default function Home() {
     if (category && category !== 'all') qs.set('category', category)
     if (sortBy) qs.set('sortBy', sortBy)
 
-    const [wfTrendingRes, wfNewestRes, packRes, storeRes] = await Promise.all([
-      fetch(`/api/marketplace/workflows?limit=8&sortBy=popular&${qs.toString()}`),
-      fetch(`/api/marketplace/workflows?limit=8&sortBy=newest&${qs.toString()}`),
-      fetch(`/api/packs?limit=6&status=published&${qs.toString()}`),
-      fetch(`/api/store/list?limit=5&sort=top-sales&${qs.toString()}`),
-    ])
-    const wfTrendingJson = await wfTrendingRes.json()
-    const wfNewestJson = await wfNewestRes.json()
-    const packJson = await packRes.json()
-    const storeJson = await storeRes.json()
-    setTrendingWorkflows(wfTrendingJson.data || wfTrendingJson.workflows || [])
-    setNewestWorkflows(wfNewestJson.data || wfNewestJson.workflows || [])
-    setPacks(packJson.packs || [])
-    setStores(storeJson.stores || [])
+    try {
+      const [wfTrendingRes, wfNewestRes, packRes, storeRes] = await Promise.allSettled([
+        fetch(`/api/marketplace/workflows?limit=8&sortBy=popular&${qs.toString()}`),
+        fetch(`/api/marketplace/workflows?limit=8&sortBy=newest&${qs.toString()}`),
+        fetch(`/api/packs?limit=6&status=published&${qs.toString()}`),
+        fetch(`/api/store/list?limit=5&sort=top-sales&${qs.toString()}`),
+      ])
 
-    // Reset pagination when filters change
-    setNewestPage(1)
-    setNewestHasMore(wfNewestJson.pagination?.hasNext || false)
-    setIsLoading(false)
+      // Handle trending workflows
+      if (wfTrendingRes.status === 'fulfilled' && wfTrendingRes.value.ok) {
+        const wfTrendingJson = await wfTrendingRes.value.json()
+        setTrendingWorkflows(wfTrendingJson.data || wfTrendingJson.workflows || [])
+      } else {
+        console.warn('Failed to load trending workflows:', wfTrendingRes.status === 'rejected' ? wfTrendingRes.reason : 'API error')
+        setTrendingWorkflows([])
+      }
+
+      // Handle newest workflows
+      if (wfNewestRes.status === 'fulfilled' && wfNewestRes.value.ok) {
+        const wfNewestJson = await wfNewestRes.value.json()
+        setNewestWorkflows(wfNewestJson.data || wfNewestJson.workflows || [])
+        setNewestHasMore(wfNewestJson.pagination?.hasNext || false)
+      } else {
+        console.warn('Failed to load newest workflows:', wfNewestRes.status === 'rejected' ? wfNewestRes.reason : 'API error')
+        setNewestWorkflows([])
+        setNewestHasMore(false)
+      }
+
+      // Handle packs
+      if (packRes.status === 'fulfilled' && packRes.value.ok) {
+        const packJson = await packRes.value.json()
+        setPacks(packJson.packs || [])
+      } else {
+        console.warn('Failed to load packs:', packRes.status === 'rejected' ? packRes.reason : 'API error')
+        setPacks([])
+      }
+
+      // Handle stores
+      if (storeRes.status === 'fulfilled' && storeRes.value.ok) {
+        const storeJson = await storeRes.value.json()
+        setStores(storeJson.stores || [])
+      } else {
+        console.warn('Failed to load stores:', storeRes.status === 'rejected' ? storeRes.reason : 'API error')
+        setStores([])
+      }
+
+      // Reset pagination when filters change
+      setNewestPage(1)
+    } catch (error) {
+      console.error('Error loading data:', error)
+      // Set empty arrays as fallback
+      setTrendingWorkflows([])
+      setNewestWorkflows([])
+      setPacks([])
+      setStores([])
+      setNewestHasMore(false)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -106,6 +146,11 @@ export default function Home() {
 
     try {
       const response = await fetch(`/api/marketplace/workflows?limit=8&sortBy=newest&${qs.toString()}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const data = await response.json()
       const newWorkflows = data.data || data.workflows || []
 
@@ -114,6 +159,7 @@ export default function Home() {
       setNewestHasMore(data.pagination?.hasNext || false)
     } catch (error) {
       console.error('Error loading more newest workflows:', error)
+      // Don't update state on error, just log it
     } finally {
       setIsLoadingNewest(false)
     }
