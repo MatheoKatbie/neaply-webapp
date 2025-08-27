@@ -19,8 +19,8 @@ export function encryptJsonContent(jsonContent: any): string {
     // Generate a random IV
     const iv = crypto.randomBytes(IV_LENGTH)
 
-    // Create cipher
-    const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY)
+    // Create cipher using the new API
+    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv)
     cipher.setAAD(Buffer.from('workflow-json', 'utf8'))
 
     // Encrypt the data
@@ -56,8 +56,8 @@ export function decryptJsonContent(encryptedContent: string): any {
     const tag = combined.subarray(combined.length - TAG_LENGTH)
     const encrypted = combined.subarray(IV_LENGTH, combined.length - TAG_LENGTH)
 
-    // Create decipher
-    const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY)
+    // Create decipher using the new API
+    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv)
     decipher.setAAD(Buffer.from('workflow-json', 'utf8'))
     decipher.setAuthTag(tag)
 
