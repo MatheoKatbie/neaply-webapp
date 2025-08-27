@@ -109,6 +109,14 @@ export default function Navbar() {
                   <Trans i18nKey="navigation.yourStore" />
                 </Link>
               )}
+              {user && user.isAdmin && (
+                <Link
+                  href="/admin/dashboard"
+                  className="font-inter text-muted-foreground hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-accent"
+                >
+                  Admin Dashboard
+                </Link>
+              )}
               {user && (
                 <Link
                   href="/favorites"
@@ -260,15 +268,13 @@ export default function Navbar() {
         {/* Mobile Menu with Animation */}
         <div
           ref={menuRef}
-          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${
-            isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-          }`}
+          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            }`}
           onClick={() => setIsMenuOpen(false)}
         >
           <div
-            className={`fixed top-0 right-0 w-80 h-full bg-background backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
-              isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-            }`}
+            className={`fixed top-0 right-0 w-80 h-full bg-background backdrop-blur-md shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+              }`}
             style={{ height: '100vh' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -312,6 +318,15 @@ export default function Navbar() {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Trans i18nKey="navigation.yourStore" />
+                  </Link>
+                )}
+                {user && user.isAdmin && (
+                  <Link
+                    href="/admin/dashboard"
+                    className="block text-muted-foreground hover:text-foreground py-3 text-base font-medium transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Admin Dashboard
                   </Link>
                 )}
                 {user && (
