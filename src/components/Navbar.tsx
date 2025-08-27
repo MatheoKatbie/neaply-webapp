@@ -4,11 +4,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Trans } from '@/components/ui/Trans'
 import { useAuth } from '@/hooks/useAuth'
 import { useTranslation } from '@/hooks/useTranslation'
-import { Heart } from 'lucide-react'
+import { Heart, Search, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { Input } from '@/components/ui/input'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -21,6 +22,14 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const isHomepage = pathname === '/'
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 0)
+    window.addEventListener('scroll', onScroll)
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   // Fetch seller profile to get store slug
   useEffect(() => {
@@ -84,27 +93,49 @@ export default function Navbar() {
   }, [isMenuOpen])
 
   return (
-    <nav className="static top-0 left-0 z-50 w-full bg-background rounded-none border-b border-border shadow-sm md:fixed md:top-4 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[min(96vw,1280px)] md:rounded-full md:border md:shadow-lg">
+    <nav className="sticky top-0 left-0 z-50 w-full bg-[#243238] border-b border-border/20">
       <div className="w-full px-4 md:px-6">
-        <div className="flex justify-between items-center h-14">
+        <div className="relative flex justify-between items-center h-16">
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <span className="font-space-grotesk text-xl font-bold text-foreground">Neaply</span>
+              <Image src="/images/neaply_logo.png" alt="Neaply Logo" width={28} height={28} />
             </Link>
           </div>
 
-          <div className="hidden md:flex flex-1 justify-center">
+          {/* Animated search (md+) moves from centered below to right of logo */}
+          <div
+            className={`hidden md:block absolute transition-all duration-300 ease-out will-change-transform transform-gpu ${isHomepage && !isScrolled
+              ? 'left-1/2 top-full mt-3 w-[48rem] max-w-3xl -translate-x-1/2 translate-y-0'
+              : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2'
+              }`}
+          >
+            <div className="relative">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4" />
+              <Input
+                placeholder="Search in Neaply"
+                className="pl-4 h-10 bg-[#1B272C] border-transparent text-white font-space-grotesk placeholder:text-white/60"
+              />
+            </div>
+          </div>
+
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 font-space-grotesk">
             <div className="flex items-baseline space-x-6">
               <Link
                 href="/marketplace"
-                className="font-inter text-muted-foreground hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-accent"
+                className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
               >
                 <Trans i18nKey="navigation.marketplace" />
+              </Link>
+              <Link
+                href="/how-it-works"
+                className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
+              >
+                How It Works
               </Link>
               {user && user.isSeller && (
                 <Link
                   href={`/store/${storeSlug || user.id}`}
-                  className="font-inter text-muted-foreground hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-accent"
+                  className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
                 >
                   <Trans i18nKey="navigation.yourStore" />
                 </Link>
@@ -112,7 +143,7 @@ export default function Navbar() {
               {user && user.isAdmin && (
                 <Link
                   href="/admin/dashboard"
-                  className="font-inter text-muted-foreground hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-accent"
+                  className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
                 >
                   Admin Dashboard
                 </Link>
@@ -120,7 +151,7 @@ export default function Navbar() {
               {user && (
                 <Link
                   href="/favorites"
-                  className="font-inter text-muted-foreground hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:bg-accent flex items-center gap-1"
+                  className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10 flex items-center gap-1"
                 >
                   <Trans i18nKey="navigation.favorites" />
                 </Link>
@@ -139,7 +170,7 @@ export default function Navbar() {
               <div className="flex items-center space-x-3">
                 {!user.isSeller && (
                   <button
-                    className="font-inter inline-flex items-center justify-center h-10 px-5 bg-primary border border-border text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-background hover:text-foreground hover:shadow-lg cursor-pointer"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-[#1B272C] hover:bg-[#243238] text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-primary/90 cursor-pointer"
                     onClick={() => router.push('/become-seller')}
                   >
                     <Trans i18nKey="navigation.becomeCreator" />
@@ -147,7 +178,7 @@ export default function Navbar() {
                 )}
                 {user.isSeller && (
                   <button
-                    className="font-inter inline-flex items-center justify-center h-10 px-5 bg-primary border border-border text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-background hover:text-foreground hover:shadow-lg cursor-pointer"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-[#1B272C] hover:bg-[#243238] text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-primary/90 cursor-pointer"
                     onClick={() => router.push('/dashboard/seller')}
                   >
                     <Trans i18nKey="navigation.creatorDashboard" />
@@ -234,16 +265,17 @@ export default function Navbar() {
               // Not logged in
               <div className="flex items-center space-x-3">
                 <button
-                  className="font-inter inline-flex items-center justify-center h-10 px-5 bg-transparent border border-black text-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-lg cursor-pointer"
-                  onClick={() => router.push('/auth/login')}
-                >
-                  <Trans i18nKey="navigation.login" />
-                </button>
-                <button
-                  className="font-inter inline-flex items-center justify-center h-10 px-5 bg-primary border border-black text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-gray-800 hover:shadow-lg cursor-pointer"
+                  className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-transparent border border-white/30 text-white rounded-full text-sm font-medium transition-all duration-300 hover:bg-white/10 cursor-pointer"
                   onClick={() => router.push('/auth/register')}
                 >
-                  <Trans i18nKey="navigation.register" />
+                  Sign-up
+                </button>
+                <button
+                  onClick={() => router.push('/login')}
+                  className="flex items-center justify-center h-10 w-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+                  aria-label="Login"
+                >
+                  <User className="w-5 h-5" />
                 </button>
               </div>
             )}
@@ -265,6 +297,12 @@ export default function Navbar() {
           </div>
         </div>
 
+        {/* Smooth spacer to prevent background glitch during animation */}
+        <div
+          className={`transition-all duration-300 ease-out ${isHomepage ? (isScrolled ? 'md:h-0' : 'md:h-20') : 'md:h-0'
+            } h-0`}
+        />
+
         {/* Mobile Menu with Animation */}
         <div
           ref={menuRef}
@@ -281,7 +319,7 @@ export default function Navbar() {
             {/* Mobile Menu Header */}
             <div className="flex items-center justify-between p-6 border-b border-border bg-background">
               <div className="flex items-center gap-2">
-                <Image src="/images/logo_flowmarket_256.png" alt="Neaply Logo" width={24} height={24} />
+                <Image src="/images/neaply_logo.png" alt="Neaply Logo" width={24} height={24} />
                 <span className="font-space-grotesk text-lg font-bold text-foreground">Neaply</span>
               </div>
               <button
@@ -303,18 +341,25 @@ export default function Navbar() {
                 </span>
               </div>
               {/* Navigation Links */}
-              <div className="space-y-1">
+              <div className="space-y-1 font-space-grotesk">
                 <Link
                   href="/marketplace"
-                  className="block text-muted-foreground hover:text-foreground py-3 text-base font-medium transition-colors duration-200"
+                  className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Trans i18nKey="navigation.marketplace" />
                 </Link>
+                <Link
+                  href="/how-it-works"
+                  className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  How It Works
+                </Link>
                 {user && user.isSeller && (
                   <Link
                     href={`/store/${storeSlug || user.id}`}
-                    className="block text-muted-foreground hover:text-foreground py-3 text-base font-medium transition-colors duration-200"
+                    className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Trans i18nKey="navigation.yourStore" />
@@ -323,7 +368,7 @@ export default function Navbar() {
                 {user && user.isAdmin && (
                   <Link
                     href="/admin/dashboard"
-                    className="block text-muted-foreground hover:text-foreground py-3 text-base font-medium transition-colors duration-200"
+                    className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Admin Dashboard
@@ -332,7 +377,7 @@ export default function Navbar() {
                 {user && (
                   <Link
                     href="/favorites"
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground py-3 text-base font-medium transition-colors duration-200"
+                    className="flex items-center gap-2 text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Heart className="h-4 w-4" />
@@ -416,22 +461,13 @@ export default function Navbar() {
                   // Not logged in - mobile
                   <div className="space-y-3">
                     <button
-                      className="w-full bg-transparent text-foreground py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-accent"
+                      className="w-full bg-transparent text-foreground py-3 px-4 rounded-lg text-sm font-space-grotesk font-medium transition-all duration-300 hover:bg-accent"
                       onClick={() => {
-                        router.push('/auth/login')
+                        router.push('/login')
                         setIsMenuOpen(false)
                       }}
                     >
-                      <Trans i18nKey="navigation.login" />
-                    </button>
-                    <button
-                      className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-gray-800"
-                      onClick={() => {
-                        router.push('/auth/register')
-                        setIsMenuOpen(false)
-                      }}
-                    >
-                      <Trans i18nKey="navigation.register" />
+                      Sign-up
                     </button>
                   </div>
                 )}
