@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Trans } from '@/components/ui/Trans'
 import { useAuth } from '@/hooks/useAuth'
 import { useTranslation } from '@/hooks/useTranslation'
-import { Heart, Search, User } from 'lucide-react'
+import { Heart, Search, User, ArrowRight, Command } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -15,14 +15,25 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [storeSlug, setStoreSlug] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut, loading } = useAuth()
   const { t } = useTranslation()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
   const isHomepage = pathname === '/'
   const [isScrolled, setIsScrolled] = useState(false)
+
+  // Example search suggestions
+  const searchSuggestions = [
+    { text: 'Search "automation" in Neaply', query: 'automation' },
+    { text: 'Search "email workflows" in Neaply', query: 'email workflows' },
+    { text: 'Search "data processing" in Neaply', query: 'data processing' },
+    { text: 'Search "API integration" in Neaply', query: 'API integration' },
+  ]
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 0)
@@ -58,11 +69,58 @@ export default function Navbar() {
     setIsDropdownOpen(false)
   }
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      setIsSearchFocused(false)
+    }
+  }
+
+  const handleSuggestionClick = (query: string) => {
+    setSearchQuery(query)
+    router.push(`/search?q=${encodeURIComponent(query)}`)
+    setIsSearchFocused(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Handle Enter key to search
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (searchQuery.trim()) {
+        router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+        setIsSearchFocused(false)
+      }
+    }
+  }
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + K to focus search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        searchRef.current?.focus()
+      }
+      // Escape to close search dropdown
+      if (e.key === 'Escape' && isSearchFocused) {
+        setIsSearchFocused(false)
+        searchRef.current?.blur()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isSearchFocused])
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false)
       }
     }
 
@@ -96,10 +154,55 @@ export default function Navbar() {
     <nav className="sticky top-0 left-0 z-50 w-full bg-[#243238] border-b border-border/20">
       <div className="w-full px-4 md:px-6">
         <div className="relative flex justify-between items-center h-16">
+          {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
               <Image src="/images/neaply_logo.png" alt="Neaply Logo" width={28} height={28} />
             </Link>
+          </div>
+
+          {/* Mobile Search Bar - Centered */}
+          <div className="md:hidden flex-1 max-w-sm mx-4">
+            <form onSubmit={handleSearch} className="relative">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search in Neaply"
+                  className="pl-10 pr-3 h-9 bg-[#1B272C] border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20 text-sm"
+                />
+              </div>
+
+              {/* Mobile Search Dropdown */}
+              {isSearchFocused && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#1B272C] border border-white/10 rounded-lg shadow-lg z-50">
+                  <div className="p-3 border-b border-white/10">
+                    <div className="flex items-center justify-between text-white/60 text-xs">
+                      <span>Press Enter to search</span>
+                    </div>
+                  </div>
+
+                  <div className="p-2">
+                    <div className="text-white/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
+                    {searchSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => handleSuggestionClick(suggestion.query)}
+                        className="w-full text-left px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group"
+                      >
+                        <span>{suggestion.text}</span>
+                        <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </form>
           </div>
 
           {/* Animated search (md+) moves from centered below to right of logo */}
@@ -109,13 +212,55 @@ export default function Navbar() {
               : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2'
               }`}
           >
-            <div className="relative">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4" />
-              <Input
-                placeholder="Search in Neaply"
-                className="pl-4 h-10 bg-[#1B272C] border-transparent text-white font-space-grotesk placeholder:text-white/60"
-              />
-            </div>
+            <form onSubmit={handleSearch} className="relative">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4" />
+                <Input
+                  ref={searchRef}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search in Neaply"
+                  className="pl-10 pr-20 h-10 bg-[#1B272C] border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20"
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/40 text-xs">
+                  <Command className="w-3 h-3" />
+                  <span>K</span>
+                </div>
+              </div>
+
+              {/* Search Dropdown */}
+              {isSearchFocused && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#1B272C] border border-white/10 rounded-lg shadow-lg z-50">
+                  <div className="p-3 border-b border-white/10">
+                    <div className="flex items-center justify-between text-white/60 text-xs">
+                      <span>Press Enter to search</span>
+                      <div className="flex items-center gap-1">
+                        <span>⌘K</span>
+                        <span>to focus</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-2">
+                    <div className="text-white/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
+                    {searchSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => handleSuggestionClick(suggestion.query)}
+                        className="w-full text-left px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group"
+                      >
+                        <span>{suggestion.text}</span>
+                        <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </form>
           </div>
 
           <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 font-space-grotesk">
@@ -334,6 +479,8 @@ export default function Navbar() {
 
             {/* Mobile Menu Content */}
             <div className="p-6 space-y-6 bg-background">
+
+
               {/* Theme Toggle for Mobile */}
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">
