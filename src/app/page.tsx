@@ -57,9 +57,9 @@ export default function Home() {
     return () => clearInterval(id)
   }, [stores, isAnimating])
 
-  // Theme per request
-  const pageBg = '#202D33'
-  const topBorder = '#3E4E55'
+  // Theme per request - now using CSS custom properties
+  const pageBg = 'hsl(var(--background))'
+  const topBorder = 'hsl(var(--accent))'
 
   const loadData = async () => {
     const qs = new URLSearchParams()
@@ -172,17 +172,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
           {/* Stores Skeleton */}
           <div className="mb-8">
-            <div className="h-8 bg-[#223039] rounded-lg mb-3 animate-pulse" />
-            <div className="h-64 md:h-72 bg-[#223039] rounded-xl animate-pulse" />
+            <div className="h-8 bg-card rounded-lg mb-3 animate-pulse" />
+            <div className="h-64 md:h-72 bg-card rounded-xl animate-pulse" />
           </div>
 
           {/* Trending Workflows Skeleton */}
           <section className="mb-8">
-            <div className="h-8 bg-[#223039] rounded-lg mb-3 animate-pulse" />
+            <div className="h-8 bg-card rounded-lg mb-3 animate-pulse" />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-44 md:h-56 bg-[#223039] rounded-xl animate-pulse" />
+                  <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
                 </div>
               ))}
             </div>
@@ -190,11 +190,11 @@ export default function Home() {
 
           {/* Newest Workflows Skeleton */}
           <section className="mb-8">
-            <div className="h-8 bg-[#223039] rounded-lg mb-3 animate-pulse" />
+            <div className="h-8 bg-card rounded-lg mb-3 animate-pulse" />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-44 md:h-56 bg-[#223039] rounded-xl animate-pulse" />
+                  <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
                 </div>
               ))}
             </div>
@@ -218,7 +218,7 @@ export default function Home() {
           </div>
 
           <div className="relative">
-            <div className="relative bg-[#223039] border border-[#2A3A41] rounded-xl overflow-hidden h-64 md:h-72 group">
+            <div className="relative bg-card border border-border rounded-xl overflow-hidden h-64 md:h-72 group">
               {/* Slides track */}
               <div
                 className="absolute inset-0 flex transition-transform duration-300 ease-out"
@@ -310,7 +310,7 @@ export default function Home() {
               <div key={wf.id} className="space-y-2">
                 <a
                   href={`/workflow/${wf.id}`}
-                  className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-[#223039] border border-[#2A3A41] block"
+                  className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-card border border-border block"
                 >
                   {/* Background image */}
                   {wf.heroImage ? (
@@ -340,7 +340,7 @@ export default function Home() {
                   </div>
                   {/* Hover CTA slides from bottom */}
                   <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center transition-all duration-300 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0">
-                    <span className="px-4 py-2 rounded-full bg-white/90 text-[#202D33] font-medium">See Details</span>
+                    <span className="px-4 py-2 rounded-full bg-white/90 text-background font-medium">See Details</span>
                   </div>
                 </a>
               </div>
@@ -356,7 +356,7 @@ export default function Home() {
               <div key={wf.id} className="space-y-2">
                 <a
                   href={`/workflow/${wf.id}`}
-                  className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-[#223039] border border-[#2A3A41] block"
+                  className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-card border border-border block"
                 >
                   {wf.heroImage ? (
                     <img src={wf.heroImage} alt={wf.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" />
@@ -382,7 +382,7 @@ export default function Home() {
                     <div className="text-sm text-white/80 line-clamp-2 mt-1">{wf.description}</div>
                   </div>
                   <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center transition-all duration-300 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0">
-                    <span className="px-4 py-2 rounded-full bg-white text-[#202D33] font-medium">See Details</span>
+                    <span className="px-4 py-2 rounded-full bg-white text-background font-medium">See Details</span>
                   </div>
                 </a>
               </div>
@@ -390,7 +390,7 @@ export default function Home() {
             {/* Loading skeleton for new workflows */}
             {isLoadingNewest && Array.from({ length: 4 }).map((_, i) => (
               <div key={`loading-${i}`} className="space-y-2">
-                <div className="h-44 md:h-56 bg-[#223039] rounded-xl animate-pulse" />
+                <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
               </div>
             ))}
           </div>
@@ -399,7 +399,7 @@ export default function Home() {
               <Button
                 onClick={loadMoreNewest}
                 disabled={isLoadingNewest}
-                className="bg-[#1B272C] hover:bg-white/10 text-white rounded-full disabled:opacity-50"
+                className="bg-secondary hover:bg-white/10 text-white rounded-full disabled:opacity-50"
               >
                 {isLoadingNewest ? 'Loading...' : 'Load More Newest Workflows'}
               </Button>

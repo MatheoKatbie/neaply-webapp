@@ -151,7 +151,7 @@ export default function Navbar() {
   }, [isMenuOpen])
 
   return (
-    <nav className="sticky top-0 left-0 z-50 w-full bg-[#243238] border-b border-border/20">
+    <nav className="sticky top-0 left-0 z-50 w-full bg-background border-b border-accent">
       <div className="w-full px-4 md:px-6">
         <div className="relative flex justify-between items-center h-16">
           {/* Logo */}
@@ -172,13 +172,13 @@ export default function Navbar() {
                   onFocus={() => setIsSearchFocused(true)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search in Neaply"
-                  className="pl-10 pr-3 h-9 bg-[#1B272C] border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20 text-sm"
+                  className="pl-10 pr-3 h-9 bg-secondary border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20 text-sm"
                 />
               </div>
 
               {/* Mobile Search Dropdown */}
               {isSearchFocused && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-[#1B272C] border border-white/10 rounded-lg shadow-lg z-50">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-50">
                   <div className="p-3 border-b border-white/10">
                     <div className="flex items-center justify-between text-white/60 text-xs">
                       <span>Press Enter to search</span>
@@ -222,7 +222,7 @@ export default function Navbar() {
                   onFocus={() => setIsSearchFocused(true)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search in Neaply"
-                  className="pl-10 pr-20 h-10 bg-[#1B272C] border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20"
+                  className="pl-10 pr-20 h-10 bg-secondary border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20"
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/40 text-xs">
                   <Command className="w-3 h-3" />
@@ -232,7 +232,7 @@ export default function Navbar() {
 
               {/* Search Dropdown */}
               {isSearchFocused && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-[#1B272C] border border-white/10 rounded-lg shadow-lg z-50">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-50">
                   <div className="p-3 border-b border-white/10">
                     <div className="flex items-center justify-between text-white/60 text-xs">
                       <span>Press Enter to search</span>
@@ -315,7 +315,7 @@ export default function Navbar() {
               <div className="flex items-center space-x-3">
                 {!user.isSeller && (
                   <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-[#1B272C] hover:bg-white/10 text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10 text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
                     onClick={() => router.push('/become-seller')}
                   >
                     <Trans i18nKey="navigation.becomeCreator" />
@@ -323,7 +323,7 @@ export default function Navbar() {
                 )}
                 {user.isSeller && (
                   <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-[#1B272C] hover:bg-white/10 text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10 text-primary-foreground rounded-full text-sm font-medium transition-all duration-300 cursor-pointer"
                     onClick={() => router.push('/dashboard/seller')}
                   >
                     <Trans i18nKey="navigation.creatorDashboard" />
