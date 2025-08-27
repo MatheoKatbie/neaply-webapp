@@ -117,11 +117,28 @@ export async function middleware(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     if (user) {
-      // Vérifier le statut admin dans les métadonnées utilisateur
-      const isAdmin = user.user_metadata?.isAdmin === true
+      // Vérifier le statut admin via l'API route
+      try {
+        const adminCheckUrl = new URL('/api/auth/check-admin', req.url)
+        const adminResponse = await fetch(adminCheckUrl.toString(), {
+          headers: {
+            'Cookie': req.headers.get('cookie') || '',
+          },
+        })
 
-      if (!isAdmin) {
-        // Rediriger vers la page d'accueil si l'utilisateur n'est pas admin
+        if (adminResponse.ok) {
+          const { isAdmin } = await adminResponse.json()
+          if (!isAdmin) {
+            // Rediriger vers la page d'accueil si l'utilisateur n'est pas admin
+            return NextResponse.redirect(new URL('/', req.url))
+          }
+        } else {
+          // En cas d'erreur, rediriger vers la page d'accueil par sécurité
+          return NextResponse.redirect(new URL('/', req.url))
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error)
+        // En cas d'erreur, rediriger vers la page d'accueil par sécurité
         return NextResponse.redirect(new URL('/', req.url))
       }
     } else {
