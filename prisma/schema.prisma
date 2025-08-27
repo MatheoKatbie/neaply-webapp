@@ -147,7 +147,7 @@ model Workflow {
   platform         Platform? // Platform for the workflow (n8n, Zapier, Make, Airtable Script)
   status           WorkflowStatus @default(draft)
   basePriceCents   Int            @default(0)
-  currency         String         @default("EUR")
+  currency         String         @default("USD")
   salesCount       Int            @default(0)
   ratingAvg        Decimal        @default(0.0)
   ratingCount      Int            @default(0)
