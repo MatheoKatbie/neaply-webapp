@@ -16,13 +16,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://neaply.com'),
   title: 'Neaply - Buy & Create Automation Workflows | Multi-Platform Marketplace',
   description:
-    'The premier marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows for Make, n8n, Zapier, and more. Create and sell your automation solutions to the global community.',
+    'The first marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows for Make, n8n, Zapier, and more. Create and sell your automation solutions to the global community.',
   keywords:
     'automation, workflows, marketplace, make, n8n, zapier, airtable, no-code automation, buy workflows, create workflows',
   openGraph: {
     title: 'Neaply - Buy & Sell Automation Workflows',
     description:
-      'The premier marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows or sell your own creations.',
+      'The first marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows or sell your own creations.',
     type: 'website',
     url: 'https://neaply.com',
     images: [
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Neaply - Buy & Sell Automation Workflows',
-    description: 'The premier marketplace for automation workflows across multiple platforms.',
+    description: 'The first marketplace for automation workflows across multiple platforms.',
     images: ['/images/hero.png'],
   },
 }
