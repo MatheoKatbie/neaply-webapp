@@ -30,18 +30,18 @@ export function LanguageSelector() {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
+        <Button size="sm" className="gap-2 bg-transparent cursor-pointer border border-white/20 text-white hover:bg-white/10 hover:text-white">
           <Globe className="h-4 w-4" />
           <span className="hidden sm:inline">{languageNames[locale]}</span>
           <span className="sm:hidden">{languageFlags[locale]}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-48 bg-[#243238] border-[#3E4E55] text-white">
         {locales.map((lang) => (
           <DropdownMenuItem
             key={lang}
             onClick={() => handleLanguageChange(lang)}
-            className="flex items-center justify-between cursor-pointer"
+            className="flex items-center justify-between cursor-pointer text-white hover:bg-white/10 focus:bg-white/10 hover:text-white focus:text-white data-[highlighted]:text-white"
           >
             <div className="flex items-center gap-2">
               <span>{languageNames[lang]}</span>

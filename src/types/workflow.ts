@@ -6,7 +6,7 @@ export interface Workflow {
   heroImageUrl?: string
   documentationUrl?: string
   platform?: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled'
   basePriceCents: number
   currency: string
   salesCount: number
@@ -117,7 +117,7 @@ export interface WorkflowFormData {
   heroImageFile?: File
   basePriceCents: number
   currency: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'pack_only'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled'
   platform?: string
   jsonContent?: any
   jsonFile?: File

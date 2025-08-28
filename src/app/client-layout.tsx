@@ -1,6 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { Toaster } from 'sonner'
+
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { useAuth } from '@/hooks/useAuth'
@@ -9,6 +12,10 @@ import { LanguageInitializer } from '@/components/LanguageInitializer'
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
   const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
+
+  // Hide navbar and footer on auth pages
+  const isAuthPage = pathname?.startsWith('/auth/')
 
   useEffect(() => {
     setMounted(true)
@@ -21,9 +28,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen flex flex-col">
       <LanguageInitializer />
-      <Navbar />
+      {!isAuthPage && <Navbar />}
       <main className="flex-1">{children}</main>
-      <Footer />
+      {!isAuthPage && <Footer />}
+      <Toaster position="bottom-right" richColors closeButton duration={5000} />
     </div>
   )
 }

@@ -19,18 +19,7 @@ import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
 import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
 import { downloadWorkflowAsZip } from '@/lib/download-utils'
-import {
-  ArrowLeft,
-  BarChart3,
-  CheckCircle,
-  Download,
-  Eye,
-  FileText,
-  ShoppingBag,
-  Star,
-  Users,
-  Zap
-} from 'lucide-react'
+import { ArrowLeft, BarChart3, CheckCircle, Download, Eye, FileText, ShoppingBag, Star, Users, Zap } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
@@ -212,11 +201,9 @@ export default function WorkflowDetailPage() {
     }
   }
 
-
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="animate-pulse">
@@ -238,7 +225,6 @@ export default function WorkflowDetailPage() {
   if (error || !workflow) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="text-center py-12">
@@ -262,7 +248,6 @@ export default function WorkflowDetailPage() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
@@ -493,29 +478,27 @@ export default function WorkflowDetailPage() {
               <Card>
                 <CardHeader>
                   <div className="text-center">
-                    <div className="text-3xl font-bold mb-2">
-                      {formatPrice(workflow.price, workflow.currency)}
-                    </div>
+                    <div className="text-3xl font-bold mb-2">{formatPrice(workflow.price, workflow.currency)}</div>
                     <p className="text-muted-foreground">One-time purchase</p>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {workflow.userOwnsWorkflow ? (
                     <div className="w-full space-y-3">
-                      <Button disabled className="w-full bg-green-600 text-primary-foreground cursor-not-allowed opacity-75">
+                      <Button
+                        disabled
+                        className="w-full bg-green-600 text-primary-foreground cursor-not-allowed opacity-75"
+                      >
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Already Purchased
                       </Button>
                       <div className="flex gap-2">
-                        <CopyButton
-                          workflowId={workflowId}
-                          className="flex-1"
-                        />
+                        <CopyButton workflowId={workflowId} className="flex-1" />
                         <Button
                           onClick={() => handleDownloadZip(workflowId, workflow.title)}
-                          size='sm'
+                          size="sm"
                           className="flex-1"
-                          variant='outline'
+                          variant="outline"
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Download ZIP
@@ -605,55 +588,56 @@ export default function WorkflowDetailPage() {
           </div>
 
           {/* Unified Recommendations Slider - Full Width */}
-          {recommendations && (recommendations.similarWorkflows.length > 0 || recommendations.storeWorkflows.length > 0) && (
-            <div className="mt-12">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-foreground mb-2">You might also like</h2>
-                <p className="text-muted-foreground">Discover more workflows that match your interests</p>
-              </div>
+          {recommendations &&
+            (recommendations.similarWorkflows.length > 0 || recommendations.storeWorkflows.length > 0) && (
+              <div className="mt-12">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-foreground mb-2">You might also like</h2>
+                  <p className="text-muted-foreground">Discover more workflows that match your interests</p>
+                </div>
 
-              <div className="overflow-x-auto scrollbar-hide">
-                <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
-                  {/* Similar Workflows - First 4-5 items */}
-                  {recommendations.similarWorkflows.slice(0, 5).map((similarWorkflow) => (
-                    <div key={`similar-${similarWorkflow.id}`} className="flex-shrink-0" style={{ width: '280px' }}>
-                      <WorkflowCardMini
-                        {...similarWorkflow}
-                      />
-                    </div>
-                  ))}
-
-                  {/* Store Workflows - Next items */}
-                  {recommendations.storeWorkflows.slice(0, 4).map((storeWorkflow) => (
-                    <div key={`store-${storeWorkflow.id}`} className="flex-shrink-0" style={{ width: '280px' }}>
-                      <WorkflowCardMini
-                        {...storeWorkflow}
-                      />
-                    </div>
-                  ))}
-
-                  {/* See More from Creator Card */}
-                  {recommendations.storeWorkflows.length > 0 && (
-                    <div className="flex-shrink-0" style={{ width: '280px' }}>
-                      <div className="h-full border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50/50 transition-colors cursor-pointer"
-                        onClick={() => recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)}>
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                          <ShoppingBag className="w-8 h-8 text-blue-600" />
-                        </div>
-                        <h3 className="font-semibold text-foreground mb-2">More from {recommendations.storeName}</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Explore {recommendations.storeWorkflows.length} more workflows from this creator
-                        </p>
-                        <Button variant="outline" size="sm" className="w-full">
-                          View Store
-                        </Button>
+                <div className="overflow-x-auto scrollbar-hide">
+                  <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                    {/* Similar Workflows - First 4-5 items */}
+                    {recommendations.similarWorkflows.slice(0, 5).map((similarWorkflow) => (
+                      <div key={`similar-${similarWorkflow.id}`} className="flex-shrink-0" style={{ width: '280px' }}>
+                        <WorkflowCardMini {...similarWorkflow} />
                       </div>
-                    </div>
-                  )}
+                    ))}
+
+                    {/* Store Workflows - Next items */}
+                    {recommendations.storeWorkflows.slice(0, 4).map((storeWorkflow) => (
+                      <div key={`store-${storeWorkflow.id}`} className="flex-shrink-0" style={{ width: '280px' }}>
+                        <WorkflowCardMini {...storeWorkflow} />
+                      </div>
+                    ))}
+
+                    {/* See More from Creator Card */}
+                    {recommendations.storeWorkflows.length > 0 && (
+                      <div className="flex-shrink-0" style={{ width: '280px' }}>
+                        <div
+                          className="h-full border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50/50 transition-colors cursor-pointer"
+                          onClick={() =>
+                            recommendations.storeSlug && router.push(`/store/${recommendations.storeSlug}`)
+                          }
+                        >
+                          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                            <ShoppingBag className="w-8 h-8 text-blue-600" />
+                          </div>
+                          <h3 className="font-semibold text-foreground mb-2">More from {recommendations.storeName}</h3>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Explore {recommendations.storeWorkflows.length} more workflows from this creator
+                          </p>
+                          <Button variant="outline" size="sm" className="w-full">
+                            View Store
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Reviews Section */}
           <div className="mt-12">

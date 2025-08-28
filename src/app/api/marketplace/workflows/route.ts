@@ -9,6 +9,7 @@ const marketplaceQuerySchema = z.object({
   limit: z.string().optional().default('12'),
   search: z.string().optional(),
   category: z.string().optional(),
+  platform: z.string().optional(),
   minPrice: z.string().optional(),
   maxPrice: z.string().optional(),
   sortBy: z.enum(['popular', 'newest', 'rating', 'price-low', 'price-high']).optional().default('popular'),
@@ -83,6 +84,11 @@ export async function GET(req: NextRequest) {
           },
         },
       }
+    }
+
+    // Platform filter
+    if (validatedParams.platform && validatedParams.platform !== 'all') {
+      where.platform = validatedParams.platform
     }
 
     // Price range filter

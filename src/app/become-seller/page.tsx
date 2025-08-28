@@ -81,18 +81,13 @@ export default function BecomeSellerPage() {
   const { t, locale } = useTranslation()
   const router = useRouter()
 
-  // Set default country based on language
-  const getDefaultCountryCode = () => {
-    return locale === 'en' ? 'US' : 'FR'
-  }
-
   const [formData, setFormData] = useState<SellerFormData>({
     storeName: '',
     bio: '',
     websiteUrl: '',
     supportEmail: '',
     phoneNumber: '',
-    countryCode: getDefaultCountryCode(),
+    countryCode: 'US',
   })
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -101,8 +96,8 @@ export default function BecomeSellerPage() {
   const [existingProfile, setExistingProfile] = useState<any>(null)
   const [countrySelectOpen, setCountrySelectOpen] = useState(false)
 
-  // Get default country based on language
-  const defaultCountry = COUNTRIES.find((country) => country.value === getDefaultCountryCode()) || COUNTRIES[0]
+  // Get default country (US)
+  const defaultCountry = COUNTRIES.find((country) => country.value === 'US') || COUNTRIES[0]
 
   // Check if user already has a seller profile
   useEffect(() => {
@@ -124,16 +119,7 @@ export default function BecomeSellerPage() {
     checkExistingProfile()
   }, [user])
 
-  // Update default country when language changes
-  useEffect(() => {
-    const newDefaultCountry = getDefaultCountryCode()
-    if (formData.countryCode !== newDefaultCountry) {
-      setFormData((prev) => ({
-        ...prev,
-        countryCode: newDefaultCountry,
-      }))
-    }
-  }, [locale])
+
 
   // Real-time validation for optional fields
   useEffect(() => {
@@ -523,9 +509,8 @@ export default function BecomeSellerPage() {
                     <textarea
                       id="bio"
                       name="bio"
-                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                        validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
-                      }`}
+                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
+                        }`}
                       value={formData.bio}
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
@@ -591,7 +576,8 @@ export default function BecomeSellerPage() {
                           setFormData((prev) => ({ ...prev, phoneNumber: value || '' }))
                         }}
                         placeholder={t('becomeSeller.form.phonePlaceholder')}
-                        defaultCountry={getDefaultCountryCode()}
+                        defaultCountry={formData.countryCode}
+                        disableCountrySelect={true}
                       />
                       {validationErrors.phoneNumber ? (
                         <p className="text-xs text-red-600">{validationErrors.phoneNumber}</p>
@@ -621,6 +607,21 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-muted-foreground">{t('becomeSeller.form.countryHelp')}</p>
                     </div>
                   </div>
+                  {/* Important warning about bank account */}
+                  <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                    <div className="flex items-start space-x-2">
+                      <svg className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-red-800">Important</p>
+                        <p className="text-xs text-red-700 mt-1">
+                          You must have a bank account in the selected country to receive payments.
+                          Please ensure you have access to a local bank account before proceeding.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="flex flex-col sm:flex-row gap-4 pt-6">
                     <Button type="submit" className="flex-1" disabled={isLoading || !isFormValid()}>
@@ -629,8 +630,8 @@ export default function BecomeSellerPage() {
                           ? t('becomeSeller.form.updating')
                           : t('becomeSeller.form.creating')
                         : existingProfile
-                        ? t('becomeSeller.form.updateProfile')
-                        : t('becomeSeller.form.createStore')}
+                          ? t('becomeSeller.form.updateProfile')
+                          : t('becomeSeller.form.createStore')}
                     </Button>
 
                     <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>

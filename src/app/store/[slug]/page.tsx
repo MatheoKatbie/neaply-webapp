@@ -9,15 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { Separator } from '@/components/ui/separator'
-import {
-    ArrowLeft,
-    Calendar,
-    Download,
-    Globe,
-    Mail,
-    Package,
-    Star
-} from 'lucide-react'
+import { ArrowLeft, Calendar, Download, Globe, Mail, Package, Star } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -173,9 +165,24 @@ function WorkflowCard({
           />
         )}
 
-        {/* Platform badge */}
+        {/* Rating - top left */}
+        <div className="absolute top-3 left-3 z-10">
+          <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs font-medium text-white">({rating.toFixed(1)})</span>
+          </div>
+        </div>
+
+        {/* Price - top right */}
+        <div className="absolute top-3 right-3 z-10">
+          <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+            <span className="text-xs font-bold text-green-400">{formatPrice(price, currency)}</span>
+          </div>
+        </div>
+
+        {/* Platform badge - moved to bottom left */}
         {platform && (
-          <div className="absolute top-3 left-3 z-10">
+          <div className="absolute bottom-3 left-3 z-10">
             <PlatformBadge platform={platform} size="sm" variant="default" className="shadow-sm" />
           </div>
         )}
@@ -216,24 +223,15 @@ function WorkflowCard({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">by {storeName}</span>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{rating.toFixed(1)}</span>
-                <span className="text-xs text-muted-foreground">({ratingCount})</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Download className="w-3 h-3" />
               <span>{salesCount} sales</span>
             </div>
-            <div className="text-lg font-bold text-green-600">{formatPrice(price, currency)}</div>
           </div>
         </div>
-        <Button className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-gray-800">View Workflow</Button>
+        <Button className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-gray-800">
+          View Workflow
+        </Button>
       </CardContent>
     </Card>
   )
@@ -340,7 +338,6 @@ export default function StorePage() {
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="animate-pulse">
@@ -360,7 +357,6 @@ export default function StorePage() {
   if (error || !store) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="text-center py-12">
@@ -384,7 +380,6 @@ export default function StorePage() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Breadcrumb */}

@@ -11,7 +11,7 @@ import { DeleteConfirmationModal } from '@/components/ui/delete-confirmation-mod
 import { SellerAnalytics } from '@/components/ui/seller-analytics'
 import { SellerPayouts } from '@/components/ui/seller-payouts'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { WorkflowPacksTab } from '@/components/workflow/WorkflowPacksTab'
+
 import { SellerDashboardSkeleton } from '@/components/seller/SellerDashboardSkeleton'
 import { SellerOverviewTab } from '@/components/seller/SellerOverviewTab'
 import { SellerWorkflowsTab } from '@/components/seller/SellerWorkflowsTab'
@@ -38,8 +38,8 @@ export default function SellerDashboard() {
     heroImageFile: undefined,
     documentationUrl: '',
     documentationFile: undefined,
-    basePriceCents: 0, // €0.00 default (free)
-    currency: 'EUR',
+    basePriceCents: 0, // $0.00 default (free)
+    currency: 'USD',
     status: 'draft',
     platform: '',
     jsonContent: undefined,
@@ -66,11 +66,7 @@ export default function SellerDashboard() {
     hasStripeAccount: boolean
     onboardingCompleted: boolean
   } | null>(null)
-  const [workflowPacksCount, setWorkflowPacksCount] = useState(0)
-  const [packPublishedCount, setPackPublishedCount] = useState(0)
-  const [recentPacks, setRecentPacks] = useState<any[]>([])
-  const [workflowPacks, setWorkflowPacks] = useState<any[]>([])
-  const [isLoadingPacks, setIsLoadingPacks] = useState(false)
+
   const [analyticsOverview, setAnalyticsOverview] = useState<{
     totalWorkflows: number
     totalPacks: number
@@ -120,6 +116,9 @@ export default function SellerDashboard() {
         hasStripeAccount: false,
         onboardingCompleted: false,
       })
+      toast.error('Failed to check Stripe status', {
+        description: 'Please refresh the page to try again.',
+      })
     }
   }, [])
 
@@ -139,6 +138,9 @@ export default function SellerDashboard() {
       setWorkflows(workflows)
     } catch (err: any) {
       setError(err.message)
+      toast.error('Failed to load workflows', {
+        description: err.message,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -156,6 +158,9 @@ export default function SellerDashboard() {
       setCategories(data.data || [])
     } catch (err: any) {
       console.error('Failed to fetch categories:', err.message)
+      toast.error('Failed to load categories', {
+        description: 'Categories will be loaded when you create a workflow.',
+      })
     } finally {
       setCategoriesLoading(false)
     }
@@ -173,63 +178,13 @@ export default function SellerDashboard() {
       setTags(data.data || [])
     } catch (err: any) {
       console.error('Failed to fetch tags:', err.message)
+      toast.error('Failed to load tags', {
+        description: 'Tags will be loaded when you create a workflow.',
+      })
     } finally {
       setTagsLoading(false)
     }
   }, [])
-
-  // Fetch workflow packs count for current seller (all statuses)
-  const fetchWorkflowPacks = useCallback(async () => {
-    try {
-      if (!user?.id) return
-      setIsLoadingPacks(true)
-
-      const statuses = ['draft', 'published', 'unlisted', 'disabled'] as const
-      const allPacks: any[] = []
-
-      // Fetch count for stats
-      const countRequests = statuses.map((status) =>
-        fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&status=${status}&limit=1`)
-      )
-      const countResponses = await Promise.all(countRequests)
-      const countJsons = await Promise.all(countResponses.map((r) => r.json()))
-      const total = countJsons.reduce((sum, j) => sum + (j.pagination?.total || 0), 0)
-      const publishedRes = countJsons[statuses.indexOf('published')]
-      const published = publishedRes?.pagination?.total || 0
-      setWorkflowPacksCount(total)
-      setPackPublishedCount(published)
-
-      // Fetch all packs for the tab
-      for (const status of statuses) {
-        const response = await fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&status=${status}&limit=100`)
-        if (response.ok) {
-          const data = await response.json()
-          if (data.packs && Array.isArray(data.packs)) {
-            allPacks.push(...data.packs)
-          }
-        }
-      }
-
-      setWorkflowPacks(allPacks)
-    } catch (err: any) {
-      console.error('Failed to fetch workflow packs:', err.message)
-    } finally {
-      setIsLoadingPacks(false)
-    }
-  }, [user?.id])
-
-  // Fetch recent packs for activity (default: published/unlisted)
-  const fetchRecentPacks = useCallback(async () => {
-    try {
-      if (!user?.id) return
-      const response = await fetch(`/api/packs?sellerId=${encodeURIComponent(user.id)}&limit=5&page=1`)
-      if (!response.ok) return
-      const data = await response.json()
-      setRecentPacks(data.packs || [])
-    } catch (err) {
-      // ignore
-    }
-  }, [user?.id])
 
   // Fetch analytics overview (includes packs + workflows)
   const fetchAnalyticsOverview = useCallback(async () => {
@@ -250,12 +205,10 @@ export default function SellerDashboard() {
       fetchWorkflows()
       fetchCategories()
       fetchTags()
-      fetchWorkflowPacks()
-      fetchRecentPacks()
       fetchAnalyticsOverview()
       checkStripeStatus()
     }
-  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags, fetchWorkflowPacks, fetchRecentPacks, fetchAnalyticsOverview, checkStripeStatus])
+  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags, fetchAnalyticsOverview, checkStripeStatus])
 
   // Force validation when documentation file changes
   useEffect(() => {
@@ -443,10 +396,23 @@ export default function SellerDashboard() {
 
     // Mark all fields as touched to trigger validation
     const fieldsToValidate = [
-      'title', 'shortDesc', 'longDescMd', 'basePriceCents', 'platform',
-      'jsonContent', 'documentationUrl', 'n8nMinVersion', 'n8nMaxVersion',
-      'zapierMinVersion', 'zapierMaxVersion', 'makeMinVersion', 'makeMaxVersion',
-      'airtableScriptMinVersion', 'airtableScriptMaxVersion', 'categoryIds', 'tagIds'
+      'title',
+      'shortDesc',
+      'longDescMd',
+      'basePriceCents',
+      'platform',
+      'jsonContent',
+      'documentationUrl',
+      'n8nMinVersion',
+      'n8nMaxVersion',
+      'zapierMinVersion',
+      'zapierMaxVersion',
+      'makeMinVersion',
+      'makeMaxVersion',
+      'airtableScriptMinVersion',
+      'airtableScriptMaxVersion',
+      'categoryIds',
+      'tagIds',
     ]
 
     fieldsToValidate.forEach((field) => {
@@ -455,18 +421,28 @@ export default function SellerDashboard() {
 
     const isValid = validateForm()
     if (!isValid) {
-      setError('Please fix the validation errors before submitting')
+      // Don't show toast error - let the form display the errors visually
       return
     }
 
     setIsSubmitting(true)
     setError(null)
 
+    const action = editingWorkflow ? 'updating' : 'creating'
+    toast.loading(`${action.charAt(0).toUpperCase() + action.slice(1)} workflow...`, {
+      description: editingWorkflow
+        ? `"${formData.title || editingWorkflow.title}" is being updated.`
+        : `"${formData.title}" is being created.`,
+    })
+
     try {
       let finalHeroImageUrl = formData.heroImageUrl
 
       if (formData.heroImageFile && formData.heroImageUrl.startsWith('blob:')) {
         setUploadingThumbnail(true)
+        toast.loading('Uploading image...', {
+          description: 'Please wait while your image is being uploaded.',
+        })
 
         if (editingWorkflow && editingWorkflow.heroImageUrl) {
           await deleteImageFromBucket(editingWorkflow.heroImageUrl)
@@ -486,6 +462,8 @@ export default function SellerDashboard() {
           throw new Error(uploadData.error || 'Failed to upload image')
         }
 
+        toast.success('Image uploaded successfully!')
+
         finalHeroImageUrl = uploadData.url
         setUploadingThumbnail(false)
       } else if (editingWorkflow && editingWorkflow.heroImageUrl && !formData.heroImageUrl) {
@@ -497,6 +475,9 @@ export default function SellerDashboard() {
 
       if (formData.documentationFile && formData.documentationUrl.startsWith('blob:')) {
         setUploadingDocumentation(true)
+        toast.loading('Uploading documentation...', {
+          description: 'Please wait while your documentation is being uploaded.',
+        })
 
         if (editingWorkflow && editingWorkflow.documentationUrl) {
           await deleteDocumentationFromBucket(editingWorkflow.documentationUrl)
@@ -515,6 +496,8 @@ export default function SellerDashboard() {
         if (!uploadResponse.ok) {
           throw new Error(uploadData.error || 'Failed to upload documentation')
         }
+
+        toast.success('Documentation uploaded successfully!')
 
         finalDocumentationUrl = uploadData.url
         setUploadingDocumentation(false)
@@ -560,7 +543,7 @@ export default function SellerDashboard() {
         documentationUrl: '',
         documentationFile: undefined,
         basePriceCents: 0,
-        currency: 'EUR',
+        currency: 'USD',
         status: 'draft',
         platform: '',
         jsonContent: undefined,
@@ -592,6 +575,9 @@ export default function SellerDashboard() {
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred while saving the workflow')
+      toast.error('Failed to save workflow', {
+        description: err.message || 'An error occurred while saving the workflow',
+      })
     } finally {
       setIsSubmitting(false)
       setUploadingThumbnail(false)
@@ -655,12 +641,91 @@ export default function SellerDashboard() {
     setDeleteModalOpen(true)
   }
 
+  // Handle workflow publish/disable/enable
+  const handlePublishToggle = async (workflow: Workflow) => {
+    let loadingToast: string | number | undefined
+
+    try {
+      let newStatus: string
+      let action: string
+
+      if (workflow.status === 'draft') {
+        newStatus = 'published'
+        action = 'publishing'
+      } else if (workflow.status === 'published') {
+        newStatus = 'disabled'
+        action = 'disabling'
+      } else {
+        newStatus = 'published'
+        action = 'enabling'
+      }
+
+      loadingToast = toast.loading(`${action.charAt(0).toUpperCase() + action.slice(1)} workflow...`, {
+        description: `"${workflow.title}" is being ${action}. Please wait...`,
+      })
+
+      const response = await fetch(`/api/workflows/${workflow.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to update workflow status')
+      }
+
+      await fetchWorkflows()
+
+      // Dismiss the loading toast
+      toast.dismiss(loadingToast)
+
+      let successAction: string
+      if (newStatus === 'published') {
+        successAction = workflow.status === 'draft' ? 'published' : 'enabled'
+      } else {
+        successAction = 'disabled'
+      }
+
+      toast.success(`Workflow ${successAction} successfully!`, {
+        description: `"${workflow.title}" has been ${successAction} and is now ${
+          newStatus === 'published' ? 'live on the marketplace' : 'temporarily unavailable'
+        }.`,
+        duration: 5000, // Show for 5 seconds
+      })
+    } catch (err: any) {
+      setError(err.message)
+      // Dismiss the loading toast if it exists
+      if (loadingToast) {
+        toast.dismiss(loadingToast)
+      }
+      toast.error(`Failed to update workflow status`, {
+        description: err.message,
+      })
+    }
+  }
+
   const handleCreateWorkflow = async () => {
-    if (!stripeStatus?.hasStripeAccount || !stripeStatus?.onboardingCompleted) {
+    if (!stripeStatus?.hasStripeAccount) {
       toast.error('Stripe Connect Required', {
-        description: 'You must complete your Stripe Connect setup before creating workflows. Please set up your payment account first.',
+        description:
+          'You must set up your Stripe Connect account before creating workflows. This is required to receive payments.',
         action: {
           label: 'Set up Stripe',
+          onClick: () => router.push('/dashboard/stripe/connect'),
+        },
+      })
+      return
+    }
+
+    if (!stripeStatus?.onboardingCompleted) {
+      toast.error('Stripe Onboarding Required', {
+        description:
+          'You must complete your Stripe onboarding before creating workflows. Please complete your account verification.',
+        action: {
+          label: 'Complete Onboarding',
           onClick: () => router.push('/dashboard/stripe/connect'),
         },
       })
@@ -679,7 +744,7 @@ export default function SellerDashboard() {
       documentationUrl: '',
       documentationFile: undefined,
       basePriceCents: 0,
-      currency: 'EUR',
+      currency: 'USD',
       status: 'draft',
       jsonContent: undefined,
       jsonFile: undefined,
@@ -702,6 +767,11 @@ export default function SellerDashboard() {
     if (!workflowToDelete) return
 
     setIsDeleting(true)
+
+    toast.loading('Deleting workflow...', {
+      description: `"${workflowToDelete.title}" is being deleted.`,
+    })
+
     try {
       const workflow = workflows.find((w) => w.id === workflowToDelete.id)
 
@@ -751,6 +821,9 @@ export default function SellerDashboard() {
       return data.data
     } catch (err: any) {
       setError(`Failed to load workflow details: ${err.message}`)
+      toast.error('Failed to load workflow details', {
+        description: err.message,
+      })
       return null
     }
   }
@@ -824,6 +897,9 @@ export default function SellerDashboard() {
     } catch (error) {
       console.error('Error loading workflow data:', error)
       setError('Failed to load workflow data')
+      toast.error('Failed to load workflow data', {
+        description: 'Please try again or contact support if the problem persists.',
+      })
     } finally {
       setLoadingWorkflowData(false)
     }
@@ -856,10 +932,9 @@ export default function SellerDashboard() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="workflows">Workflows ({workflows.length})</TabsTrigger>
-            <TabsTrigger value="packs">Packs ({workflowPacksCount})</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
           </TabsList>
@@ -867,10 +942,7 @@ export default function SellerDashboard() {
           <TabsContent value="overview" className="space-y-6">
             <SellerOverviewTab
               workflows={workflows}
-              recentPacks={recentPacks}
               analyticsOverview={analyticsOverview}
-              workflowPacksCount={workflowPacksCount}
-              packPublishedCount={packPublishedCount}
               onResetTouchedState={resetTouchedState}
               onSetShowCreateForm={setShowCreateForm}
               onSetActiveTab={setActiveTab}
@@ -905,23 +977,12 @@ export default function SellerDashboard() {
               }}
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
+              onPublishToggle={handlePublishToggle}
               onHeroImageUpload={handleHeroImageUpload}
               onHeroImageRemove={handleHeroImageRemove}
               onDocumentationUpload={handleDocumentationUpload}
               onDocumentationRemove={handleDocumentationRemove}
               onCreateWorkflow={handleCreateWorkflow}
-            />
-          </TabsContent>
-
-          <TabsContent value="packs" className="space-y-6">
-            <WorkflowPacksTab
-              categories={categories}
-              tags={tags}
-              workflows={workflows}
-              workflowPacks={workflowPacks}
-              isLoadingPacks={isLoadingPacks}
-              onTabChange={setActiveTab}
-              onRefreshPacks={fetchWorkflowPacks}
             />
           </TabsContent>
 

@@ -163,16 +163,33 @@ function WorkflowCard({
           />
         )}
 
-        {/* Platform badge */}
+        {/* Rating - top left */}
+        <div className="absolute top-3 left-3 z-10">
+          <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs font-medium text-white">({rating.toFixed(1)})</span>
+          </div>
+        </div>
+
+        {/* Price - top right */}
+        <div className="absolute top-3 right-3 z-10">
+          <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+            <span className="text-xs font-bold text-green-400">{formatPrice(price, currency)}</span>
+          </div>
+        </div>
+
+        {/* Platform badge - moved to bottom left */}
         {platform && (
-          <div className="absolute top-3 left-3 z-10">
+          <div className="absolute bottom-3 left-3 z-10">
             <PlatformBadge platform={platform} size="sm" variant="default" className="shadow-sm" />
           </div>
         )}
       </div>
 
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold text-card-foreground group-hover:text-foreground transition-colors">{title}</CardTitle>
+        <CardTitle className="text-lg font-semibold text-card-foreground group-hover:text-foreground transition-colors">
+          {title}
+        </CardTitle>
         <CardDescription className="text-sm text-muted-foreground line-clamp-2">{description}</CardDescription>
       </CardHeader>
 
@@ -206,24 +223,15 @@ function WorkflowCard({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">by {seller}</span>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{rating.toFixed(1)}</span>
-                <span className="text-xs text-muted-foreground">({ratingCount})</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Download className="w-3 h-3" />
               <span>{salesCount} sales</span>
             </div>
-            <div className="text-lg font-bold text-green-600">{formatPrice(price, currency)}</div>
           </div>
         </div>
-        <Button className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90">View Workflow</Button>
+        <Button className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90">
+          View Workflow
+        </Button>
       </CardContent>
     </Card>
   )

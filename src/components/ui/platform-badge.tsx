@@ -48,7 +48,7 @@ interface PlatformBadgeProps {
 
 export function PlatformBadge({
   platform,
-  variant = 'secondary',
+  variant = 'default',
   size = 'default',
   showLogo = true,
   className,
@@ -63,7 +63,7 @@ export function PlatformBadge({
     <Badge
       variant={variant}
       className={cn(
-        'inline-flex items-center gap-1.5',
+        'inline-flex items-center gap-1.5 bg-black/80 backdrop-blur-sm border border-white/20',
         size === 'sm' && 'text-xs px-2 py-0.5',
         size === 'lg' && 'text-sm px-3 py-1',
         className
@@ -78,7 +78,6 @@ export function PlatformBadge({
           className="object-contain"
         />
       )}
-      <span>{platformData.label}</span>
     </Badge>
   )
 }
