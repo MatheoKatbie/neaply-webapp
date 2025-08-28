@@ -67,6 +67,8 @@ export async function middleware(req: NextRequest) {
     '/auth/callback',
     '/auth/reset-password',
     '/',
+    '/robots.txt',
+    '/sitemap.xml',
     '/checkout/success', // Allow checkout success page without auth
     '/checkout/cancelled', // Allow checkout cancelled page without auth
   ]
@@ -104,16 +106,16 @@ export async function middleware(req: NextRequest) {
   }
 
   // Public API routes for marketplace and homepage
-  if (pathname.startsWith('/api/marketplace/') ||
+  if (
+    pathname.startsWith('/api/marketplace/') ||
     pathname.startsWith('/api/packs') ||
     pathname.startsWith('/api/store/list') ||
     pathname.startsWith('/api/search') ||
     pathname.startsWith('/api/categories') ||
-    pathname.startsWith('/api/tags')) {
+    pathname.startsWith('/api/tags')
+  ) {
     return response
   }
-
-
 
   // Vérifier si l'utilisateur est authentifié pour les routes protégées
   if (!session) {
@@ -124,9 +126,11 @@ export async function middleware(req: NextRequest) {
   }
 
   // Vérifier les privilèges admin pour les routes admin
-  if (adminRoutes.some(route => pathname.startsWith(route))) {
+  if (adminRoutes.some((route) => pathname.startsWith(route))) {
     // Récupérer les données utilisateur depuis Supabase Auth
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       // Si pas d'utilisateur, rediriger vers la page d'accueil
