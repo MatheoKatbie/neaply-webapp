@@ -54,9 +54,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     // Get entity details
     let entityDetails = null
-    if (report.entityType === 'workflow') {
+    if (report.workflowId) {
       entityDetails = await prisma.workflow.findUnique({
-        where: { id: report.entityId },
+        where: { id: report.workflowId },
         select: { 
           id: true, 
           title: true, 
@@ -67,9 +67,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           }
         }
       })
-    } else if (report.entityType === 'store') {
+    } else if (report.storeId) {
       entityDetails = await prisma.sellerProfile.findUnique({
-        where: { userId: report.entityId },
+        where: { userId: report.storeId },
         select: { 
           userId: true, 
           storeName: true, 
@@ -144,8 +144,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         entityType: 'report',
         entityId: params.id,
         metadata: {
-          reportEntityType: report.entityType,
-          reportEntityId: report.entityId,
+          reportEntityType: report.workflowId ? 'workflow' : 'store',
+          reportEntityId: report.workflowId || report.storeId,
           reason: report.reason
         }
       }
@@ -154,7 +154,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ report: updatedReport })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid request data', details: error.errors }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid request data', details: error.issues }, { status: 400 })
     }
     console.error('Error updating report:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -189,8 +189,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
         entityType: 'report',
         entityId: params.id,
         metadata: {
-          reportEntityType: report.entityType,
-          reportEntityId: report.entityId,
+          reportEntityType: report.workflowId ? 'workflow' : 'store',
+          reportEntityId: report.workflowId || report.storeId,
           reason: report.reason
         }
       }

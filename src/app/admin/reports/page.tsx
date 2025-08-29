@@ -1,10 +1,7 @@
 import { prisma } from '@/lib/prisma'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Flag, AlertTriangle, CheckCircle, Clock, Eye } from 'lucide-react'
 import { AdminPagination } from '@/components/admin/AdminPagination'
 import { AdminSearchFilters } from '@/components/admin/AdminSearchFilters'
+import { AdminReportsClient } from '@/components/admin/AdminReportsClient'
 
 async function getReports(
     page: number = 1,
@@ -71,6 +68,16 @@ async function getReports(
                             }
                         }
                     }
+                },
+                store: {
+                    select: {
+                        storeName: true,
+                        user: {
+                            select: {
+                                displayName: true
+                            }
+                        }
+                    }
                 }
             },
             orderBy: { createdAt: 'desc' },
@@ -113,54 +120,6 @@ export default async function AdminReports({
         params.dateTo
     )
 
-    const formatDate = (date: Date) => {
-        return new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).format(date)
-    }
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'open':
-                return (
-                    <Badge variant="destructive">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        Open
-                    </Badge>
-                )
-            case 'reviewing':
-                return (
-                    <Badge variant="outline">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Reviewing
-                    </Badge>
-                )
-            case 'resolved':
-                return (
-                    <Badge variant="default" className="bg-green-100 text-green-800">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Resolved
-                    </Badge>
-                )
-            case 'dismissed':
-                return (
-                    <Badge variant="secondary">
-                        Dismissed
-                    </Badge>
-                )
-            default:
-                return (
-                    <Badge variant="outline">
-                        {status}
-                    </Badge>
-                )
-        }
-    }
-
     const filterOptions = [
         {
             key: 'status',
@@ -198,82 +157,10 @@ export default async function AdminReports({
                 dateRangeFilter={true}
             />
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                        <Flag className="h-5 w-5" />
-                        <span>All Reports ({totalCount})</span>
-                    </CardTitle>
-                    <CardDescription>
-                        Review and take action on user-submitted reports
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                        {reports.map((report) => (
-                            <div
-                                key={report.id}
-                                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted"
-                            >
-                                <div className="flex-1 space-y-2">
-                                    <div className="flex items-center space-x-2">
-                                        <h3 className="text-lg font-medium">Report #{report.id}</h3>
-                                        {getStatusBadge(report.status)}
-                                    </div>
-
-                                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                        <span>Reporter: {report.reporter?.displayName}</span>
-                                        <span>•</span>
-                                        <span>{report.reporter?.email}</span>
-                                        <span>•</span>
-                                        <span className="font-medium">Type: {report.reason}</span>
-                                    </div>
-
-                                    <div className="text-sm text-muted-foreground">
-                                        <span className="font-medium">Workflow: </span>
-                                        <span>{report.workflow.title}</span>
-                                        <span className="text-gray-400"> by {report.workflow.seller.displayName}</span>
-                                    </div>
-
-                                    <div className="text-sm text-muted-foreground">
-                                        <span className="font-medium">Description: </span>
-                                        <span>{report.reason}</span>
-                                    </div>
-
-                                    <div className="flex items-center space-x-4 text-xs text-gray-400">
-                                        <span>Reported: {formatDate(report.createdAt)}</span>
-                                        {report.status === 'resolved' && (
-                                            <>
-                                                <span>•</span>
-                                                <span>Resolved: {formatDate(report.createdAt)}</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center space-x-2 ml-4">
-                                    <Button variant="outline" size="sm">
-                                        <Eye className="h-4 w-4 mr-1" />
-                                        View Details
-                                    </Button>
-                                    {report.status === 'open' && (
-                                        <>
-                                            <Button variant="outline" size="sm">
-                                                <Clock className="h-4 w-4 mr-1" />
-                                                Start Review
-                                            </Button>
-                                            <Button variant="outline" size="sm">
-                                                <CheckCircle className="h-4 w-4 mr-1" />
-                                                Resolve
-                                            </Button>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
+            <AdminReportsClient 
+                initialReports={reports} 
+                totalCount={totalCount}
+            />
 
             {/* Pagination */}
             <AdminPagination
