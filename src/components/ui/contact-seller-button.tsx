@@ -17,10 +17,9 @@ import { useState } from 'react'
 interface SellerInfo {
   displayName: string
   storeName?: string
-  supportEmail?: string
+  email?: string
   phoneNumber?: string
   countryCode?: string
-  websiteUrl?: string
   avatarUrl?: string
 }
 
@@ -57,14 +56,14 @@ export function ContactSellerButton({
   }
 
   const handleEmailContact = () => {
-    if (!seller.supportEmail) return
+    if (!seller.email) return
 
     const emailSubject = encodeURIComponent(subject || 'Contact from Neaply')
     const emailBody = encodeURIComponent(
       `Hello ${seller.displayName},\n\n${message}\n\nBest regards,\n${senderName || 'A Neaply user'}`
     )
 
-    window.open(`mailto:${seller.supportEmail}?subject=${emailSubject}&body=${emailBody}`, '_blank')
+    window.open(`mailto:${seller.email}?subject=${emailSubject}&body=${emailBody}`, '_blank')
     setIsOpen(false)
   }
 
@@ -73,10 +72,7 @@ export function ContactSellerButton({
     window.open(`tel:${seller.phoneNumber}`, '_blank')
   }
 
-  const handleWebsiteContact = () => {
-    if (!seller.websiteUrl) return
-    window.open(seller.websiteUrl, '_blank', 'noopener,noreferrer')
-  }
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -112,7 +108,7 @@ export function ContactSellerButton({
         <div className="space-y-4">
           {/* Seller Contact Options */}
           <div className="grid gap-3">
-            {seller.supportEmail && (
+            {seller.email && (
               <Card className="p-3 hover:shadow-sm transition-shadow">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -121,7 +117,7 @@ export function ContactSellerButton({
                     </div>
                     <div>
                       <p className="font-medium text-sm">Email</p>
-                      <p className="text-xs text-muted-foreground">{seller.supportEmail}</p>
+                      <p className="text-xs text-muted-foreground">{seller.email}</p>
                     </div>
                   </div>
                   <Button size="sm" onClick={handleEmailContact} className="cursor-pointer">
@@ -150,24 +146,7 @@ export function ContactSellerButton({
               </Card>
             )}
 
-            {seller.websiteUrl && (
-              <Card className="p-3 hover:shadow-sm transition-shadow">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Globe className="w-4 h-4 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">Website</p>
-                      <p className="text-xs text-muted-foreground">{seller.websiteUrl.replace(/^https?:\/\//, '')}</p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" onClick={handleWebsiteContact} className="cursor-pointer">
-                    Visit
-                  </Button>
-                </div>
-              </Card>
-            )}
+
 
             {seller.countryCode && (
               <Card className="p-3">
@@ -187,7 +166,7 @@ export function ContactSellerButton({
             )}
           </div>
 
-          {!seller.supportEmail && !seller.phoneNumber && !seller.websiteUrl && (
+          {!seller.email && !seller.phoneNumber && (
             <Card className="p-4 text-center">
               <p className="text-sm text-muted-foreground">This seller hasn't provided contact information yet.</p>
             </Card>

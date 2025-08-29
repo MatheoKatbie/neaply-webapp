@@ -16,8 +16,6 @@ import { useEffect, useState } from 'react'
 interface SellerFormData {
   storeName: string
   bio: string
-  websiteUrl: string
-  supportEmail: string
   phoneNumber: string
   countryCode: string
 }
@@ -25,8 +23,6 @@ interface SellerFormData {
 interface ValidationErrors {
   storeName?: string
   bio?: string
-  websiteUrl?: string
-  supportEmail?: string
   phoneNumber?: string
   countryCode?: string
 }
@@ -45,22 +41,9 @@ const validateBio = (value: string, t: (key: string) => string): string | undefi
   return undefined
 }
 
-const validateWebsiteUrl = (value: string, t: (key: string) => string): string | undefined => {
-  if (!value) return undefined // Optional field
-  try {
-    new URL(value)
-    return undefined
-  } catch {
-    return t('becomeSeller.validation.websiteInvalid')
-  }
-}
 
-const validateSupportEmail = (value: string, t: (key: string) => string): string | undefined => {
-  if (!value) return undefined // Optional field
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(value)) return t('becomeSeller.validation.emailInvalid')
-  return undefined
-}
+
+
 
 const validatePhoneNumber = (value: string, t: (key: string) => string): string | undefined => {
   if (!value) return undefined // Optional field
@@ -84,8 +67,6 @@ export default function BecomeSellerPage() {
   const [formData, setFormData] = useState<SellerFormData>({
     storeName: '',
     bio: '',
-    websiteUrl: '',
-    supportEmail: '',
     phoneNumber: '',
     countryCode: 'US',
   })
@@ -138,37 +119,7 @@ export default function BecomeSellerPage() {
     }
   }, [formData.phoneNumber, t])
 
-  // Website URL validation
-  useEffect(() => {
-    if (formData.websiteUrl) {
-      const error = validateWebsiteUrl(formData.websiteUrl, t)
-      setValidationErrors((prev) => ({
-        ...prev,
-        websiteUrl: error,
-      }))
-    } else {
-      setValidationErrors((prev) => ({
-        ...prev,
-        websiteUrl: undefined,
-      }))
-    }
-  }, [formData.websiteUrl, t])
 
-  // Support email validation
-  useEffect(() => {
-    if (formData.supportEmail) {
-      const error = validateSupportEmail(formData.supportEmail, t)
-      setValidationErrors((prev) => ({
-        ...prev,
-        supportEmail: error,
-      }))
-    } else {
-      setValidationErrors((prev) => ({
-        ...prev,
-        supportEmail: undefined,
-      }))
-    }
-  }, [formData.supportEmail, t])
 
   // Real-time validation function
   const validateField = (field: keyof SellerFormData, value: string) => {
@@ -181,12 +132,7 @@ export default function BecomeSellerPage() {
       case 'bio':
         error = validateBio(value, t)
         break
-      case 'websiteUrl':
-        error = validateWebsiteUrl(value, t)
-        break
-      case 'supportEmail':
-        error = validateSupportEmail(value, t)
-        break
+
       case 'phoneNumber':
         error = validatePhoneNumber(value, t)
         break
@@ -527,45 +473,7 @@ export default function BecomeSellerPage() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="websiteUrl">{t('becomeSeller.form.website')}</Label>
-                      <Input
-                        id="websiteUrl"
-                        name="websiteUrl"
-                        type="url"
-                        value={formData.websiteUrl}
-                        onChange={handleInputChange}
-                        onBlur={handleInputBlur}
-                        placeholder={t('becomeSeller.form.websitePlaceholder')}
-                        className={validationErrors.websiteUrl ? 'border-red-500 focus:border-red-500' : ''}
-                      />
-                      {validationErrors.websiteUrl ? (
-                        <p className="text-xs text-red-600">{validationErrors.websiteUrl}</p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">{t('becomeSeller.form.websiteHelp')}</p>
-                      )}
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="supportEmail">{t('becomeSeller.form.supportEmail')}</Label>
-                      <Input
-                        id="supportEmail"
-                        name="supportEmail"
-                        type="email"
-                        value={formData.supportEmail}
-                        onChange={handleInputChange}
-                        onBlur={handleInputBlur}
-                        placeholder={t('becomeSeller.form.supportEmailPlaceholder')}
-                        className={validationErrors.supportEmail ? 'border-red-500 focus:border-red-500' : ''}
-                      />
-                      {validationErrors.supportEmail ? (
-                        <p className="text-xs text-red-600">{validationErrors.supportEmail}</p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">{t('becomeSeller.form.supportEmailHelp')}</p>
-                      )}
-                    </div>
-                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2 col-span-1">
