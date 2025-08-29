@@ -373,8 +373,8 @@ export default function Home() {
                 onClick={() => setCategory('all')}
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'all'
-                    ? 'bg-secondary text-white border-white/20'
-                    : 'bg-white/5 text-white/60 hover:text-white/80 hover:bg-white/10 border-white/20'
+                    ? 'bg-secondary text-foreground border-white/20'
+                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
                 }`}
               >
                 {category === 'all' && <Check className="w-4 h-4" />}
@@ -384,8 +384,8 @@ export default function Home() {
                 onClick={() => setCategory('n8n')}
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'n8n'
-                    ? 'bg-secondary text-white border-white/20'
-                    : 'bg-white/5 text-white/60 hover:text-white/80 hover:bg-white/10 border-white/20'
+                    ? 'bg-secondary text-foreground border-white/20'
+                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
                 }`}
               >
                 {category === 'n8n' && <Check className="w-4 h-4" />}
@@ -395,8 +395,8 @@ export default function Home() {
                 onClick={() => setCategory('zapier')}
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'zapier'
-                    ? 'bg-secondary text-white border-white/20'
-                    : 'bg-white/5 text-white/60 hover:text-white/80 hover:bg-white/10 border-white/20'
+                    ? 'bg-secondary text-foreground border-white/20'
+                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
                 }`}
               >
                 {category === 'zapier' && <Check className="w-4 h-4" />}
@@ -406,8 +406,8 @@ export default function Home() {
                 onClick={() => setCategory('make')}
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'make'
-                    ? 'bg-secondary text-white border-white/20'
-                    : 'bg-white/5 text-white/60 hover:text-white/80 hover:bg-white/10 border-white/20'
+                    ? 'bg-secondary text-foreground border-white/20'
+                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
                 }`}
               >
                 {category === 'make' && <Check className="w-4 h-4" />}
@@ -417,8 +417,8 @@ export default function Home() {
                 onClick={() => setCategory('airtable_script')}
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'airtable_script'
-                    ? 'bg-secondary text-white border-white/20'
-                    : 'bg-white/5 text-white/60 hover:text-white/80 hover:bg-white/10 border-white/20'
+                    ? 'bg-secondary text-foreground border-white/20'
+                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
                 }`}
               >
                 {category === 'airtable_script' && <Check className="w-4 h-4" />}
@@ -429,7 +429,7 @@ export default function Home() {
             {/* Sell Your Workflow Button */}
             <Link
               href={user?.isSeller ? '/dashboard/seller' : '/become-seller'}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white/80 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border border-white/20"
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-foreground/60 hover:text-foreground/80 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border border-white/20"
             >
               <Plus className="w-4 h-4" />
               Sell Your Workflow
@@ -440,7 +440,7 @@ export default function Home() {
         {/* Featured Stores slider (max 5) */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-white font-space-grotesk text-2xl font-bold">Featured Stores</h2>
+            <h2 className="text-foreground font-space-grotesk text-2xl font-bold">Featured Stores</h2>
           </div>
 
           <div className="relative">
@@ -470,7 +470,7 @@ export default function Home() {
                     {/* Gradient overlay for contrast */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                     {/* Text overlay */}
-                    <div className="relative z-10 p-6 text-white h-full flex flex-col justify-end">
+                    <div className="relative z-10 p-6 text-background h-full flex flex-col justify-end">
                       <div className="font-space-grotesk text-xl md:text-3xl font-bold mb-2">{s.storeName}</div>
                       <div className="text-sm md:text-lg opacity-90 mb-2">{s.bio || 'Short Description'}</div>
                       <div className="text-xs md:text-sm opacity-80 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full w-fit">
@@ -485,14 +485,14 @@ export default function Home() {
               <button
                 aria-label="Previous store"
                 onClick={goPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors cursor-pointer backdrop-blur-sm"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-foreground hover:bg-black/70 transition-colors cursor-pointer backdrop-blur-sm"
               >
                 <ChevronLeft className="w-5 h-5 mx-auto" />
               </button>
               <button
                 aria-label="Next store"
                 onClick={goNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors cursor-pointer backdrop-blur-sm"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-foreground hover:bg-black/70 transition-colors cursor-pointer backdrop-blur-sm"
               >
                 <ChevronRight className="w-5 h-5 mx-auto" />
               </button>
@@ -517,14 +517,14 @@ export default function Home() {
               <button
                 aria-label="Previous store"
                 onClick={goPrev}
-                className="w-10 h-10 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-sm"
+                className="w-10 h-10 rounded-full bg-black/40 text-foreground hover:bg-black/60 backdrop-blur-sm"
               >
                 <ChevronLeft className="w-5 h-5 mx-auto" />
               </button>
               <button
                 aria-label="Next store"
                 onClick={goNext}
-                className="w-10 h-10 rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-sm"
+                className="w-10 h-10 rounded-full bg-black/40 text-foreground hover:bg-black/60 backdrop-blur-sm"
               >
                 <ChevronRight className="w-5 h-5 mx-auto" />
               </button>
@@ -534,7 +534,7 @@ export default function Home() {
 
         {/* Trending Workflows */}
         <section className="mb-6">
-          <h3 className="text-white font-space-grotesk mb-2 text-2xl font-bold">{getDisplayData().title}</h3>
+          <h3 className="text-foreground font-space-grotesk mb-2 text-2xl font-bold">{getDisplayData().title}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {getDisplayData().workflows.map((wf) => (
               <div key={wf.id} className="group h-full">
@@ -630,7 +630,7 @@ export default function Home() {
 
         {/* Newest Workflows */}
         <section className="mb-6">
-          <h3 className="text-white font-space-grotesk mb-2 text-2xl font-bold">Latest Workflows</h3>
+          <h3 className="text-foreground font-space-grotesk mb-2 text-2xl font-bold">Latest Workflows</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {fillWorkflows(newestWorkflows, 10).map((wf) => (
               <div key={wf.id} className="group h-full">
@@ -758,7 +758,7 @@ export default function Home() {
               <Button
                 onClick={loadMoreNewest}
                 disabled={isLoadingNewest}
-                className="bg-secondary hover:bg-white/10 text-white rounded-full disabled:opacity-50 px-8 py-3 font-semibold"
+                className="bg-secondary hover:bg-white/10 text-foreground rounded-full disabled:opacity-50 px-8 py-3 font-semibold"
               >
                 {isLoadingNewest ? 'Loading...' : 'Load More Workflows'}
               </Button>
