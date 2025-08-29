@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { PlatformBadge } from '@/components/ui/platform-badge'
+import { ReportDialog } from '@/components/ui/report-dialog'
 import { Separator } from '@/components/ui/separator'
 import { ArrowLeft, Calendar, Download, Globe, Mail, Package, Star } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
@@ -477,18 +478,24 @@ export default function StorePage() {
 
                   {/* Contact Seller Button */}
                   <div className="mt-6 pt-4 border-t">
-                    <ContactSellerButton
-                      seller={{
-                        displayName: store.user.displayName,
-                        storeName: store.storeName,
-                        supportEmail: store.supportEmail,
-                        phoneNumber: store.phoneNumber,
-                        countryCode: store.countryCode,
-                        websiteUrl: store.websiteUrl,
-                        avatarUrl: store.user.avatarUrl,
-                      }}
-                      className="w-full sm:w-auto"
-                    />
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <ContactSellerButton
+                        seller={{
+                          displayName: store.user.displayName,
+                          storeName: store.storeName,
+                          email: store.supportEmail,
+                          phoneNumber: store.phoneNumber,
+                          countryCode: store.countryCode,
+                          avatarUrl: store.user.avatarUrl,
+                        }}
+                        className="w-full sm:w-auto"
+                      />
+                      <ReportDialog
+                        entityType="store"
+                        entityId={store.user.id}
+                        entityName={store.storeName}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

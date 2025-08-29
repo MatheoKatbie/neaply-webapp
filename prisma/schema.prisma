@@ -98,6 +98,7 @@ model User {
   payouts                Payout[]
   auditLogs              AuditLog[]
   reports                Report[]                @relation("UserReports")
+  resolvedReports        Report[]                @relation("UserResolvedReports")
   reviewHelpfulVotes     ReviewHelpfulVote[]
   workflowPacks          WorkflowPack[]
   packReviews            PackReview[]
@@ -127,6 +128,8 @@ model SellerProfile {
   stripeOnboardingUrl       String? // URL for onboarding completion
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
+
+  reports Report[]
 }
 
 /**
@@ -162,7 +165,7 @@ model Workflow {
   reviews    Review[]
   favorites  Favorite[]
   compat     WorkflowCompatibility[]
-  Report     Report[]
+  reports    Report[]
   packItems  WorkflowPackItem[]
 
   @@index([status, updatedAt])
@@ -391,17 +394,23 @@ model Payout {
  * ============================
  */
 model Report {
-  id         String       @id @default(uuid()) @db.Uuid
-  reporterId String?      @db.Uuid
-  workflowId String       @db.Uuid
-  reason     String
-  status     ReportStatus @default(open)
-  createdAt  DateTime     @default(now())
+  id          String       @id @default(uuid()) @db.Uuid
+  reporterId  String?      @db.Uuid
+  workflowId  String?      @db.Uuid
+  storeId     String?      @db.Uuid  // New field for store reports
+  reason      String
+  description String?      // Optional additional details
+  status      ReportStatus @default(open)
+  createdAt   DateTime     @default(now())
+  resolvedAt  DateTime?
+  resolvedBy  String?      @db.Uuid
 
-  reporter User?    @relation("UserReports", fields: [reporterId], references: [id], onDelete: SetNull)
-  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  reporter  User?         @relation("UserReports", fields: [reporterId], references: [id], onDelete: SetNull)
+  resolver  User?         @relation("UserResolvedReports", fields: [resolvedBy], references: [id], onDelete: SetNull)
+  workflow  Workflow?     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  store     SellerProfile? @relation(fields: [storeId], references: [userId], onDelete: Cascade)
 
-  @@index([workflowId, status, createdAt])
+  @@index([workflowId, storeId, status, createdAt])
 }
 
 model AuditLog {
