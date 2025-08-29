@@ -2,11 +2,9 @@
 
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/hooks/useAuth'
-import { Heart, Search, ShoppingCart, Star } from 'lucide-react'
+import { Heart, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -42,6 +40,10 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<FavoriteWorkflow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Theme per request - now using CSS custom properties
+  const pageBg = 'hsl(var(--background))'
+  const topBorder = 'hsl(var(--accent))'
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -94,41 +96,24 @@ export default function FavoritesPage() {
     }
   }
 
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-    }).format(price / 100)
-  }
-
-  const handleCardClick = (workflowId: string) => {
-    router.push(`/workflow/${workflowId}`)
-  }
-
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background pt-20 md:pt-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-muted rounded w-64 mb-4"></div>
-            <div className="h-4 bg-muted rounded w-96 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-muted"></div>
-                  <CardHeader>
-                    <div className="h-6 bg-muted rounded"></div>
-                    <div className="h-4 bg-muted rounded w-3/4"></div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-muted rounded w-1/2"></div>
-                      <div className="h-4 bg-muted rounded w-3/4"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+      <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+        <div className="border-t border-accent" />
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+          {/* Header Skeleton */}
+          <div className="mb-8">
+            <div className="h-8 bg-card rounded-lg mb-3 animate-pulse" />
+            <div className="h-4 bg-card rounded-lg w-96 animate-pulse" />
+          </div>
+
+          {/* Favorites Grid Skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-44 md:h-56 bg-card rounded-xl animate-pulse" />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -137,15 +122,18 @@ export default function FavoritesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background pt-20 md:pt-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+        <div className="border-t border-accent" />
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Heart className="w-8 h-8 text-red-400" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Error Loading Favorites</h3>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={fetchFavorites}>Try Again</Button>
+            <h3 className="text-lg font-semibold text-white mb-2">Error Loading Favorites</h3>
+            <p className="text-gray-400 mb-4">{error}</p>
+            <Button onClick={fetchFavorites} className="bg-secondary hover:bg-white/10 text-white rounded-full">
+              Try Again
+            </Button>
           </div>
         </div>
       </div>
@@ -153,15 +141,17 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20 md:pt-28">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+      <div className="border-t border-accent" />
+
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <Heart className="w-8 h-8 text-red-500" />
-            <h1 className="text-3xl font-bold text-foreground">My Favorites</h1>
+            <h1 className="text-white font-space-grotesk text-3xl">My Favorites</h1>
           </div>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-gray-400">
             Your collection of saved workflows ({favorites.length} workflow{favorites.length !== 1 ? 's' : ''})
           </p>
         </div>
@@ -169,126 +159,91 @@ export default function FavoritesPage() {
         {/* Content */}
         {favorites.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mx-auto mb-4">
               <Heart className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">No Favorites Yet</h3>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+            <h3 className="text-lg font-semibold text-white mb-2">No Favorites Yet</h3>
+            <p className="text-gray-400 max-w-md mx-auto mb-6">
               Start exploring workflows in the marketplace and click the heart icon to save your favorites here.
             </p>
-            <Button onClick={() => router.push('/marketplace')}>
+            <Button
+              onClick={() => router.push('/marketplace')}
+              className="bg-secondary hover:bg-white/10 text-white rounded-full"
+            >
               <Search className="w-4 h-4 mr-2" />
               Browse Marketplace
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
             {favorites.map((workflow) => (
-              <Card
-                key={workflow.id}
-                className="cursor-pointer hover:shadow-lg transition-all duration-300 group relative overflow-hidden py-0 pb-6"
-                onClick={() => handleCardClick(workflow.id)}
-              >
-                {/* Favorite button */}
-                <div className="absolute top-3 right-3 z-10">
-                  <AnimatedHeart
-                    isFavorite={true}
-                    onToggle={() => removeFromFavorites(workflow.id)}
-                    className="bg-background/80 hover:bg-background/90"
-                    size="md"
-                  />
-                </div>
-
-                {/* Hero image */}
-                <div className="h-48 relative overflow-hidden">
+              <div key={workflow.id} className="space-y-2 cursor-pointer">
+                <div className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-card border border-border block">
+                  {/* Background image */}
                   {workflow.heroImage ? (
                     <img
                       src={workflow.heroImage}
                       alt={workflow.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
                     />
                   ) : (
-                    <AutoThumbnail
-                      workflow={{
-                        id: workflow.id,
-                        title: workflow.title,
-                        shortDesc: workflow.description,
-                        longDescMd: '',
-                        categories: workflow.categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
-                        tags: workflow.tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
-                        platform: undefined,
-                      }}
-                      size="md"
-                      className="w-full h-full"
-                    />
+                    <div className="absolute inset-0">
+                      <AutoThumbnail
+                        workflow={{
+                          id: workflow.id,
+                          title: workflow.title,
+                          shortDesc: workflow.description,
+                          longDescMd: '',
+                          categories: workflow.categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
+                          tags: workflow.tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
+                          platform: undefined,
+                        }}
+                        size="lg"
+                        className="absolute inset-0 w-full h-full"
+                      />
+                    </div>
                   )}
+
+                  {/* Favorite button - top right */}
+                  <div className="absolute top-3 right-3 z-10">
+                    <AnimatedHeart
+                      isFavorite={true}
+                      onToggle={() => removeFromFavorites(workflow.id)}
+                      className="bg-black/60 backdrop-blur-sm hover:bg-black/80"
+                      size="sm"
+                    />
+                  </div>
+
+                  {/* Rating - top left */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
+                      <svg className="w-3 h-3 fill-yellow-400 text-yellow-400" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                      <span className="text-xs font-medium text-white">({workflow.rating?.toFixed(1) || '0.0'})</span>
+                    </div>
+                  </div>
+
+                  {/* Hover darken overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
+
+                  {/* Title overlay */}
+                  <div className="relative z-10 p-4 text-white h-full flex flex-col justify-end transition-transform duration-300 group-hover:-translate-y-12">
+                    <div className="font-space-grotesk text-base md:text-lg line-clamp-1">{workflow.title}</div>
+                    <div className="text-sm text-white/80 line-clamp-2 mt-1">{workflow.description}</div>
+                  </div>
+
+                  {/* Hover CTA slides from bottom */}
+                  <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center transition-all duration-300 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0">
+                    <span
+                      className="px-4 py-2 rounded-full bg-white text-background font-medium cursor-pointer"
+                      onClick={() => router.push(`/workflow/${workflow.id}`)}
+                    >
+                      See Details
+                    </span>
+                  </div>
                 </div>
-
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
-                    {workflow.title}
-                  </CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground line-clamp-2">
-                    {workflow.description}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {/* Price and Rating */}
-                  <div className="flex justify-between items-center">
-                    <div className="text-2xl font-bold text-foreground">
-                      {formatPrice(workflow.price, workflow.currency)}
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium text-muted-foreground">{workflow.rating.toFixed(1)}</span>
-                      <span className="text-xs text-muted-foreground">({workflow.ratingCount})</span>
-                    </div>
-                  </div>
-
-                  {/* Seller and Sales */}
-                  <div className="flex justify-between items-center text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-1">
-                      <span>by</span>
-                      <span className="font-medium hover:text-blue-600">{workflow.seller.name}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <ShoppingCart className="w-3 h-3" />
-                      <span>{workflow.salesCount} sales</span>
-                    </div>
-                  </div>
-
-                  {/* Categories and Tags */}
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1">
-                      {workflow.categories.slice(0, 2).map((category, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {category}
-                        </Badge>
-                      ))}
-                      {workflow.categories.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{workflow.categories.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {workflow.tags.slice(0, 3).map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs text-muted-foreground">
-                          #{tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Favorited date */}
-                  <div className="text-xs text-muted-foreground pt-2 border-t border-gray-100">
-                    Added {new Date(workflow.favoritedAt).toLocaleDateString()}
-                  </div>
-
-                  <button className="w-full bg-blue-600 text-primary-foreground py-2 rounded-md">View Workflow</button>
-                </CardContent>
-              </Card>
+              </div>
             ))}
           </div>
         )}

@@ -226,7 +226,7 @@ export function SellerWorkflowsTab({
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onPublishToggle={onPublishToggle}
-                isEditing={editingWorkflow?.id === workflow.id}
+                isEditing={false}
               />
             ))}
 

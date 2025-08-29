@@ -30,7 +30,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <LanguageInitializer />
       {!isAuthPage && <Navbar />}
       <main className="flex-1">{children}</main>
-      <Footer />
+      {!isAuthPage && <Footer />}
       <Toaster position="bottom-right" richColors closeButton duration={5000} />
     </div>
   )
