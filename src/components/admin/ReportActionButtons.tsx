@@ -47,10 +47,15 @@ interface Report {
     title: string
     seller: {
       displayName: string
+      sellerProfile?: {
+        storeName: string
+        status: string
+      } | null
     }
   } | null
   store?: {
     storeName: string
+    status: string
     user: {
       displayName: string
     }
@@ -183,11 +188,19 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
     ? report.workflow?.title 
     : report.store?.storeName
 
-  // Check if this report involves a seller that can be restricted
+  // Check if this report involves a seller and get their current status
   const canRestrictSeller = !!(report.workflowId || report.storeId)
   const sellerName = report.workflowId 
     ? report.workflow?.seller?.displayName 
     : report.store?.user?.displayName
+  
+  // Get current seller status
+  const currentSellerStatus = report.workflowId 
+    ? report.workflow?.seller?.sellerProfile?.status || 'active'
+    : report.store?.status || 'active'
+  
+  // Determine if seller is currently restricted
+  const isSellerRestricted = currentSellerStatus === 'suspended'
 
   return (
     <div className="flex items-center space-x-2">
@@ -226,9 +239,25 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
                   {entityName || 'Unknown'}
                 </p>
                 {canRestrictSeller && (
-                  <p className="text-xs text-muted-foreground">
-                    <span className="font-medium">Seller:</span> {sellerName}
-                  </p>
+                  <div className="text-xs space-y-1">
+                    <p className="text-muted-foreground">
+                      <span className="font-medium">Seller:</span> {sellerName}
+                    </p>
+                    <p className="flex items-center space-x-1">
+                      <span className="font-medium">Status:</span>
+                      {isSellerRestricted ? (
+                        <span className="text-red-600 flex items-center space-x-1">
+                          <ShieldOff className="h-3 w-3" />
+                          <span>Suspended</span>
+                        </span>
+                      ) : (
+                        <span className="text-green-600 flex items-center space-x-1">
+                          <Shield className="h-3 w-3" />
+                          <span>Active</span>
+                        </span>
+                      )}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -298,14 +327,25 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
               <DropdownMenuSeparator />
               {canRestrictSeller && (
                 <>
-                  <DropdownMenuItem 
-                    onClick={() => restrictSeller(true)}
-                    disabled={isLoading || isRestrictingSeller}
-                    className="text-orange-600 focus:text-orange-600"
-                  >
-                    <Shield className="h-4 w-4 mr-2" />
-                    Restrict Seller ({sellerName})
-                  </DropdownMenuItem>
+                  {!isSellerRestricted ? (
+                    <DropdownMenuItem 
+                      onClick={() => restrictSeller(true)}
+                      disabled={isLoading || isRestrictingSeller}
+                      className="text-orange-600 focus:text-orange-600"
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      Restrict Seller ({sellerName})
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem 
+                      onClick={() => restrictSeller(false)}
+                      disabled={isLoading || isRestrictingSeller}
+                      className="text-green-600 focus:text-green-600"
+                    >
+                      <ShieldOff className="h-4 w-4 mr-2" />
+                      Unrestrict Seller ({sellerName})
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                 </>
               )}
@@ -348,14 +388,25 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
             <DropdownMenuSeparator />
             {canRestrictSeller && (
               <>
-                <DropdownMenuItem 
-                  onClick={() => restrictSeller(true)}
-                  disabled={isLoading || isRestrictingSeller}
-                  className="text-orange-600 focus:text-orange-600"
-                >
-                  <Shield className="h-4 w-4 mr-2" />
-                  Restrict Seller ({sellerName})
-                </DropdownMenuItem>
+                {!isSellerRestricted ? (
+                  <DropdownMenuItem 
+                    onClick={() => restrictSeller(true)}
+                    disabled={isLoading || isRestrictingSeller}
+                    className="text-orange-600 focus:text-orange-600"
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Restrict Seller ({sellerName})
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem 
+                    onClick={() => restrictSeller(false)}
+                    disabled={isLoading || isRestrictingSeller}
+                    className="text-green-600 focus:text-green-600"
+                  >
+                    <ShieldOff className="h-4 w-4 mr-2" />
+                    Unrestrict Seller ({sellerName})
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
               </>
             )}
@@ -389,22 +440,25 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
             <DropdownMenuSeparator />
             {canRestrictSeller && (
               <>
-                <DropdownMenuItem 
-                  onClick={() => restrictSeller(true)}
-                  disabled={isLoading || isRestrictingSeller}
-                  className="text-orange-600 focus:text-orange-600"
-                >
-                  <Shield className="h-4 w-4 mr-2" />
-                  Restrict Seller ({sellerName})
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => restrictSeller(false)}
-                  disabled={isLoading || isRestrictingSeller}
-                  className="text-green-600 focus:text-green-600"
-                >
-                  <ShieldOff className="h-4 w-4 mr-2" />
-                  Unrestrict Seller ({sellerName})
-                </DropdownMenuItem>
+                {!isSellerRestricted ? (
+                  <DropdownMenuItem 
+                    onClick={() => restrictSeller(true)}
+                    disabled={isLoading || isRestrictingSeller}
+                    className="text-orange-600 focus:text-orange-600"
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Restrict Seller ({sellerName})
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem 
+                    onClick={() => restrictSeller(false)}
+                    disabled={isLoading || isRestrictingSeller}
+                    className="text-green-600 focus:text-green-600"
+                  >
+                    <ShieldOff className="h-4 w-4 mr-2" />
+                    Unrestrict Seller ({sellerName})
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
               </>
             )}

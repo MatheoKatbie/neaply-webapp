@@ -24,10 +24,15 @@ interface Report {
     title: string
     seller: {
       displayName: string
+      sellerProfile?: {
+        storeName: string
+        status: string
+      } | null
     }
   } | null
   store?: {
     storeName: string
+    status: string
     user: {
       displayName: string
     }

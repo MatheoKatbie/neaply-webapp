@@ -65,10 +65,38 @@ export async function GET(req: NextRequest) {
             select: { id: true, displayName: true, email: true }
           },
           workflow: {
-            select: { id: true, title: true, slug: true, status: true }
+            select: { 
+              id: true, 
+              title: true, 
+              slug: true, 
+              status: true,
+              seller: {
+                select: {
+                  id: true,
+                  displayName: true,
+                  sellerProfile: {
+                    select: {
+                      storeName: true,
+                      status: true
+                    }
+                  }
+                }
+              }
+            }
           },
           store: {
-            select: { userId: true, storeName: true, slug: true, status: true }
+            select: { 
+              userId: true, 
+              storeName: true, 
+              slug: true, 
+              status: true,
+              user: {
+                select: {
+                  id: true,
+                  displayName: true
+                }
+              }
+            }
           }
         },
         orderBy: { createdAt: 'desc' },
