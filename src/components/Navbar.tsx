@@ -26,6 +26,7 @@ export default function Navbar() {
   const searchRef = useRef<HTMLInputElement>(null)
   const searchDropdownRef = useRef<HTMLDivElement>(null)
   const isHomepage = pathname === '/'
+  const isMarketplacePage = pathname === '/' || pathname === '/marketplace'
   const [isScrolled, setIsScrolled] = useState(false)
 
   // Debug effect for search focus
@@ -195,96 +196,100 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Search Bar - Centered */}
-          <div className="lg:hidden flex-1 max-w-sm mx-4">
-            <form onSubmit={handleSearch} className="relative">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60 w-4 h-4" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Search in Neaply"
-                  className="pl-10 pr-3 h-9 bg-secondary border-transparent text-foreground font-space-grotesk placeholder:text-foreground/60 focus:ring-2 focus:ring-white/20 text-sm"
-                />
-              </div>
+          {/* Mobile Search Bar - Centered - Only show on marketplace pages */}
+          {isMarketplacePage && (
+            <div className="lg:hidden flex-1 max-w-sm mx-4">
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60 w-4 h-4" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Search in Neaply"
+                    className="pl-10 pr-3 h-9 bg-secondary border-transparent text-foreground font-space-grotesk placeholder:text-foreground/60 focus:ring-2 focus:ring-white/20 text-sm"
+                  />
+                </div>
 
-              {/* Mobile Search Dropdown */}
-              {isSearchFocused && (
-                <div
-                  ref={searchDropdownRef}
-                  className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
-                >
-                  <div className="p-3 border-b border-white/10">
-                    <div className="flex items-center justify-between text-foreground/60 text-xs">
-                      <span>Press Enter to search</span>
+                {/* Mobile Search Dropdown */}
+                {isSearchFocused && (
+                  <div
+                    ref={searchDropdownRef}
+                    className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
+                  >
+                    <div className="p-3 border-b border-white/10">
+                      <div className="flex items-center justify-between text-foreground/60 text-xs">
+                        <span>Press Enter to search</span>
+                      </div>
+                    </div>
+
+                    <div className="p-2">
+                      <div className="text-foreground/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
+                      {searchSuggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          tabIndex={-1}
+                          onClick={() => handleSuggestionClick(suggestion.query)}
+                          className="w-full text-left px-3 py-2 text-foreground/80 hover:text-foreground hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group"
+                        >
+                          <span>{suggestion.text}</span>
+                          <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
                     </div>
                   </div>
+                )}
+              </form>
+            </div>
+          )}
 
-                  <div className="p-2">
-                    <div className="text-foreground/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
-                    {searchSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        tabIndex={-1}
-                        onClick={() => handleSuggestionClick(suggestion.query)}
-                        className="w-full text-left px-3 py-2 text-foreground/80 hover:text-foreground hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group"
-                      >
-                        <span>{suggestion.text}</span>
-                        <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    ))}
+          {/* Animated search (md+) moves from centered below to right of logo - Only show on marketplace pages */}
+          {isMarketplacePage && (
+            <div
+              className={`hidden lg:block absolute transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform transform-gpu ${
+                isHomepage && !isScrolled
+                  ? 'left-1/2 top-full mt-3 w-[48rem] max-w-3xl -translate-x-1/2 translate-y-0 scale-100 opacity-100'
+                  : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2 scale-100 opacity-100'
+              }`}
+              style={{
+                transformOrigin: isHomepage && !isScrolled ? 'center top' : 'left center',
+                backfaceVisibility: 'hidden',
+                perspective: '1000px',
+                containIntrinsicSize: '48rem 3rem',
+                contentVisibility: 'auto',
+              }}
+            >
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60 w-4 h-4 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]" />
+                  <Input
+                    ref={searchRef}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => {
+                      console.log('DESKTOP FOCUS DETECTED! Setting isSearchFocused to true')
+                      setIsSearchFocused(true)
+                    }}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Search in Neaply"
+                    className={`pl-10 pr-20 bg-secondary border-transparent text-foreground font-space-grotesk placeholder:text-foreground/60 focus:ring-2 focus:ring-white/20 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+                      isHomepage && !isScrolled ? 'h-12 text-base' : 'h-10 text-sm'
+                    }`}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-foreground/40 text-xs transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]">
+                    <Command className="w-3 h-3" />
+                    <span>K</span>
                   </div>
                 </div>
-              )}
-            </form>
-          </div>
+              </form>
+            </div>
+          )}
 
-          {/* Animated search (md+) moves from centered below to right of logo */}
-          <div
-            className={`hidden lg:block absolute transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform transform-gpu ${
-              isHomepage && !isScrolled
-                ? 'left-1/2 top-full mt-3 w-[48rem] max-w-3xl -translate-x-1/2 translate-y-0 scale-100 opacity-100'
-                : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2 scale-100 opacity-100'
-            }`}
-            style={{
-              transformOrigin: isHomepage && !isScrolled ? 'center top' : 'left center',
-              backfaceVisibility: 'hidden',
-              perspective: '1000px',
-              containIntrinsicSize: '48rem 3rem',
-              contentVisibility: 'auto',
-            }}
-          >
-            <form onSubmit={handleSearch} className="relative">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60 w-4 h-4 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]" />
-                <Input
-                  ref={searchRef}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => {
-                    console.log('DESKTOP FOCUS DETECTED! Setting isSearchFocused to true')
-                    setIsSearchFocused(true)
-                  }}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Search in Neaply"
-                  className={`pl-10 pr-20 bg-secondary border-transparent text-foreground font-space-grotesk placeholder:text-foreground/60 focus:ring-2 focus:ring-white/20 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-                    isHomepage && !isScrolled ? 'h-12 text-base' : 'h-10 text-sm'
-                  }`}
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-foreground/40 text-xs transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]">
-                  <Command className="w-3 h-3" />
-                  <span>K</span>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          {/* Search Dropdown - Completely outside transformed container */}
+          {/* Search Dropdown - Completely outside transformed container - Only show on marketplace pages */}
           {/* DEBUG: isSearchFocused = {isSearchFocused ? 'true' : 'false'} */}
-          {isSearchFocused && (
+          {isMarketplacePage && isSearchFocused && (
             <div
               ref={searchDropdownRef}
               className="hidden lg:block absolute bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"

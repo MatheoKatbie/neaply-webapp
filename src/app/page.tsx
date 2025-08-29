@@ -485,15 +485,14 @@ export default function Home() {
               <button
                 aria-label="Previous store"
                 onClick={goPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-foreground hover:bg-black/70 transition-colors cursor-pointer backdrop-blur-sm"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-foreground/30 text-background hover:bg-foreground/70 transition-colors cursor-pointer backdrop-blur-sm"
               >
                 <ChevronLeft className="w-5 h-5 mx-auto" />
               </button>
               <button
                 aria-label="Next store"
                 onClick={goNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-foreground hover:bg-black/70 transition-colors cursor-pointer backdrop-blur-sm"
-              >
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-foreground/30 text-background hover:bg-foreground/70 transition-colors cursor-pointer backdrop-blur-sm"              >
                 <ChevronRight className="w-5 h-5 mx-auto" />
               </button>
             </div>
