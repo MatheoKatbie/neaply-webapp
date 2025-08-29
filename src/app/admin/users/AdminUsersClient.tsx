@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Users, Crown, Store, User, Eye } from 'lucide-react'
+import { Users, Crown, Store, User, Eye, Shield, ShieldX, Clock } from 'lucide-react'
 import { AdminPagination } from '@/components/admin/AdminPagination'
 import { AdminSearchFilters } from '@/components/admin/AdminSearchFilters'
 import { UserDetailsModal } from '@/components/admin/UserDetailsModal'
@@ -178,10 +178,30 @@ export default function AdminUsers({ users, totalCount, totalPages, currentPage 
                                                     </Badge>
                                                 )}
                                                 {user.isSeller && (
-                                                    <Badge variant="secondary" className="bg-green-100 text-green-800">
-                                                        <Store className="h-3 w-3 mr-1" />
-                                                        Creator
-                                                    </Badge>
+                                                    <>
+                                                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                                            <Store className="h-3 w-3 mr-1" />
+                                                            Creator
+                                                        </Badge>
+                                                        {user.sellerProfile?.status === 'suspended' && (
+                                                            <Badge variant="destructive" className="bg-red-100 text-red-800">
+                                                                <ShieldX className="h-3 w-3 mr-1" />
+                                                                Suspended
+                                                            </Badge>
+                                                        )}
+                                                        {user.sellerProfile?.status === 'pending' && (
+                                                            <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                                                                <Clock className="h-3 w-3 mr-1" />
+                                                                Pending
+                                                            </Badge>
+                                                        )}
+                                                        {user.sellerProfile?.status === 'active' && (
+                                                            <Badge variant="default" className="bg-blue-100 text-blue-800">
+                                                                <Shield className="h-3 w-3 mr-1" />
+                                                                Active
+                                                            </Badge>
+                                                        )}
+                                                    </>
                                                 )}
                                                 {!user.isAdmin && !user.isSeller && (
                                                     <Badge variant="outline">

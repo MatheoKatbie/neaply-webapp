@@ -25,7 +25,15 @@ export async function GET(req: NextRequest) {
         if (sort === 'top-sales') {
             const sales = await prisma.workflow.groupBy({
                 by: ['sellerId'],
-                where: { status: 'published' },
+                where: { 
+                    status: 'published',
+                    // Only include workflows from active sellers
+                    seller: {
+                        sellerProfile: {
+                            status: 'active'
+                        }
+                    }
+                },
                 _sum: { salesCount: true },
                 orderBy: { _sum: { salesCount: 'desc' } },
                 skip,
@@ -33,7 +41,10 @@ export async function GET(req: NextRequest) {
             })
             const sellerIds = sales.map((s) => s.sellerId)
             const profiles = await prisma.sellerProfile.findMany({
-                where: { userId: { in: sellerIds } },
+                where: { 
+                    userId: { in: sellerIds },
+                    status: 'active' // Extra safety check
+                },
                 select: {
                     userId: true,
                     storeName: true,
@@ -47,6 +58,9 @@ export async function GET(req: NextRequest) {
             storesRaw = sellerIds.map((id) => byId[id]).filter(Boolean) as any
             total = sellerIds.length
         } else {
+            // Add filter for active sellers only
+            where.status = 'active'
+            
             const [rows, count] = await Promise.all([
                 prisma.sellerProfile.findMany({
                     where,

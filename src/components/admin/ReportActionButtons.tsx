@@ -11,7 +11,9 @@ import {
   X, 
   AlertTriangle,
   Trash2,
-  MoreHorizontal 
+  MoreHorizontal,
+  Shield,
+  ShieldOff
 } from 'lucide-react'
 import {
   Dialog,
@@ -66,6 +68,7 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
   const [isLoading, setIsLoading] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showDetailsDialog, setShowDetailsDialog] = useState(false)
+  const [isRestrictingSeller, setIsRestrictingSeller] = useState(false)
 
   const updateReportStatus = async (status: 'open' | 'reviewing' | 'resolved' | 'dismissed') => {
     setIsLoading(true)
@@ -118,6 +121,37 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
     }
   }
 
+  const restrictSeller = async (restrict: boolean) => {
+    setIsRestrictingSeller(true)
+    try {
+      const response = await fetch(`/api/reports/${report.id}/restrict-seller`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          restrict,
+          reason: `Action taken based on report #${report.id.slice(0, 8)}: ${report.reason}`
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || `Failed to ${restrict ? 'restrict' : 'unrestrict'} seller`)
+      }
+
+      const result = await response.json()
+      toast.success(result.message)
+
+      // Refresh the page to show updated seller status
+      onStatusChange?.(report.id, 'seller_updated')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : `Failed to ${restrict ? 'restrict' : 'unrestrict'} seller`)
+    } finally {
+      setIsRestrictingSeller(false)
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
@@ -148,6 +182,12 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
   const entityName = report.workflowId 
     ? report.workflow?.title 
     : report.store?.storeName
+
+  // Check if this report involves a seller that can be restricted
+  const canRestrictSeller = !!(report.workflowId || report.storeId)
+  const sellerName = report.workflowId 
+    ? report.workflow?.seller?.displayName 
+    : report.store?.user?.displayName
 
   return (
     <div className="flex items-center space-x-2">
@@ -185,9 +225,9 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
                 <p className="text-sm text-muted-foreground">
                   {entityName || 'Unknown'}
                 </p>
-                {report.workflowId && (
+                {canRestrictSeller && (
                   <p className="text-xs text-muted-foreground">
-                    by {report.workflow?.seller?.displayName}
+                    <span className="font-medium">Seller:</span> {sellerName}
                   </p>
                 )}
               </div>
@@ -256,6 +296,19 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
                 Dismiss
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              {canRestrictSeller && (
+                <>
+                  <DropdownMenuItem 
+                    onClick={() => restrictSeller(true)}
+                    disabled={isLoading || isRestrictingSeller}
+                    className="text-orange-600 focus:text-orange-600"
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Restrict Seller ({sellerName})
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem 
                 onClick={() => setShowDeleteDialog(true)}
                 className="text-destructive"
@@ -293,6 +346,19 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
               Dismiss
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            {canRestrictSeller && (
+              <>
+                <DropdownMenuItem 
+                  onClick={() => restrictSeller(true)}
+                  disabled={isLoading || isRestrictingSeller}
+                  className="text-orange-600 focus:text-orange-600"
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  Restrict Seller ({sellerName})
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem 
               onClick={() => setShowDeleteDialog(true)}
               className="text-destructive"
@@ -321,6 +387,27 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
               Reopen
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            {canRestrictSeller && (
+              <>
+                <DropdownMenuItem 
+                  onClick={() => restrictSeller(true)}
+                  disabled={isLoading || isRestrictingSeller}
+                  className="text-orange-600 focus:text-orange-600"
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  Restrict Seller ({sellerName})
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => restrictSeller(false)}
+                  disabled={isLoading || isRestrictingSeller}
+                  className="text-green-600 focus:text-green-600"
+                >
+                  <ShieldOff className="h-4 w-4 mr-2" />
+                  Unrestrict Seller ({sellerName})
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem 
               onClick={() => setShowDeleteDialog(true)}
               className="text-destructive"
