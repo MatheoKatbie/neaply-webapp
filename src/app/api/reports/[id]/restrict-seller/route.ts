@@ -16,62 +16,63 @@ async function getAuthenticatedUser() {
     data: { user },
     error,
   } = await supabase.auth.getUser()
-  
+
   if (error || !user) {
     return null
   }
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { id: true, isAdmin: true }
+    select: { id: true, isAdmin: true },
   })
 
   return dbUser
 }
 
 // POST - Restrict or unrestrict seller based on report (admin only)
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getAuthenticatedUser()
     if (!user || !user.isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
+    const { id } = await params
     const body = await req.json()
     const validatedData = restrictSellerSchema.parse(body)
 
     // Get the report details
     const report = await prisma.report.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         workflow: {
-          select: { 
+          select: {
             sellerId: true,
             seller: {
-              select: { 
-                id: true, 
+              select: {
+                id: true,
                 displayName: true,
                 sellerProfile: {
-                  select: { status: true, storeName: true }
-                }
-              }
-            }
-          }
+                  select: { status: true, storeName: true },
+                },
+              },
+            },
+          },
         },
         store: {
-          select: { 
+          select: {
             userId: true,
             user: {
-              select: { 
-                id: true, 
-                displayName: true 
-              }
+              select: {
+                id: true,
+                displayName: true,
+              },
             },
             status: true,
-            storeName: true
-          }
-        }
-      }
+            storeName: true,
+          },
+        },
+      },
     })
 
     if (!report) {
@@ -94,37 +95,49 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     if (!sellerId) {
-      return NextResponse.json({ 
-        error: 'Cannot determine seller from this report' 
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          error: 'Cannot determine seller from this report',
+        },
+        { status: 400 }
+      )
     }
 
     // Check if seller exists and has a seller profile
     const seller = await prisma.user.findUnique({
       where: { id: sellerId },
       include: {
-        sellerProfile: true
-      }
+        sellerProfile: true,
+      },
     })
 
     if (!seller || !seller.sellerProfile) {
-      return NextResponse.json({ 
-        error: 'Seller not found or does not have a seller profile' 
-      }, { status: 404 })
+      return NextResponse.json(
+        {
+          error: 'Seller not found or does not have a seller profile',
+        },
+        { status: 404 }
+      )
     }
 
     // Prevent admin from restricting themselves
     if (seller.id === user.id) {
-      return NextResponse.json({ 
-        error: 'Cannot restrict your own account' 
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          error: 'Cannot restrict your own account',
+        },
+        { status: 400 }
+      )
     }
 
     // Prevent restricting other admins
     if (seller.isAdmin) {
-      return NextResponse.json({ 
-        error: 'Cannot restrict admin accounts' 
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          error: 'Cannot restrict admin accounts',
+        },
+        { status: 400 }
+      )
     }
 
     const updates: any[] = []
@@ -134,7 +147,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     updates.push(
       prisma.sellerProfile.update({
         where: { userId: sellerId },
-        data: { status: newStatus }
+        data: { status: newStatus },
       })
     )
 
@@ -142,22 +155,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (validatedData.restrict) {
       updates.push(
         prisma.workflow.updateMany({
-          where: { 
+          where: {
             sellerId: sellerId,
-            status: { in: ['published', 'unlisted'] }
+            status: { in: ['published', 'unlisted'] },
           },
-          data: { status: 'disabled' }
+          data: { status: 'disabled' },
         })
       )
 
       // Also disable their workflow packs
       updates.push(
         prisma.workflowPack.updateMany({
-          where: { 
+          where: {
             sellerId: sellerId,
-            status: { in: ['published', 'unlisted'] }
+            status: { in: ['published', 'unlisted'] },
           },
-          data: { status: 'disabled' }
+          data: { status: 'disabled' },
         })
       )
     } else {
@@ -174,14 +187,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           entityType: 'user',
           entityId: sellerId,
           metadata: {
-            reportId: params.id,
+            reportId: id,
             reason: validatedData.reason,
             previousStatus: currentStatus,
             newStatus: newStatus,
             sellerName: sellerName,
-            reportType: report.workflowId ? 'workflow' : 'store'
-          }
-        }
+            reportType: report.workflowId ? 'workflow' : 'store',
+          },
+        },
       })
     )
 
@@ -193,25 +206,27 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       where: { userId: sellerId },
       include: {
         user: {
-          select: { displayName: true, email: true }
-        }
-      }
+          select: { displayName: true, email: true },
+        },
+      },
     })
 
     return NextResponse.json({
-      message: validatedData.restrict 
-        ? `Seller "${sellerName}" has been restricted` 
+      message: validatedData.restrict
+        ? `Seller "${sellerName}" has been restricted`
         : `Seller "${sellerName}" restriction has been lifted`,
       seller: updatedSeller,
-      action: validatedData.restrict ? 'restricted' : 'unrestricted'
+      action: validatedData.restrict ? 'restricted' : 'unrestricted',
     })
-
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ 
-        error: 'Invalid request data', 
-        details: error.issues 
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          error: 'Invalid request data',
+          details: error.issues,
+        },
+        { status: 400 }
+      )
     }
     console.error('Error restricting seller:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

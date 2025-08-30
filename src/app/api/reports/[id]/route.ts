@@ -15,37 +15,38 @@ async function getAuthenticatedUser() {
     data: { user },
     error,
   } = await supabase.auth.getUser()
-  
+
   if (error || !user) {
     return null
   }
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { id: true, isAdmin: true }
+    select: { id: true, isAdmin: true },
   })
 
   return dbUser
 }
 
 // GET - Get specific report details (admin only)
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const user = await getAuthenticatedUser()
     if (!user || !user.isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
     const report = await prisma.report.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         reporter: {
-          select: { id: true, displayName: true, email: true }
+          select: { id: true, displayName: true, email: true },
         },
         resolver: {
-          select: { id: true, displayName: true, email: true }
-        }
-      }
+          select: { id: true, displayName: true, email: true },
+        },
+      },
     })
 
     if (!report) {
@@ -57,36 +58,36 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (report.workflowId) {
       entityDetails = await prisma.workflow.findUnique({
         where: { id: report.workflowId },
-        select: { 
-          id: true, 
-          title: true, 
-          slug: true, 
+        select: {
+          id: true,
+          title: true,
+          slug: true,
           status: true,
           seller: {
-            select: { displayName: true, email: true }
-          }
-        }
+            select: { displayName: true, email: true },
+          },
+        },
       })
     } else if (report.storeId) {
       entityDetails = await prisma.sellerProfile.findUnique({
         where: { userId: report.storeId },
-        select: { 
-          userId: true, 
-          storeName: true, 
-          slug: true, 
+        select: {
+          userId: true,
+          storeName: true,
+          slug: true,
           status: true,
           user: {
-            select: { displayName: true, email: true }
-          }
-        }
+            select: { displayName: true, email: true },
+          },
+        },
       })
     }
 
     return NextResponse.json({
       report: {
         ...report,
-        entityDetails
-      }
+        entityDetails,
+      },
     })
   } catch (error) {
     console.error('Error fetching report:', error)
@@ -95,8 +96,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PATCH - Update report status (admin only)
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const user = await getAuthenticatedUser()
     if (!user || !user.isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
@@ -106,7 +108,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const validatedData = updateReportSchema.parse(body)
 
     const report = await prisma.report.findUnique({
-      where: { id: params.id }
+      where: { id },
     })
 
     if (!report) {
@@ -124,16 +126,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     const updatedReport = await prisma.report.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         reporter: {
-          select: { id: true, displayName: true, email: true }
+          select: { id: true, displayName: true, email: true },
         },
         resolver: {
-          select: { id: true, displayName: true, email: true }
-        }
-      }
+          select: { id: true, displayName: true, email: true },
+        },
+      },
     })
 
     // Log the action
@@ -142,13 +144,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         userId: user.id,
         action: `report.${validatedData.status}`,
         entityType: 'report',
-        entityId: params.id,
+        entityId: id,
         metadata: {
           reportEntityType: report.workflowId ? 'workflow' : 'store',
           reportEntityId: report.workflowId || report.storeId,
-          reason: report.reason
-        }
-      }
+          reason: report.reason,
+        },
+      },
     })
 
     return NextResponse.json({ report: updatedReport })
@@ -162,15 +164,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // DELETE - Delete report (admin only)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const user = await getAuthenticatedUser()
     if (!user || !user.isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
     const report = await prisma.report.findUnique({
-      where: { id: params.id }
+      where: { id },
     })
 
     if (!report) {
@@ -178,7 +181,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 
     await prisma.report.delete({
-      where: { id: params.id }
+      where: { id },
     })
 
     // Log the action
@@ -187,13 +190,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
         userId: user.id,
         action: 'report.delete',
         entityType: 'report',
-        entityId: params.id,
+        entityId: id,
         metadata: {
           reportEntityType: report.workflowId ? 'workflow' : 'store',
           reportEntityId: report.workflowId || report.storeId,
-          reason: report.reason
-        }
-      }
+          reason: report.reason,
+        },
+      },
     })
 
     return NextResponse.json({ message: 'Report deleted successfully' })

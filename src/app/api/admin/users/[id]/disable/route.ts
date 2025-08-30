@@ -16,36 +16,37 @@ async function getAuthenticatedUser() {
     data: { user },
     error,
   } = await supabase.auth.getUser()
-  
+
   if (error || !user) {
     return null
   }
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { id: true, isAdmin: true }
+    select: { id: true, isAdmin: true },
   })
 
   return dbUser
 }
 
 // PATCH - Disable/Enable user and their seller profile (admin only)
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getAuthenticatedUser()
     if (!user || !user.isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
+    const { id } = await params
     const body = await req.json()
     const validatedData = disableUserSchema.parse(body)
 
     // Check if target user exists
     const targetUser = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
-        sellerProfile: true
-      }
+        sellerProfile: true,
+      },
     })
 
     if (!targetUser) {
@@ -69,8 +70,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       const newStatus = validatedData.disabled ? 'suspended' : 'active'
       updates.push(
         prisma.sellerProfile.update({
-          where: { userId: params.id },
-          data: { status: newStatus }
+          where: { userId: id },
+          data: { status: newStatus },
         })
       )
 
@@ -78,11 +79,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       if (validatedData.disabled) {
         updates.push(
           prisma.workflow.updateMany({
-            where: { 
-              sellerId: params.id,
-              status: { in: ['published', 'unlisted'] }
+            where: {
+              sellerId: id,
+              status: { in: ['published', 'unlisted'] },
             },
-            data: { status: 'disabled' }
+            data: { status: 'disabled' },
           })
         )
       }
@@ -95,13 +96,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           userId: user.id,
           action: validatedData.disabled ? 'user.disable' : 'user.enable',
           entityType: 'user',
-          entityId: params.id,
+          entityId: id,
           metadata: {
             reason: validatedData.reason,
             targetUserEmail: targetUser.email,
-            hadSellerProfile: !!targetUser.sellerProfile
-          }
-        }
+            hadSellerProfile: !!targetUser.sellerProfile,
+          },
+        },
       })
     )
 
@@ -110,19 +111,19 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     // Fetch updated user data
     const updatedUser = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
-        sellerProfile: true
-      }
+        sellerProfile: true,
+      },
     })
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       user: updatedUser,
-      message: `User ${validatedData.disabled ? 'disabled' : 'enabled'} successfully`
+      message: `User ${validatedData.disabled ? 'disabled' : 'enabled'} successfully`,
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid request data', details: error.errors }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid request data', details: error.issues }, { status: 400 })
     }
     console.error('Error updating user status:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

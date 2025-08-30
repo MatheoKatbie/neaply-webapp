@@ -4,172 +4,170 @@ import { AdminSearchFilters } from '@/components/admin/AdminSearchFilters'
 import { AdminReportsClient } from '@/components/admin/AdminReportsClient'
 
 async function getReports(
-    page: number = 1,
-    limit: number = 10,
-    search?: string,
-    status?: string,
-    reason?: string,
-    dateFrom?: string,
-    dateTo?: string
+  page: number = 1,
+  limit: number = 10,
+  search?: string,
+  status?: string,
+  reason?: string,
+  dateFrom?: string,
+  dateTo?: string
 ) {
-    const skip = (page - 1) * limit
+  const skip = (page - 1) * limit
 
-    // Build where clause
-    const where: any = {}
+  // Build where clause
+  const where: any = {}
 
-    if (search) {
-        // Check if search looks like a UUID
-        const isUuidSearch = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(search)
+  if (search) {
+    // Check if search looks like a UUID
+    const isUuidSearch = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(search)
 
-        if (isUuidSearch) {
-            // If it's a UUID search, search by report ID
-            where.id = search
-        } else {
-            // If it's not a UUID, search by other fields
-            where.OR = [
-                { reporter: { displayName: { contains: search, mode: 'insensitive' } } },
-                { reporter: { email: { contains: search, mode: 'insensitive' } } },
-                { workflow: { title: { contains: search, mode: 'insensitive' } } },
-                { workflow: { seller: { displayName: { contains: search, mode: 'insensitive' } } } }
-            ]
-        }
+    if (isUuidSearch) {
+      // If it's a UUID search, search by report ID
+      where.id = search
+    } else {
+      // If it's not a UUID, search by other fields
+      where.OR = [
+        { reporter: { displayName: { contains: search, mode: 'insensitive' } } },
+        { reporter: { email: { contains: search, mode: 'insensitive' } } },
+        { workflow: { title: { contains: search, mode: 'insensitive' } } },
+        { workflow: { seller: { displayName: { contains: search, mode: 'insensitive' } } } },
+      ]
     }
+  }
 
-    if (status && status !== 'all') {
-        where.status = status
-    }
+  if (status && status !== 'all') {
+    where.status = status
+  }
 
-    if (reason && reason !== 'all') {
-        where.reason = reason
-    }
+  if (reason && reason !== 'all') {
+    where.reason = reason
+  }
 
-    if (dateFrom || dateTo) {
-        where.createdAt = {}
-        if (dateFrom) where.createdAt.gte = new Date(dateFrom)
-        if (dateTo) where.createdAt.lte = new Date(dateTo + 'T23:59:59.999Z')
-    }
+  if (dateFrom || dateTo) {
+    where.createdAt = {}
+    if (dateFrom) where.createdAt.gte = new Date(dateFrom)
+    if (dateTo) where.createdAt.lte = new Date(dateTo + 'T23:59:59.999Z')
+  }
 
-    const [reports, totalCount] = await Promise.all([
-        prisma.report.findMany({
-            where,
-            include: {
-                reporter: {
-                    select: {
-                        displayName: true,
-                        email: true
-                    }
-                },
-                workflow: {
-                    select: {
-                        title: true,
-                        seller: {
-                            select: {
-                                displayName: true
-                            }
-                        }
-                    }
-                },
-                store: {
-                    select: {
-                        storeName: true,
-                        user: {
-                            select: {
-                                displayName: true
-                            }
-                        }
-                    }
-                }
+  const [reports, totalCount] = await Promise.all([
+    prisma.report.findMany({
+      where,
+      include: {
+        reporter: {
+          select: {
+            displayName: true,
+            email: true,
+          },
+        },
+        workflow: {
+          select: {
+            title: true,
+            seller: {
+              select: {
+                displayName: true,
+              },
             },
-            orderBy: { createdAt: 'desc' },
-            skip,
-            take: limit
-        }),
-        prisma.report.count({ where })
-    ])
+          },
+        },
+        store: {
+          select: {
+            storeName: true,
+            status: true,
+            user: {
+              select: {
+                displayName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.report.count({ where }),
+  ])
 
-    return {
-        reports,
-        totalCount,
-        totalPages: Math.ceil(totalCount / limit),
-        currentPage: page
-    }
+  return {
+    reports,
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+    currentPage: page,
+  }
 }
 
 export default async function AdminReports({
-    searchParams,
+  searchParams,
 }: {
-    searchParams: Promise<{
-        page?: string
-        search?: string
-        status?: string
-        reason?: string
-        dateFrom?: string
-        dateTo?: string
-    }>
+  searchParams: Promise<{
+    page?: string
+    search?: string
+    status?: string
+    reason?: string
+    dateFrom?: string
+    dateTo?: string
+  }>
 }) {
-    // Await searchParams as required in Next.js 15
-    const params = await searchParams
-    const page = parseInt(params.page || '1')
-    const { reports, totalCount, totalPages, currentPage } = await getReports(
-        page,
-        10,
-        params.search,
-        params.status,
-        params.reason,
-        params.dateFrom,
-        params.dateTo
-    )
+  // Await searchParams as required in Next.js 15
+  const params = await searchParams
+  const page = parseInt(params.page || '1')
+  const { reports, totalCount, totalPages, currentPage } = await getReports(
+    page,
+    10,
+    params.search,
+    params.status,
+    params.reason,
+    params.dateFrom,
+    params.dateTo
+  )
 
-    const filterOptions = [
-        {
-            key: 'status',
-            label: 'Status',
-            options: [
-                { value: 'open', label: 'Open' },
-                { value: 'reviewing', label: 'Reviewing' },
-                { value: 'resolved', label: 'Resolved' },
-                { value: 'dismissed', label: 'Dismissed' }
-            ]
-        },
-        {
-            key: 'reason',
-            label: 'Reason',
-            options: [
-                { value: 'inappropriate_content', label: 'Inappropriate Content' },
-                { value: 'copyright_violation', label: 'Copyright Violation' },
-                { value: 'spam', label: 'Spam' },
-                { value: 'misleading', label: 'Misleading' },
-                { value: 'other', label: 'Other' }
-            ]
-        }
-    ]
+  const filterOptions = [
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'open', label: 'Open' },
+        { value: 'reviewing', label: 'Reviewing' },
+        { value: 'resolved', label: 'Resolved' },
+        { value: 'dismissed', label: 'Dismissed' },
+      ],
+    },
+    {
+      key: 'reason',
+      label: 'Reason',
+      options: [
+        { value: 'inappropriate_content', label: 'Inappropriate Content' },
+        { value: 'copyright_violation', label: 'Copyright Violation' },
+        { value: 'spam', label: 'Spam' },
+        { value: 'misleading', label: 'Misleading' },
+        { value: 'other', label: 'Other' },
+      ],
+    },
+  ]
 
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold text-foreground font-space-grotesk">Reports Management</h1>
-                <p className="text-muted-foreground">Review and handle user reports</p>
-            </div>
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground font-space-grotesk">Reports Management</h1>
+        <p className="text-muted-foreground">Review and handle user reports</p>
+      </div>
 
-            <AdminSearchFilters
-                searchPlaceholder="Search reports by ID, reporter name, email, or workflow..."
-                filters={filterOptions}
-                dateRangeFilter={true}
-            />
+      <AdminSearchFilters
+        searchPlaceholder="Search reports by ID, reporter name, email, or workflow..."
+        filters={filterOptions}
+        dateRangeFilter={true}
+      />
 
-            <AdminReportsClient 
-                initialReports={reports} 
-                totalCount={totalCount}
-            />
+      <AdminReportsClient initialReports={reports} totalCount={totalCount} />
 
-            {/* Pagination */}
-            <AdminPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalCount}
-                itemsPerPage={10}
-                baseUrl="/admin/reports"
-            />
-        </div>
-    )
+      {/* Pagination */}
+      <AdminPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalCount}
+        itemsPerPage={10}
+        baseUrl="/admin/reports"
+      />
+    </div>
+  )
 }
