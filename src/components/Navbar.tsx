@@ -187,7 +187,7 @@ export default function Navbar() {
   }, [isMenuOpen])
 
   return (
-    <nav className="sticky top-0 left-0 z-50 w-full bg-card border-b border-accent">
+    <nav className="sticky top-0 left-0 z-[9999] w-full bg-card border-b border-accent">
       <div className="w-full px-4 lg:px-6">
         <div className="relative flex justify-between items-center h-16">
           {/* Logo */}

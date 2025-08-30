@@ -106,7 +106,6 @@ export function SellerWorkflowsTab({
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Your Workflows</h2>
-        {!showCreateForm && <Button onClick={onCreateWorkflow}>Add New Workflow</Button>}
       </div>
 
       {showCreateForm && (

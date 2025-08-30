@@ -6,16 +6,21 @@ import { safeDecrypt } from '@/lib/encryption'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import Link from 'next/link'
+import { Building2, ExternalLink } from 'lucide-react'
 
+import { AnimatedTooltip } from '@/components/ui/animated-tooltip'
 import { DeleteConfirmationModal } from '@/components/ui/delete-confirmation-modal'
 import { SellerAnalytics } from '@/components/ui/seller-analytics'
 import { SellerPayouts } from '@/components/ui/seller-payouts'
+import { StripeSetupCard } from '@/components/ui/stripe-setup-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { SellerDashboardSkeleton } from '@/components/seller/SellerDashboardSkeleton'
 import { SellerOverviewTab } from '@/components/seller/SellerOverviewTab'
 import { SellerWorkflowsTab } from '@/components/seller/SellerWorkflowsTab'
 import type { Category, Tag, Workflow } from '@/types/workflow'
+import { Button } from '@/components/ui/button'
 
 export default function SellerDashboard() {
   const { user, loading } = useAuth()
@@ -66,6 +71,8 @@ export default function SellerDashboard() {
     hasStripeAccount: boolean
     onboardingCompleted: boolean
   } | null>(null)
+  const [expressDashboardUrl, setExpressDashboardUrl] = useState<string | null>(null)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   const [analyticsOverview, setAnalyticsOverview] = useState<{
     totalWorkflows: number
@@ -104,11 +111,13 @@ export default function SellerDashboard() {
           hasStripeAccount: !!data.data?.stripeAccountId,
           onboardingCompleted: !!data.data?.stripeOnboardingCompleted,
         })
+        setExpressDashboardUrl(data.data?.expressDashboardUrl || null)
       } else {
         setStripeStatus({
           hasStripeAccount: false,
           onboardingCompleted: false,
         })
+        setExpressDashboardUrl(null)
       }
     } catch (error) {
       console.error('Failed to check Stripe status:', error)
@@ -116,6 +125,7 @@ export default function SellerDashboard() {
         hasStripeAccount: false,
         onboardingCompleted: false,
       })
+      setExpressDashboardUrl(null)
       toast.error('Failed to check Stripe status', {
         description: 'Please refresh the page to try again.',
       })
@@ -200,6 +210,19 @@ export default function SellerDashboard() {
     }
   }, [])
 
+  // Handle See Payouts click
+  const handleSeePayoutsClick = () => {
+    if (expressDashboardUrl) {
+      window.open(expressDashboardUrl, '_blank')
+    } else if (stripeStatus?.hasStripeAccount) {
+      // If account exists but no Express URL, redirect to onboarding
+      window.open('/dashboard/stripe/connect', '_blank')
+    } else {
+      // No account at all, start the setup process
+      window.open('/dashboard/stripe/connect', '_blank')
+    }
+  }
+
   useEffect(() => {
     if (user?.isSeller) {
       fetchWorkflows()
@@ -209,6 +232,19 @@ export default function SellerDashboard() {
       checkStripeStatus()
     }
   }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags, fetchAnalyticsOverview, checkStripeStatus])
+
+  // Show tooltip when user has no workflows and Stripe is configured
+  useEffect(() => {
+    if (workflows.length === 0 && stripeStatus?.hasStripeAccount && stripeStatus?.onboardingCompleted) {
+      const timer = setTimeout(() => {
+        setShowTooltip(true)
+      }, 500) // Show tooltip after .5 seconds
+
+      return () => clearTimeout(timer)
+    } else {
+      setShowTooltip(false)
+    }
+  }, [workflows.length, stripeStatus])
 
   // Force validation when documentation file changes
   useEffect(() => {
@@ -732,6 +768,12 @@ export default function SellerDashboard() {
       return
     }
 
+    // Switch to workflows tab
+    setActiveTab('workflows')
+
+    // Hide tooltip when user clicks the button
+    setShowTooltip(false)
+
     resetTouchedState()
     setEditingWorkflow(null)
     setLoadingWorkflowData(false)
@@ -905,7 +947,7 @@ export default function SellerDashboard() {
     }
   }
 
-  if (loading || isLoading) {
+  if (loading || isLoading || stripeStatus === null) {
     return <SellerDashboardSkeleton />
   }
 
@@ -913,15 +955,219 @@ export default function SellerDashboard() {
     return null
   }
 
+  // Show Stripe setup card if no Stripe account is configured
+  if (stripeStatus && !stripeStatus.hasStripeAccount) {
+    return (
+      <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 pt-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center space-x-8">
+                {/* Profile Picture */}
+                <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                      {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                  )}
+                </div>
+
+                {/* User Info and Balance */}
+                <div className="flex items-center space-x-8">
+                  <div>
+                    <h1 className="text-2xl font-bold text-foreground">
+                      {user?.displayName || user?.name || user?.email?.split('@')[0] || 'User'}
+                    </h1>
+                    <p className="text-muted-foreground">{user?.email}</p>
+                  </div>
+
+                  {/* Balance Section */}
+                  <div className="text-left">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span className="text-sm text-muted-foreground">Balance</span>
+                      <button
+                        onClick={handleSeePayoutsClick}
+                        className="text-blue-600 hover:text-blue-700 text-sm flex items-center cursor-pointer"
+                      >
+                        See Payouts
+                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="text-2xl font-bold text-foreground">USD 0.00</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Create Workflow Button */}
+              <Button onClick={handleCreateWorkflow} className="bg-blue-600 hover:bg-blue-700 text-white">
+                Create Workflow
+              </Button>
+            </div>
+          </div>
+
+          <StripeSetupCard className="mt-12" />
+        </div>
+      </div>
+    )
+  }
+
+  // Show onboarding completion message if Stripe account exists but onboarding is incomplete
+  if (stripeStatus && stripeStatus.hasStripeAccount && !stripeStatus.onboardingCompleted) {
+    return (
+      <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 pt-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center space-x-4">
+                {/* Profile Picture */}
+                <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                      {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                  )}
+                </div>
+
+                {/* User Info */}
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {user?.displayName || user?.name || user?.email?.split('@')[0] || 'User'}
+                  </h1>
+                  <p className="text-muted-foreground">{user?.email}</p>
+                </div>
+              </div>
+
+              {/* Balance Section */}
+              <div className="flex items-center space-x-8">
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {user?.displayName || user?.name || user?.email?.split('@')[0] || 'User'}
+                  </h1>
+                  <p className="text-muted-foreground">{user?.email}</p>
+                </div>
+
+                {/* Balance Section */}
+                <div className="text-left">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="text-sm text-muted-foreground">Balance</span>
+                    <button
+                      onClick={handleSeePayoutsClick}
+                      className="text-blue-600 hover:text-blue-700 text-sm flex items-center cursor-pointer"
+                    >
+                      See Payouts
+                      <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="text-2xl font-bold text-foreground">USD 0.00</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Create Workflow Button */}
+            <AnimatedTooltip
+              show={showTooltip}
+              title="Time to create your first workflow!"
+              description="Your account and payout information have been verified. You can now add your first workflow to FlowMarket."
+              position="bottom"
+            >
+              <Button onClick={handleCreateWorkflow} className="bg-blue-600 hover:bg-blue-700 text-white">
+                Create Workflow
+              </Button>
+            </AnimatedTooltip>
+          </div>
+        </div>
+
+        <div className="max-w-md mx-auto text-center">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <div className="flex justify-center mb-4">
+              <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-white" />
+              </div>
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900 mb-3">Complete your Stripe onboarding</h2>
+
+            <p className="text-gray-600 mb-6">
+              Your Stripe account is created but you need to complete the verification process to start receiving
+              payments.
+            </p>
+
+            <Link href="/dashboard/stripe/connect">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg">
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Complete onboarding
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 pt-24">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-space-grotesk font-bold text-foreground">Creator Dashboard</h1>
-              <p className="mt-2 text-lg text-muted-foreground">Manage your workflows and track your sales</p>
+            <div className="flex items-center space-x-8">
+              {/* Profile Picture */}
+              <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                    {user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                )}
+              </div>
+
+              {/* User Info and Balance */}
+              <div className="flex items-center space-x-8">
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    {user?.displayName || user?.name || user?.email?.split('@')[0] || 'User'}
+                  </h1>
+                  <p className="text-muted-foreground">{user?.email}</p>
+                </div>
+
+                {/* Balance Section */}
+                <div className="text-left">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="text-sm text-muted-foreground">Balance</span>
+                    <button
+                      onClick={handleSeePayoutsClick}
+                      className="text-blue-600 hover:text-blue-700 text-sm flex items-center cursor-pointer"
+                    >
+                      See Payouts
+                      <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="text-2xl font-bold text-foreground">USD 0.00</div>
+                </div>
+              </div>
             </div>
+
+            {/* Create Workflow Button */}
+            <AnimatedTooltip
+              show={showTooltip}
+              title="Time to create your first workflow!"
+              description="Your account and payout information have been verified. You can now add your first workflow to FlowMarket."
+              position="bottom"
+            >
+              <Button onClick={handleCreateWorkflow} className="bg-blue-600 hover:bg-blue-700 text-white">
+                Create Workflow
+              </Button>
+            </AnimatedTooltip>
           </div>
         </div>
 
