@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { useAuth } from './useAuth'
-import type { Cart, CartItem, AddToCartRequest, UpdateCartItemRequest, CartSummary } from '@/types/cart'
+import type { Cart, CartItem, AddToCartRequest, UpdateCartItemRequest } from '@/types/cart'
 
 interface CartContextType {
   cart: Cart | null
@@ -16,7 +16,6 @@ interface CartContextType {
   clearCart: () => Promise<boolean>
 
   // Cart computations
-  getCartSummary: () => CartSummary
   getItemsCount: () => number
   hasItem: (workflowId: string, pricingPlanId?: string) => boolean
 
@@ -198,34 +197,6 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }
 
-  // Get cart summary
-  const getCartSummary = (): CartSummary => {
-    if (!cart || !cart.items.length) {
-      return {
-        totalItems: 0,
-        totalCents: 0,
-        currency: 'USD',
-        items: [],
-      }
-    }
-
-    const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0)
-    const totalCents = cart.items.reduce((sum, item) => {
-      const price = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
-      return sum + price * item.quantity
-    }, 0)
-
-    // Use currency from first item (all items should have same currency in a single cart)
-    const currency = cart.items[0]?.pricingPlan?.currency || cart.items[0]?.workflow.currency || 'USD'
-
-    return {
-      totalItems,
-      totalCents,
-      currency,
-      items: cart.items,
-    }
-  }
-
   // Get total items count
   const getItemsCount = (): number => {
     if (!cart) return 0
@@ -251,7 +222,6 @@ export function CartProvider({ children }: CartProviderProps) {
     removeFromCart,
     updateCartItem,
     clearCart,
-    getCartSummary,
     getItemsCount,
     hasItem,
     refreshCart,

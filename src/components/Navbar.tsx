@@ -1,9 +1,10 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { CartIcon } from '@/components/ui/cart-icon'
+import { ShoppingCart } from 'lucide-react'
 import { Trans } from '@/components/ui/Trans'
 import { useAuth } from '@/hooks/useAuth'
+import { useCart } from '@/hooks/useCart'
 import { useTranslation } from '@/hooks/useTranslation'
 import { Heart, Search, User, ArrowRight, Command } from 'lucide-react'
 import Image from 'next/image'
@@ -11,16 +12,20 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Input } from '@/components/ui/input'
+import CartSlider from '@/components/CartSlider'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false)
+
   const [storeSlug, setStoreSlug] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut, loading } = useAuth()
+  const { cart } = useCart()
   const { t } = useTranslation()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -96,6 +101,13 @@ export default function Navbar() {
     await signOut()
     router.push('/')
     setIsDropdownOpen(false)
+  }
+
+  // Calculate cart items count
+  const cartItemsCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0
+
+  const handleCartClick = () => {
+    setIsCartOpen(true)
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -187,7 +199,7 @@ export default function Navbar() {
   }, [isMenuOpen])
 
   return (
-    <nav className="sticky top-0 left-0 z-50 w-full bg-card border-b border-accent">
+    <nav className="sticky top-0 left-0 z-[9999] w-full bg-card border-b border-accent">
       <div className="w-full px-4 lg:px-6">
         <div className="relative flex justify-between items-center h-16">
           {/* Logo */}
@@ -370,7 +382,6 @@ export default function Navbar() {
                   <Trans i18nKey="navigation.favorites" />
                 </Link>
               )}
-              {user && <CartIcon className="text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-full" />}
             </div>
           </div>
 
@@ -383,6 +394,19 @@ export default function Navbar() {
             ) : user ? (
               // Logged in user
               <div className="flex items-center space-x-3">
+                {user && (
+                  <button
+                    onClick={handleCartClick}
+                    className="relative text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-full p-2 transition-colors duration-200 cursor-pointer"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    {cartItemsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                        {cartItemsCount > 99 ? '99+' : cartItemsCount}
+                      </span>
+                    )}
+                  </button>
+                )}
                 {!user.isSeller && (
                   <button
                     className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10  rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-foreground"
@@ -603,13 +627,23 @@ export default function Navbar() {
                   </Link>
                 )}
                 {user && (
-                  <div
-                    className="flex items-center gap-2 text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
-                    onClick={() => setIsMenuOpen(false)}
+                  <button
+                    onClick={() => {
+                      setIsCartOpen(true)
+                      setIsMenuOpen(false)
+                    }}
+                    className="flex items-center gap-2 text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200 w-full text-left"
                   >
-                    <CartIcon className="p-0" />
+                    <div className="relative">
+                      <ShoppingCart className="w-4 h-4" />
+                      {cartItemsCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+                          {cartItemsCount > 99 ? '99+' : cartItemsCount}
+                        </span>
+                      )}
+                    </div>
                     <span>Cart</span>
-                  </div>
+                  </button>
                 )}
               </div>
 
@@ -703,6 +737,9 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* Cart Slider */}
+      <CartSlider isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </nav>
   )
 }

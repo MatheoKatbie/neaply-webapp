@@ -32,6 +32,17 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 title: true,
                 slug: true,
                 heroImageUrl: true,
+                seller: {
+                  select: {
+                    id: true,
+                    displayName: true,
+                    sellerProfile: {
+                      select: {
+                        storeName: true,
+                      },
+                    },
+                  },
+                },
               },
             },
             pricingPlan: {

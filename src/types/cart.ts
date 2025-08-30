@@ -14,10 +14,15 @@ export interface CartItem {
     heroImageUrl?: string
     basePriceCents: number
     currency: string
+    sellerId: string
     seller: {
+      id: string
       displayName: string
       storeName?: string
       slug?: string
+      sellerProfile?: {
+        storeName?: string
+      }
     }
   }
   pricingPlan?: {
@@ -45,11 +50,4 @@ export interface AddToCartRequest {
 
 export interface UpdateCartItemRequest {
   quantity: number
-}
-
-export interface CartSummary {
-  totalItems: number
-  totalCents: number
-  currency: string
-  items: CartItem[]
 }

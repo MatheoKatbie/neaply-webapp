@@ -87,6 +87,7 @@ model User {
   avatarUrl    String?
   isSeller     Boolean  @default(false)
   isAdmin      Boolean  @default(false)
+  stripeCustomerId String? // Stripe Customer ID for saved payment methods
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -281,6 +282,7 @@ model Order {
   currency       String      @default("EUR")
   provider       String? // stripe, paypal...
   providerIntent String? // payment intent / session id
+  metadata       Json? // Additional order metadata
   createdAt      DateTime    @default(now())
   paidAt         DateTime?
 

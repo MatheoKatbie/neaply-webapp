@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Loader2 } from 'lucide-react'
-import { getStripe } from '@/lib/stripe-client'
-import type { CreateCheckoutSessionRequest } from '@/types/payment'
+import { useRouter } from 'next/navigation'
+import { useCart } from '@/hooks/useCart'
+import { useAuth } from '@/hooks/useAuth'
 
 interface PurchaseButtonProps {
   workflowId: string
@@ -28,43 +29,37 @@ export function PurchaseButton({
   children,
 }: PurchaseButtonProps) {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const { user } = useAuth()
+  const { addToCart } = useCart()
 
   const handlePurchase = async () => {
     if (disabled || loading) return
 
+    if (!user) {
+      alert('Please login to add items to cart')
+      return
+    }
+
     try {
       setLoading(true)
 
-      // Create checkout session
-      const checkoutData: CreateCheckoutSessionRequest = {
+      // Add to cart
+      const success = await addToCart({
         workflowId,
         pricingPlanId,
-      }
-
-      const response = await fetch('/api/checkout/session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(checkoutData),
+        quantity: 1,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create checkout session')
-      }
-
-      const { url } = await response.json()
-
-      // Redirect to Stripe Checkout
-      if (url) {
-        window.location.href = url
+      if (success) {
+        // Redirect to cart page
+        router.push('/cart')
       } else {
-        throw new Error('No checkout URL received')
+        throw new Error('Failed to add item to cart')
       }
     } catch (error) {
-      console.error('Error initiating purchase:', error)
-      alert(error instanceof Error ? error.message : 'Failed to start checkout process')
+      console.error('Error adding to cart:', error)
+      alert(error instanceof Error ? error.message : 'Failed to add item to cart')
     } finally {
       setLoading(false)
     }
@@ -85,7 +80,7 @@ export function PurchaseButton({
       disabled={disabled || loading}
     >
       {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShoppingCart className="w-4 h-4 mr-2" />}
-      {children || `Purchase ${formatPrice(price, currency)}`}
+      {children || `Add to Cart - ${formatPrice(price, currency)}`}
     </Button>
   )
 }
