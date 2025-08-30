@@ -239,7 +239,10 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       cartId: cart.id,
       sellerAccountId: seller.sellerProfile!.stripeAccountId!,
+      orderType: 'cart', // Indicate this is a cart order
     }
+
+    console.log('🛒 Cart checkout - Stripe session metadata:', metadata)
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -265,6 +268,12 @@ export async function POST(request: NextRequest) {
       data: {
         providerIntent: session.id,
       },
+    })
+
+    console.log('🛒 Cart checkout - Stripe session created:', {
+      sessionId: session.id,
+      orderId: order.id,
+      url: session.url,
     })
 
     return NextResponse.json({
