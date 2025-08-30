@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Order } from '@/types/payment'
-import { ArrowRight, CheckCircle, Copy, Download, Home } from 'lucide-react'
+import { ArrowRight, CheckCircle, Copy, Download, Home, XCircle } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import { downloadWorkflowAsZip, downloadPackAsZip } from '@/lib/download-utils'
@@ -17,6 +17,7 @@ function CheckoutSuccessContent() {
   const orderId = searchParams.get('order_id')
 
   const [order, setOrder] = useState<Order | null>(null)
+  const [relatedOrders, setRelatedOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -41,15 +42,39 @@ function CheckoutSuccessContent() {
           }
           const authData = await authResponse.json()
           setOrder(authData.order)
+
+          // If this is a multi-vendor order, fetch related orders
+          if (authData.order.metadata?.orderType === 'multi_vendor_cart') {
+            await fetchRelatedOrders()
+          }
         } else {
           const data = await response.json()
           setOrder(data.order)
+
+          // If this is a multi-vendor order, fetch related orders
+          if (data.order.metadata?.orderType === 'multi_vendor_cart') {
+            await fetchRelatedOrders()
+          }
         }
       } catch (err) {
         console.error('Error fetching order:', err)
         setError('Failed to load order details')
       } finally {
         setLoading(false)
+      }
+    }
+
+    const fetchRelatedOrders = async () => {
+      try {
+        const response = await fetch(`/api/orders/related/${orderId}`, {
+          credentials: 'include',
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setRelatedOrders(data.orders)
+        }
+      } catch (err) {
+        console.error('Error fetching related orders:', err)
       }
     }
 
@@ -104,7 +129,7 @@ function CheckoutSuccessContent() {
             <Card className="text-center py-12">
               <CardContent>
                 <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-red-500" />
+                  <XCircle className="w-8 h-8 text-red-500" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
                 <p className="text-muted-foreground mb-6">
@@ -170,10 +195,22 @@ function CheckoutSuccessContent() {
                 </div>
               </div>
 
+              {/* Multi-vendor notice */}
+              {relatedOrders.length > 0 && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-2">Multi-Vendor Purchase</h4>
+                  <p className="text-sm text-blue-700">
+                    Your purchase included items from {relatedOrders.length + 1} different sellers. All orders have been
+                    processed successfully.
+                  </p>
+                </div>
+              )}
+
               {/* Order Items (Workflows) */}
               <div>
                 <h3 className="text-lg font-semibold mb-4">Your Workflows</h3>
                 <div className="space-y-4">
+                  {/* Current order items */}
                   {order.items.map((item) => (
                     <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
                       <div className="flex items-center space-x-4">
@@ -190,6 +227,12 @@ function CheckoutSuccessContent() {
                         )}
                         <div>
                           <h4 className="font-medium">{item.workflow.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            by{' '}
+                            {item.workflow.seller?.sellerProfile?.storeName ||
+                              item.workflow.seller?.displayName ||
+                              'Unknown Seller'}
+                          </p>
                           {item.pricingPlan && (
                             <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
                           )}
@@ -216,6 +259,61 @@ function CheckoutSuccessContent() {
                         >
                           View Details
                         </Button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Related orders items */}
+                  {relatedOrders.map((relatedOrder) => (
+                    <div key={relatedOrder.id} className="border-t pt-4">
+                      <h4 className="text-md font-medium text-muted-foreground mb-3">
+                        Order {relatedOrder.id.slice(-8)} -{' '}
+                        {formatPrice(relatedOrder.totalCents, relatedOrder.currency)}
+                      </h4>
+                      <div className="space-y-3">
+                        {relatedOrder.items.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              {item.workflow.heroImageUrl ? (
+                                <img
+                                  src={item.workflow.heroImageUrl}
+                                  alt={item.workflow.title}
+                                  className="w-10 h-10 object-cover rounded-lg"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  <Download className="w-5 h-5 text-blue-600" />
+                                </div>
+                              )}
+                              <div>
+                                <h5 className="font-medium text-sm">{item.workflow.title}</h5>
+                                <p className="text-xs text-muted-foreground">
+                                  by{' '}
+                                  {item.workflow.seller?.sellerProfile?.storeName ||
+                                    item.workflow.seller?.displayName ||
+                                    'Unknown Seller'}
+                                </p>
+                                {item.pricingPlan && (
+                                  <p className="text-xs text-muted-foreground">{item.pricingPlan.name} Plan</p>
+                                )}
+                                <p className="text-xs font-medium text-green-600">
+                                  {formatPrice(item.unitPriceCents, relatedOrder.currency)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <CopyButton workflowId={item.workflowId} />
+                              <Button
+                                size="sm"
+                                onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
+                                className="bg-blue-600 hover:bg-blue-700 text-xs"
+                              >
+                                <Download className="w-3 h-3 mr-1" />
+                                Download
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}

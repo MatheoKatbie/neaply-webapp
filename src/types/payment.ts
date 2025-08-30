@@ -21,6 +21,11 @@ export interface Order {
   providerIntent?: string
   createdAt: string
   paidAt?: string
+  metadata?: {
+    orderType?: string
+    cartId?: string
+    sellerId?: string
+  }
   items: OrderItem[]
   packItems: PackItem[]
   payments: Payment[]
@@ -39,6 +44,13 @@ export interface OrderItem {
     title: string
     slug: string
     heroImageUrl?: string
+    seller: {
+      id: string
+      displayName: string
+      sellerProfile?: {
+        storeName?: string
+      }
+    }
   }
   pricingPlan?: {
     id: string

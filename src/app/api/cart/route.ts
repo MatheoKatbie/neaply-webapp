@@ -12,6 +12,8 @@ export async function GET() {
       error: authError,
     } = await supabase.auth.getUser()
 
+    console.log('Cart API - Auth check:', { user: user?.id, authError })
+
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

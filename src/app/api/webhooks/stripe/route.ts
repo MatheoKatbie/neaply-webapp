@@ -373,6 +373,28 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           }
         }
 
+        // Clear user's cart if no specific cartId was provided (fallback for old orders)
+        if (!cartId) {
+          console.log('🛒 No specific cartId, clearing user cart as fallback')
+          try {
+            const userCart = await tx.cart.findFirst({
+              where: { userId },
+            })
+
+            if (userCart) {
+              await tx.cart.delete({
+                where: { id: userCart.id },
+              })
+              console.log('✅ User cart cleared as fallback after payment succeeded')
+            } else {
+              console.log('ℹ️ No cart found for user, nothing to clear')
+            }
+          } catch (cartError) {
+            console.error('Error clearing user cart as fallback:', cartError)
+            // Don't throw here, as the payment was successful
+          }
+        }
+
         // Create audit log
         console.log('Creating audit log')
         const auditAction = updatedOrder.packItems.length > 0 ? 'pack.purchased' : 'order.completed'
@@ -496,54 +518,123 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
 
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   try {
-    console.log('Processing payment intent succeeded:', paymentIntent.id)
+    console.log('💰 PaymentIntent succeeded:', {
+      id: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      metadata: paymentIntent.metadata,
+    })
 
-    const charge = paymentIntent.latest_charge as Stripe.Charge
-    if (charge) {
-      const payment = await prisma.payment.findFirst({
-        where: {
-          providerCharge: charge.id,
+    const { orderId, userId, sellerId, cartId, orderType } = paymentIntent.metadata
+
+    if (!orderId) {
+      console.error('❌ No orderId in PaymentIntent metadata')
+      return
+    }
+
+    // Update order status
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: 'paid',
+        paidAt: new Date(),
+        providerIntent: paymentIntent.id,
+      },
+      include: {
+        items: {
+          include: {
+            workflow: true,
+          },
         },
-        include: {
-          order: true,
+      },
+    })
+
+    console.log('✅ Order updated to paid:', {
+      orderId: updatedOrder.id,
+      totalCents: updatedOrder.totalCents,
+      itemsCount: updatedOrder.items.length,
+    })
+
+    // Create payment record
+    await prisma.payment.create({
+      data: {
+        orderId: updatedOrder.id,
+        provider: 'stripe',
+        providerCharge: paymentIntent.id,
+        amountCents: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        status: 'succeeded',
+        rawPayload: paymentIntent as any,
+      },
+    })
+
+    // Update workflow sales count
+    for (const item of updatedOrder.items) {
+      await prisma.workflow.update({
+        where: { id: item.workflowId },
+        data: {
+          salesCount: {
+            increment: item.quantity,
+          },
+        },
+      })
+    }
+
+    // Handle cart cleanup for multi-vendor orders
+    if (cartId && orderType === 'multi_vendor_cart') {
+      console.log('🛒 Multi-vendor cart detected, checking if all orders are paid')
+
+      // Find all pending orders that share the same cartId
+      const pendingOrdersWithSameCart = await prisma.order.count({
+        where: {
+          AND: [
+            {
+              OR: [
+                { providerIntent: { contains: cartId } }, // Fallback search
+                {
+                  // More precise: find orders created around the same time with same user
+                  userId: updatedOrder.userId,
+                  createdAt: {
+                    gte: new Date(new Date(updatedOrder.createdAt).getTime() - 5 * 60 * 1000), // 5 minutes before
+                    lte: new Date(new Date(updatedOrder.createdAt).getTime() + 5 * 60 * 1000), // 5 minutes after
+                  },
+                },
+              ],
+            },
+            { status: 'pending' },
+          ],
         },
       })
 
-      if (payment) {
-        // Update payment status to succeeded and add payment intent metadata
-        await prisma.payment.update({
-          where: { id: payment.id },
-          data: {
-            status: 'succeeded',
-            rawPayload: {
-              ...(payment.rawPayload as any),
-              paymentIntent,
-            },
-          },
+      console.log('Pending orders with same cart found:', pendingOrdersWithSameCart)
+
+      if (pendingOrdersWithSameCart === 0) {
+        // All orders are paid, clear the cart
+        await prisma.cart.delete({
+          where: { id: cartId },
         })
-
-        // Also ensure the order is marked as paid if it isn't already
-        if (payment.order.status !== 'paid') {
-          await prisma.order.update({
-            where: { id: payment.orderId },
-            data: {
-              status: 'paid',
-              paidAt: new Date(),
-              provider: 'stripe',
-              providerIntent: paymentIntent.id,
-            },
-          })
-        }
-
-        console.log('Successfully updated payment status for payment intent:', paymentIntent.id)
-      } else {
-        console.log('No payment record found for charge:', charge.id)
+        console.log('✅ Cart cleared after all payments succeeded')
       }
     } else {
-      console.log('No charge found for payment intent:', paymentIntent.id)
+      // For single orders, clear the user's cart
+      console.log('🛒 Single order detected, clearing user cart')
+
+      // Find and delete the user's cart
+      const userCart = await prisma.cart.findFirst({
+        where: { userId: updatedOrder.userId },
+      })
+
+      if (userCart) {
+        await prisma.cart.delete({
+          where: { id: userCart.id },
+        })
+        console.log('✅ User cart cleared after payment succeeded')
+      } else {
+        console.log('ℹ️ No cart found for user, nothing to clear')
+      }
     }
   } catch (error) {
-    console.error('Error handling payment intent succeeded:', error)
-    // Don't throw here as this is supplementary processing
+    console.error('❌ Error handling PaymentIntent succeeded:', error)
+    throw error
   }
 }

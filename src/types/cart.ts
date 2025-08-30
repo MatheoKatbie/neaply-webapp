@@ -51,10 +51,3 @@ export interface AddToCartRequest {
 export interface UpdateCartItemRequest {
   quantity: number
 }
-
-export interface CartSummary {
-  totalItems: number
-  totalCents: number
-  currency: string
-  items: CartItem[]
-}
