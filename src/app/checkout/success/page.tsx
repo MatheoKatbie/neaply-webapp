@@ -74,7 +74,6 @@ function CheckoutSuccessContent() {
     }
   }
 
-
   const formatPrice = (priceCents: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -85,7 +84,6 @@ function CheckoutSuccessContent() {
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="animate-pulse">
@@ -101,7 +99,6 @@ function CheckoutSuccessContent() {
   if (error || !order) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <Card className="text-center py-12">
@@ -110,7 +107,9 @@ function CheckoutSuccessContent() {
                   <CheckCircle className="w-8 h-8 text-red-500" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
-                <p className="text-muted-foreground mb-6">{error || "The order you're looking for could not be found."}</p>
+                <p className="text-muted-foreground mb-6">
+                  {error || "The order you're looking for could not be found."}
+                </p>
                 <Button onClick={() => router.push('/marketplace')}>
                   <Home className="w-4 h-4 mr-2" />
                   Back to Marketplace
@@ -125,7 +124,6 @@ function CheckoutSuccessContent() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Success Header */}
@@ -134,7 +132,9 @@ function CheckoutSuccessContent() {
               <CheckCircle className="w-10 h-10 text-green-500" />
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Payment Successful!</h1>
-            <p className="text-lg text-muted-foreground">Thank you for your purchase. Your workflows and packs are ready for download.</p>
+            <p className="text-lg text-muted-foreground">
+              Thank you for your purchase. Your workflows and packs are ready for download.
+            </p>
           </div>
 
           {/* Order Details */}
@@ -190,17 +190,21 @@ function CheckoutSuccessContent() {
                         )}
                         <div>
                           <h4 className="font-medium">{item.workflow.title}</h4>
-                          {item.pricingPlan && <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>}
+                          {item.pricingPlan && (
+                            <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
+                          )}
                           <p className="text-sm font-medium text-green-600">
                             {formatPrice(item.unitPriceCents, order.currency)}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <CopyButton
-                          workflowId={item.workflowId}
-                        />
-                        <Button size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)} className="bg-blue-600 hover:bg-blue-700">
+                        <CopyButton workflowId={item.workflowId} />
+                        <Button
+                          size="sm"
+                          onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
                           <Download className="w-4 h-4 mr-2" />
                           Download ZIP
                         </Button>
@@ -239,7 +243,9 @@ function CheckoutSuccessContent() {
                           <div>
                             <h4 className="font-medium">{packItem.pack.title}</h4>
                             {packItem.pack.workflows && (
-                              <p className="text-sm text-muted-foreground">{packItem.pack.workflows.length} workflows included</p>
+                              <p className="text-sm text-muted-foreground">
+                                {packItem.pack.workflows.length} workflows included
+                              </p>
                             )}
                             <p className="text-sm font-medium text-green-600">
                               {formatPrice(packItem.unitPriceCents, order.currency)}
@@ -247,7 +253,11 @@ function CheckoutSuccessContent() {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Button size="sm" onClick={() => handleDownloadPack(packItem.packId, packItem.pack.title)} className="bg-blue-600 hover:bg-blue-700">
+                          <Button
+                            size="sm"
+                            onClick={() => handleDownloadPack(packItem.packId, packItem.pack.title)}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
                             <Download className="w-4 h-4 mr-2" />
                             Download Pack
                           </Button>

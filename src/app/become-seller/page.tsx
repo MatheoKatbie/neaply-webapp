@@ -41,10 +41,6 @@ const validateBio = (value: string, t: (key: string) => string): string | undefi
   return undefined
 }
 
-
-
-
-
 const validatePhoneNumber = (value: string, t: (key: string) => string): string | undefined => {
   if (!value) return undefined // Optional field
   if (value.length < 8) return t('becomeSeller.validation.phoneMin')
@@ -100,8 +96,6 @@ export default function BecomeSellerPage() {
     checkExistingProfile()
   }, [user])
 
-
-
   // Real-time validation for optional fields
   useEffect(() => {
     // Phone number validation
@@ -118,8 +112,6 @@ export default function BecomeSellerPage() {
       }))
     }
   }, [formData.phoneNumber, t])
-
-
 
   // Real-time validation function
   const validateField = (field: keyof SellerFormData, value: string) => {
@@ -455,8 +447,9 @@ export default function BecomeSellerPage() {
                     <textarea
                       id="bio"
                       name="bio"
-                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
-                        }`}
+                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
+                      }`}
                       value={formData.bio}
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
@@ -472,8 +465,6 @@ export default function BecomeSellerPage() {
                       </p>
                     )}
                   </div>
-
-
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2 col-span-1">
@@ -518,14 +509,24 @@ export default function BecomeSellerPage() {
                   {/* Important warning about bank account */}
                   <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
                     <div className="flex items-start space-x-2">
-                      <svg className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      <svg
+                        className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                        />
                       </svg>
                       <div>
                         <p className="text-sm font-medium text-red-800">Important</p>
                         <p className="text-xs text-red-700 mt-1">
-                          You must have a bank account in the selected country to receive payments.
-                          Please ensure you have access to a local bank account before proceeding.
+                          You must have a bank account in the selected country to receive payments. Please ensure you
+                          have access to a local bank account before proceeding.
                         </p>
                       </div>
                     </div>
@@ -538,8 +539,8 @@ export default function BecomeSellerPage() {
                           ? t('becomeSeller.form.updating')
                           : t('becomeSeller.form.creating')
                         : existingProfile
-                          ? t('becomeSeller.form.updateProfile')
-                          : t('becomeSeller.form.createStore')}
+                        ? t('becomeSeller.form.updateProfile')
+                        : t('becomeSeller.form.createStore')}
                     </Button>
 
                     <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>
