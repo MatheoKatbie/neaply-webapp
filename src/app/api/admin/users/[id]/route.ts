@@ -57,40 +57,109 @@ export async function PUT(
             )
         }
 
+        // Get current seller profile status for comparison
+        const currentProfile = await prisma.sellerProfile.findUnique({
+            where: { userId: id },
+            select: { status: true }
+        })
+
+        const oldStatus = currentProfile?.status
+        const newStatus = body.sellerProfile?.status || 'active'
+        const statusChanged = oldStatus && oldStatus !== newStatus
+
+        const updates: any[] = []
+
         // Update user
-        const updatedUser = await prisma.user.update({
-            where: { id },
-            data: {
-                displayName: body.displayName,
-                email: body.email,
-                isAdmin: body.isAdmin,
-                isSeller: body.isSeller,
-                sellerProfile: body.isSeller ? {
-                    upsert: {
-                        create: {
-                            storeName: body.sellerProfile?.storeName || '',
-                            bio: body.sellerProfile?.bio || '',
-                            websiteUrl: body.sellerProfile?.websiteUrl || '',
-                            phoneNumber: body.sellerProfile?.phoneNumber || '',
-                            countryCode: body.sellerProfile?.countryCode || '',
-                            status: body.sellerProfile?.status || 'active',
-                            slug: body.sellerProfile?.slug || ''
+        updates.push(
+            prisma.user.update({
+                where: { id },
+                data: {
+                    displayName: body.displayName,
+                    email: body.email,
+                    isAdmin: body.isAdmin,
+                    isSeller: body.isSeller,
+                    sellerProfile: body.isSeller ? {
+                        upsert: {
+                            create: {
+                                storeName: body.sellerProfile?.storeName || '',
+                                bio: body.sellerProfile?.bio || '',
+                                websiteUrl: body.sellerProfile?.websiteUrl || '',
+                                phoneNumber: body.sellerProfile?.phoneNumber || '',
+                                countryCode: body.sellerProfile?.countryCode || '',
+                                status: newStatus,
+                                slug: body.sellerProfile?.slug || `${body.sellerProfile?.storeName || 'store'}-${Date.now()}`.toLowerCase().replace(/[^a-z0-9]/g, '-')
+                            },
+                            update: {
+                                storeName: body.sellerProfile?.storeName || '',
+                                bio: body.sellerProfile?.bio || '',
+                                websiteUrl: body.sellerProfile?.websiteUrl || '',
+                                phoneNumber: body.sellerProfile?.phoneNumber || '',
+                                countryCode: body.sellerProfile?.countryCode || '',
+                                status: newStatus
+                            }
+                        }
+                    } : undefined
+                },
+                include: {
+                    sellerProfile: true
+                }
+            })
+        )
+
+        // Handle workflow status changes when seller status changes
+        if (statusChanged && body.isSeller) {
+            if (newStatus === 'suspended') {
+                // Disable all published workflows when seller is suspended
+                updates.push(
+                    prisma.workflow.updateMany({
+                        where: { 
+                            sellerId: id,
+                            status: { in: ['published', 'unlisted'] }
                         },
-                        update: {
-                            storeName: body.sellerProfile?.storeName || '',
-                            bio: body.sellerProfile?.bio || '',
-                            websiteUrl: body.sellerProfile?.websiteUrl || '',
-                            phoneNumber: body.sellerProfile?.phoneNumber || '',
-                            countryCode: body.sellerProfile?.countryCode || '',
-                            status: body.sellerProfile?.status || 'active'
+                        data: { status: 'disabled' }
+                    })
+                )
+
+                // Also disable their workflow packs
+                updates.push(
+                    prisma.workflowPack.updateMany({
+                        where: { 
+                            sellerId: id,
+                            status: { in: ['published', 'unlisted'] }
+                        },
+                        data: { status: 'disabled' }
+                    })
+                )
+            }
+            // Note: We don't automatically re-enable workflows when unsuspending
+            // The seller will need to manually republish their content
+        }
+
+        // Log the action
+        updates.push(
+            prisma.auditLog.create({
+                data: {
+                    userId: user.id,
+                    action: statusChanged ? `user.status_change.${oldStatus}_to_${newStatus}` : 'user.update',
+                    entityType: 'user',
+                    entityId: id,
+                    metadata: {
+                        changes: {
+                            displayName: body.displayName !== undefined,
+                            email: body.email !== undefined,
+                            isAdmin: body.isAdmin !== undefined,
+                            isSeller: body.isSeller !== undefined,
+                            sellerProfile: body.sellerProfile !== undefined,
+                            statusChange: statusChanged ? { from: oldStatus, to: newStatus } : null
                         }
                     }
-                } : undefined
-            },
-            include: {
-                sellerProfile: true
-            }
-        })
+                }
+            })
+        )
+
+        // Execute all updates in a transaction
+        const results = await prisma.$transaction(updates)
+        const updatedUser = results[0] // First update is the user update
 
         return NextResponse.json({
             message: 'User updated successfully',

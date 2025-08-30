@@ -8,10 +8,12 @@ import { Separator } from '@/components/ui/separator'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { AddToCartButton } from '@/components/ui/add-to-cart-button'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { CopyButton } from '@/components/ui/copy-button'
+import { ReportDialog } from '@/components/ui/report-dialog'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
@@ -507,12 +509,17 @@ export default function WorkflowDetailPage() {
                       <p className="text-sm text-muted-foreground text-center">You already own this workflow</p>
                     </div>
                   ) : (
-                    <PurchaseButton
-                      workflowId={workflowId}
-                      price={workflow.price}
-                      currency={workflow.currency}
-                      className="w-full bg-accent-foreground"
-                    />
+                    <div className="space-y-3">
+                      <PurchaseButton
+                        workflowId={workflowId}
+                        price={workflow.price}
+                        currency={workflow.currency}
+                        className="w-full bg-primary text-primary-foreground"
+                      >
+                        Buy Now
+                      </PurchaseButton>
+                      <AddToCartButton workflowId={workflowId} className="w-full" />
+                    </div>
                   )}
 
                   <div className="space-y-2 text-sm text-muted-foreground">
@@ -570,16 +577,16 @@ export default function WorkflowDetailPage() {
                         seller={{
                           displayName: workflow.seller.displayName,
                           storeName: workflow.seller.storeName,
-                          supportEmail: workflow.seller.supportEmail,
+                          email: workflow.seller.supportEmail,
                           phoneNumber: workflow.seller.phoneNumber,
                           countryCode: workflow.seller.countryCode,
-                          websiteUrl: workflow.seller.websiteUrl,
                           avatarUrl: workflow.seller.avatarUrl,
                         }}
                         workflowTitle={workflow.title}
                         size="sm"
                         className="w-full"
                       />
+                      <ReportDialog entityType="workflow" entityId={workflow.id} entityName={workflow.title} />
                     </div>
                   </div>
                 </CardContent>

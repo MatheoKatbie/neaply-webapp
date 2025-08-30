@@ -98,12 +98,14 @@ model User {
   payouts                Payout[]
   auditLogs              AuditLog[]
   reports                Report[]                @relation("UserReports")
+  resolvedReports        Report[]                @relation("UserResolvedReports")
   reviewHelpfulVotes     ReviewHelpfulVote[]
   workflowPacks          WorkflowPack[]
   packReviews            PackReview[]
   packFavorites          PackFavorite[]
   packReports            PackReport[]            @relation("UserPackReports")
   packReviewHelpfulVotes PackReviewHelpfulVote[]
+  carts                  Cart[]
 
   @@index([email])
 }
@@ -127,6 +129,8 @@ model SellerProfile {
   stripeOnboardingUrl       String? // URL for onboarding completion
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
+
+  reports Report[]
 }
 
 /**
@@ -162,8 +166,9 @@ model Workflow {
   reviews    Review[]
   favorites  Favorite[]
   compat     WorkflowCompatibility[]
-  Report     Report[]
+  reports    Report[]
   packItems  WorkflowPackItem[]
+  cartItems  CartItem[]
 
   @@index([status, updatedAt])
 }
@@ -242,6 +247,7 @@ model PricingPlan {
   sortOrder  Int      @default(0)
 
   orderItems OrderItem[]
+  cartItems  CartItem[]
 
   @@index([workflowId, isActive, sortOrder])
 }
@@ -391,17 +397,23 @@ model Payout {
  * ============================
  */
 model Report {
-  id         String       @id @default(uuid()) @db.Uuid
-  reporterId String?      @db.Uuid
-  workflowId String       @db.Uuid
-  reason     String
-  status     ReportStatus @default(open)
-  createdAt  DateTime     @default(now())
+  id          String       @id @default(uuid()) @db.Uuid
+  reporterId  String?      @db.Uuid
+  workflowId  String?      @db.Uuid
+  storeId     String?      @db.Uuid  // New field for store reports
+  reason      String
+  description String?      // Optional additional details
+  status      ReportStatus @default(open)
+  createdAt   DateTime     @default(now())
+  resolvedAt  DateTime?
+  resolvedBy  String?      @db.Uuid
 
-  reporter User?    @relation("UserReports", fields: [reporterId], references: [id], onDelete: SetNull)
-  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  reporter  User?         @relation("UserReports", fields: [reporterId], references: [id], onDelete: SetNull)
+  resolver  User?         @relation("UserResolvedReports", fields: [resolvedBy], references: [id], onDelete: SetNull)
+  workflow  Workflow?     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  store     SellerProfile? @relation(fields: [storeId], references: [userId], onDelete: Cascade)
 
-  @@index([workflowId, status, createdAt])
+  @@index([workflowId, storeId, status, createdAt])
 }
 
 model AuditLog {
@@ -595,4 +607,38 @@ model PackReport {
   pack     WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
 
   @@index([packId, status, createdAt])
+}
+
+/**
+ * ============================
+ * Shopping Cart
+ * ============================
+ */
+model Cart {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items CartItem[]
+
+  @@index([userId])
+}
+
+model CartItem {
+  id            String  @id @default(uuid()) @db.Uuid
+  cartId        String  @db.Uuid
+  cart          Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  workflowId    String  @db.Uuid
+  pricingPlanId String? @db.Uuid
+  quantity      Int     @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  workflow    Workflow     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  pricingPlan PricingPlan? @relation(fields: [pricingPlanId], references: [id], onDelete: SetNull)
+
+  @@index([cartId])
+  @@index([cartId, workflowId])
 }

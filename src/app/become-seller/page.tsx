@@ -16,8 +16,6 @@ import { useEffect, useState } from 'react'
 interface SellerFormData {
   storeName: string
   bio: string
-  websiteUrl: string
-  supportEmail: string
   phoneNumber: string
   countryCode: string
 }
@@ -25,8 +23,6 @@ interface SellerFormData {
 interface ValidationErrors {
   storeName?: string
   bio?: string
-  websiteUrl?: string
-  supportEmail?: string
   phoneNumber?: string
   countryCode?: string
 }
@@ -42,23 +38,6 @@ const validateStoreName = (value: string, t: (key: string) => string): string | 
 const validateBio = (value: string, t: (key: string) => string): string | undefined => {
   if (value && value.length < 10) return t('becomeSeller.validation.bioMin')
   if (value && value.length > 500) return t('becomeSeller.validation.bioMax')
-  return undefined
-}
-
-const validateWebsiteUrl = (value: string, t: (key: string) => string): string | undefined => {
-  if (!value) return undefined // Optional field
-  try {
-    new URL(value)
-    return undefined
-  } catch {
-    return t('becomeSeller.validation.websiteInvalid')
-  }
-}
-
-const validateSupportEmail = (value: string, t: (key: string) => string): string | undefined => {
-  if (!value) return undefined // Optional field
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(value)) return t('becomeSeller.validation.emailInvalid')
   return undefined
 }
 
@@ -84,8 +63,6 @@ export default function BecomeSellerPage() {
   const [formData, setFormData] = useState<SellerFormData>({
     storeName: '',
     bio: '',
-    websiteUrl: '',
-    supportEmail: '',
     phoneNumber: '',
     countryCode: 'US',
   })
@@ -119,8 +96,6 @@ export default function BecomeSellerPage() {
     checkExistingProfile()
   }, [user])
 
-
-
   // Real-time validation for optional fields
   useEffect(() => {
     // Phone number validation
@@ -138,38 +113,6 @@ export default function BecomeSellerPage() {
     }
   }, [formData.phoneNumber, t])
 
-  // Website URL validation
-  useEffect(() => {
-    if (formData.websiteUrl) {
-      const error = validateWebsiteUrl(formData.websiteUrl, t)
-      setValidationErrors((prev) => ({
-        ...prev,
-        websiteUrl: error,
-      }))
-    } else {
-      setValidationErrors((prev) => ({
-        ...prev,
-        websiteUrl: undefined,
-      }))
-    }
-  }, [formData.websiteUrl, t])
-
-  // Support email validation
-  useEffect(() => {
-    if (formData.supportEmail) {
-      const error = validateSupportEmail(formData.supportEmail, t)
-      setValidationErrors((prev) => ({
-        ...prev,
-        supportEmail: error,
-      }))
-    } else {
-      setValidationErrors((prev) => ({
-        ...prev,
-        supportEmail: undefined,
-      }))
-    }
-  }, [formData.supportEmail, t])
-
   // Real-time validation function
   const validateField = (field: keyof SellerFormData, value: string) => {
     let error: string | undefined
@@ -181,12 +124,7 @@ export default function BecomeSellerPage() {
       case 'bio':
         error = validateBio(value, t)
         break
-      case 'websiteUrl':
-        error = validateWebsiteUrl(value, t)
-        break
-      case 'supportEmail':
-        error = validateSupportEmail(value, t)
-        break
+
       case 'phoneNumber':
         error = validatePhoneNumber(value, t)
         break
@@ -509,8 +447,9 @@ export default function BecomeSellerPage() {
                     <textarea
                       id="bio"
                       name="bio"
-                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
-                        }`}
+                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
+                      }`}
                       value={formData.bio}
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
@@ -525,46 +464,6 @@ export default function BecomeSellerPage() {
                         {formData.bio.length}/500 characters (min. 10). {t('becomeSeller.form.bioHelp')}
                       </p>
                     )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="websiteUrl">{t('becomeSeller.form.website')}</Label>
-                      <Input
-                        id="websiteUrl"
-                        name="websiteUrl"
-                        type="url"
-                        value={formData.websiteUrl}
-                        onChange={handleInputChange}
-                        onBlur={handleInputBlur}
-                        placeholder={t('becomeSeller.form.websitePlaceholder')}
-                        className={validationErrors.websiteUrl ? 'border-red-500 focus:border-red-500' : ''}
-                      />
-                      {validationErrors.websiteUrl ? (
-                        <p className="text-xs text-red-600">{validationErrors.websiteUrl}</p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">{t('becomeSeller.form.websiteHelp')}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="supportEmail">{t('becomeSeller.form.supportEmail')}</Label>
-                      <Input
-                        id="supportEmail"
-                        name="supportEmail"
-                        type="email"
-                        value={formData.supportEmail}
-                        onChange={handleInputChange}
-                        onBlur={handleInputBlur}
-                        placeholder={t('becomeSeller.form.supportEmailPlaceholder')}
-                        className={validationErrors.supportEmail ? 'border-red-500 focus:border-red-500' : ''}
-                      />
-                      {validationErrors.supportEmail ? (
-                        <p className="text-xs text-red-600">{validationErrors.supportEmail}</p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">{t('becomeSeller.form.supportEmailHelp')}</p>
-                      )}
-                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -610,14 +509,24 @@ export default function BecomeSellerPage() {
                   {/* Important warning about bank account */}
                   <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
                     <div className="flex items-start space-x-2">
-                      <svg className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      <svg
+                        className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                        />
                       </svg>
                       <div>
                         <p className="text-sm font-medium text-red-800">Important</p>
                         <p className="text-xs text-red-700 mt-1">
-                          You must have a bank account in the selected country to receive payments.
-                          Please ensure you have access to a local bank account before proceeding.
+                          You must have a bank account in the selected country to receive payments. Please ensure you
+                          have access to a local bank account before proceeding.
                         </p>
                       </div>
                     </div>
@@ -630,8 +539,8 @@ export default function BecomeSellerPage() {
                           ? t('becomeSeller.form.updating')
                           : t('becomeSeller.form.creating')
                         : existingProfile
-                          ? t('becomeSeller.form.updateProfile')
-                          : t('becomeSeller.form.createStore')}
+                        ? t('becomeSeller.form.updateProfile')
+                        : t('becomeSeller.form.createStore')}
                     </Button>
 
                     <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>

@@ -10,9 +10,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     const slugSchema = z.string().min(1).max(100)
     const validatedSlug = slugSchema.parse(slug)
 
-    // Fetch seller profile with their workflows
+    // Fetch seller profile with their workflows (allow all statuses for now)
     const sellerProfile = await prisma.sellerProfile.findUnique({
-      where: { slug: validatedSlug },
+      where: {
+        slug: validatedSlug,
+      },
       include: {
         user: {
           select: {
@@ -26,8 +28,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     })
 
     if (!sellerProfile) {
+      console.log(`Store not found for slug: ${validatedSlug}`)
       return NextResponse.json({ error: 'Store not found' }, { status: 404 })
     }
+
+    console.log(`Found store: ${sellerProfile.storeName} with status: ${sellerProfile.status}`)
 
     // Fetch published workflows for this seller
     const workflows = await prisma.workflow.findMany({

@@ -305,6 +305,21 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           }
         }
 
+        // Clear cart if this was a cart checkout
+        const cartId = session.metadata?.cartId
+        if (cartId) {
+          console.log('Clearing cart after successful purchase:', cartId)
+          try {
+            await tx.cart.delete({
+              where: { id: cartId },
+            })
+            console.log('Cart cleared successfully')
+          } catch (cartError) {
+            console.error('Error clearing cart:', cartError)
+            // Don't throw here, as the payment was successful
+          }
+        }
+
         // Create audit log
         console.log('Creating audit log')
         const auditAction = updatedOrder.packItems.length > 0 ? 'pack.purchased' : 'order.completed'
@@ -322,7 +337,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
               ...(workflowId && { workflowId }),
               ...(updatedOrder.packItems.length > 0 && {
                 packId: updatedOrder.packItems[0].packId,
-                packTitle: updatedOrder.packItems[0].pack.title
+                packTitle: updatedOrder.packItems[0].pack.title,
               }),
               pricingPlanId: pricingPlanId || null, // Handle empty string case
               amount: session.amount_total,

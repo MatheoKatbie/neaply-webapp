@@ -60,6 +60,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       where: {
         id: workflowId,
         status: 'published', // Only show published workflows in marketplace
+        // Only show workflows from active sellers
+        seller: {
+          sellerProfile: {
+            status: 'active'
+          }
+        }
       },
       include: {
         seller: {

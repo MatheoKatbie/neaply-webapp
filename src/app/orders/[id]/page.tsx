@@ -17,7 +17,7 @@ import {
   Download,
   FileText,
   Package,
-  XCircle
+  XCircle,
 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -157,11 +157,9 @@ export default function OrderDetailPage() {
     }
   }
 
-
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="animate-pulse">
@@ -177,7 +175,6 @@ export default function OrderDetailPage() {
   if (error || !order) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <Card className="text-center py-12">
@@ -186,7 +183,9 @@ export default function OrderDetailPage() {
                   <AlertCircle className="w-8 h-8 text-red-500" />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
-                <p className="text-muted-foreground mb-6">{error || "The order you're looking for could not be found."}</p>
+                <p className="text-muted-foreground mb-6">
+                  {error || "The order you're looking for could not be found."}
+                </p>
                 <div className="space-x-4">
                   <Button variant="outline" onClick={() => router.back()}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
@@ -204,7 +203,6 @@ export default function OrderDetailPage() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
@@ -266,7 +264,9 @@ export default function OrderDetailPage() {
                               )}
                               <div className="flex-1">
                                 <h4 className="font-medium text-foreground">{item.workflow.title}</h4>
-                                {item.pricingPlan && <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>}
+                                {item.pricingPlan && (
+                                  <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
+                                )}
                                 <div className="flex items-center space-x-4 mt-2">
                                   <span className="text-sm text-muted-foreground">Quantity: {item.quantity}</span>
                                   <span className="text-sm font-medium text-green-600">
@@ -279,10 +279,12 @@ export default function OrderDetailPage() {
                             <div className="flex flex-col space-y-2">
                               {order.status === 'paid' && (
                                 <div className="flex gap-2">
-                                  <CopyButton
-                                    workflowId={item.workflowId}
-                                  />
-                                  <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
+                                  <CopyButton workflowId={item.workflowId} />
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
+                                  >
                                     <Download className="w-4 h-4 mr-2" />
                                     ZIP
                                   </Button>
@@ -305,7 +307,10 @@ export default function OrderDetailPage() {
                     {order.packItems && order.packItems.length > 0 && (
                       <>
                         {order.packItems.map((packItem) => (
-                          <div key={packItem.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                          <div
+                            key={packItem.id}
+                            className="flex items-center justify-between p-4 bg-background rounded-lg"
+                          >
                             <div className="flex items-center space-x-4">
                               <div className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center">
                                 <Package className="w-8 h-8 text-purple-600" />
@@ -327,7 +332,11 @@ export default function OrderDetailPage() {
                             <div className="flex flex-col space-y-2">
                               {order.status === 'paid' && (
                                 <div className="flex gap-2">
-                                  <Button variant='outline' size="sm" onClick={() => handleDownloadPackZip(packItem.pack.id, packItem.pack.title)}>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDownloadPackZip(packItem.pack.id, packItem.pack.title)}
+                                  >
                                     <Download className="w-4 h-4 mr-2" />
                                     ZIP
                                   </Button>
@@ -347,12 +356,13 @@ export default function OrderDetailPage() {
                     )}
 
                     {/* Show message if no items found */}
-                    {(!order.items || order.items.length === 0) && (!order.packItems || order.packItems.length === 0) && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                        <p>No items found for this order.</p>
-                      </div>
-                    )}
+                    {(!order.items || order.items.length === 0) &&
+                      (!order.packItems || order.packItems.length === 0) && (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                          <p>No items found for this order.</p>
+                        </div>
+                      )}
                   </div>
                 </CardContent>
               </Card>

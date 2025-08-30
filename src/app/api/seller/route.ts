@@ -10,8 +10,6 @@ const createSellerProfileSchema = z.object({
     .min(2, 'Store name must be at least 2 characters')
     .max(50, 'Store name cannot exceed 50 characters'),
   bio: z.string().min(10, 'Bio must be at least 10 characters').max(500, 'Bio cannot exceed 500 characters').optional(),
-  websiteUrl: z.string().url('Website URL must be valid').optional().or(z.literal('')),
-  supportEmail: z.string().email('Support email must be valid').optional().or(z.literal('')),
   phoneNumber: z
     .string()
     .min(8, 'Phone number must be at least 8 digits')
@@ -126,8 +124,8 @@ export async function POST(req: NextRequest) {
           storeName: validatedData.storeName,
           slug,
           bio: validatedData.bio || null,
-          websiteUrl: validatedData.websiteUrl || null,
-          supportEmail: validatedData.supportEmail || null,
+          websiteUrl: null,
+          supportEmail: user.email,
           phoneNumber: validatedData.phoneNumber || null,
           countryCode: validatedData.countryCode,
           status: 'pending',
@@ -243,8 +241,8 @@ export async function PUT(req: NextRequest) {
       data: {
         storeName: validatedData.storeName,
         bio: validatedData.bio || null,
-        websiteUrl: validatedData.websiteUrl || null,
-        supportEmail: validatedData.supportEmail || null,
+        websiteUrl: null,
+        supportEmail: user.email,
         phoneNumber: validatedData.phoneNumber || null,
         countryCode: validatedData.countryCode,
       },

@@ -2,10 +2,12 @@ import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
+import { CartProvider } from '@/hooks/useCart'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import ClientLayout from './client-layout'
 import GoogleOneTapWrapper from '@/components/GoogleOneTapWrapper'
+import { int } from 'zod'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -54,12 +56,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`} suppressHydrationWarning={true}>
+      <body className={`${inter.variable} ${inter.className} antialiased`} suppressHydrationWarning={true}>
         <ThemeProvider>
           <AuthProvider>
-            <LanguageProvider>
-              <ClientLayout>{children}</ClientLayout>
-            </LanguageProvider>
+            <CartProvider>
+              <LanguageProvider>
+                <ClientLayout>{children}</ClientLayout>
+              </LanguageProvider>
+            </CartProvider>
             <GoogleOneTapWrapper />
           </AuthProvider>
         </ThemeProvider>

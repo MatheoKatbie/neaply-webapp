@@ -33,7 +33,7 @@ import {
   Smartphone,
   Store,
   Trash2,
-  User
+  User,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -817,7 +817,9 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <h4 className="text-sm font-medium">Two-Factor Authentication</h4>
-                    <p className="text-sm text-muted-foreground">Protect your account with an additional security layer</p>
+                    <p className="text-sm text-muted-foreground">
+                      Protect your account with an additional security layer
+                    </p>
                   </div>
                   <Badge variant="default" className="flex items-center gap-1">
                     <CheckCircle className="h-3 w-3" />
@@ -867,7 +869,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Store URL</Label>
-                    <Input value={`flowmarket.com/store/${storeInfo.slug}`} disabled className="bg-background" />
+                    <Input value={`neaply.com/store/${storeInfo.slug}`} disabled className="bg-background" />
                   </div>
                 </div>
                 <div className="space-y-2">

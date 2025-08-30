@@ -1,6 +1,5 @@
 'use client'
 
-import Navbar from '@/components/Navbar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -124,7 +123,6 @@ export default function OrdersHistoryPage() {
   if (loading) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen bg-background pt-20 md:pt-24">
           <div className="max-w-6xl mx-auto px-4 py-8">
             <div className="animate-pulse">
@@ -143,7 +141,6 @@ export default function OrdersHistoryPage() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-background pt-20 md:pt-24">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {/* Header */}

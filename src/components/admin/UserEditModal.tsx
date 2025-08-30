@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Crown, Store, User, Mail, Save, X } from 'lucide-react'
+import { Crown, Store, User, Mail, Save, X, Shield, AlertTriangle } from 'lucide-react'
 
 interface UserEditModalProps {
     user: {
@@ -235,7 +235,10 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
                                         </div>
                                     </div>
                                     <div>
-                                        <Label htmlFor="status">Creator Status</Label>
+                                        <Label htmlFor="status" className="flex items-center space-x-2">
+                                            <Shield className="h-4 w-4" />
+                                            <span>Creator Status</span>
+                                        </Label>
                                         <Select
                                             value={formData.sellerProfile.status}
                                             onValueChange={(value) => handleInputChange('sellerProfile.status', value)}
@@ -244,11 +247,38 @@ export function UserEditModal({ user, isOpen, onClose, onSave }: UserEditModalPr
                                                 <SelectValue placeholder="Select status" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="active">Active</SelectItem>
-                                                <SelectItem value="suspended">Suspended</SelectItem>
-                                                <SelectItem value="pending">Pending</SelectItem>
+                                                <SelectItem value="active">
+                                                    <div className="flex items-center space-x-2">
+                                                        <Shield className="h-4 w-4 text-green-600" />
+                                                        <span>Active - Can sell workflows</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="suspended">
+                                                    <div className="flex items-center space-x-2">
+                                                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                                                        <span>Suspended - Restricted from marketplace</span>
+                                                    </div>
+                                                </SelectItem>
+                                                <SelectItem value="pending">
+                                                    <div className="flex items-center space-x-2">
+                                                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                                                        <span>Pending - Awaiting approval</span>
+                                                    </div>
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {formData.sellerProfile.status === 'suspended' && (
+                                            <p className="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                                                <AlertTriangle className="h-3 w-3" />
+                                                <span>Workflows will be disabled and hidden from marketplace</span>
+                                            </p>
+                                        )}
+                                        {formData.sellerProfile.status === 'active' && user?.sellerProfile?.status === 'suspended' && (
+                                            <p className="text-sm text-green-600 mt-1 flex items-center space-x-1">
+                                                <Shield className="h-3 w-3" />
+                                                <span>Seller will be unrestricted (workflows remain disabled until republished)</span>
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
