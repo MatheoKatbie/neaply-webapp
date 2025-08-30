@@ -1,6 +1,7 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { CartIcon } from '@/components/ui/cart-icon'
 import { Trans } from '@/components/ui/Trans'
 import { useAuth } from '@/hooks/useAuth'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -369,6 +370,7 @@ export default function Navbar() {
                   <Trans i18nKey="navigation.favorites" />
                 </Link>
               )}
+              {user && <CartIcon className="text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-full" />}
             </div>
           </div>
 
@@ -599,6 +601,15 @@ export default function Navbar() {
                     <Heart className="h-4 w-4" />
                     <Trans i18nKey="navigation.favorites" />
                   </Link>
+                )}
+                {user && (
+                  <div
+                    className="flex items-center gap-2 text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <CartIcon className="p-0" />
+                    <span>Cart</span>
+                  </div>
                 )}
               </div>
 

@@ -105,6 +105,7 @@ model User {
   packFavorites          PackFavorite[]
   packReports            PackReport[]            @relation("UserPackReports")
   packReviewHelpfulVotes PackReviewHelpfulVote[]
+  carts                  Cart[]
 
   @@index([email])
 }
@@ -167,6 +168,7 @@ model Workflow {
   compat     WorkflowCompatibility[]
   reports    Report[]
   packItems  WorkflowPackItem[]
+  cartItems  CartItem[]
 
   @@index([status, updatedAt])
 }
@@ -245,6 +247,7 @@ model PricingPlan {
   sortOrder  Int      @default(0)
 
   orderItems OrderItem[]
+  cartItems  CartItem[]
 
   @@index([workflowId, isActive, sortOrder])
 }
@@ -604,4 +607,38 @@ model PackReport {
   pack     WorkflowPack @relation(fields: [packId], references: [id], onDelete: Cascade)
 
   @@index([packId, status, createdAt])
+}
+
+/**
+ * ============================
+ * Shopping Cart
+ * ============================
+ */
+model Cart {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items CartItem[]
+
+  @@index([userId])
+}
+
+model CartItem {
+  id            String  @id @default(uuid()) @db.Uuid
+  cartId        String  @db.Uuid
+  cart          Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  workflowId    String  @db.Uuid
+  pricingPlanId String? @db.Uuid
+  quantity      Int     @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  workflow    Workflow     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  pricingPlan PricingPlan? @relation(fields: [pricingPlanId], references: [id], onDelete: SetNull)
+
+  @@index([cartId])
+  @@index([cartId, workflowId])
 }

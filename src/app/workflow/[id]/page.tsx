@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { AddToCartButton } from '@/components/ui/add-to-cart-button'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
@@ -508,12 +509,17 @@ export default function WorkflowDetailPage() {
                       <p className="text-sm text-muted-foreground text-center">You already own this workflow</p>
                     </div>
                   ) : (
-                    <PurchaseButton
-                      workflowId={workflowId}
-                      price={workflow.price}
-                      currency={workflow.currency}
-                      className="w-full bg-accent-foreground"
-                    />
+                    <div className="space-y-3">
+                      <PurchaseButton
+                        workflowId={workflowId}
+                        price={workflow.price}
+                        currency={workflow.currency}
+                        className="w-full bg-primary text-primary-foreground"
+                      >
+                        Buy Now
+                      </PurchaseButton>
+                      <AddToCartButton workflowId={workflowId} className="w-full" />
+                    </div>
                   )}
 
                   <div className="space-y-2 text-sm text-muted-foreground">
@@ -580,11 +586,7 @@ export default function WorkflowDetailPage() {
                         size="sm"
                         className="w-full"
                       />
-                      <ReportDialog
-                        entityType="workflow"
-                        entityId={workflow.id}
-                        entityName={workflow.title}
-                      />
+                      <ReportDialog entityType="workflow" entityId={workflow.id} entityName={workflow.title} />
                     </div>
                   </div>
                 </CardContent>
