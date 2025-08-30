@@ -88,26 +88,33 @@ export async function POST(request: NextRequest) {
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   try {
-    console.log('Processing checkout session completed:', session.id)
-    console.log('Session metadata:', session.metadata)
+    console.log('🛒 Processing checkout session completed:', session.id)
+    console.log('📋 Session metadata:', JSON.stringify(session.metadata, null, 2))
+    console.log('💰 Session amount:', session.amount_total)
+    console.log('💳 Session currency:', session.currency)
+    console.log('🎯 Session payment status:', session.payment_status)
 
     const { orderId, userId, workflowId, pricingPlanId, packId, orderType } = session.metadata || {}
 
-    console.log('Extracted metadata:', { orderId, userId, workflowId, pricingPlanId, packId, orderType })
+    console.log('🔍 Extracted metadata:', { orderId, userId, workflowId, pricingPlanId, packId, orderType })
 
     if (!orderId || !userId) {
       console.error('Missing required metadata in checkout session:', session.metadata)
       return
     }
 
-    // Check if this is a pack order or workflow order
+    // Check if this is a pack order, workflow order, or cart order
     const isPackOrder = orderType === 'pack'
-    if (!isPackOrder && !workflowId) {
-      console.error('Missing workflowId for workflow order:', session.metadata)
-      return
-    }
+    const isCartOrder = orderType === 'cart'
+
     if (isPackOrder && !packId) {
       console.error('Missing packId for pack order:', session.metadata)
+      return
+    }
+
+    // For cart orders, we don't need workflowId in metadata as it's in the order items
+    if (!isPackOrder && !isCartOrder && !workflowId) {
+      console.error('Missing workflowId for workflow order:', session.metadata)
       return
     }
 
@@ -174,6 +181,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
       if (!existingOrder) {
         console.error('Order not found:', orderId)
+        // For test orders, just log and return without throwing error
+        if (orderId.startsWith('test-')) {
+          console.log('Test order detected, skipping database update:', orderId)
+          return
+        }
         throw new Error(`Order not found: ${orderId}`)
       }
 
