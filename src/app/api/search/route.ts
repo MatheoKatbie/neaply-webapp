@@ -67,6 +67,12 @@ export async function GET(req: NextRequest) {
             const workflowWhere: any = {
                 status: 'published',
                 OR: searchConditions,
+                // Only show workflows from active sellers
+                seller: {
+                    sellerProfile: {
+                        status: 'active'
+                    }
+                }
             }
 
             // Exclude user's own workflows if logged in

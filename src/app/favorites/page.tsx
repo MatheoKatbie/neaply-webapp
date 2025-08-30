@@ -168,7 +168,7 @@ export default function FavoritesPage() {
             </p>
             <Button
               onClick={() => router.push('/marketplace')}
-              className="bg-secondary hover:bg-white/10 text-white rounded-full"
+              className="bg-secondary hover:bg-secondary/60 text-foreground rounded-full"
             >
               <Search className="w-4 h-4 mr-2" />
               Browse Marketplace

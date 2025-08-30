@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import ClientLayout from './client-layout'
 import GoogleOneTapWrapper from '@/components/GoogleOneTapWrapper'
+import { int } from 'zod'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -54,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`} suppressHydrationWarning={true}>
+      <body className={`${inter.variable} ${inter.className} antialiased`} suppressHydrationWarning={true}>
         <ThemeProvider>
           <AuthProvider>
             <LanguageProvider>

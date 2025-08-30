@@ -26,6 +26,7 @@ export default function Navbar() {
   const searchRef = useRef<HTMLInputElement>(null)
   const searchDropdownRef = useRef<HTMLDivElement>(null)
   const isHomepage = pathname === '/'
+  const isMarketplacePage = pathname === '/' || pathname === '/marketplace'
   const [isScrolled, setIsScrolled] = useState(false)
 
   // Debug effect for search focus
@@ -185,8 +186,8 @@ export default function Navbar() {
   }, [isMenuOpen])
 
   return (
-    <nav className="sticky top-0 left-0 z-50 w-full bg-navbar-background border-b border-accent">
-      <div className="w-full px-4 md:px-6">
+    <nav className="sticky top-0 left-0 z-50 w-full bg-card border-b border-accent">
+      <div className="w-full px-4 lg:px-6">
         <div className="relative flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
@@ -195,99 +196,103 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Search Bar - Centered */}
-          <div className="md:hidden flex-1 max-w-sm mx-4">
-            <form onSubmit={handleSearch} className="relative">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Search in Neaply"
-                  className="pl-10 pr-3 h-9 bg-secondary border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20 text-sm"
-                />
-              </div>
+          {/* Mobile Search Bar - Centered - Only show on marketplace pages */}
+          {isMarketplacePage && (
+            <div className="lg:hidden flex-1 max-w-sm mx-4">
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60 w-4 h-4" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Search in Neaply"
+                    className="pl-10 pr-3 h-9 bg-secondary border-transparent text-foreground font-space-grotesk placeholder:text-foreground/60 focus:ring-2 focus:ring-white/20 text-sm"
+                  />
+                </div>
 
-              {/* Mobile Search Dropdown */}
-              {isSearchFocused && (
-                <div
-                  ref={searchDropdownRef}
-                  className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
-                >
-                  <div className="p-3 border-b border-white/10">
-                    <div className="flex items-center justify-between text-white/60 text-xs">
-                      <span>Press Enter to search</span>
+                {/* Mobile Search Dropdown */}
+                {isSearchFocused && (
+                  <div
+                    ref={searchDropdownRef}
+                    className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
+                  >
+                    <div className="p-3 border-b border-white/10">
+                      <div className="flex items-center justify-between text-foreground/60 text-xs">
+                        <span>Press Enter to search</span>
+                      </div>
+                    </div>
+
+                    <div className="p-2">
+                      <div className="text-foreground/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
+                      {searchSuggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          tabIndex={-1}
+                          onClick={() => handleSuggestionClick(suggestion.query)}
+                          className="w-full text-left px-3 py-2 text-foreground/80 hover:text-foreground hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group"
+                        >
+                          <span>{suggestion.text}</span>
+                          <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
                     </div>
                   </div>
+                )}
+              </form>
+            </div>
+          )}
 
-                  <div className="p-2">
-                    <div className="text-white/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
-                    {searchSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        tabIndex={-1}
-                        onClick={() => handleSuggestionClick(suggestion.query)}
-                        className="w-full text-left px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group"
-                      >
-                        <span>{suggestion.text}</span>
-                        <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </button>
-                    ))}
+          {/* Animated search (md+) moves from centered below to right of logo - Only show on marketplace pages */}
+          {isMarketplacePage && (
+            <div
+              className={`hidden lg:block absolute transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform transform-gpu ${
+                isHomepage && !isScrolled
+                  ? 'left-1/2 top-full mt-3 w-[48rem] max-w-3xl -translate-x-1/2 translate-y-0 scale-100 opacity-100'
+                  : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2 scale-100 opacity-100'
+              }`}
+              style={{
+                transformOrigin: isHomepage && !isScrolled ? 'center top' : 'left center',
+                backfaceVisibility: 'hidden',
+                perspective: '1000px',
+                containIntrinsicSize: '48rem 3rem',
+                contentVisibility: 'auto',
+              }}
+            >
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60 w-4 h-4 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]" />
+                  <Input
+                    ref={searchRef}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => {
+                      console.log('DESKTOP FOCUS DETECTED! Setting isSearchFocused to true')
+                      setIsSearchFocused(true)
+                    }}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Search in Neaply"
+                    className={`pl-10 pr-20 bg-secondary border-transparent text-foreground font-space-grotesk placeholder:text-foreground/60 focus:ring-2 focus:ring-white/20 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+                      isHomepage && !isScrolled ? 'h-12 text-base' : 'h-10 text-sm'
+                    }`}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-foreground/40 text-xs transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]">
+                    <Command className="w-3 h-3" />
+                    <span>K</span>
                   </div>
                 </div>
-              )}
-            </form>
-          </div>
+              </form>
+            </div>
+          )}
 
-          {/* Animated search (md+) moves from centered below to right of logo */}
-          <div
-            className={`hidden md:block absolute transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform transform-gpu ${
-              isHomepage && !isScrolled
-                ? 'left-1/2 top-full mt-3 w-[48rem] max-w-3xl -translate-x-1/2 translate-y-0 scale-100 opacity-100'
-                : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2 scale-100 opacity-100'
-            }`}
-            style={{
-              transformOrigin: isHomepage && !isScrolled ? 'center top' : 'left center',
-              backfaceVisibility: 'hidden',
-              perspective: '1000px',
-              containIntrinsicSize: '48rem 3rem',
-              contentVisibility: 'auto',
-            }}
-          >
-            <form onSubmit={handleSearch} className="relative">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]" />
-                <Input
-                  ref={searchRef}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => {
-                    console.log('DESKTOP FOCUS DETECTED! Setting isSearchFocused to true')
-                    setIsSearchFocused(true)
-                  }}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Search in Neaply"
-                  className={`pl-10 pr-20 bg-secondary border-transparent text-white font-space-grotesk placeholder:text-white/60 focus:ring-2 focus:ring-white/20 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-                    isHomepage && !isScrolled ? 'h-12 text-base' : 'h-10 text-sm'
-                  }`}
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/40 text-xs transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]">
-                  <Command className="w-3 h-3" />
-                  <span>K</span>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          {/* Search Dropdown - Completely outside transformed container */}
+          {/* Search Dropdown - Completely outside transformed container - Only show on marketplace pages */}
           {/* DEBUG: isSearchFocused = {isSearchFocused ? 'true' : 'false'} */}
-          {isSearchFocused && (
+          {isMarketplacePage && isSearchFocused && (
             <div
               ref={searchDropdownRef}
-              className="hidden md:block absolute bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
+              className="hidden lg:block absolute bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
               style={{
                 backgroundColor: 'red !important',
                 border: '2px solid yellow !important',
@@ -299,7 +304,7 @@ export default function Navbar() {
               }}
             >
               <div className="p-3 border-b border-white/10">
-                <div className="flex items-center justify-between text-white/60 text-xs">
+                <div className="flex items-center justify-between text-foreground/60 text-xs">
                   <span>Press Enter to search</span>
                   <div className="flex items-center gap-1">
                     <span>⌘K</span>
@@ -309,14 +314,14 @@ export default function Navbar() {
               </div>
 
               <div className="p-2">
-                <div className="text-white/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
+                <div className="text-foreground/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
                 {searchSuggestions.map((suggestion, index) => (
                   <button
                     key={index}
                     type="button"
                     tabIndex={-1}
                     onClick={() => handleSuggestionClick(suggestion.query)}
-                    className="w-full text-left px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group cursor-pointer"
+                    className="w-full text-left px-3 py-2 text-foreground/80 hover:text-foreground hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group cursor-pointer"
                   >
                     <span>{suggestion.text}</span>
                     <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -326,24 +331,24 @@ export default function Navbar() {
             </div>
           )}
 
-          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10 font-space-grotesk">
+          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 z-10 font-space-grotesk">
             <div className="flex items-baseline space-x-6">
               <Link
                 href="/"
-                className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
+                className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
               >
                 <Trans i18nKey="navigation.marketplace" />
               </Link>
               <Link
                 href="/how-it-works"
-                className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
+                className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
               >
                 How It Works
               </Link>
               {user && user.isSeller && (
                 <Link
                   href={`/store/${storeSlug || user.id}`}
-                  className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
+                  className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
                 >
                   <Trans i18nKey="navigation.yourStore" />
                 </Link>
@@ -351,7 +356,7 @@ export default function Navbar() {
               {user && user.isAdmin && (
                 <Link
                   href="/admin/dashboard"
-                  className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
+                  className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
                 >
                   Admin Dashboard
                 </Link>
@@ -359,7 +364,7 @@ export default function Navbar() {
               {user && (
                 <Link
                   href="/favorites"
-                  className="text-white/90 hover:text-white px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10 flex items-center gap-1"
+                  className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10 flex items-center gap-1"
                 >
                   <Trans i18nKey="navigation.favorites" />
                 </Link>
@@ -367,7 +372,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden lg:flex items-center space-x-3">
             {loading ? (
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-20 bg-muted rounded-full animate-pulse"></div>
@@ -378,7 +383,7 @@ export default function Navbar() {
               <div className="flex items-center space-x-3">
                 {!user.isSeller && (
                   <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10  rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-white"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10  rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-foreground"
                     onClick={() => router.push('/become-seller')}
                   >
                     <Trans i18nKey="navigation.becomeCreator" />
@@ -386,7 +391,7 @@ export default function Navbar() {
                 )}
                 {user.isSeller && (
                   <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-white"
+                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-foreground"
                     onClick={() => router.push('/dashboard/seller')}
                   >
                     <Trans i18nKey="navigation.creatorDashboard" />
@@ -473,14 +478,14 @@ export default function Navbar() {
               // Not logged in
               <div className="flex items-center space-x-3">
                 <button
-                  className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-transparent border border-white/30 text-white rounded-full text-sm font-medium transition-all duration-300 hover:bg-white/10 cursor-pointer"
+                  className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-transparent border border-white/30 text-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-white/10 cursor-pointer"
                   onClick={() => router.push('/auth/register')}
                 >
                   Sign-up
                 </button>
                 <button
                   onClick={() => router.push('/login')}
-                  className="flex items-center justify-center h-10 w-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+                  className="flex items-center justify-center h-10 w-10 rounded-full bg-white/10 text-foreground hover:bg-white/20 transition-colors cursor-pointer"
                   aria-label="Login"
                 >
                   <User className="w-5 h-5" />
@@ -489,7 +494,7 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-muted-foreground hover:text-foreground p-2 rounded-full transition-colors duration-200"
@@ -508,14 +513,14 @@ export default function Navbar() {
         {/* Smooth spacer to prevent background glitch during animation */}
         <div
           className={`transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-            isHomepage ? (isScrolled ? 'md:h-0 md:opacity-0' : 'md:h-20 md:opacity-100') : 'md:h-0 md:opacity-0'
+            isHomepage ? (isScrolled ? 'lg:h-0 lg:opacity-0' : 'lg:h-20 lg:opacity-100') : 'lg:h-0 lg:opacity-0'
           } h-0 opacity-0`}
         />
 
         {/* Mobile Menu with Animation */}
         <div
           ref={menuRef}
-          className={`md:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${
+          className={`lg:hidden fixed inset-0 z-40 bg-primary/30 backdrop-blur-sm transition-opacity duration-300 min-h-screen ${
             isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
           }`}
           onClick={() => setIsMenuOpen(false)}
@@ -555,14 +560,14 @@ export default function Navbar() {
               <div className="space-y-1 font-space-grotesk">
                 <Link
                   href="/"
-                  className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
+                  className="block text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Trans i18nKey="navigation.marketplace" />
                 </Link>
                 <Link
                   href="/how-it-works"
-                  className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
+                  className="block text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   How It Works
@@ -570,7 +575,7 @@ export default function Navbar() {
                 {user && user.isSeller && (
                   <Link
                     href={`/store/${storeSlug || user.id}`}
-                    className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
+                    className="block text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Trans i18nKey="navigation.yourStore" />
@@ -579,7 +584,7 @@ export default function Navbar() {
                 {user && user.isAdmin && (
                   <Link
                     href="/admin/dashboard"
-                    className="block text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
+                    className="block text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Admin Dashboard
@@ -588,7 +593,7 @@ export default function Navbar() {
                 {user && (
                   <Link
                     href="/favorites"
-                    className="flex items-center gap-2 text-white/90 hover:text-white hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
+                    className="flex items-center gap-2 text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Heart className="h-4 w-4" />

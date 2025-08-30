@@ -12,6 +12,7 @@ import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { CopyButton } from '@/components/ui/copy-button'
+import { ReportDialog } from '@/components/ui/report-dialog'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { PurchaseButton } from '@/components/ui/purchase-button'
 import { ReviewSystem } from '@/components/ui/review-system'
@@ -570,15 +571,19 @@ export default function WorkflowDetailPage() {
                         seller={{
                           displayName: workflow.seller.displayName,
                           storeName: workflow.seller.storeName,
-                          supportEmail: workflow.seller.supportEmail,
+                          email: workflow.seller.supportEmail,
                           phoneNumber: workflow.seller.phoneNumber,
                           countryCode: workflow.seller.countryCode,
-                          websiteUrl: workflow.seller.websiteUrl,
                           avatarUrl: workflow.seller.avatarUrl,
                         }}
                         workflowTitle={workflow.title}
                         size="sm"
                         className="w-full"
+                      />
+                      <ReportDialog
+                        entityType="workflow"
+                        entityId={workflow.id}
+                        entityName={workflow.title}
                       />
                     </div>
                   </div>

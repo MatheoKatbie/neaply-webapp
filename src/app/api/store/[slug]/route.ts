@@ -10,9 +10,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     const slugSchema = z.string().min(1).max(100)
     const validatedSlug = slugSchema.parse(slug)
 
-    // Fetch seller profile with their workflows
+    // Fetch seller profile with their workflows (only active sellers)
     const sellerProfile = await prisma.sellerProfile.findUnique({
-      where: { slug: validatedSlug },
+      where: { 
+        slug: validatedSlug,
+        status: 'active'
+      },
       include: {
         user: {
           select: {

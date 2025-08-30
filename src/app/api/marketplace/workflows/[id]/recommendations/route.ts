@@ -17,6 +17,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       where: {
         id: workflowId,
         status: 'published',
+        // Only get workflows from active sellers
+        seller: {
+          sellerProfile: {
+            status: 'active'
+          }
+        }
       },
       include: {
         categories: {
@@ -67,6 +73,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       where: {
         id: { not: workflowId }, // Exclude current workflow
         status: 'published',
+        // Only include workflows from active sellers
+        seller: {
+          sellerProfile: {
+            status: 'active'
+          }
+        },
         OR: [
           {
             categories: {

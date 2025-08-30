@@ -28,7 +28,7 @@ export function AdminHeader() {
         <header className="bg-background border-b border-border px-6 py-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                    <h1 className="text-2xl font-bold text-foreground font-space-grotesk">Neaply</h1>
+                    <Link href={"/"} className="text-2xl font-bold text-foreground font-space-grotesk">Neaply</Link>
                     <span className="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
                         Admin Panel
                     </span>
