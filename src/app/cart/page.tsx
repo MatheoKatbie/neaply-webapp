@@ -105,13 +105,84 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart items */}
             <div className="lg:col-span-2">
-              <div className="space-y-4">
-                {cart.items.map((item) => (
-                  <CartItemComponent key={item.id} item={item} />
-                ))}
-              </div>
+              {(() => {
+                // Group items by seller
+                const itemsBySeller = new Map<string, typeof cart.items>()
+                for (const item of cart.items) {
+                  const sellerId = item.workflow.sellerId
+                  if (!itemsBySeller.has(sellerId)) {
+                    itemsBySeller.set(sellerId, [])
+                  }
+                  itemsBySeller.get(sellerId)!.push(item)
+                }
+
+                const sellerGroups = Array.from(itemsBySeller.entries())
+
+                return (
+                  <div className="space-y-8">
+                    {sellerGroups.map(([sellerId, sellerItems], index) => {
+                      const seller = sellerItems[0].workflow.seller
+                      const sellerTotal = sellerItems.reduce((total, item) => {
+                        const price = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
+                        return total + price * item.quantity
+                      }, 0)
+
+                      return (
+                        <div key={sellerId} className="border rounded-lg p-6">
+                          {/* Seller header */}
+                          <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
+                                {(seller.sellerProfile?.storeName || seller.displayName).charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-lg">
+                                  {seller.sellerProfile?.storeName || seller.displayName}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                  {sellerItems.length} {sellerItems.length === 1 ? 'item' : 'items'} • $
+                                  {(sellerTotal / 100).toFixed(2)}
+                                </p>
+                              </div>
+                            </div>
+                            {sellerGroups.length > 1 && (
+                              <div className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                                Separate checkout required
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Seller items */}
+                          <div className="space-y-4">
+                            {sellerItems.map((item) => (
+                              <CartItemComponent key={item.id} item={item} />
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
 
               <Separator className="my-6" />
+
+              {/* Multi-seller notice */}
+              {(() => {
+                const uniqueSellers = new Set(cart.items.map((item) => item.workflow.sellerId))
+                if (uniqueSellers.size > 1) {
+                  return (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+                      <h4 className="font-semibold text-orange-800 mb-2">Multiple Sellers Notice</h4>
+                      <p className="text-sm text-orange-700">
+                        Your cart contains items from {uniqueSellers.size} different sellers. You'll need to complete
+                        separate checkout processes for each seller due to payment processing requirements.
+                      </p>
+                    </div>
+                  )
+                }
+                return null
+              })()}
 
               {/* Continue shopping */}
               <div className="flex justify-between items-center">

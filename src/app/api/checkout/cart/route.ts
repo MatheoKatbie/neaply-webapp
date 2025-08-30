@@ -195,91 +195,269 @@ export async function POST(request: NextRequest) {
       itemsBySeller.get(sellerId)!.push(item)
     }
 
-    // For now, we'll handle single-seller carts. Multi-seller carts would need multiple payments
-    if (itemsBySeller.size > 1) {
-      return NextResponse.json(
-        { error: 'Multi-seller carts are not yet supported. Please checkout items from one seller at a time.' },
-        { status: 400 }
-      )
-    }
-
-    const [sellerId, sellerItems] = Array.from(itemsBySeller.entries())[0]
-    const seller = sellerItems[0].workflow.seller
-
-    // Create Stripe checkout session
+    // Handle cart checkout - single or multi-seller
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-    // Build line items for Stripe
-    const lineItems = cart.items.map((item) => {
-      const price = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
-      return {
-        price_data: {
-          currency: currency.toLowerCase(),
-          product_data: {
-            name: item.workflow.title,
-            description: item.workflow.shortDesc,
-            images: item.workflow.heroImageUrl ? [item.workflow.heroImageUrl] : undefined,
-            metadata: {
-              workflowId: item.workflowId,
-              sellerId: item.workflow.sellerId,
-              storeName: seller.sellerProfile?.storeName || seller.displayName,
-            },
+    // If single seller, create one order and one session (simpler UX)
+    if (itemsBySeller.size === 1) {
+      const [sellerId, sellerItems] = Array.from(itemsBySeller.entries())[0]
+      const seller = sellerItems[0].workflow.seller
+
+      // Create single order with all items
+      const singleOrder = await prisma.order.create({
+        data: {
+          userId: user.id,
+          status: 'pending',
+          totalCents,
+          currency,
+          provider: 'stripe',
+          items: {
+            create: orderItems,
           },
-          unit_amount: price,
         },
-        quantity: item.quantity,
+      })
+
+      console.log('🛒 Cart checkout - Single order created:', {
+        orderId: singleOrder.id,
+        sellerId,
+        totalCents,
+        itemsCount: orderItems.length,
+      })
+
+      // Build line items for Stripe
+      const lineItems = cart.items.map((item) => {
+        const price = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
+        return {
+          price_data: {
+            currency: currency.toLowerCase(),
+            product_data: {
+              name: item.workflow.title,
+              description: item.workflow.shortDesc,
+              images: item.workflow.heroImageUrl ? [item.workflow.heroImageUrl] : undefined,
+              metadata: {
+                workflowId: item.workflowId,
+                sellerId: item.workflow.sellerId,
+                storeName: seller.sellerProfile?.storeName || seller.displayName,
+              },
+            },
+            unit_amount: price,
+          },
+          quantity: item.quantity,
+        }
+      })
+
+      // Calculate platform fee (15% of total)
+      const platformFeeAmount = Math.round(totalCents * (STRIPE_CONNECT_CONFIG.platformFeePercentage / 100))
+
+      const metadata: Record<string, string> = {
+        orderId: singleOrder.id,
+        userId: user.id,
+        cartId: cart.id,
+        sellerId: sellerId,
+        sellerAccountId: seller.sellerProfile!.stripeAccountId!,
+        orderType: 'cart',
+        isMultiSeller: 'false',
       }
-    })
 
-    // Calculate platform fee (15% of total)
-    const platformFeeAmount = Math.round(totalCents * (STRIPE_CONNECT_CONFIG.platformFeePercentage / 100))
+      console.log('🛒 Cart checkout - Stripe session metadata for single seller:', metadata)
 
-    const metadata: Record<string, string> = {
-      orderId: order.id,
-      userId: user.id,
-      cartId: cart.id,
-      sellerAccountId: seller.sellerProfile!.stripeAccountId!,
-      orderType: 'cart', // Indicate this is a cart order
+      // Create Stripe session
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        line_items: lineItems,
+        metadata,
+        success_url:
+          successUrl || `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${singleOrder.id}`,
+        cancel_url: cancelUrl || `${baseUrl}/checkout/cancelled?order_id=${singleOrder.id}`,
+        customer_email: user.email,
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
+        // Stripe Connect configuration
+        payment_intent_data: {
+          application_fee_amount: platformFeeAmount,
+          transfer_data: {
+            destination: seller.sellerProfile!.stripeAccountId!,
+          },
+        },
+      })
+
+      // Update order with Stripe session ID
+      await prisma.order.update({
+        where: { id: singleOrder.id },
+        data: {
+          providerIntent: session.id,
+        },
+      })
+
+      console.log('🛒 Cart checkout - Stripe session created for single seller:', {
+        sessionId: session.id,
+        orderId: singleOrder.id,
+        url: session.url,
+      })
+
+      return NextResponse.json({
+        sessionId: session.id,
+        url: session.url!,
+        orderId: singleOrder.id,
+        isMultiSeller: false,
+      })
     }
 
-    console.log('🛒 Cart checkout - Stripe session metadata:', metadata)
+    // Multi-seller case: create separate orders and sessions
+    const ordersBySeller: Array<{
+      order: any
+      seller: any
+      items: typeof cart.items
+      sessionUrl: string
+    }> = []
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      metadata,
-      success_url: successUrl || `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
-      cancel_url: cancelUrl || `${baseUrl}/checkout/cancelled?order_id=${order.id}`,
-      customer_email: user.email,
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
-      // Stripe Connect configuration
-      payment_intent_data: {
-        application_fee_amount: platformFeeAmount,
-        transfer_data: {
-          destination: seller.sellerProfile!.stripeAccountId!,
+    // Create separate orders for each seller
+    for (const [sellerId, sellerItems] of itemsBySeller.entries()) {
+      const seller = sellerItems[0].workflow.seller
+
+      // Calculate total for this seller
+      let sellerTotalCents = 0
+      const sellerOrderItems: any[] = []
+
+      for (const item of sellerItems) {
+        const priceCents = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
+        const subtotal = priceCents * item.quantity
+
+        sellerTotalCents += subtotal
+
+        sellerOrderItems.push({
+          workflowId: item.workflowId,
+          unitPriceCents: priceCents,
+          quantity: item.quantity,
+          subtotalCents: subtotal,
+          pricingPlanId: item.pricingPlanId || undefined,
+        })
+      }
+
+      // Create order for this seller
+      const sellerOrder = await prisma.order.create({
+        data: {
+          userId: user.id,
+          status: 'pending',
+          totalCents: sellerTotalCents,
+          currency,
+          provider: 'stripe',
+          items: {
+            create: sellerOrderItems,
+          },
         },
-      },
-    })
+      })
 
-    // Update order with Stripe session ID
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        providerIntent: session.id,
-      },
-    })
+      console.log(`🛒 Cart checkout - Order created for seller ${sellerId}:`, {
+        orderId: sellerOrder.id,
+        sellerId,
+        sellerTotalCents,
+        itemsCount: sellerOrderItems.length,
+      })
 
-    console.log('🛒 Cart checkout - Stripe session created:', {
-      sessionId: session.id,
-      orderId: order.id,
-      url: session.url,
-    })
+      // Build line items for this seller
+      const lineItems = sellerItems.map((item) => {
+        const price = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
+        return {
+          price_data: {
+            currency: currency.toLowerCase(),
+            product_data: {
+              name: item.workflow.title,
+              description: item.workflow.shortDesc,
+              images: item.workflow.heroImageUrl ? [item.workflow.heroImageUrl] : undefined,
+              metadata: {
+                workflowId: item.workflowId,
+                sellerId: item.workflow.sellerId,
+                storeName: seller.sellerProfile?.storeName || seller.displayName,
+              },
+            },
+            unit_amount: price,
+          },
+          quantity: item.quantity,
+        }
+      })
 
+      // Calculate platform fee for this seller (15% of seller total)
+      const platformFeeAmount = Math.round(sellerTotalCents * (STRIPE_CONNECT_CONFIG.platformFeePercentage / 100))
+
+      const metadata: Record<string, string> = {
+        orderId: sellerOrder.id,
+        userId: user.id,
+        cartId: cart.id,
+        sellerId: sellerId,
+        sellerAccountId: seller.sellerProfile!.stripeAccountId!,
+        orderType: 'cart',
+        isMultiSeller: itemsBySeller.size > 1 ? 'true' : 'false',
+        sellerTotal: sellerTotalCents.toString(),
+      }
+
+      console.log(`🛒 Cart checkout - Stripe session metadata for seller ${sellerId}:`, metadata)
+
+      // Create Stripe session for this seller
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        line_items: lineItems,
+        metadata,
+        success_url:
+          successUrl || `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${sellerOrder.id}`,
+        cancel_url: cancelUrl || `${baseUrl}/checkout/cancelled?order_id=${sellerOrder.id}`,
+        customer_email: user.email,
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
+        // Stripe Connect configuration
+        payment_intent_data: {
+          application_fee_amount: platformFeeAmount,
+          transfer_data: {
+            destination: seller.sellerProfile!.stripeAccountId!,
+          },
+        },
+      })
+
+      // Update order with Stripe session ID
+      await prisma.order.update({
+        where: { id: sellerOrder.id },
+        data: {
+          providerIntent: session.id,
+        },
+      })
+
+      console.log(`🛒 Cart checkout - Stripe session created for seller ${sellerId}:`, {
+        sessionId: session.id,
+        orderId: sellerOrder.id,
+        url: session.url,
+      })
+
+      ordersBySeller.push({
+        order: sellerOrder,
+        seller,
+        items: sellerItems,
+        sessionUrl: session.url!,
+      })
+    }
+
+    // For multi-seller carts, return all session URLs
+    if (itemsBySeller.size > 1) {
+      return NextResponse.json({
+        isMultiSeller: true,
+        sessions: ordersBySeller.map(({ order, seller, sessionUrl }) => ({
+          orderId: order.id,
+          sellerId: seller.id,
+          sellerName: seller.sellerProfile?.storeName || seller.displayName,
+          sessionUrl,
+          totalCents: order.totalCents,
+        })),
+        totalOrdersCount: ordersBySeller.length,
+        message: 'Multiple checkout sessions created for different sellers',
+      })
+    }
+
+    // For single seller, return the traditional response
+    const singleOrder = ordersBySeller[0]
     return NextResponse.json({
-      sessionId: session.id,
-      url: session.url!,
-      orderId: order.id,
+      sessionId: singleOrder.order.providerIntent,
+      url: singleOrder.sessionUrl,
+      orderId: singleOrder.order.id,
+      isMultiSeller: false,
     })
   } catch (error) {
     console.error('Error creating cart checkout session:', error)

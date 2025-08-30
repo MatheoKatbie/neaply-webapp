@@ -45,10 +45,21 @@ export function CartSummary({ className, showCheckoutButton = true }: CartSummar
         throw new Error(errorData.error || 'Failed to create checkout session')
       }
 
-      const { url } = await response.json()
+      const data = await response.json()
 
-      if (url) {
-        window.location.href = url
+      // Handle multi-seller cart
+      if (data.isMultiSeller && data.sessions) {
+        // Store the sessions in sessionStorage for the multi-seller checkout page
+        sessionStorage.setItem('multiSellerSessions', JSON.stringify(data.sessions))
+
+        // Redirect to a multi-seller checkout page
+        router.push('/checkout/multi-seller')
+        return
+      }
+
+      // Handle single seller cart (existing behavior)
+      if (data.url) {
+        window.location.href = data.url
       } else {
         throw new Error('No checkout URL received')
       }

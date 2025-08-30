@@ -88,15 +88,7 @@ export async function POST(request: NextRequest) {
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   try {
-    console.log('🛒 Processing checkout session completed:', session.id)
-    console.log('📋 Session metadata:', JSON.stringify(session.metadata, null, 2))
-    console.log('💰 Session amount:', session.amount_total)
-    console.log('💳 Session currency:', session.currency)
-    console.log('🎯 Session payment status:', session.payment_status)
-
     const { orderId, userId, workflowId, pricingPlanId, packId, orderType } = session.metadata || {}
-
-    console.log('🔍 Extracted metadata:', { orderId, userId, workflowId, pricingPlanId, packId, orderType })
 
     if (!orderId || !userId) {
       console.error('Missing required metadata in checkout session:', session.metadata)
@@ -319,16 +311,65 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
         // Clear cart if this was a cart checkout
         const cartId = session.metadata?.cartId
+        const isMultiSeller = session.metadata?.isMultiSeller === 'true'
+
         if (cartId) {
-          console.log('Clearing cart after successful purchase:', cartId)
-          try {
-            await tx.cart.delete({
-              where: { id: cartId },
+          console.log('Processing cart cleanup for cartId:', cartId, 'isMultiSeller:', isMultiSeller)
+
+          if (isMultiSeller) {
+            // For multi-seller carts, only clear if all related orders are paid
+            console.log('Multi-seller cart detected, checking all related orders')
+
+            // Find all pending orders that share the same cartId
+            const pendingOrdersWithSameCart = await tx.order.count({
+              where: {
+                AND: [
+                  {
+                    OR: [
+                      { providerIntent: { contains: cartId } }, // Fallback search
+                      {
+                        // More precise: find orders created around the same time with same user
+                        userId: updatedOrder.userId,
+                        createdAt: {
+                          gte: new Date(new Date(updatedOrder.createdAt).getTime() - 5 * 60 * 1000), // 5 minutes before
+                          lte: new Date(new Date(updatedOrder.createdAt).getTime() + 5 * 60 * 1000), // 5 minutes after
+                        },
+                      },
+                    ],
+                  },
+                  { status: 'pending' },
+                ],
+              },
             })
-            console.log('Cart cleared successfully')
-          } catch (cartError) {
-            console.error('Error clearing cart:', cartError)
-            // Don't throw here, as the payment was successful
+
+            console.log('Pending orders with same cart found:', pendingOrdersWithSameCart)
+
+            if (pendingOrdersWithSameCart === 0) {
+              console.log('No more pending orders for this cart, clearing cart:', cartId)
+              try {
+                await tx.cart.delete({
+                  where: { id: cartId },
+                })
+                console.log('Multi-seller cart cleared successfully')
+              } catch (cartError) {
+                console.error('Error clearing multi-seller cart:', cartError)
+                // Don't throw here, as the payment was successful
+              }
+            } else {
+              console.log('Still have pending orders for this cart, keeping cart for now')
+            }
+          } else {
+            // Single seller cart - clear immediately (existing behavior)
+            console.log('Single seller cart, clearing immediately:', cartId)
+            try {
+              await tx.cart.delete({
+                where: { id: cartId },
+              })
+              console.log('Single seller cart cleared successfully')
+            } catch (cartError) {
+              console.error('Error clearing single seller cart:', cartError)
+              // Don't throw here, as the payment was successful
+            }
           }
         }
 

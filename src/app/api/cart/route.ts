@@ -28,6 +28,7 @@ export async function GET() {
               include: {
                 seller: {
                   select: {
+                    id: true,
                     displayName: true,
                     sellerProfile: {
                       select: {
@@ -59,10 +60,13 @@ export async function GET() {
         ...item,
         workflow: {
           ...item.workflow,
+          sellerId: item.workflow.sellerId,
           seller: {
+            id: item.workflow.seller.id,
             displayName: item.workflow.seller.displayName,
             storeName: item.workflow.seller.sellerProfile?.storeName,
             slug: item.workflow.seller.sellerProfile?.slug,
+            sellerProfile: item.workflow.seller.sellerProfile,
           },
         },
       })),
