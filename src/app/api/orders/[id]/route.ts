@@ -27,29 +27,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         items: {
           include: {
             workflow: {
-              select: {
-                id: true,
-                title: true,
-                slug: true,
-                heroImageUrl: true,
+              include: {
                 seller: {
                   select: {
-                    id: true,
                     displayName: true,
                     sellerProfile: {
                       select: {
                         storeName: true,
+                        slug: true,
                       },
                     },
                   },
                 },
-              },
-            },
-            pricingPlan: {
-              select: {
-                id: true,
-                name: true,
-                features: true,
               },
             },
           },

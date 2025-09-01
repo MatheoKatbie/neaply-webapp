@@ -7,7 +7,6 @@ import type { CreateCheckoutSessionRequest, CreateCheckoutSessionResponse } from
 
 const createCheckoutSessionSchema = z.object({
   workflowId: z.string().uuid(),
-  pricingPlanId: z.string().uuid().optional(),
   successUrl: z.string().url().optional(),
   cancelUrl: z.string().url().optional(),
 })
@@ -39,16 +38,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { workflowId, pricingPlanId, successUrl, cancelUrl } = validation.data
+    const { workflowId, successUrl, cancelUrl } = validation.data
 
     // Fetch workflow details with seller's Stripe Connect info
     const workflow = await prisma.workflow.findUnique({
       where: { id: workflowId },
       include: {
-        plans: {
-          where: { isActive: true },
-          orderBy: { sortOrder: 'asc' },
-        },
         seller: {
           include: {
             sellerProfile: true,
@@ -85,23 +80,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Determine pricing
-    let priceCents: number
-    let pricingPlan: any = null
-
-    if (pricingPlanId) {
-      pricingPlan = workflow.plans.find((plan) => plan.id === pricingPlanId)
-      if (!pricingPlan) {
-        return NextResponse.json({ error: 'Pricing plan not found' }, { status: 404 })
-      }
-      priceCents = pricingPlan.priceCents
-    } else {
-      priceCents = workflow.basePriceCents
-    }
+    // Use workflow base price
+    const priceCents = workflow.basePriceCents
 
     // Handle free workflows (0 price) - create completed order directly
     if (priceCents === 0) {
-      const freeOrder = await prisma.order.create({
+      // Create order directly for free workflows
+      const order = await prisma.order.create({
         data: {
           userId: user.id,
           status: 'paid',
@@ -111,92 +96,47 @@ export async function POST(request: NextRequest) {
           paidAt: new Date(),
           items: {
             create: {
-              workflowId,
+              workflowId: workflow.id,
               unitPriceCents: 0,
               quantity: 1,
               subtotalCents: 0,
-              pricingPlanId: pricingPlanId || undefined,
+            },
+          },
+        },
+        include: {
+          items: {
+            include: {
+              workflow: {
+                include: {
+                  seller: {
+                    include: {
+                      sellerProfile: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
       })
 
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-      const successUrl = `${baseUrl}/checkout/success?order_id=${freeOrder.id}`
+      // Update workflow sales count
+      await prisma.workflow.update({
+        where: { id: workflow.id },
+        data: { salesCount: { increment: 1 } },
+      })
 
       return NextResponse.json({
-        sessionId: null,
-        url: successUrl,
-        orderId: freeOrder.id,
-        isFree: true,
+        data: {
+          orderId: order.id,
+          type: 'free',
+          message: 'Free workflow purchased successfully',
+        },
       })
     }
 
-    if (priceCents < 0) {
-      return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
-    }
-
-    // Check if user already owns this workflow
-    const existingPurchase = await prisma.orderItem.findFirst({
-      where: {
-        workflowId,
-        order: {
-          userId: user.id,
-          status: 'paid',
-        },
-      },
-    })
-
-    if (existingPurchase) {
-      return NextResponse.json({ error: 'You already own this workflow' }, { status: 400 })
-    }
-
-    // Create pending order
-    const orderData: any = {
-      userId: user.id,
-      status: 'pending',
-      totalCents: priceCents,
-      currency: workflow.currency,
-      provider: 'stripe',
-      items: {
-        create: {
-          workflowId,
-          unitPriceCents: priceCents,
-          quantity: 1,
-          subtotalCents: priceCents,
-        },
-      },
-    }
-
-    // Only include pricingPlanId if it has a value
-    if (pricingPlanId) {
-      orderData.items.create.pricingPlanId = pricingPlanId
-    }
-
-    const order = await prisma.order.create({
-      data: orderData,
-    })
-
-    // Create Stripe checkout session with Connect
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-
-    // Prepare metadata - only include pricingPlanId if it has a value
-    const metadata: Record<string, string> = {
-      orderId: order.id,
-      userId: user.id,
-      workflowId,
-      sellerAccountId: workflow.seller.sellerProfile.stripeAccountId,
-    }
-
-    if (pricingPlanId) {
-      metadata.pricingPlanId = pricingPlanId
-    }
-
-    // Calculate platform fee (15%)
-    const platformFeeAmount = Math.round(priceCents * (STRIPE_CONNECT_CONFIG.platformFeePercentage / 100))
-
+    // Create Stripe checkout session for paid workflows
     const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
       payment_method_types: ['card'],
       line_items: [
         {
@@ -206,48 +146,38 @@ export async function POST(request: NextRequest) {
               name: workflow.title,
               description: workflow.shortDesc,
               images: workflow.heroImageUrl ? [workflow.heroImageUrl] : undefined,
-              metadata: {
-                workflowId,
-                sellerId: workflow.sellerId,
-                storeName: workflow.seller.sellerProfile?.storeName || workflow.seller.displayName,
-              },
             },
             unit_amount: priceCents,
           },
           quantity: 1,
         },
       ],
-      metadata,
-      success_url: successUrl || `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
-      cancel_url: cancelUrl || `${baseUrl}/checkout/cancelled?order_id=${order.id}`,
-      customer_email: user.email,
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
-      // Stripe Connect configuration
+      mode: 'payment',
+      success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancelled`,
+      metadata: {
+        workflowId: workflow.id,
+        userId: user.id,
+        sellerId: workflow.sellerId,
+        orderType: 'workflow',
+      },
       payment_intent_data: {
-        application_fee_amount: platformFeeAmount,
+        application_fee_amount: Math.round(priceCents * 0.1), // 10% platform fee
         transfer_data: {
-          destination: workflow.seller.sellerProfile.stripeAccountId,
+          destination: workflow.seller.sellerProfile!.stripeAccountId,
         },
       },
     })
 
-    // Update order with Stripe session ID
-    await prisma.order.update({
-      where: { id: order.id },
+    return NextResponse.json({
       data: {
-        providerIntent: session.id,
+        sessionId: session.id,
+        url: session.url,
+        type: 'stripe',
       },
     })
-
-    const response: CreateCheckoutSessionResponse = {
-      sessionId: session.id,
-      url: session.url!,
-      orderId: order.id,
-    }
-
-    return NextResponse.json(response)
   } catch (error) {
-    console.error('Error creating checkout session:', error)
+    console.error('Checkout session creation error:', error)
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }

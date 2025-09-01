@@ -98,22 +98,11 @@ export interface WorkflowVersion {
   createdAt: string
 }
 
-export interface PricingPlan {
-  id: string
-  workflowId: string
-  name: string
-  priceCents: number
-  currency: string
-  features: string[]
-  isActive: boolean
-  sortOrder: number
-}
-
 export interface WorkflowFormData {
   title: string
   shortDesc: string
-  longDescMd: string
-  heroImageUrl: string
+  longDescMd?: string
+  heroImageUrl?: string
   heroImageFile?: File
   basePriceCents: number
   currency: string

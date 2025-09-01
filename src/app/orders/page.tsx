@@ -119,7 +119,6 @@ export default function OrdersHistoryPage() {
     }
   }
 
-
   if (loading) {
     return (
       <>
@@ -217,7 +216,10 @@ export default function OrdersHistoryPage() {
                       {order.items && order.items.length > 0 && (
                         <div className="space-y-3">
                           {order.items.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                            <div
+                              key={item.id}
+                              className="flex items-center justify-between p-4 bg-background rounded-lg"
+                            >
                               <Link href={`workflow/${item.workflowId}`} className="flex items-center space-x-4">
                                 {item.workflow.heroImageUrl ? (
                                   <img
@@ -230,12 +232,12 @@ export default function OrdersHistoryPage() {
                                     <FileText className="w-6 h-6 text-blue-600" />
                                   </div>
                                 )}
-                                <div>
-                                  <h5 className="font-medium text-foreground">{item.workflow.title}</h5>
-                                  {item.pricingPlan && (
-                                    <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
-                                  )}
-                                  <p className="text-sm font-medium text-green-600">
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-sm font-medium text-gray-900 truncate">{item.workflow.title}</h4>
+                                  <p className="text-xs text-muted-foreground mb-2">
+                                    by {item.workflow.seller.displayName}
+                                  </p>
+                                  <p className="text-sm font-medium text-gray-900">
                                     {formatPrice(item.unitPriceCents, order.currency)}
                                   </p>
                                 </div>
@@ -244,10 +246,12 @@ export default function OrdersHistoryPage() {
                               <div className="flex items-center space-x-2">
                                 {order.status === 'paid' && (
                                   <>
-                                    <CopyButton
-                                      workflowId={item.workflowId}
-                                    />
-                                    <Button variant='outline' size="sm" onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}>
+                                    <CopyButton workflowId={item.workflowId} />
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
+                                    >
                                       <Download className="w-4 h-4 mr-2" />
                                       ZIP
                                     </Button>
@@ -270,16 +274,17 @@ export default function OrdersHistoryPage() {
                       {order.packItems && order.packItems.length > 0 && (
                         <div className="space-y-3">
                           {order.packItems.map((packItem) => (
-                            <div key={packItem.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                            <div
+                              key={packItem.id}
+                              className="flex items-center justify-between p-4 bg-background rounded-lg"
+                            >
                               <div className="flex items-center space-x-4">
                                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                                   <Package className="w-6 h-6 text-purple-600" />
                                 </div>
                                 <div>
                                   <h5 className="font-medium text-foreground">{packItem.pack.title}</h5>
-                                  <p className="text-sm text-muted-foreground">
-                                    Pack with {packItem.pack.workflows?.length || 0} workflows
-                                  </p>
+                                  <p className="text-sm text-muted-foreground">by {packItem.pack.seller.displayName}</p>
                                   <p className="text-sm font-medium text-green-600">
                                     {formatPrice(packItem.unitPriceCents, order.currency)}
                                   </p>
@@ -289,7 +294,11 @@ export default function OrdersHistoryPage() {
                               <div className="flex items-center space-x-2">
                                 {order.status === 'paid' && (
                                   <>
-                                    <Button variant='outline' size="sm" onClick={() => handleDownloadPackZip(packItem.pack.id, packItem.pack.title)}>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDownloadPackZip(packItem.pack.id, packItem.pack.title)}
+                                    >
                                       <Download className="w-4 h-4 mr-2" />
                                       ZIP
                                     </Button>
@@ -309,11 +318,12 @@ export default function OrdersHistoryPage() {
                       )}
 
                       {/* Show message if no items found */}
-                      {(!order.items || order.items.length === 0) && (!order.packItems || order.packItems.length === 0) && (
-                        <div className="text-center py-4 text-muted-foreground">
-                          <p>No items found for this order.</p>
-                        </div>
-                      )}
+                      {(!order.items || order.items.length === 0) &&
+                        (!order.packItems || order.packItems.length === 0) && (
+                          <div className="text-center py-4 text-muted-foreground">
+                            <p>No items found for this order.</p>
+                          </div>
+                        )}
                     </div>
 
                     {order.status === 'paid' && order.paidAt && (

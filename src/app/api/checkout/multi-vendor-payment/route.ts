@@ -60,13 +60,19 @@ export async function POST(request: NextRequest) {
             workflow: {
               include: {
                 seller: {
-                  include: {
-                    sellerProfile: true,
+                  select: {
+                    displayName: true,
+                    sellerProfile: {
+                      select: {
+                        storeName: true,
+                        slug: true,
+                        stripeAccountId: true,
+                      },
+                    },
                   },
                 },
               },
             },
-            pricingPlan: true,
           },
         },
       },
@@ -129,7 +135,7 @@ export async function POST(request: NextRequest) {
       const sellerOrderItems: any[] = []
 
       for (const item of sellerItems) {
-        const priceCents = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
+        const priceCents = item.workflow.basePriceCents
         const subtotal = priceCents * item.quantity
 
         sellerTotalCents += subtotal
@@ -139,7 +145,6 @@ export async function POST(request: NextRequest) {
           unitPriceCents: priceCents,
           quantity: item.quantity,
           subtotalCents: subtotal,
-          pricingPlanId: item.pricingPlanId || undefined,
         })
       }
 

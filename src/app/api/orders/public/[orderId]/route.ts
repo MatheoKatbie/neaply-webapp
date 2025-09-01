@@ -17,19 +17,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         items: {
           include: {
             workflow: {
-              select: {
-                id: true,
-                title: true,
-                shortDesc: true,
-                heroImageUrl: true,
-                slug: true,
-              },
-            },
-            pricingPlan: {
-              select: {
-                id: true,
-                name: true,
-                priceCents: true,
+              include: {
+                seller: {
+                  select: {
+                    displayName: true,
+                    sellerProfile: {
+                      select: {
+                        storeName: true,
+                        slug: true,
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -82,7 +81,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         quantity: item.quantity,
         subtotalCents: item.subtotalCents,
         workflow: item.workflow,
-        pricingPlan: item.pricingPlan,
       })),
       packItems: order.packItems.map((pi) => ({
         id: pi.id,

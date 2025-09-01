@@ -104,7 +104,7 @@ export default function Navbar() {
   }
 
   // Calculate cart items count
-  const cartItemsCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0
+  const cartItemsCount = cart?.items.length || 0
 
   const handleCartClick = () => {
     setIsCartOpen(true)

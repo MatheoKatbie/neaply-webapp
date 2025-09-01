@@ -160,10 +160,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             tag: true,
           },
         },
-        plans: {
-          where: { isActive: true },
-          orderBy: { sortOrder: 'asc' },
-        },
         _count: {
           select: {
             reviews: true,
