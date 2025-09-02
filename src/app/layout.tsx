@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: 'Neaply',
     images: [
       {
-        url: '/images/neaply/facebook/cover.jpg',
+        url: '/images/neaply/discord/cover.jpg',
         width: 1200,
         height: 630,
         alt: 'Neaply - Multi-Platform Automation Marketplace',
