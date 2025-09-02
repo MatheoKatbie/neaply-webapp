@@ -47,30 +47,6 @@ export const metadata: Metadata = {
         height: 630,
         alt: 'Neaply - Multi-Platform Automation Marketplace',
       },
-      {
-        url: '/images/neaply/linkedin/cover.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Neaply - LinkedIn Banner',
-      },
-      {
-        url: '/images/neaply/x/cover.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Neaply - X (Twitter) Banner',
-      },
-      {
-        url: '/images/neaply/whatsapp/cover.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Neaply - WhatsApp Banner',
-      },
-      {
-        url: '/images/neaply/discord/cover.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Neaply - Discord Banner',
-      },
     ],
   },
   twitter: {
