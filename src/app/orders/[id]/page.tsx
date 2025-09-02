@@ -262,17 +262,14 @@ export default function OrderDetailPage() {
                                   <FileText className="w-8 h-8 text-blue-600" />
                                 </div>
                               )}
-                              <div className="flex-1">
-                                <h4 className="font-medium text-foreground">{item.workflow.title}</h4>
-                                {item.pricingPlan && (
-                                  <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
-                                )}
-                                <div className="flex items-center space-x-4 mt-2">
-                                  <span className="text-sm text-muted-foreground">Quantity: {item.quantity}</span>
-                                  <span className="text-sm font-medium text-green-600">
-                                    {formatPrice(item.unitPriceCents, order.currency)}
-                                  </span>
-                                </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-medium text-gray-900 truncate">{item.workflow.title}</h4>
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  by {item.workflow.seller.displayName}
+                                </p>
+                                <p className="text-sm font-medium text-gray-900">
+                                  {formatPrice(item.unitPriceCents, order.currency)}
+                                </p>
                               </div>
                             </div>
 
@@ -317,9 +314,7 @@ export default function OrderDetailPage() {
                               </div>
                               <div className="flex-1">
                                 <h4 className="font-medium text-foreground">{packItem.pack.title}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  Pack with {packItem.pack.workflows?.length || 0} workflows
-                                </p>
+                                <p className="text-sm text-muted-foreground">by {packItem.pack.seller.displayName}</p>
                                 <div className="flex items-center space-x-4 mt-2">
                                   <span className="text-sm text-muted-foreground">Quantity: {packItem.quantity}</span>
                                   <span className="text-sm font-medium text-green-600">

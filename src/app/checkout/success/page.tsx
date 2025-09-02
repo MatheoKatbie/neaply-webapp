@@ -233,10 +233,7 @@ function CheckoutSuccessContent() {
                               item.workflow.seller?.displayName ||
                               'Unknown Seller'}
                           </p>
-                          {item.pricingPlan && (
-                            <p className="text-sm text-muted-foreground">{item.pricingPlan.name} Plan</p>
-                          )}
-                          <p className="text-sm font-medium text-green-600">
+                          <p className="text-sm font-medium text-gray-900">
                             {formatPrice(item.unitPriceCents, order.currency)}
                           </p>
                         </div>
@@ -286,16 +283,13 @@ function CheckoutSuccessContent() {
                                 </div>
                               )}
                               <div>
-                                <h5 className="font-medium text-sm">{item.workflow.title}</h5>
-                                <p className="text-xs text-muted-foreground">
+                                <h4 className="font-medium">{item.workflow.title}</h4>
+                                <p className="text-sm text-muted-foreground">
                                   by{' '}
                                   {item.workflow.seller?.sellerProfile?.storeName ||
                                     item.workflow.seller?.displayName ||
                                     'Unknown Seller'}
                                 </p>
-                                {item.pricingPlan && (
-                                  <p className="text-xs text-muted-foreground">{item.pricingPlan.name} Plan</p>
-                                )}
                                 <p className="text-xs font-medium text-green-600">
                                   {formatPrice(item.unitPriceCents, relatedOrder.currency)}
                                 </p>
@@ -340,12 +334,13 @@ function CheckoutSuccessContent() {
                           )}
                           <div>
                             <h4 className="font-medium">{packItem.pack.title}</h4>
-                            {packItem.pack.workflows && (
-                              <p className="text-sm text-muted-foreground">
-                                {packItem.pack.workflows.length} workflows included
-                              </p>
-                            )}
-                            <p className="text-sm font-medium text-green-600">
+                            <p className="text-sm text-muted-foreground">
+                              by{' '}
+                              {packItem.pack.seller?.sellerProfile?.storeName ||
+                                packItem.pack.seller?.displayName ||
+                                'Unknown Seller'}
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
                               {formatPrice(packItem.unitPriceCents, order.currency)}
                             </p>
                           </div>

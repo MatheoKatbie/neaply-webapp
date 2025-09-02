@@ -9,7 +9,6 @@ import { useAuth } from '@/hooks/useAuth'
 
 interface PurchaseButtonProps {
   workflowId: string
-  pricingPlanId?: string
   price: number
   currency: string
   disabled?: boolean
@@ -20,7 +19,6 @@ interface PurchaseButtonProps {
 
 export function PurchaseButton({
   workflowId,
-  pricingPlanId,
   price,
   currency,
   disabled = false,
@@ -28,10 +26,10 @@ export function PurchaseButton({
   size = 'lg',
   children,
 }: PurchaseButtonProps) {
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { user } = useAuth()
   const { addToCart } = useCart()
+  const [loading, setLoading] = useState(false)
 
   const handlePurchase = async () => {
     if (disabled || loading) return
@@ -47,8 +45,6 @@ export function PurchaseButton({
       // Add to cart
       const success = await addToCart({
         workflowId,
-        pricingPlanId,
-        quantity: 1,
       })
 
       if (success) {

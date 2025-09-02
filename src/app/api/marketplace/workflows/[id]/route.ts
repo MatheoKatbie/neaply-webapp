@@ -63,9 +63,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         // Only show workflows from active sellers
         seller: {
           sellerProfile: {
-            status: 'active'
-          }
-        }
+            status: 'active',
+          },
+        },
       },
       include: {
         seller: {
@@ -117,17 +117,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             n8nMaxVersion: true,
             jsonContent: true,
             createdAt: true,
-          },
-        },
-        plans: {
-          where: { isActive: true },
-          orderBy: { sortOrder: 'asc' },
-          select: {
-            id: true,
-            name: true,
-            priceCents: true,
-            currency: true,
-            features: true,
           },
         },
       },
@@ -183,13 +172,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             jsonContent: safeDecrypt(latestVersion.jsonContent),
           }
         : null,
-      plans: workflow.plans.map((plan) => ({
-        id: plan.id,
-        name: plan.name,
-        price: plan.priceCents,
-        currency: plan.currency,
-        features: plan.features,
-      })),
     }
 
     return NextResponse.json({

@@ -1,6 +1,5 @@
 export interface CreateCheckoutSessionRequest {
   workflowId: string
-  pricingPlanId?: string
   successUrl?: string
   cancelUrl?: string
 }
@@ -8,24 +7,19 @@ export interface CreateCheckoutSessionRequest {
 export interface CreateCheckoutSessionResponse {
   sessionId: string
   url: string
-  orderId: string
 }
 
 export interface Order {
   id: string
   userId: string
-  status: 'pending' | 'paid' | 'failed' | 'refunded' | 'cancelled'
+  status: string
   totalCents: number
   currency: string
   provider?: string
   providerIntent?: string
+  metadata?: any
   createdAt: string
   paidAt?: string
-  metadata?: {
-    orderType?: string
-    cartId?: string
-    sellerId?: string
-  }
   items: OrderItem[]
   packItems: PackItem[]
   payments: Payment[]
@@ -35,7 +29,6 @@ export interface OrderItem {
   id: string
   orderId: string
   workflowId: string
-  pricingPlanId?: string
   unitPriceCents: number
   quantity: number
   subtotalCents: number
@@ -52,11 +45,6 @@ export interface OrderItem {
       }
     }
   }
-  pricingPlan?: {
-    id: string
-    name: string
-    features: string[]
-  }
 }
 
 export interface Payment {
@@ -66,7 +54,7 @@ export interface Payment {
   providerCharge: string
   amountCents: number
   currency: string
-  status: 'succeeded' | 'failed' | 'refunded' | 'partial_refund'
+  status: string
   processedAt: string
   rawPayload?: any
 }
@@ -84,16 +72,13 @@ export interface PackItem {
     title: string
     slug: string
     heroImageUrl?: string
-    // Included workflows in the pack (for display only)
-    workflows?: Array<{
-      workflowId: string
-      sortOrder: number
-      workflow: {
-        id: string
-        title: string
-        slug: string
+    seller: {
+      id: string
+      displayName: string
+      sellerProfile?: {
+        storeName?: string
       }
-    }>
+    }
   }
 }
 

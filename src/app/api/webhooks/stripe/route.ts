@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   try {
-    const { orderId, userId, workflowId, pricingPlanId, packId, orderType } = session.metadata || {}
+    const { orderId, userId, workflowId, packId, orderType } = session.metadata || {}
 
     if (!orderId || !userId) {
       console.error('Missing required metadata in checkout session:', session.metadata)
@@ -414,7 +414,6 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
                 packId: updatedOrder.packItems[0].packId,
                 packTitle: updatedOrder.packItems[0].pack.title,
               }),
-              pricingPlanId: pricingPlanId || null, // Handle empty string case
               amount: session.amount_total,
               currency: session.currency,
               stripeSessionId: session.id,

@@ -518,7 +518,12 @@ export default function WorkflowDetailPage() {
                       >
                         Buy Now
                       </PurchaseButton>
-                      <AddToCartButton workflowId={workflowId} className="w-full" />
+                      <AddToCartButton
+                        workflowId={workflowId}
+                        price={workflow.price}
+                        currency={workflow.currency}
+                        className="w-full"
+                      />
                     </div>
                   )}
 

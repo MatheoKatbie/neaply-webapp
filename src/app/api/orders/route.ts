@@ -46,31 +46,22 @@ export async function GET(request: NextRequest) {
                   heroImageUrl: true,
                 },
               },
-              pricingPlan: {
-                select: {
-                  id: true,
-                  name: true,
-                  features: true,
-                },
-              },
             },
           },
           packItems: {
             include: {
               pack: {
                 include: {
-                  workflows: {
-                    include: {
-                      workflow: {
+                  seller: {
+                    select: {
+                      displayName: true,
+                      sellerProfile: {
                         select: {
-                          id: true,
-                          title: true,
+                          storeName: true,
                           slug: true,
-                          heroImageUrl: true,
                         },
                       },
                     },
-                    orderBy: { sortOrder: 'asc' },
                   },
                 },
               },

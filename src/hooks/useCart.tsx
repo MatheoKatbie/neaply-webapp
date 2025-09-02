@@ -2,24 +2,17 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { useAuth } from './useAuth'
-import type { Cart, CartItem, AddToCartRequest, UpdateCartItemRequest } from '@/types/cart'
+import type { Cart, CartItem } from '@/types/cart'
 
 interface CartContextType {
   cart: Cart | null
   loading: boolean
   error: string | null
-
-  // Cart actions
-  addToCart: (item: AddToCartRequest) => Promise<boolean>
-  removeFromCart: (itemId: string) => Promise<boolean>
-  updateCartItem: (itemId: string, data: UpdateCartItemRequest) => Promise<boolean>
-  clearCart: () => Promise<boolean>
-
-  // Cart computations
+  addToCart: (item: { workflowId: string }) => Promise<boolean>
+  removeFromCart: (itemId: string) => Promise<void>
+  clearCart: () => Promise<void>
   getItemsCount: () => number
-  hasItem: (workflowId: string, pricingPlanId?: string) => boolean
-
-  // Cart operations
+  hasItem: (workflowId: string) => boolean
   refreshCart: () => Promise<void>
 }
 
@@ -72,7 +65,7 @@ export function CartProvider({ children }: CartProviderProps) {
   }, [user])
 
   // Add item to cart
-  const addToCart = async (item: AddToCartRequest): Promise<boolean> => {
+  const addToCart = async (item: { workflowId: string }): Promise<boolean> => {
     if (!user) {
       setError('Please login to add items to cart')
       return false
@@ -87,7 +80,10 @@ export function CartProvider({ children }: CartProviderProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(item),
+        body: JSON.stringify({
+          workflowId: item.workflowId,
+          quantity: 1,
+        }),
       })
 
       if (!response.ok) {
@@ -108,8 +104,8 @@ export function CartProvider({ children }: CartProviderProps) {
   }
 
   // Remove item from cart
-  const removeFromCart = async (itemId: string): Promise<boolean> => {
-    if (!user) return false
+  const removeFromCart = async (itemId: string): Promise<void> => {
+    if (!user) return
 
     try {
       setLoading(true)
@@ -126,52 +122,17 @@ export function CartProvider({ children }: CartProviderProps) {
 
       const data = await response.json()
       setCart(data.cart)
-      return true
     } catch (err) {
       console.error('Error removing from cart:', err)
       setError(err instanceof Error ? err.message : 'Failed to remove item from cart')
-      return false
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Update cart item quantity
-  const updateCartItem = async (itemId: string, updateData: UpdateCartItemRequest): Promise<boolean> => {
-    if (!user) return false
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch(`/api/cart/items/${itemId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to update cart item')
-      }
-
-      const data = await response.json()
-      setCart(data.cart)
-      return true
-    } catch (err) {
-      console.error('Error updating cart item:', err)
-      setError(err instanceof Error ? err.message : 'Failed to update cart item')
-      return false
     } finally {
       setLoading(false)
     }
   }
 
   // Clear cart
-  const clearCart = async (): Promise<boolean> => {
-    if (!user) return false
+  const clearCart = async (): Promise<void> => {
+    if (!user) return
 
     try {
       setLoading(true)
@@ -187,11 +148,9 @@ export function CartProvider({ children }: CartProviderProps) {
       }
 
       setCart(null)
-      return true
     } catch (err) {
       console.error('Error clearing cart:', err)
       setError(err instanceof Error ? err.message : 'Failed to clear cart')
-      return false
     } finally {
       setLoading(false)
     }
@@ -200,13 +159,13 @@ export function CartProvider({ children }: CartProviderProps) {
   // Get total items count
   const getItemsCount = (): number => {
     if (!cart) return 0
-    return cart.items.reduce((sum, item) => sum + item.quantity, 0)
+    return cart.items.length
   }
 
   // Check if workflow is in cart
-  const hasItem = (workflowId: string, pricingPlanId?: string): boolean => {
+  const hasItem = (workflowId: string): boolean => {
     if (!cart) return false
-    return cart.items.some((item) => item.workflowId === workflowId && item.pricingPlanId === pricingPlanId)
+    return cart.items.some((item) => item.workflowId === workflowId)
   }
 
   // Refresh cart
@@ -220,7 +179,6 @@ export function CartProvider({ children }: CartProviderProps) {
     error,
     addToCart,
     removeFromCart,
-    updateCartItem,
     clearCart,
     getItemsCount,
     hasItem,

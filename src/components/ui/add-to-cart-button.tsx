@@ -1,95 +1,77 @@
 'use client'
 
-import React, { useState } from 'react'
-import { ShoppingCart, Loader2, Check } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { ShoppingCart, Loader2 } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useAuth } from '@/hooks/useAuth'
 
 interface AddToCartButtonProps {
   workflowId: string
-  pricingPlanId?: string
+  price: number
+  currency: string
   disabled?: boolean
   className?: string
   size?: 'sm' | 'default' | 'lg'
   children?: React.ReactNode
-  quantity?: number
 }
 
 export function AddToCartButton({
   workflowId,
-  pricingPlanId,
+  price,
+  currency,
   disabled = false,
   className,
   size = 'default',
   children,
-  quantity = 1,
 }: AddToCartButtonProps) {
+  const { addToCart, hasItem } = useCart()
   const { user } = useAuth()
-  const { addToCart, hasItem, loading } = useCart()
-  const [isAdding, setIsAdding] = useState(false)
-  const [justAdded, setJustAdded] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const isInCart = hasItem(workflowId, pricingPlanId)
+  const isInCart = hasItem(workflowId)
 
   const handleAddToCart = async () => {
+    if (disabled || loading || isInCart) return
+
     if (!user) {
-      // Could redirect to login or show login modal
       alert('Please login to add items to cart')
       return
     }
 
-    if (disabled || loading || isAdding || isInCart) return
-
     try {
-      setIsAdding(true)
-      const success = await addToCart({
+      setLoading(true)
+      await addToCart({
         workflowId,
-        pricingPlanId,
-        quantity,
       })
-
-      if (success) {
-        setJustAdded(true)
-        setTimeout(() => setJustAdded(false), 2000)
-      }
     } catch (error) {
       console.error('Error adding to cart:', error)
+      alert(error instanceof Error ? error.message : 'Failed to add item to cart')
     } finally {
-      setIsAdding(false)
+      setLoading(false)
     }
   }
 
-  // If already in cart, show different state
-  if (isInCart) {
-    return (
-      <Button size={size} variant="outline" className={`cursor-pointer ${className}`} disabled>
-        <Check className="w-4 h-4 mr-2" />
-        In Cart
-      </Button>
-    )
+  const formatPrice = (priceCents: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(priceCents / 100)
   }
 
-  // If just added, show success state briefly
-  if (justAdded) {
+  if (isInCart) {
     return (
-      <Button size={size} className={`cursor-pointer bg-green-600 hover:bg-green-700 ${className}`} disabled>
-        <Check className="w-4 h-4 mr-2" />
-        Added to Cart!
+      <Button size={size} className={className} disabled>
+        <ShoppingCart className="w-4 h-4 mr-2" />
+        Already in Cart
       </Button>
     )
   }
 
   return (
-    <Button
-      size={size}
-      variant="outline"
-      className={`cursor-pointer ${className}`}
-      onClick={handleAddToCart}
-      disabled={disabled || loading || isAdding}
-    >
-      {isAdding ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShoppingCart className="w-4 h-4 mr-2" />}
-      {children || 'Add to Cart'}
+    <Button size={size} className={className} onClick={handleAddToCart} disabled={disabled || loading}>
+      {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShoppingCart className="w-4 h-4 mr-2" />}
+      {children || `Add to Cart - ${formatPrice(price, currency)}`}
     </Button>
   )
 }

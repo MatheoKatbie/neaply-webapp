@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { CartItemComponent } from '@/components/ui/cart-item'
+import { CartItem } from '@/components/ui/cart-item'
 import { Separator } from '@/components/ui/separator'
 import { ArrowLeft, ShoppingCart, CreditCard } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
@@ -68,13 +68,27 @@ export default function CartPage() {
   // Calculate total amount
   const totalAmount =
     cart?.items.reduce((total, item) => {
-      const price = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
-      return total + price * item.quantity
+      const price = item.workflow.basePriceCents
+      return total + price
     }, 0) || 0
 
   // Check if cart has multiple sellers
-  const uniqueSellers = new Set(cart?.items.map((item) => item.workflow.sellerId) || [])
-  const hasMultipleSellers = uniqueSellers.size > 1
+  const hasMultipleSellers =
+    cart && cart.items.length > 0 && new Set(cart.items.map((item) => item.workflow.sellerId)).size > 1
+
+  // Group items by seller
+  const itemsBySeller = cart
+    ? cart.items.reduce((acc, item) => {
+        const sellerId = item.workflow.sellerId
+        if (!acc[sellerId]) {
+          acc[sellerId] = []
+        }
+        acc[sellerId].push(item)
+        return acc
+      }, {} as Record<string, typeof cart.items>)
+    : {}
+
+  const sellerGroups = Object.entries(itemsBySeller)
 
   const handlePaymentSuccess = () => {
     setPaymentSuccess(true)
@@ -154,65 +168,49 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart items */}
             <div className="lg:col-span-2">
-              {(() => {
-                // Group items by seller
-                const itemsBySeller = new Map<string, typeof cart.items>()
-                for (const item of cart.items) {
-                  const sellerId = item.workflow.sellerId
-                  if (!itemsBySeller.has(sellerId)) {
-                    itemsBySeller.set(sellerId, [])
-                  }
-                  itemsBySeller.get(sellerId)!.push(item)
-                }
+              <div className="space-y-8">
+                {sellerGroups.map(([sellerId, sellerItems]) => {
+                  const seller = sellerItems[0].workflow.seller
+                  const sellerTotal = sellerItems.reduce((total, item) => {
+                    const price = item.workflow.basePriceCents
+                    return total + price
+                  }, 0)
 
-                const sellerGroups = Array.from(itemsBySeller.entries())
-
-                return (
-                  <div className="space-y-8">
-                    {sellerGroups.map(([sellerId, sellerItems], index) => {
-                      const seller = sellerItems[0].workflow.seller
-                      const sellerTotal = sellerItems.reduce((total, item) => {
-                        const price = item.pricingPlan ? item.pricingPlan.priceCents : item.workflow.basePriceCents
-                        return total + price * item.quantity
-                      }, 0)
-
-                      return (
-                        <div key={sellerId} className="border rounded-lg p-6">
-                          {/* Seller header */}
-                          <div className="flex items-center justify-between mb-4 pb-4 border-b">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
-                                {(seller.sellerProfile?.storeName || seller.displayName).charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-lg">
-                                  {seller.sellerProfile?.storeName || seller.displayName}
-                                </h3>
-                                <p className="text-sm text-muted-foreground">
-                                  {sellerItems.length} {sellerItems.length === 1 ? 'item' : 'items'} • $
-                                  {(sellerTotal / 100).toFixed(2)}
-                                </p>
-                              </div>
-                            </div>
-                            {sellerGroups.length > 1 && (
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                                Multi-vendor order
-                              </Badge>
-                            )}
+                  return (
+                    <div key={sellerId} className="border rounded-lg p-6">
+                      {/* Seller header */}
+                      <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
+                            {(seller.sellerProfile?.storeName || seller.displayName).charAt(0).toUpperCase()}
                           </div>
-
-                          {/* Seller items */}
-                          <div className="space-y-4">
-                            {sellerItems.map((item) => (
-                              <CartItemComponent key={item.id} item={item} />
-                            ))}
+                          <div>
+                            <h3 className="font-semibold text-lg">
+                              {seller.sellerProfile?.storeName || seller.displayName}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {sellerItems.length} {sellerItems.length === 1 ? 'item' : 'items'} • $
+                              {(sellerTotal / 100).toFixed(2)}
+                            </p>
                           </div>
                         </div>
-                      )
-                    })}
-                  </div>
-                )
-              })()}
+                        {sellerGroups.length > 1 && (
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                            Multi-vendor order
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Seller items */}
+                      <div className="space-y-4">
+                        {sellerItems.map((item) => (
+                          <CartItem key={item.id} item={item} />
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
 
               <Separator className="my-6" />
 
@@ -221,8 +219,8 @@ export default function CartPage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                   <h4 className="font-semibold text-blue-800 mb-2">Multi-Vendor Purchase</h4>
                   <p className="text-sm text-blue-700">
-                    Your cart contains items from {uniqueSellers.size} different sellers. You can pay for all items with
-                    a single payment form below.
+                    Your cart contains items from {new Set(cart.items.map((item) => item.workflow.sellerId)).size}{' '}
+                    different sellers. You can pay for all items with a single payment form below.
                   </p>
                 </div>
               )}
@@ -280,7 +278,8 @@ export default function CartPage() {
                       </div>
                       {hasMultipleSellers && (
                         <div className="text-sm text-muted-foreground">
-                          Payment will be distributed to {uniqueSellers.size} sellers
+                          Payment will be distributed to{' '}
+                          {new Set(cart.items.map((item) => item.workflow.sellerId)).size} sellers
                         </div>
                       )}
                     </div>
