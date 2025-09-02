@@ -21,6 +21,18 @@ export const metadata: Metadata = {
     'The first marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows for Make, n8n, Zapier, and more. Create and sell your automation solutions to the global community.',
   keywords:
     'automation, workflows, marketplace, make, n8n, zapier, airtable, no-code automation, buy workflows, create workflows',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+    other: [
+      { rel: 'android-chrome', url: '/android-chrome-192x192.png' },
+      { rel: 'android-chrome', url: '/android-chrome-512x512.png' },
+    ],
+  },
   openGraph: {
     title: 'Neaply - Buy & Sell Automation Workflows',
     description:
@@ -29,10 +41,34 @@ export const metadata: Metadata = {
     url: 'https://neaply.com',
     images: [
       {
-        url: '/images/hero.png',
+        url: '/images/neaply/facebook/cover.jpg',
         width: 1200,
         height: 630,
         alt: 'Neaply - Multi-Platform Automation Marketplace',
+      },
+      {
+        url: '/images/neaply/linkedin/cover.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Neaply - LinkedIn Banner',
+      },
+      {
+        url: '/images/neaply/x/cover.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Neaply - X (Twitter) Banner',
+      },
+      {
+        url: '/images/neaply/whatsapp/cover.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Neaply - WhatsApp Banner',
+      },
+      {
+        url: '/images/neaply/discord/cover.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Neaply - Discord Banner',
       },
     ],
   },
@@ -40,7 +76,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Neaply - Buy & Sell Automation Workflows',
     description: 'The first marketplace for automation workflows across multiple platforms.',
-    images: ['/images/hero.png'],
+    images: ['/images/neaply/x/cover.jpg'],
   },
 }
 
