@@ -39,6 +39,7 @@ export const metadata: Metadata = {
       'The first marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows or sell your own creations.',
     type: 'website',
     url: 'https://neaply.com',
+    siteName: 'Neaply',
     images: [
       {
         url: '/images/neaply/facebook/cover.jpg',
