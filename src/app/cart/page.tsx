@@ -124,7 +124,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20 md:pt-24">
+    <div className="min-h-screen bg-background ">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -194,11 +194,6 @@ export default function CartPage() {
                             </p>
                           </div>
                         </div>
-                        {sellerGroups.length > 1 && (
-                          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                            Multi-vendor order
-                          </Badge>
-                        )}
                       </div>
 
                       {/* Seller items */}
@@ -213,17 +208,6 @@ export default function CartPage() {
               </div>
 
               <Separator className="my-6" />
-
-              {/* Multi-seller notice */}
-              {hasMultipleSellers && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <h4 className="font-semibold text-blue-800 mb-2">Multi-Vendor Purchase</h4>
-                  <p className="text-sm text-blue-700">
-                    Your cart contains items from {new Set(cart.items.map((item) => item.workflow.sellerId)).size}{' '}
-                    different sellers. You can pay for all items with a single payment form below.
-                  </p>
-                </div>
-              )}
 
               {/* Unified checkout for all cases */}
               <Card className="mb-6">
@@ -240,11 +224,6 @@ export default function CartPage() {
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
                   />
-                  {paymentError && (
-                    <Alert variant="destructive" className="mt-4">
-                      <AlertDescription>{paymentError}</AlertDescription>
-                    </Alert>
-                  )}
                 </CardContent>
               </Card>
 

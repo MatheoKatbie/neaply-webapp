@@ -44,6 +44,17 @@ export async function GET(request: NextRequest) {
                   title: true,
                   slug: true,
                   heroImageUrl: true,
+                  seller: {
+                    select: {
+                      displayName: true,
+                      sellerProfile: {
+                        select: {
+                          storeName: true,
+                          slug: true,
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },

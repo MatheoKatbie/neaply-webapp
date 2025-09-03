@@ -43,18 +43,14 @@ function CheckoutSuccessContent() {
           const authData = await authResponse.json()
           setOrder(authData.order)
 
-          // If this is a multi-vendor order, fetch related orders
-          if (authData.order.metadata?.orderType === 'multi_vendor_cart') {
-            await fetchRelatedOrders()
-          }
+          // Always try to fetch related orders for multi-vendor scenarios
+          await fetchRelatedOrders()
         } else {
           const data = await response.json()
           setOrder(data.order)
 
-          // If this is a multi-vendor order, fetch related orders
-          if (data.order.metadata?.orderType === 'multi_vendor_cart') {
-            await fetchRelatedOrders()
-          }
+          // Always try to fetch related orders for multi-vendor scenarios
+          await fetchRelatedOrders()
         }
       } catch (err) {
         console.error('Error fetching order:', err)
@@ -206,69 +202,49 @@ function CheckoutSuccessContent() {
                 </div>
               )}
 
+              {/* Multi-vendor total display */}
+              {relatedOrders.length > 0 && (
+                <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                  <h3 className="text-xl font-semibold text-blue-900 mb-4">Purchase Summary</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <span className="text-sm font-medium text-blue-700">Total Items</span>
+                      <p className="text-2xl font-bold text-blue-900">
+                        {relatedOrders.reduce((total, order) => total + order.items.length, 0) + order.items.length}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <span className="text-sm font-medium text-blue-700">Total Sellers</span>
+                      <p className="text-2xl font-bold text-blue-900">{relatedOrders.length + 1}</p>
+                    </div>
+                    <div className="text-center">
+                      <span className="text-sm font-medium text-blue-700">Total Amount</span>
+                      <p className="text-2xl font-bold text-green-600">
+                        {formatPrice(
+                          relatedOrders.reduce((total, order) => total + order.totalCents, 0) + order.totalCents,
+                          order.currency
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Order Items (Workflows) */}
               <div>
                 <h3 className="text-lg font-semibold mb-4">Your Workflows</h3>
-                <div className="space-y-4">
-                  {/* Current order items */}
-                  {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        {item.workflow.heroImageUrl ? (
-                          <img
-                            src={item.workflow.heroImageUrl}
-                            alt={item.workflow.title}
-                            className="w-12 h-12 object-cover rounded-lg"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <Download className="w-6 h-6 text-blue-600" />
-                          </div>
-                        )}
-                        <div>
-                          <h4 className="font-medium">{item.workflow.title}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            by{' '}
-                            {item.workflow.seller?.sellerProfile?.storeName ||
-                              item.workflow.seller?.displayName ||
-                              'Unknown Seller'}
-                          </p>
-                          <p className="text-sm font-medium text-gray-900">
-                            {formatPrice(item.unitPriceCents, order.currency)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CopyButton workflowId={item.workflowId} />
-                        <Button
-                          size="sm"
-                          onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download ZIP
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => router.push(`/workflow/${item.workflowId}`)}
-                          className="cursor-pointer"
-                        >
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
 
-                  {/* Related orders items */}
-                  {relatedOrders.map((relatedOrder) => (
-                    <div key={relatedOrder.id} className="border-t pt-4">
-                      <h4 className="text-md font-medium text-muted-foreground mb-3">
-                        Order {relatedOrder.id.slice(-8)} -{' '}
-                        {formatPrice(relatedOrder.totalCents, relatedOrder.currency)}
+                {/* Multi-vendor: Show all orders grouped by seller */}
+                {relatedOrders.length > 0 ? (
+                  <div className="space-y-6">
+                    {/* Current order */}
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                        <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                        Order {order.id.slice(-8)} - {formatPrice(order.totalCents, order.currency)}
                       </h4>
                       <div className="space-y-3">
-                        {relatedOrder.items.map((item) => (
+                        {order.items.map((item) => (
                           <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <div className="flex items-center space-x-3">
                               {item.workflow.heroImageUrl ? (
@@ -291,7 +267,7 @@ function CheckoutSuccessContent() {
                                     'Unknown Seller'}
                                 </p>
                                 <p className="text-xs font-medium text-green-600">
-                                  {formatPrice(item.unitPriceCents, relatedOrder.currency)}
+                                  {formatPrice(item.unitPriceCents, order.currency)}
                                 </p>
                               </div>
                             </div>
@@ -310,8 +286,123 @@ function CheckoutSuccessContent() {
                         ))}
                       </div>
                     </div>
-                  ))}
-                </div>
+
+                    {/* Related orders */}
+                    {relatedOrders.map((relatedOrder, index) => (
+                      <div key={relatedOrder.id} className="border border-gray-200 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                          <span
+                            className={`w-3 h-3 rounded-full mr-2 ${
+                              index === 0
+                                ? 'bg-green-500'
+                                : index === 1
+                                ? 'bg-purple-500'
+                                : index === 2
+                                ? 'bg-orange-500'
+                                : 'bg-gray-500'
+                            }`}
+                          ></span>
+                          Order {relatedOrder.id.slice(-8)} -{' '}
+                          {formatPrice(relatedOrder.totalCents, relatedOrder.currency)}
+                        </h4>
+                        <div className="space-y-3">
+                          {relatedOrder.items.map((item) => (
+                            <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                {item.workflow.heroImageUrl ? (
+                                  <img
+                                    src={item.workflow.heroImageUrl}
+                                    alt={item.workflow.title}
+                                    className="w-10 h-10 object-cover rounded-lg"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <Download className="w-5 h-5 text-blue-600" />
+                                  </div>
+                                )}
+                                <div>
+                                  <h4 className="font-medium">{item.workflow.title}</h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    by{' '}
+                                    {item.workflow.seller?.sellerProfile?.storeName ||
+                                      item.workflow.seller?.displayName ||
+                                      'Unknown Seller'}
+                                  </p>
+                                  <p className="text-xs font-medium text-green-600">
+                                    {formatPrice(item.unitPriceCents, relatedOrder.currency)}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <CopyButton workflowId={item.workflowId} />
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-xs"
+                                >
+                                  <Download className="w-3 h-3 mr-1" />
+                                  Download
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  /* Single vendor: Show items normally */
+                  <div className="space-y-4">
+                    {order.items.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          {item.workflow.heroImageUrl ? (
+                            <img
+                              src={item.workflow.heroImageUrl}
+                              alt={item.workflow.title}
+                              className="w-12 h-12 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                              <Download className="w-6 h-6 text-blue-600" />
+                            </div>
+                          )}
+                          <div>
+                            <h4 className="font-medium">{item.workflow.title}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              by{' '}
+                              {item.workflow.seller?.sellerProfile?.storeName ||
+                                item.workflow.seller?.displayName ||
+                                'Unknown Seller'}
+                            </p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {formatPrice(item.unitPriceCents, order.currency)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <CopyButton workflowId={item.workflowId} />
+                          <Button
+                            size="sm"
+                            onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download ZIP
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => router.push(`/workflow/${item.workflowId}`)}
+                            className="cursor-pointer"
+                          >
+                            View Details
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {order.packItems && order.packItems.length > 0 && (
