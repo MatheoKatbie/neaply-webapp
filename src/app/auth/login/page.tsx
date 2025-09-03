@@ -104,10 +104,10 @@ function LoginContent() {
         rememberDevice,
         deviceInfo: rememberDevice
           ? {
-            fingerprint: deviceFingerprint,
-            deviceName: getDeviceName(),
-            userAgent: navigator.userAgent,
-          }
+              fingerprint: deviceFingerprint,
+              deviceName: getDeviceName(),
+              userAgent: navigator.userAgent,
+            }
           : undefined,
       }
 
@@ -322,7 +322,9 @@ function LoginContent() {
                           maxLength={6}
                           autoComplete="one-time-code"
                         />
-                        <p className="text-sm text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
+                        <p className="text-sm text-muted-foreground">
+                          Enter the 6-digit code from your authenticator app
+                        </p>
                       </div>
                     </TabsContent>
 

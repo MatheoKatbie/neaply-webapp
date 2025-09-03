@@ -205,7 +205,11 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/images/neaply_logo.png" alt="Neaply Logo" width={28} height={28} />
+              {isScrolled ? (
+                <Image src="/images/neaply/logo-search.png" alt="Neaply Logo" width={32} height={32} />
+              ) : (
+                <Image src="/images/neaply/logo.png" alt="Neaply Logo" width={100} height={100} />
+              )}
             </Link>
           </div>
 

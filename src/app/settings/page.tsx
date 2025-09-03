@@ -92,6 +92,8 @@ export default function SettingsPage() {
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false)
   const [show2FASetupModal, setShow2FASetupModal] = useState(false)
   const [showBackupCodesModal, setShowBackupCodesModal] = useState(false)
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
+  const [show2FADisableModal, setShow2FADisableModal] = useState(false)
 
   // File upload state
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
@@ -382,23 +384,49 @@ export default function SettingsPage() {
 
   const handleToggle2FA = async () => {
     if (twoFA.enabled) {
-      // Disable 2FA
-      try {
-        const response = await fetch('/api/auth/2fa/disable', { method: 'POST' })
-        if (response.ok) {
-          setTwoFA({ enabled: false, methods: [] })
-          toast.success('2FA Disabled', {
-            description: 'Two-factor authentication has been disabled.',
-          })
-        }
-      } catch (error) {
-        toast.error('Error', {
-          description: 'Failed to disable 2FA.',
-        })
-      }
+      // Show OTP verification modal for disabling 2FA
+      setShow2FADisableModal(true)
     } else {
       // Start 2FA setup
       await start2FASetup()
+    }
+  }
+
+  const handleDisable2FA = async () => {
+    if (!totpCode || totpCode.length !== 6) {
+      toast.error('Invalid Code', {
+        description: 'Please enter a 6-digit code from your authenticator app.',
+      })
+      return
+    }
+
+    try {
+      setLoading(true)
+      const response = await fetch('/api/auth/2fa/disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ totpCode }),
+      })
+
+      if (response.ok) {
+        setTwoFA({ enabled: false, methods: [] })
+        setShow2FADisableModal(false)
+        setTotpCode('')
+        toast.success('2FA Disabled', {
+          description: 'Two-factor authentication has been disabled successfully.',
+        })
+      } else {
+        const error = await response.json()
+        toast.error('Verification Failed', {
+          description: error.error || 'Invalid verification code. Please try again.',
+        })
+      }
+    } catch (error) {
+      toast.error('Error', {
+        description: 'Failed to disable 2FA. Please try again.',
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -496,6 +524,7 @@ export default function SettingsPage() {
       if (response.ok) {
         await refreshUser()
         setShowDeleteStoreModal(false)
+        setActiveTab('profile') // Redirect to profile tab after store deletion
         toast.success('Store Deleted', {
           description: 'Your store has been permanently deleted.',
         })
@@ -505,6 +534,39 @@ export default function SettingsPage() {
     } catch (error) {
       toast.error('Error', {
         description: 'Failed to delete store. Please try again.',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!user) {
+      toast.error('Error', {
+        description: 'User not authenticated. Please sign in again.',
+      })
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/account/delete?userId=${user.id}`, { method: 'DELETE' })
+
+      if (response.ok) {
+        setShowDeleteAccountModal(false)
+        toast.success('Account Deleted', {
+          description: 'Your account has been permanently deleted.',
+        })
+        // Sign out and redirect to home page
+        await supabase.auth.signOut()
+        window.location.href = '/'
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete account')
+      }
+    } catch (error) {
+      toast.error('Error', {
+        description: error instanceof Error ? error.message : 'Failed to delete account. Please try again.',
       })
     } finally {
       setLoading(false)
@@ -646,15 +708,42 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Badge variant={user.isSeller ? 'default' : 'secondary'}>
-                  {user.isSeller ? 'Creator Account' : 'Buyer Account'}
-                </Badge>
-                {user.isAdmin && <Badge variant="destructive">Admin</Badge>}
-              </div>
-
               <Button onClick={handleProfileUpdate} disabled={loading}>
                 {loading ? 'Updating...' : 'Update Profile'}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Account Deletion Section */}
+          <Card className="border-destructive/50">
+            <CardHeader>
+              <CardTitle className="text-destructive">Delete Account</CardTitle>
+              <CardDescription>
+                Permanently delete your account and all associated data. This action cannot be undone.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Warning:</strong> This action will permanently delete your account, including:
+                  <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                    <li>All your workflows and workflow packs</li>
+                    <li>Order history and purchase records</li>
+                    <li>Reviews and ratings</li>
+                    <li>Profile information and settings</li>
+                    <li>All associated data and files</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+
+              <Button
+                variant="destructive"
+                onClick={() => setShowDeleteAccountModal(true)}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete My Account
               </Button>
             </CardContent>
           </Card>
@@ -1138,6 +1227,67 @@ export default function SettingsPage() {
 
           <DialogFooter>
             <Button onClick={() => setShowBackupCodesModal(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Account Modal */}
+      <Dialog open={showDeleteAccountModal} onOpenChange={setShowDeleteAccountModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Delete Account</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to permanently delete your account? This action cannot be undone. All your
+              workflows, sales data, and profile information will be permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+          <Alert className="border-red-200 bg-red-50">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              This action is irreversible. All account data will be permanently lost.
+            </AlertDescription>
+          </Alert>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteAccountModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading}>
+              {loading ? 'Deleting...' : 'Delete My Account Permanently'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 2FA Disable Modal */}
+      <Dialog open={show2FADisableModal} onOpenChange={setShow2FADisableModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Disable Two-Factor Authentication</DialogTitle>
+            <DialogDescription>
+              To disable two-factor authentication, please enter the verification code from your authenticator app.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="totpCodeDisable">Verification Code</Label>
+              <Input
+                id="totpCodeDisable"
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
+                className="text-center text-lg font-mono tracking-wider"
+                maxLength={6}
+              />
+              <p className="text-sm text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShow2FADisableModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleDisable2FA} disabled={loading || totpCode.length !== 6}>
+              {loading ? 'Disabling...' : 'Disable 2FA'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

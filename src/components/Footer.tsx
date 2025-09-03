@@ -22,26 +22,37 @@ export default function Footer() {
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <Image src="/images/neaply_logo.png" alt="Neaply" width={32} height={32} className="w-8 h-8" />
-              <span className="font-space-grotesk text-xl font-bold text-foreground">Neaply</span>
+              <Image src="/images/neaply/logo.png" alt="Neaply" width={100} height={100} />
             </div>
             <p className="text-foreground/80 mb-4 max-w-md">
               <Trans i18nKey="footer.description" />
             </p>
             <div className="flex space-x-4">
-              <Button className="bg-transparent border-white/20 text-foreground hover:bg-white/10 font-space-grotesk" size="sm" asChild>
+              <Button
+                className="bg-transparent border-white/20 text-foreground hover:bg-white/10 font-space-grotesk"
+                size="sm"
+                asChild
+              >
                 <Link href="/marketplace">
                   <Trans i18nKey="footer.browseWorkflows" />
                 </Link>
               </Button>
               {!user?.isSeller ? (
-                <Button className="bg-transparent border-white/20 text-foreground hover:bg-white/10 font-space-grotesk" size="sm" asChild>
+                <Button
+                  className="bg-transparent border-white/20 text-foreground hover:bg-white/10 font-space-grotesk"
+                  size="sm"
+                  asChild
+                >
                   <Link href="/become-seller">
                     <Trans i18nKey="footer.becomeCreator" />
                   </Link>
                 </Button>
               ) : (
-                <Button className="bg-transparent border-white/20 text-foreground hover:bg-white/10 font-space-grotesk" size="sm" asChild>
+                <Button
+                  className="bg-transparent border-white/20 text-foreground hover:bg-white/10 font-space-grotesk"
+                  size="sm"
+                  asChild
+                >
                   <Link href="/dashboard/seller">
                     <Trans i18nKey="footer.creatorDashboard" />
                   </Link>

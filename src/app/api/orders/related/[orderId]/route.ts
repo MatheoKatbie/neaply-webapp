@@ -42,10 +42,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           lte: new Date(new Date(originalOrder.createdAt).getTime() + 5 * 60 * 1000), // 5 minutes after
         },
         status: 'paid',
-        metadata: {
-          path: ['orderType'],
-          equals: 'multi_vendor_cart',
-        },
+        id: { not: orderId }, // Exclude the current order
       },
       include: {
         items: {
