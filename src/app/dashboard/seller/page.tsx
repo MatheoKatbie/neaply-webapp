@@ -20,7 +20,16 @@ import { SellerDashboardSkeleton } from '@/components/seller/SellerDashboardSkel
 import { SellerOverviewTab } from '@/components/seller/SellerOverviewTab'
 import { SellerWorkflowsTab } from '@/components/seller/SellerWorkflowsTab'
 import type { Category, Tag, Workflow } from '@/types/workflow'
+
 import { Button } from '@/components/ui/button'
+
+interface CurrentMonthEarnings {
+  totalGross: number
+  totalFees: number
+  totalNet: number
+  currency: string
+  salesCount: number
+}
 
 export default function SellerDashboard() {
   const { user, loading } = useAuth()
@@ -73,6 +82,7 @@ export default function SellerDashboard() {
   } | null>(null)
   const [expressDashboardUrl, setExpressDashboardUrl] = useState<string | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
+  const [currentMonthEarnings, setCurrentMonthEarnings] = useState<CurrentMonthEarnings | null>(null)
 
   const [analyticsOverview, setAnalyticsOverview] = useState<{
     totalWorkflows: number
@@ -210,6 +220,20 @@ export default function SellerDashboard() {
     }
   }, [])
 
+  // Fetch current month earnings
+  const fetchCurrentMonthEarnings = useCallback(async () => {
+    try {
+      const res = await fetch('/api/seller/current-month-earnings')
+      if (!res.ok) return
+      const json = await res.json()
+      if (json?.data?.currentMonth) {
+        setCurrentMonthEarnings(json.data.currentMonth)
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [])
+
   // Handle See Payouts click
   const handleSeePayoutsClick = () => {
     if (expressDashboardUrl) {
@@ -223,15 +247,32 @@ export default function SellerDashboard() {
     }
   }
 
+  // Format currency for display
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(amount / 100)
+  }
+
   useEffect(() => {
     if (user?.isSeller) {
       fetchWorkflows()
       fetchCategories()
       fetchTags()
       fetchAnalyticsOverview()
+      fetchCurrentMonthEarnings()
       checkStripeStatus()
     }
-  }, [user?.isSeller, fetchWorkflows, fetchCategories, fetchTags, fetchAnalyticsOverview, checkStripeStatus])
+  }, [
+    user?.isSeller,
+    fetchWorkflows,
+    fetchCategories,
+    fetchTags,
+    fetchAnalyticsOverview,
+    fetchCurrentMonthEarnings,
+    checkStripeStatus,
+  ])
 
   // Show tooltip when user has no workflows and Stripe is configured
   useEffect(() => {
@@ -997,7 +1038,11 @@ export default function SellerDashboard() {
                         </svg>
                       </button>
                     </div>
-                    <div className="text-2xl font-bold text-foreground">USD 0.00</div>
+                    <div className="text-2xl font-bold text-foreground">
+                      {currentMonthEarnings
+                        ? formatCurrency(currentMonthEarnings.totalNet, currentMonthEarnings.currency)
+                        : 'USD 0.00'}
+                    </div>
                   </div>
                 </div>
               </div>
