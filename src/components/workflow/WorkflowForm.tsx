@@ -10,33 +10,8 @@ import { WorkflowBasicInfo } from './WorkflowBasicInfo'
 import { WorkflowContentSection } from '@/components/workflow/WorkflowContentSection'
 import { WorkflowPublishingSection } from '@/components/workflow/WorkflowPublishingSection'
 import type { Category, Tag } from '@/types/workflow'
+import type { WorkflowFormData } from '@/hooks/useFormValidation'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-
-interface WorkflowFormData {
-  title: string
-  shortDesc: string
-  longDescMd: string
-  heroImageUrl: string
-  heroImageFile?: File
-  documentationUrl: string
-  documentationFile?: File
-  basePriceCents: number
-  currency: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled'
-  platform?: string
-  jsonContent?: any
-  jsonFile?: File
-  n8nMinVersion?: string
-  n8nMaxVersion?: string
-  zapierMinVersion?: string
-  zapierMaxVersion?: string
-  makeMinVersion?: string
-  makeMaxVersion?: string
-  airtableScriptMinVersion?: string
-  airtableScriptMaxVersion?: string
-  categoryIds?: string[]
-  tagIds?: string[]
-}
 
 interface WorkflowFormProps {
   formData: WorkflowFormData

@@ -22,7 +22,7 @@ interface WorkflowPublishingSectionProps {
   heroImageFile?: File
   documentationUrl: string
   documentationFile?: File
-  status: 'draft' | 'published' | 'unlisted' | 'disabled'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'admin_disabled'
   categoryIds: string[]
   tagIds: string[]
   categories: Category[]
@@ -93,6 +93,8 @@ export function WorkflowPublishingSection({
             <SelectItem value="draft">Draft - Save for later</SelectItem>
             <SelectItem value="published">Published - Make available for purchase</SelectItem>
             <SelectItem value="unlisted">Unlisted - Only available via direct link</SelectItem>
+            <SelectItem value="disabled">Disabled - Temporarily or permanently unavailable</SelectItem>
+            <SelectItem value="admin_disabled">Admin Disabled - Only accessible by administrators</SelectItem>
           </SelectContent>
         </Select>
         {touched.status && errors.status && <p className="text-xs text-red-500">{errors.status}</p>}
