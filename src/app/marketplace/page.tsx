@@ -21,6 +21,7 @@ interface WorkflowCardProps {
   currency: string
   platform?: string
   seller: string
+  sellerAvatarUrl?: string | null
   rating: number
   ratingCount: number
   salesCount: number
@@ -62,6 +63,7 @@ function WorkflowCard({
   currency,
   platform,
   seller,
+  sellerAvatarUrl,
   rating,
   ratingCount,
   salesCount,
@@ -160,6 +162,7 @@ function WorkflowCard({
             }}
             size="md"
             className="w-full h-full"
+            authorAvatarUrl={sellerAvatarUrl || undefined}
           />
         )}
 

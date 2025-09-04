@@ -281,6 +281,7 @@ export default function WorkflowDetailPage() {
                       }}
                       size="lg"
                       className="w-full h-full"
+                      authorAvatarUrl={workflow.seller.avatarUrl}
                     />
                   )}
 

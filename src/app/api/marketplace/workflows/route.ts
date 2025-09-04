@@ -137,6 +137,7 @@ export async function GET(req: NextRequest) {
           seller: {
             select: {
               displayName: true,
+              avatarUrl: true,
               sellerProfile: {
                 select: {
                   storeName: true,
@@ -230,6 +231,7 @@ export async function GET(req: NextRequest) {
         currency: workflow.currency,
         platform: workflow.platform,
         seller: workflow.seller.sellerProfile?.storeName || workflow.seller.displayName,
+        sellerAvatarUrl: workflow.seller.avatarUrl,
         rating: parseFloat(workflow.ratingAvg.toString()),
         ratingCount: workflow.ratingCount,
         salesCount: workflow.salesCount,

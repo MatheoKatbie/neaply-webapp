@@ -83,6 +83,13 @@ export default function SellerDashboard() {
   const [expressDashboardUrl, setExpressDashboardUrl] = useState<string | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const [currentMonthEarnings, setCurrentMonthEarnings] = useState<CurrentMonthEarnings | null>(null)
+  const [balance, setBalance] = useState<{
+    available: number
+    pending: number
+    total: number
+    currency: string
+  } | null>(null)
+  const [balanceLoading, setBalanceLoading] = useState(false)
 
   const [analyticsOverview, setAnalyticsOverview] = useState<{
     totalWorkflows: number
@@ -112,33 +119,47 @@ export default function SellerDashboard() {
   }, [user, loading, router])
 
   // Check Stripe Connect status
-  const checkStripeStatus = useCallback(async () => {
+  const fetchStripeStatus = useCallback(async () => {
     try {
       const response = await fetch('/api/stripe/connect')
       if (response.ok) {
         const data = await response.json()
         setStripeStatus({
           hasStripeAccount: !!data.data?.stripeAccountId,
-          onboardingCompleted: !!data.data?.stripeOnboardingCompleted,
+          onboardingCompleted: !!data.data?.onboardingCompleted,
         })
-        setExpressDashboardUrl(data.data?.expressDashboardUrl || null)
-      } else {
-        setStripeStatus({
-          hasStripeAccount: false,
-          onboardingCompleted: false,
-        })
-        setExpressDashboardUrl(null)
+        if (data.data?.expressDashboardUrl) {
+          setExpressDashboardUrl(data.data.expressDashboardUrl)
+        }
       }
     } catch (error) {
-      console.error('Failed to check Stripe status:', error)
-      setStripeStatus({
-        hasStripeAccount: false,
-        onboardingCompleted: false,
-      })
-      setExpressDashboardUrl(null)
-      toast.error('Failed to check Stripe status', {
-        description: 'Please refresh the page to try again.',
-      })
+      console.error('Failed to fetch Stripe status:', error)
+    }
+  }, [])
+
+  const fetchBalance = useCallback(async () => {
+    try {
+      setBalanceLoading(true)
+      const response = await fetch('/api/stripe/seller/payouts')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.data?.balance && data.data?.summary?.currency) {
+          setBalance({
+            ...data.data.balance,
+            currency: data.data.summary.currency,
+          })
+        } else if (data.data?.balance) {
+          // Fallback if no currency in summary
+          setBalance({
+            ...data.data.balance,
+            currency: 'USD',
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch balance:', error)
+    } finally {
+      setBalanceLoading(false)
     }
   }, [])
 
@@ -262,7 +283,8 @@ export default function SellerDashboard() {
       fetchTags()
       fetchAnalyticsOverview()
       fetchCurrentMonthEarnings()
-      checkStripeStatus()
+      fetchStripeStatus()
+      fetchBalance()
     }
   }, [
     user?.isSeller,
@@ -271,7 +293,8 @@ export default function SellerDashboard() {
     fetchTags,
     fetchAnalyticsOverview,
     fetchCurrentMonthEarnings,
-    checkStripeStatus,
+    fetchStripeStatus,
+    fetchBalance,
   ])
 
   // Show tooltip when user has no workflows and Stripe is configured
@@ -506,18 +529,20 @@ export default function SellerDashboard() {
     setError(null)
 
     const action = editingWorkflow ? 'updating' : 'creating'
-    toast.loading(`${action.charAt(0).toUpperCase() + action.slice(1)} workflow...`, {
+    const mainToast = toast.loading(`${action.charAt(0).toUpperCase() + action.slice(1)} workflow...`, {
       description: editingWorkflow
         ? `"${formData.title || editingWorkflow.title}" is being updated.`
         : `"${formData.title}" is being created.`,
     })
 
     try {
+      let imageToast: string | number | undefined
+      let documentationToast: string | number | undefined
       let finalHeroImageUrl = formData.heroImageUrl
 
       if (formData.heroImageFile && formData.heroImageUrl.startsWith('blob:')) {
         setUploadingThumbnail(true)
-        toast.loading('Uploading image...', {
+        imageToast = toast.loading('Uploading image...', {
           description: 'Please wait while your image is being uploaded.',
         })
 
@@ -539,6 +564,7 @@ export default function SellerDashboard() {
           throw new Error(uploadData.error || 'Failed to upload image')
         }
 
+        if (imageToast) toast.dismiss(imageToast)
         toast.success('Image uploaded successfully!')
 
         finalHeroImageUrl = uploadData.url
@@ -552,7 +578,7 @@ export default function SellerDashboard() {
 
       if (formData.documentationFile && formData.documentationUrl.startsWith('blob:')) {
         setUploadingDocumentation(true)
-        toast.loading('Uploading documentation...', {
+        documentationToast = toast.loading('Uploading documentation...', {
           description: 'Please wait while your documentation is being uploaded.',
         })
 
@@ -574,6 +600,7 @@ export default function SellerDashboard() {
           throw new Error(uploadData.error || 'Failed to upload documentation')
         }
 
+        if (documentationToast) toast.dismiss(documentationToast)
         toast.success('Documentation uploaded successfully!')
 
         finalDocumentationUrl = uploadData.url
@@ -641,6 +668,9 @@ export default function SellerDashboard() {
       setLoadingWorkflowData(false)
       await fetchWorkflows()
 
+      // Dismiss main loading toast before showing success
+      toast.dismiss(mainToast)
+
       if (editingWorkflow) {
         toast.success('Workflow updated successfully!', {
           description: `"${formData.title || editingWorkflow.title}" has been updated.`,
@@ -652,6 +682,10 @@ export default function SellerDashboard() {
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred while saving the workflow')
+      // Ensure any loading toasts are dismissed on error
+      try {
+        toast.dismiss()
+      } catch {}
       toast.error('Failed to save workflow', {
         description: err.message || 'An error occurred while saving the workflow',
       })
@@ -659,6 +693,10 @@ export default function SellerDashboard() {
       setIsSubmitting(false)
       setUploadingThumbnail(false)
       setUploadingDocumentation(false)
+      // Ensure main loader is dismissed in any case
+      try {
+        toast.dismiss()
+      } catch {}
     }
   }
 
@@ -787,7 +825,10 @@ export default function SellerDashboard() {
   }
 
   const handleCreateWorkflow = async () => {
-    if (!stripeStatus?.hasStripeAccount) {
+    const canBypassStripe =
+      process.env.NODE_ENV !== 'production' || process.env.NEXT_PUBLIC_BYPASS_STRIPE_ONBOARDING === 'true'
+
+    if (!stripeStatus?.hasStripeAccount && !canBypassStripe) {
       toast.error('Stripe Connect Required', {
         description:
           'You must set up your Stripe Connect account before creating workflows. This is required to receive payments.',
@@ -799,7 +840,7 @@ export default function SellerDashboard() {
       return
     }
 
-    if (!stripeStatus?.onboardingCompleted) {
+    if (!stripeStatus?.onboardingCompleted && !canBypassStripe) {
       toast.error('Stripe Onboarding Required', {
         description:
           'You must complete your Stripe onboarding before creating workflows. Please complete your account verification.',
@@ -1062,103 +1103,6 @@ export default function SellerDashboard() {
     )
   }
 
-  // Show onboarding completion message if Stripe account exists but onboarding is incomplete
-  if (stripeStatus && stripeStatus.hasStripeAccount && !stripeStatus.onboardingCompleted) {
-    return (
-      <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 pt-24">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center space-x-4">
-                {/* Profile Picture */}
-                <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                  {user?.avatar_url ? (
-                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
-                      {user?.email?.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                  )}
-                </div>
-
-                {/* User Info */}
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground">
-                    {user?.displayName || user?.name || user?.email?.split('@')[0] || 'User'}
-                  </h1>
-                  <p className="text-muted-foreground">{user?.email}</p>
-                </div>
-              </div>
-
-              {/* Balance Section */}
-              <div className="flex items-center space-x-8">
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground">
-                    {user?.displayName || user?.name || user?.email?.split('@')[0] || 'User'}
-                  </h1>
-                  <p className="text-muted-foreground">{user?.email}</p>
-                </div>
-
-                {/* Balance Section */}
-                <div className="text-left">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-sm text-muted-foreground">Balance</span>
-                    <button
-                      onClick={handleSeePayoutsClick}
-                      className="text-blue-600 hover:text-blue-700 text-sm flex items-center cursor-pointer"
-                    >
-                      See Payouts
-                      <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="text-2xl font-bold text-foreground">USD 0.00</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Create Workflow Button */}
-            <AnimatedTooltip
-              show={showTooltip}
-              title="Time to create your first workflow!"
-              description="Your account and payout information have been verified. You can now add your first workflow to FlowMarket."
-              position="bottom"
-            >
-              <Button onClick={handleCreateWorkflow} className="bg-blue-600 hover:bg-blue-700 text-white">
-                Create Workflow
-              </Button>
-            </AnimatedTooltip>
-          </div>
-        </div>
-
-        <div className="max-w-md mx-auto text-center">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <div className="flex justify-center mb-4">
-              <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
-            </div>
-
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Complete your Stripe onboarding</h2>
-
-            <p className="text-gray-600 mb-6">
-              Your Stripe account is created but you need to complete the verification process to start receiving
-              payments.
-            </p>
-
-            <Link href="/dashboard/stripe/connect">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Complete onboarding
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 pt-24">
       <div className="max-w-7xl mx-auto">
@@ -1199,7 +1143,20 @@ export default function SellerDashboard() {
                       </svg>
                     </button>
                   </div>
-                  <div className="text-2xl font-bold text-foreground">USD 0.00</div>
+                  <div className="text-2xl font-bold text-foreground">
+                    {balanceLoading ? (
+                      <span className="text-muted-foreground">Loading...</span>
+                    ) : balance ? (
+                      `${(balance.currency || 'USD').toUpperCase()} ${(balance.total / 100).toFixed(2)}`
+                    ) : (
+                      <span className="text-muted-foreground">USD 0.00</span>
+                    )}
+                  </div>
+                  {balance && balance.available > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      Available: {(balance.currency || 'USD').toUpperCase()} {(balance.available / 100).toFixed(2)}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

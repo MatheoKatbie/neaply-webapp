@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
           supportEmail: user.email,
           phoneNumber: validatedData.phoneNumber || null,
           countryCode: validatedData.countryCode,
-          status: 'pending',
+          status: 'active',
         },
       })
 
