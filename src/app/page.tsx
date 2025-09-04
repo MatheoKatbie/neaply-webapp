@@ -32,121 +32,126 @@ export default function Home() {
   const [isAnimating, setIsAnimating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Fake workflows data for filling empty spaces
-  const fakeWorkflows = [
-    {
-      id: 'fake-1',
-      title: 'Email Marketing Automation',
-      description: 'Automate your email campaigns with advanced segmentation and personalization features',
-      price: 2999,
-      rating: 4.7,
-      heroImage: null,
-      categories: ['Marketing', 'Email'],
-      tags: ['automation', 'email', 'marketing'],
-      platform: 'n8n',
-      isFake: true,
-    },
-    {
-      id: 'fake-2',
-      title: 'Social Media Scheduler',
-      description: 'Schedule and manage all your social media posts across multiple platforms',
-      price: 1999,
-      rating: 4.5,
-      heroImage: null,
-      categories: ['Social Media', 'Scheduling'],
-      tags: ['social', 'scheduling', 'automation'],
-      platform: 'zapier',
-      isFake: true,
-    },
-    {
-      id: 'fake-3',
-      title: 'Customer Support Ticket System',
-      description: 'Streamline customer support with automated ticket routing and response management',
-      price: 3999,
-      rating: 4.8,
-      heroImage: null,
-      categories: ['Support', 'CRM'],
-      tags: ['support', 'tickets', 'automation'],
-      platform: 'make',
-      isFake: true,
-    },
-    {
-      id: 'fake-4',
-      title: 'E-commerce Order Processing',
-      description: 'Automate order fulfillment, inventory management, and shipping notifications',
-      price: 2499,
-      rating: 4.6,
-      heroImage: null,
-      categories: ['E-commerce', 'Orders'],
-      tags: ['ecommerce', 'orders', 'automation'],
-      platform: 'airtable_script',
-      isFake: true,
-    },
-    {
-      id: 'fake-5',
-      title: 'Data Backup & Sync',
-      description: 'Automated data backup and synchronization across multiple cloud services',
-      price: 1599,
-      rating: 4.4,
-      heroImage: null,
-      categories: ['Data', 'Backup'],
-      tags: ['backup', 'sync', 'data'],
-      platform: 'n8n',
-      isFake: true,
-    },
-    {
-      id: 'fake-6',
-      title: 'Lead Generation Pipeline',
-      description: 'Automate lead capture, qualification, and nurturing processes',
-      price: 3499,
-      rating: 4.9,
-      heroImage: null,
-      categories: ['Sales', 'Leads'],
-      tags: ['leads', 'sales', 'automation'],
-      platform: 'zapier',
-      isFake: true,
-    },
-    {
-      id: 'fake-7',
-      title: 'Content Publishing Workflow',
-      description: 'Streamline content creation, approval, and publishing across multiple channels',
-      price: 2299,
-      rating: 4.3,
-      heroImage: null,
-      categories: ['Content', 'Publishing'],
-      tags: ['content', 'publishing', 'workflow'],
-      platform: 'make',
-      isFake: true,
-    },
-    {
-      id: 'fake-8',
-      title: 'Invoice & Payment Processing',
-      description: 'Automate invoice generation, payment tracking, and financial reporting',
-      price: 2799,
-      rating: 4.7,
-      heroImage: null,
-      categories: ['Finance', 'Invoicing'],
-      tags: ['invoice', 'payment', 'finance'],
-      platform: 'airtable_script',
-      isFake: true,
-    },
-  ]
+  // Fake workflows data for filling empty spaces - memoized to prevent recreation
+  const fakeWorkflows = useMemo(
+    () => [
+      {
+        id: 'fake-1',
+        title: 'Email Marketing Automation',
+        description: 'Automate your email campaigns with advanced segmentation and personalization features',
+        price: 2999,
+        rating: 4.7,
+        heroImage: null,
+        categories: ['Marketing', 'Email'],
+        tags: ['automation', 'email', 'marketing'],
+        platform: 'n8n',
+        isFake: true,
+      },
+      {
+        id: 'fake-2',
+        title: 'Social Media Scheduler',
+        description: 'Schedule and manage all your social media posts across multiple platforms',
+        price: 1999,
+        rating: 4.5,
+        heroImage: null,
+        categories: ['Social Media', 'Scheduling'],
+        tags: ['social', 'scheduling', 'automation'],
+        platform: 'zapier',
+        isFake: true,
+      },
+      {
+        id: 'fake-3',
+        title: 'Customer Support Ticket System',
+        description: 'Streamline customer support with automated ticket routing and response management',
+        price: 3999,
+        rating: 4.8,
+        heroImage: null,
+        categories: ['Support', 'CRM'],
+        tags: ['support', 'tickets', 'automation'],
+        platform: 'make',
+        isFake: true,
+      },
+      {
+        id: 'fake-4',
+        title: 'E-commerce Order Processing',
+        description: 'Automate order fulfillment, inventory management, and shipping notifications',
+        price: 2499,
+        rating: 4.6,
+        heroImage: null,
+        categories: ['E-commerce', 'Orders'],
+        tags: ['ecommerce', 'orders', 'automation'],
+        platform: 'airtable_script',
+        isFake: true,
+      },
+      {
+        id: 'fake-5',
+        title: 'Data Backup & Sync',
+        description: 'Automated data backup and synchronization across multiple cloud services',
+        price: 1599,
+        rating: 4.4,
+        heroImage: null,
+        categories: ['Data', 'Backup'],
+        tags: ['backup', 'sync', 'data'],
+        platform: 'n8n',
+        isFake: true,
+      },
+      {
+        id: 'fake-6',
+        title: 'Lead Generation Pipeline',
+        description: 'Automate lead capture, qualification, and nurturing processes',
+        price: 3499,
+        rating: 4.9,
+        heroImage: null,
+        categories: ['Sales', 'Leads'],
+        tags: ['leads', 'sales', 'automation'],
+        platform: 'zapier',
+        isFake: true,
+      },
+      {
+        id: 'fake-7',
+        title: 'Content Publishing Workflow',
+        description: 'Streamline content creation, approval, and publishing across multiple channels',
+        price: 2299,
+        rating: 4.3,
+        heroImage: null,
+        categories: ['Content', 'Publishing'],
+        tags: ['content', 'publishing', 'workflow'],
+        platform: 'make',
+        isFake: true,
+      },
+      {
+        id: 'fake-8',
+        title: 'Invoice & Payment Processing',
+        description: 'Automate invoice generation, payment tracking, and financial reporting',
+        price: 2799,
+        rating: 4.7,
+        heroImage: null,
+        categories: ['Finance', 'Invoicing'],
+        tags: ['invoice', 'payment', 'finance'],
+        platform: 'airtable_script',
+        isFake: true,
+      },
+    ],
+    []
+  )
 
   // Load more states
   const [newestPage, setNewestPage] = useState(1)
   const [newestHasMore, setNewestHasMore] = useState(true)
   const [isLoadingNewest, setIsLoadingNewest] = useState(false)
 
-  // Function to fill workflows with fake data if needed
-  const fillWorkflows = (realWorkflows: any[], targetCount: number = 8) => {
-    if (realWorkflows.length >= targetCount) {
-      return realWorkflows.slice(0, targetCount)
-    }
+  // Function to fill workflows with fake data if needed - memoized for consistency
+  const fillWorkflows = useMemo(() => {
+    return (realWorkflows: any[], targetCount: number = 8) => {
+      if (realWorkflows.length >= targetCount) {
+        return realWorkflows.slice(0, targetCount)
+      }
 
-    const needed = targetCount - realWorkflows.length
-    const shuffledFake = [...fakeWorkflows].sort(() => Math.random() - 0.5)
-    return [...realWorkflows, ...shuffledFake.slice(0, needed)]
-  }
+      const needed = targetCount - realWorkflows.length
+      // Use a fixed order instead of random shuffle to prevent changes
+      return [...realWorkflows, ...fakeWorkflows.slice(0, needed)]
+    }
+  }, [fakeWorkflows])
 
   // Function to get display data based on current filter
   const getDisplayData = () => {
@@ -456,6 +461,7 @@ export default function Home() {
                         }}
                         size="lg"
                         className="absolute inset-0 w-full h-full"
+                        authorAvatarUrl={s.user.avatarUrl || undefined}
                       />
                     </div>
                     {/* Gradient overlay for contrast */}
@@ -552,22 +558,12 @@ export default function Home() {
                           longDescMd: '',
                           categories: wf.categories || [],
                           tags: wf.tags || [],
+                          platform: wf.platform,
                         }}
                         size="lg"
                         className="w-full h-full"
+                        authorAvatarUrl={wf.sellerAvatarUrl || undefined}
                       />
-                    </div>
-
-                    {/* Connection indicator overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative">
-                        <div className="w-8 h-8 bg-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                          <div className="w-3 h-3 bg-white rounded-full"></div>
-                        </div>
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                        </div>
-                      </div>
                     </div>
                   </div>
 
@@ -609,7 +605,18 @@ export default function Home() {
 
                       {/* Platform and downloads */}
                       <div className="flex items-center justify-between">
-                        {wf.platform && <PlatformBadge platform={wf.platform} size="sm" variant="default" />}
+                        {/* Sales count with better styling */}
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                            />
+                          </svg>
+                          <span className="font-medium">{wf.salesCount || 0} sales</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -648,23 +655,15 @@ export default function Home() {
                           longDescMd: '',
                           categories: wf.categories || [],
                           tags: wf.tags || [],
+                          platform: wf.platform,
                         }}
                         size="lg"
                         className="w-full h-full"
+                        authorAvatarUrl={wf.sellerAvatarUrl || undefined}
                       />
                     </div>
 
-                    {/* Connection indicator overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative">
-                        <div className="w-8 h-8 bg-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
-                          <div className="w-3 h-3 bg-white rounded-full"></div>
-                        </div>
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                        </div>
-                      </div>
-                    </div>
+                    {/* Removed connection indicator overlay - platform logo is now visible */}
                   </div>
 
                   {/* Content section */}
@@ -703,14 +702,19 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Platform and downloads */}
-                      <div className="flex items-center justify-between">
-                        {wf.platform && <PlatformBadge platform={wf.platform} size="sm" variant="default" />}
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs text-muted-foreground">1522</span>
-                          <svg className="w-3 h-3 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2l-3.09 6.26L2 9.27l5 4.87-1.18 6.88L12 17.77l6.18-3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      {/* Sales count only */}
+                      <div className="flex items-center justify-end">
+                        {/* Sales count with better styling */}
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                            />
                           </svg>
+                          <span className="font-medium">{wf.salesCount || 0} sales</span>
                         </div>
                       </div>
                     </div>

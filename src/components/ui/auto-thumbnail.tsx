@@ -30,6 +30,7 @@ import {
   Layers,
   GitBranch,
   Puzzle,
+  User,
 } from 'lucide-react'
 import React, { useMemo } from 'react'
 import { cn } from '@/lib/utils'
@@ -42,6 +43,7 @@ interface AutoThumbnailProps {
   }
   className?: string
   size?: 'sm' | 'md' | 'lg'
+  authorAvatarUrl?: string
 }
 
 const ICONS = {
@@ -117,7 +119,35 @@ const ICONS = {
   server: Settings,
 }
 
-// Professional color schemes that work well with the dark theme
+// Platform color schemes
+const PLATFORM_COLOR_SCHEMES: Record<string, { primary: string; secondary: string; accent: string; light: string }> = {
+  n8n: {
+    primary: '#FF6D00',
+    secondary: '#F4511E',
+    accent: '#FF8A50',
+    light: '#FFE0B2',
+  },
+  zapier: {
+    primary: '#FF4A00',
+    secondary: '#CC3B00',
+    accent: '#FF7A33',
+    light: '#FFD6C7',
+  },
+  make: {
+    primary: '#3F20BA',
+    secondary: '#2A157D',
+    accent: '#6B4CF5',
+    light: '#E6E1FF',
+  },
+  airtable_script: {
+    primary: '#0EA5E9',
+    secondary: '#0369A1',
+    accent: '#38BDF8',
+    light: '#E0F2FE',
+  },
+}
+
+// Professional fallback color schemes that work well with the dark theme
 const COLOR_SCHEMES = [
   // Blue spectrum - professional and trustworthy
   {
@@ -177,15 +207,15 @@ const COLOR_SCHEMES = [
   },
 ]
 
-export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThumbnailProps) {
+export function AutoThumbnail({ workflow, className = '', size = 'md', authorAvatarUrl }: AutoThumbnailProps) {
   // Generate deterministic values based on workflow data
   const { colorScheme, icon, pattern, displayData } = useMemo(() => {
     const hash = workflow.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)
     const titleHash = workflow.title.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)
 
-    // Select color scheme based on hash
-    const schemeIndex = hash % COLOR_SCHEMES.length
-    const colorScheme = COLOR_SCHEMES[schemeIndex]
+    // Select color scheme based on platform first, then fallback to deterministic
+    const platformKey = (workflow.platform || '').toLowerCase()
+    const colorScheme = PLATFORM_COLOR_SCHEMES[platformKey] || COLOR_SCHEMES[hash % COLOR_SCHEMES.length]
 
     // Enhanced icon detection based on content
     let iconKey = 'default'
@@ -443,6 +473,23 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
 
   return (
     <div className={cn('relative overflow-hidden rounded-lg', sizeClasses[size], className)}>
+      {/* Author avatar (creator) */}
+      {authorAvatarUrl ? (
+        <div className="absolute top-3 left-3 z-10">
+          <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white/40 shadow-md">
+            <Image src={authorAvatarUrl} alt="Creator avatar" width={32} height={32} className="w-8 h-8 object-cover" />
+          </div>
+        </div>
+      ) : (
+        <div className="absolute top-3 left-3 z-10">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/20 ring-2 ring-white/40 shadow-md"
+            style={{ color: colorScheme.primary }}
+          >
+            <User className="w-4 h-4" />
+          </div>
+        </div>
+      )}
       {/* Gradient Background */}
       <div
         className="absolute inset-0 transition-all duration-300"
@@ -457,66 +504,68 @@ export function AutoThumbnail({ workflow, className = '', size = 'md' }: AutoThu
       {/* Overlay for better contrast with overlays */}
       <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30" />
 
-      {/* Centered Icon - positioned to not interfere with top/corner overlays */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div
-          className="rounded-full p-3 backdrop-blur-sm border border-white/20 transition-all duration-300 hover:scale-110 opacity-80"
-          style={{ backgroundColor: `${colorScheme.accent}20` }}
-        >
-          {React.createElement(icon, {
-            className: cn(iconSizes[size], 'text-white drop-shadow-lg'),
-          })}
-        </div>
-      </div>
-
-      {/* Bottom subtle platform indicator - only show if platform is defined */}
+      {/* Centered Platform Logo - positioned to not interfere with top/corner overlays */}
       {displayData.platform && (
-        <div className="absolute bottom-3 right-3 opacity-50">
+        <div className="absolute inset-0 flex items-center justify-center">
           <div
-            className="px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm flex items-center gap-1"
-            style={{ backgroundColor: `${colorScheme.primary}30`, color: 'white' }}
+            className="rounded-full p-4 backdrop-blur-sm border border-white/20 transition-all duration-300 hover:scale-110 opacity-90"
+            style={{ backgroundColor: `${colorScheme.accent}20` }}
           >
             {displayData.platform === 'n8n' && (
               <Image
                 src="/images/company-logo/n8n-logo.png"
                 alt="n8n"
-                width={12}
-                height={12}
-                className="w-3 h-3 object-contain"
+                width={48}
+                height={48}
+                className="w-12 h-12 object-contain"
               />
             )}
             {displayData.platform === 'zapier' && (
               <Image
                 src="/images/company-logo/zapier-logo.png"
                 alt="Zapier"
-                width={12}
-                height={12}
-                className="w-3 h-3 object-contain"
+                width={48}
+                height={48}
+                className="w-12 h-12 object-contain"
               />
             )}
             {displayData.platform === 'make' && (
               <Image
                 src="/images/company-logo/make-logo.png"
                 alt="Make"
-                width={12}
-                height={12}
-                className="w-3 h-3 object-contain"
+                width={48}
+                height={48}
+                className="w-12 h-12 object-contain"
               />
             )}
             {displayData.platform === 'airtable_script' && (
               <Image
                 src="/images/company-logo/airtable-logo.png"
                 alt="Airtable"
-                width={12}
-                height={12}
-                className="w-3 h-3 object-contain"
+                width={48}
+                height={48}
+                className="w-12 h-12 object-contain"
               />
             )}
             {!['n8n', 'zapier', 'make', 'airtable_script'].includes(displayData.platform) && (
-              <div className="w-3 h-3 bg-white/20 rounded-sm flex items-center justify-center">
-                <span className="text-[8px] font-bold text-white">{displayData.platform.charAt(0).toUpperCase()}</span>
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                <span className="text-lg font-bold text-white">{displayData.platform.charAt(0).toUpperCase()}</span>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Fallback centered icon when no platform is defined */}
+      {!displayData.platform && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div
+            className="rounded-full p-3 backdrop-blur-sm border border-white/20 transition-all duration-300 hover:scale-110 opacity-80"
+            style={{ backgroundColor: `${colorScheme.accent}20` }}
+          >
+            {React.createElement(icon, {
+              className: cn(iconSizes[size], 'text-white drop-shadow-lg'),
+            })}
           </div>
         </div>
       )}

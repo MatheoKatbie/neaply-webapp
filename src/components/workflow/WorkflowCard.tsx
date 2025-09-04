@@ -154,7 +154,13 @@ export function WorkflowCard({ workflow, onEdit, onDelete, onPublishToggle, isEd
                 ? 'Disabled by Admin'
                 : 'Enable'}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => onEdit(workflow)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onEdit(workflow)}
+              disabled={workflow.status === 'admin_disabled'}
+              title={workflow.status === 'admin_disabled' ? 'Cannot edit: workflow disabled by admin' : undefined}
+            >
               Edit
             </Button>
             <Button
