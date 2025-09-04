@@ -374,7 +374,7 @@ export default function Home() {
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'all'
                     ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
+                    : 'bg-secondary text-foreground/60 hover:text-foreground/80 border-white/20'
                 }`}
               >
                 {category === 'all' && <Check className="w-4 h-4" />}
@@ -385,7 +385,7 @@ export default function Home() {
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'n8n'
                     ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
+                    : 'bg-secondary text-foreground/60 hover:text-foreground/80  border-white/20'
                 }`}
               >
                 {category === 'n8n' && <Check className="w-4 h-4" />}
@@ -396,7 +396,7 @@ export default function Home() {
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'zapier'
                     ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
+                    : 'bg-secondary text-foreground/60 hover:text-foreground/80  border-white/20'
                 }`}
               >
                 {category === 'zapier' && <Check className="w-4 h-4" />}
@@ -407,7 +407,7 @@ export default function Home() {
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'make'
                     ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
+                    : 'bg-secondary text-foreground/60 hover:text-foreground/80  border-white/20'
                 }`}
               >
                 {category === 'make' && <Check className="w-4 h-4" />}
@@ -418,22 +418,13 @@ export default function Home() {
                 className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
                   category === 'airtable_script'
                     ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-white/5 text-foreground/60 hover:text-foreground/80 hover:bg-white/10 border-white/20'
+                    : 'bg-secondary text-foreground/60 hover:text-foreground/80  border-white/20'
                 }`}
               >
                 {category === 'airtable_script' && <Check className="w-4 h-4" />}
                 Airtable
               </button>
             </div>
-
-            {/* Sell Your Workflow Button */}
-            <Link
-              href={user?.isSeller ? '/dashboard/seller' : '/become-seller'}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-foreground/60 hover:text-foreground/80 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border border-white/20"
-            >
-              <Plus className="w-4 h-4" />
-              Sell Your Workflow
-            </Link>
           </div>
         </div>
 
@@ -492,7 +483,8 @@ export default function Home() {
               <button
                 aria-label="Next store"
                 onClick={goNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-foreground/30 text-background hover:bg-foreground/70 transition-colors cursor-pointer backdrop-blur-sm"              >
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-foreground/30 text-background hover:bg-foreground/70 transition-colors cursor-pointer backdrop-blur-sm"
+              >
                 <ChevronRight className="w-5 h-5 mx-auto" />
               </button>
             </div>

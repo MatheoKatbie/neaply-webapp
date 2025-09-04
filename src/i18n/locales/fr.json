@@ -161,6 +161,7 @@
       "storeNameRequired": "Le nom de la boutique est requis",
       "storeNameMin": "Le nom de la boutique doit faire au moins 2 caractères",
       "storeNameMax": "Le nom de la boutique ne peut pas dépasser 50 caractères",
+      "bioRequired": "La description est requise",
       "bioMin": "La description doit faire au moins 10 caractères",
       "bioMax": "La description ne peut pas dépasser 500 caractères",
       "websiteInvalid": "L'URL du site web doit être valide (ex., https://exemple.com)",

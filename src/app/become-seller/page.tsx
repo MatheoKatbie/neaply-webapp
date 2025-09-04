@@ -6,6 +6,7 @@ import CountrySelect from '@/components/ui/country-select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PhoneInputComponent } from '@/components/ui/phone-input'
+import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/hooks/useAuth'
 import { useTranslation } from '@/hooks/useTranslation'
 import { COUNTRIES } from '@/lib/countries'
@@ -36,8 +37,9 @@ const validateStoreName = (value: string, t: (key: string) => string): string | 
 }
 
 const validateBio = (value: string, t: (key: string) => string): string | undefined => {
-  if (value && value.length < 10) return t('becomeSeller.validation.bioMin')
-  if (value && value.length > 500) return t('becomeSeller.validation.bioMax')
+  if (!value) return t('becomeSeller.validation.bioRequired')
+  if (value.length < 10) return t('becomeSeller.validation.bioMin')
+  if (value.length > 500) return t('becomeSeller.validation.bioMax')
   return undefined
 }
 
@@ -96,6 +98,22 @@ export default function BecomeSellerPage() {
     checkExistingProfile()
   }, [user])
 
+  // Real-time validation for bio field
+  useEffect(() => {
+    if (formData.bio) {
+      const error = validateBio(formData.bio, t)
+      setValidationErrors((prev) => ({
+        ...prev,
+        bio: error,
+      }))
+    } else {
+      setValidationErrors((prev) => ({
+        ...prev,
+        bio: undefined,
+      }))
+    }
+  }, [formData.bio, t])
+
   // Real-time validation for optional fields
   useEffect(() => {
     // Phone number validation
@@ -143,11 +161,11 @@ export default function BecomeSellerPage() {
 
   // Check if form is valid
   const isFormValid = () => {
-    const requiredFields: (keyof SellerFormData)[] = ['storeName', 'countryCode']
+    const requiredFields: (keyof SellerFormData)[] = ['storeName', 'bio', 'countryCode']
     const hasRequiredErrors = requiredFields.some((field) => validationErrors[field])
     const hasAnyErrors = Object.values(validationErrors).some((error) => error)
 
-    return !hasRequiredErrors && !hasAnyErrors && formData.storeName.trim() !== ''
+    return !hasRequiredErrors && !hasAnyErrors && formData.storeName.trim() !== '' && formData.bio.trim() !== ''
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -443,13 +461,12 @@ export default function BecomeSellerPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="bio">{t('becomeSeller.form.bio')}</Label>
-                    <textarea
+                    <Label htmlFor="bio">{t('becomeSeller.form.bio')} *</Label>
+                    <Textarea
                       id="bio"
                       name="bio"
-                      className={`flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                        validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
-                      }`}
+                      required
+                      className={`h-24  ${validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''}`}
                       value={formData.bio}
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
@@ -461,7 +478,7 @@ export default function BecomeSellerPage() {
                       <p className="text-xs text-red-600">{validationErrors.bio}</p>
                     ) : (
                       <p className="text-xs text-muted-foreground">
-                        {formData.bio.length}/500 characters (min. 10). {t('becomeSeller.form.bioHelp')}
+                        {formData.bio.length}/500 characters (min. 10, required). {t('becomeSeller.form.bioHelp')}
                       </p>
                     )}
                   </div>

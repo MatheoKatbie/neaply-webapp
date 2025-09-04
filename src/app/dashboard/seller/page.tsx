@@ -726,7 +726,9 @@ export default function SellerDashboard() {
       let newStatus: string
       let action: string
 
-      if (workflow.status === 'draft') {
+      if (workflow.status === 'admin_disabled') {
+        throw new Error('This workflow was disabled by an admin and cannot be re-enabled by the seller')
+      } else if (workflow.status === 'draft') {
         newStatus = 'published'
         action = 'publishing'
       } else if (workflow.status === 'published') {
@@ -935,7 +937,7 @@ export default function SellerDashboard() {
           documentationFile: undefined,
           basePriceCents: fullWorkflow.basePriceCents,
           currency: fullWorkflow.currency,
-          status: fullWorkflow.status,
+          status: fullWorkflow.status as any,
           platform: fullWorkflow.platform || '',
           jsonContent: latestVersion?.jsonContent ? safeDecrypt(latestVersion.jsonContent) : undefined,
           jsonFile: undefined,
@@ -961,7 +963,7 @@ export default function SellerDashboard() {
           documentationFile: undefined,
           basePriceCents: workflow.basePriceCents,
           currency: workflow.currency,
-          status: workflow.status,
+          status: workflow.status as any,
           platform: workflow.platform || '',
           jsonContent: undefined,
           jsonFile: undefined,
