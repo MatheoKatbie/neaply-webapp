@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe, STRIPE_CONNECT_CONFIG } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
-import { getStripeAccountParams, getStripeAccountLinkParams, addLocaleToStripeOnboardingUrl } from '@/lib/stripe-locale'
+import {
+  getStripeAccountParams,
+  getStripeAccountLinkParams,
+  addLocaleToStripeOnboardingUrl,
+  getEnhancedBusinessProfile,
+} from '@/lib/stripe-locale'
 
 export async function GET(req: NextRequest) {
   try {
@@ -89,18 +94,23 @@ export async function POST(req: NextRequest) {
     }
 
     const countryCode = dbUser.sellerProfile.countryCode || 'FR'
+    const hasWebsite = !!dbUser.sellerProfile.websiteUrl
 
-    // Create Stripe Connect Express account with proper country-based configuration
-    const accountParams = getStripeAccountParams(
-      countryCode,
-      dbUser.email,
-      dbUser.sellerProfile.websiteUrl || undefined
-    )
-
-    const account = await stripe.accounts.create({
-      ...accountParams,
+    // Create Stripe Connect Express account with enhanced business profile
+    const accountParams = {
+      type: 'express' as const,
+      country: countryCode,
+      email: user.email,
+      business_type: 'individual' as const,
+      business_profile: getEnhancedBusinessProfile(
+        dbUser.sellerProfile.slug,
+        hasWebsite,
+        dbUser.sellerProfile.websiteUrl || undefined
+      ),
       capabilities: STRIPE_CONNECT_CONFIG.requiredCapabilities,
-    })
+    }
+
+    const account = await stripe.accounts.create(accountParams)
 
     // Create Express onboarding link (faster process)
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
