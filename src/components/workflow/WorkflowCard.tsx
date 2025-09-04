@@ -143,8 +143,16 @@ export function WorkflowCard({ workflow, onEdit, onDelete, onPublishToggle, isEd
               size="sm"
               variant={workflow.status === 'draft' ? 'default' : 'outline'}
               onClick={() => onPublishToggle(workflow)}
+              disabled={workflow.status === 'admin_disabled'}
+              title={workflow.status === 'admin_disabled' ? 'Disabled by admin' : undefined}
             >
-              {workflow.status === 'draft' ? 'Publish' : workflow.status === 'published' ? 'Disable' : 'Enable'}
+              {workflow.status === 'draft'
+                ? 'Publish'
+                : workflow.status === 'published'
+                ? 'Disable'
+                : workflow.status === 'admin_disabled'
+                ? 'Disabled by Admin'
+                : 'Enable'}
             </Button>
             <Button size="sm" variant="outline" onClick={() => onEdit(workflow)}>
               Edit

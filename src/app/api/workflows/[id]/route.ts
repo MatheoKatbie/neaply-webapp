@@ -48,6 +48,7 @@ const updateWorkflowSchema = z
       .max(1000000, 'Base price cannot exceed $10,000.00')
       .optional(),
     currency: z.string().optional(),
+    // Sellers cannot set admin_disabled from this route; reserved for admins
     status: z.enum(['draft', 'published', 'unlisted', 'disabled']).optional(),
     platform: z.enum(['n8n', 'zapier', 'make', 'airtable_script']).optional(),
     jsonContent: z.any().optional(),
@@ -220,6 +221,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     // Parse et validation du body
     const body = await req.json()
     const validatedData = updateWorkflowSchema.parse(body)
+
+    // Block status changes if admin has disabled this workflow
+    if (existingWorkflow.status === 'admin_disabled' && typeof (body?.status as any) !== 'undefined') {
+      return NextResponse.json(
+        { error: 'This workflow was disabled by an admin and its status cannot be changed by the seller' },
+        { status: 403 }
+      )
+    }
 
     // Préparer les données de mise à jour (exclure les champs de version et relations)
     const { jsonContent, n8nMinVersion, n8nMaxVersion, categoryIds, tagIds, ...workflowUpdateData } = validatedData

@@ -18,6 +18,7 @@ enum WorkflowStatus {
   published
   unlisted
   disabled
+  admin_disabled
   pack_only
 }
 

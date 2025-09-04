@@ -6,7 +6,7 @@ export interface Workflow {
   heroImageUrl?: string
   documentationUrl?: string
   platform?: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'admin_disabled'
   basePriceCents: number
   currency: string
   salesCount: number
@@ -56,6 +56,7 @@ export const STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',
   unlisted: 'Unlisted',
   disabled: 'Disabled',
+  admin_disabled: 'Disabled by Admin',
   pack_only: 'Pack Only',
 }
 
@@ -69,6 +70,8 @@ export const getStatusColor = (status: string) => {
     case 'unlisted':
       return 'bg-muted text-gray-800'
     case 'disabled':
+      return 'bg-red-100 text-red-800'
+    case 'admin_disabled':
       return 'bg-red-100 text-red-800'
     default:
       return 'bg-muted text-gray-800'
@@ -106,7 +109,7 @@ export interface WorkflowFormData {
   heroImageFile?: File
   basePriceCents: number
   currency: string
-  status: 'draft' | 'published' | 'unlisted' | 'disabled'
+  status: 'draft' | 'published' | 'unlisted' | 'disabled' | 'admin_disabled'
   platform?: string
   jsonContent?: any
   jsonFile?: File
