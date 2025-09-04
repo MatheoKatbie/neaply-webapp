@@ -161,6 +161,7 @@
       "storeNameRequired": "Store name is required",
       "storeNameMin": "Store name must be at least 2 characters",
       "storeNameMax": "Store name cannot exceed 50 characters",
+      "bioRequired": "Bio is required",
       "bioMin": "Bio must be at least 10 characters",
       "bioMax": "Bio cannot exceed 500 characters",
       "websiteInvalid": "Website URL must be valid (e.g., https://example.com)",
