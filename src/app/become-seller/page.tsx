@@ -203,6 +203,30 @@ export default function BecomeSellerPage() {
         throw new Error(data.error || 'An error occurred')
       }
 
+      // If this is a new seller profile, automatically create Stripe Connect account
+      if (!existingProfile && data.data) {
+        try {
+          // Create Stripe Connect account with pre-filled business profile
+          const stripeResponse = await fetch('/api/stripe/create-seller', {
+            method: 'POST',
+          })
+
+          if (stripeResponse.ok) {
+            const stripeData = await stripeResponse.json()
+
+            // Redirect directly to pre-filled Stripe onboarding
+            window.location.href = stripeData.url
+            return // Exit early, don't show success message
+          } else {
+            // If Stripe creation fails, still show success but with warning
+            console.warn('Stripe account creation failed, but seller profile was created')
+          }
+        } catch (stripeError) {
+          // If Stripe creation fails, still show success but with warning
+          console.warn('Stripe account creation failed:', stripeError)
+        }
+      }
+
       setSuccess(true)
       // Rafraîchir les données utilisateur pour mettre à jour le statut seller
       await refreshUser()
@@ -544,6 +568,32 @@ export default function BecomeSellerPage() {
                         <p className="text-xs text-red-700 mt-1">
                           You must have a bank account in the selected country to receive payments. Please ensure you
                           have access to a local bank account before proceeding.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stripe Connect Info */}
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="flex items-start space-x-2">
+                      <svg
+                        className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-medium text-blue-800">Stripe Connect Setup</p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          After creating your seller profile, you'll be automatically redirected to Stripe to set up
+                          your payment account with pre-filled business information.
                         </p>
                       </div>
                     </div>
