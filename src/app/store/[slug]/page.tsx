@@ -368,7 +368,7 @@ export default function StorePage() {
               <p className="text-muted-foreground max-w-md mx-auto mb-6">
                 The store you're looking for doesn't exist or may have been removed.
               </p>
-              <Button onClick={() => router.push('/marketplace')} className="cursor-pointer">
+              <Button onClick={() => router.push('/')} className="cursor-pointer">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Marketplace
               </Button>
@@ -385,7 +385,7 @@ export default function StorePage() {
         <div className="max-w-7xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="mb-6">
-            <Button variant="ghost" onClick={() => router.push('/marketplace')} className="mb-4">
+            <Button variant="ghost" onClick={() => router.push('/')} className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Marketplace
             </Button>
@@ -490,11 +490,7 @@ export default function StorePage() {
                         }}
                         className="w-full sm:w-auto"
                       />
-                      <ReportDialog
-                        entityType="store"
-                        entityId={store.user.id}
-                        entityName={store.storeName}
-                      />
+                      <ReportDialog entityType="store" entityId={store.user.id} entityName={store.storeName} />
                     </div>
                   </div>
                 </div>

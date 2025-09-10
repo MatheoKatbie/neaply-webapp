@@ -131,7 +131,7 @@ function CheckoutSuccessContent() {
                 <p className="text-muted-foreground mb-6">
                   {error || "The order you're looking for could not be found."}
                 </p>
-                <Button onClick={() => router.push('/marketplace')}>
+                <Button onClick={() => router.push('/')}>
                   <Home className="w-4 h-4 mr-2" />
                   Back to Marketplace
                 </Button>
