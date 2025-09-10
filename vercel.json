@@ -1,13 +1,11 @@
 {
-    "buildCommand": "prisma generate && npm run build",
-    "installCommand": "npm ci",
-    "framework": "nextjs",
-    "regions": [
-        "fra1"
-    ],
-    "functions": {
-        "src/app/api/**/*.ts": {
-            "maxDuration": 10
-        }
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
+  "regions": ["fra1"],
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 10
     }
+  }
 }
