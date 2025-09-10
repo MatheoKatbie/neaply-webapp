@@ -73,6 +73,12 @@ export async function middleware(req: NextRequest) {
     '/checkout/cancelled', // Allow checkout cancelled page without auth
   ]
 
+  // Routes dynamiques publiques (patterns)
+  const publicRoutePatterns = [
+    '/workflow/', // Allow workflow detail pages
+    '/store/', // Allow store pages
+  ]
+
   // Routes admin qui nécessitent des privilèges admin
   const adminRoutes = [
     '/admin',
@@ -87,7 +93,12 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // Permettre l'accès aux routes publiques
-  if (publicRoutes.includes(pathname) || pathname.startsWith('/checkout/')) {
+  const isPublicRoute =
+    publicRoutes.includes(pathname) ||
+    pathname.startsWith('/checkout/') ||
+    publicRoutePatterns.some((pattern) => pathname.startsWith(pattern))
+
+  if (isPublicRoute) {
     // Si l'utilisateur est connecté et essaie d'accéder aux pages auth, rediriger vers la page d'accueil
     if (session && (pathname.startsWith('/auth/login') || pathname.startsWith('/auth/register'))) {
       return NextResponse.redirect(new URL('/', req.url))
@@ -109,7 +120,7 @@ export async function middleware(req: NextRequest) {
   if (
     pathname.startsWith('/api/marketplace/') ||
     pathname.startsWith('/api/packs') ||
-    pathname.startsWith('/api/store/list') ||
+    pathname.startsWith('/api/store/') ||
     pathname.startsWith('/api/search') ||
     pathname.startsWith('/api/categories') ||
     pathname.startsWith('/api/tags')
