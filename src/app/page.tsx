@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { PlatformBadge } from '@/components/ui/platform-badge'
 import { useAuth } from '@/hooks/useAuth'
+import Hero from '@/components/Hero'
 
 interface StoreCard {
   userId: string
@@ -367,6 +368,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+      {/* Hero Section */}
+      <Hero />
+
       <div className="border-t border-accent" />
 
       <div className="max-w-screen-2xl mx-auto px-3 md:px-4 py-4">

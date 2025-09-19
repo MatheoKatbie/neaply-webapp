@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
 import { CartProvider } from '@/hooks/useCart'
@@ -12,6 +13,44 @@ import { int } from 'zod'
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
+})
+
+// AeonikPro local font configuration
+const aeonikPro = localFont({
+  src: [
+    {
+      path: './fonts/AeonikProTRIAL-Light.otf',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: './fonts/AeonikProTRIAL-LightItalic.otf',
+      weight: '300',
+      style: 'italic',
+    },
+    {
+      path: './fonts/AeonikProTRIAL-Regular.otf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './fonts/AeonikProTRIAL-RegularItalic.otf',
+      weight: '400',
+      style: 'italic',
+    },
+    {
+      path: './fonts/AeonikProTRIAL-Bold.otf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: './fonts/AeonikProTRIAL-BoldItalic.otf',
+      weight: '700',
+      style: 'italic',
+    },
+  ],
+  variable: '--font-aeonikpro',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -69,7 +108,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
-      <body className={`${inter.variable} ${inter.className} antialiased`} suppressHydrationWarning={true}>
+      <body
+        className={`${inter.variable} ${spaceGrotesk.variable} ${aeonikPro.variable} ${inter.className} antialiased`}
+        suppressHydrationWarning={true}
+      >
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
