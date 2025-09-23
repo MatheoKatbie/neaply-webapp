@@ -1,13 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight, Search, Check, Plus } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
-import { PlatformBadge } from '@/components/ui/platform-badge'
 import { useAuth } from '@/hooks/useAuth'
 import Hero from '@/components/Hero'
 
@@ -22,8 +19,6 @@ interface StoreCard {
 
 export default function Home() {
   const { user } = useAuth()
-  const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('all')
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'rating' | 'price-low' | 'price-high'>('popular')
   const [trendingWorkflows, setTrendingWorkflows] = useState<any[]>([])
   const [newestWorkflows, setNewestWorkflows] = useState<any[]>([])
@@ -32,6 +27,93 @@ export default function Home() {
   const [activeStore, setActiveStore] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  // Fake stores data for filling empty spaces
+  const fakeStores = useMemo(
+    () => [
+      {
+        userId: 'fake-store-1',
+        storeName: 'AutoFlow Solutions',
+        slug: 'autoflow-solutions',
+        bio: 'Streamline your business processes with our premium automation workflows',
+        user: { displayName: 'AutoFlow Team', avatarUrl: null },
+        workflowsCount: 12,
+      },
+      {
+        userId: 'fake-store-2',
+        storeName: 'Data Dynamics',
+        slug: 'data-dynamics',
+        bio: 'Transform your data management with powerful integration workflows',
+        user: { displayName: 'Data Team', avatarUrl: null },
+        workflowsCount: 8,
+      },
+      {
+        userId: 'fake-store-3',
+        storeName: 'CloudSync Pro',
+        slug: 'cloudsync-pro',
+        bio: 'Professional cloud synchronization and backup automation solutions',
+        user: { displayName: 'CloudSync Team', avatarUrl: null },
+        workflowsCount: 15,
+      },
+      {
+        userId: 'fake-store-4',
+        storeName: 'Marketing Automation Hub',
+        slug: 'marketing-automation-hub',
+        bio: 'Boost your marketing campaigns with intelligent automation workflows',
+        user: { displayName: 'Marketing Team', avatarUrl: null },
+        workflowsCount: 22,
+      },
+      {
+        userId: 'fake-store-5',
+        storeName: 'DevOps Central',
+        slug: 'devops-central',
+        bio: 'Accelerate your development pipeline with DevOps automation tools',
+        user: { displayName: 'DevOps Team', avatarUrl: null },
+        workflowsCount: 18,
+      },
+      {
+        userId: 'fake-store-6',
+        storeName: 'E-commerce Engine',
+        slug: 'ecommerce-engine',
+        bio: 'Complete e-commerce automation solutions for online businesses',
+        user: { displayName: 'E-commerce Team', avatarUrl: null },
+        workflowsCount: 25,
+      },
+      {
+        userId: 'fake-store-7',
+        storeName: 'Social Media Wizard',
+        slug: 'social-media-wizard',
+        bio: 'Automate your social media presence across all platforms',
+        user: { displayName: 'Social Team', avatarUrl: null },
+        workflowsCount: 14,
+      },
+      {
+        userId: 'fake-store-8',
+        storeName: 'Finance Flow',
+        slug: 'finance-flow',
+        bio: 'Streamline financial processes with automated accounting workflows',
+        user: { displayName: 'Finance Team', avatarUrl: null },
+        workflowsCount: 10,
+      },
+      {
+        userId: 'fake-store-9',
+        storeName: 'Customer Success Suite',
+        slug: 'customer-success-suite',
+        bio: 'Enhance customer experience with automated support workflows',
+        user: { displayName: 'Success Team', avatarUrl: null },
+        workflowsCount: 16,
+      },
+      {
+        userId: 'fake-store-10',
+        storeName: 'Analytics Pro',
+        slug: 'analytics-pro',
+        bio: 'Advanced analytics and reporting automation for data-driven decisions',
+        user: { displayName: 'Analytics Team', avatarUrl: null },
+        workflowsCount: 20,
+      },
+    ],
+    []
+  )
 
   // Fake workflows data for filling empty spaces - memoized to prevent recreation
   const fakeWorkflows = useMemo(
@@ -141,6 +223,18 @@ export default function Home() {
   const [newestHasMore, setNewestHasMore] = useState(true)
   const [isLoadingNewest, setIsLoadingNewest] = useState(false)
 
+  // Function to fill stores with fake data if needed
+  const fillStores = useMemo(() => {
+    return (realStores: StoreCard[], targetCount: number = 10) => {
+      if (realStores.length >= targetCount) {
+        return realStores.slice(0, targetCount)
+      }
+
+      const needed = targetCount - realStores.length
+      return [...realStores, ...fakeStores.slice(0, needed)]
+    }
+  }, [fakeStores])
+
   // Function to fill workflows with fake data if needed - memoized for consistency
   const fillWorkflows = useMemo(() => {
     return (realWorkflows: any[], targetCount: number = 8) => {
@@ -154,48 +248,61 @@ export default function Home() {
     }
   }, [fakeWorkflows])
 
-  // Function to get display data based on current filter
+  // Function to get display data
   const getDisplayData = () => {
     return {
-      title:
-        category === 'all' ? 'Trending Workflows' : `${category.charAt(0).toUpperCase() + category.slice(1)} Workflows`,
+      title: 'Trending Workflows',
       workflows: fillWorkflows(trendingWorkflows, 10),
     }
   }
 
   const goTo = (idx: number) => {
-    if (stores.slice(0, 5).length === 0) return
+    const displayStores = fillStores(stores)
+    if (displayStores.length === 0) return
     if (isAnimating) return
     setIsAnimating(true)
     setActiveStore(idx)
+
+    // Scroll to the specific store card
+    const container = document.querySelector('.store-cards-container')
+    if (container) {
+      const cardWidth = 320 + 16 // card width + gap
+      container.scrollTo({
+        left: idx * cardWidth,
+        behavior: 'smooth',
+      })
+    }
+
     setTimeout(() => setIsAnimating(false), 320)
   }
-  const goPrev = () => goTo((activeStore - 1 + Math.min(stores.length, 5)) % Math.min(stores.length, 5))
-  const goNext = () => goTo((activeStore + 1) % Math.min(stores.length, 5))
+
+  const goPrev = () => {
+    const displayStores = fillStores(stores)
+    const newIndex = (activeStore - 1 + displayStores.length) % displayStores.length
+    goTo(newIndex)
+  }
+
+  const goNext = () => {
+    const displayStores = fillStores(stores)
+    const newIndex = (activeStore + 1) % displayStores.length
+    goTo(newIndex)
+  }
 
   // Auto-advance every 3s (stable, not tied to activeStore to avoid reset loop)
   useEffect(() => {
-    const visible = Math.min(stores.length, 5)
-    if (visible <= 1) return
+    const displayStores = fillStores(stores)
+    if (displayStores.length <= 1) return
     const id = setInterval(() => {
       if (isAnimating) return
       setIsAnimating(true)
-      setActiveStore((prev) => (prev + 1) % visible)
+      setActiveStore((prev) => (prev + 1) % displayStores.length)
       setTimeout(() => setIsAnimating(false), 320)
     }, 3000)
     return () => clearInterval(id)
-  }, [stores, isAnimating])
-
-  // Theme per request - now using CSS custom properties
-  const pageBg = 'hsl(var(--background))'
-  const topBorder = 'hsl(var(--accent))'
+  }, [stores, isAnimating, fillStores])
 
   const loadData = async () => {
     const qs = new URLSearchParams()
-    if (search) qs.set('search', search)
-    if (category && category !== 'all') {
-      qs.set('platform', category)
-    }
     if (sortBy) qs.set('sortBy', sortBy)
 
     try {
@@ -257,7 +364,7 @@ export default function Home() {
   useEffect(() => {
     loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, category, sortBy])
+  }, [sortBy])
 
   const loadMoreNewest = async () => {
     if (isLoadingNewest || !newestHasMore) return
@@ -265,8 +372,6 @@ export default function Home() {
     setIsLoadingNewest(true)
     const nextPage = newestPage + 1
     const qs = new URLSearchParams()
-    if (search) qs.set('search', search)
-    if (category && category !== 'all') qs.set('category', category)
     if (sortBy) qs.set('sortBy', sortBy)
     qs.set('page', nextPage.toString())
 
@@ -293,7 +398,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+      <div className="min-h-screen" style={{ backgroundColor: '#02000F' }}>
         <div className="border-t border-accent" />
         <div className="max-w-screen-2xl mx-auto px-3 md:px-4 py-4">
           {/* Stores Skeleton */}
@@ -367,168 +472,123 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#02000F' }}>
       {/* Hero Section */}
       <Hero />
 
-      <div className="border-t border-accent" />
-
       <div className="max-w-screen-2xl mx-auto px-3 md:px-4 py-4">
-        {/* Filter Bar */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 overflow-x-auto">
-              <button
-                onClick={() => setCategory('all')}
-                className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
-                  category === 'all'
-                    ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-secondary text-foreground/60 hover:text-foreground/80 border-white/20'
-                }`}
-              >
-                {category === 'all' && <Check className="w-4 h-4" />}
-                All
-              </button>
-              <button
-                onClick={() => setCategory('n8n')}
-                className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
-                  category === 'n8n'
-                    ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-secondary text-foreground/60 hover:text-foreground/80  border-white/20'
-                }`}
-              >
-                {category === 'n8n' && <Check className="w-4 h-4" />}
-                n8n
-              </button>
-              <button
-                onClick={() => setCategory('zapier')}
-                className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
-                  category === 'zapier'
-                    ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-secondary text-foreground/60 hover:text-foreground/80  border-white/20'
-                }`}
-              >
-                {category === 'zapier' && <Check className="w-4 h-4" />}
-                Zapier
-              </button>
-              <button
-                onClick={() => setCategory('make')}
-                className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
-                  category === 'make'
-                    ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-secondary text-foreground/60 hover:text-foreground/80  border-white/20'
-                }`}
-              >
-                {category === 'make' && <Check className="w-4 h-4" />}
-                Make
-              </button>
-              <button
-                onClick={() => setCategory('airtable_script')}
-                className={`flex items-center gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap cursor-pointer border ${
-                  category === 'airtable_script'
-                    ? 'bg-secondary text-foreground border-white/20'
-                    : 'bg-secondary text-foreground/60 hover:text-foreground/80  border-white/20'
-                }`}
-              >
-                {category === 'airtable_script' && <Check className="w-4 h-4" />}
-                Airtable
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Featured Stores slider (max 5) */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-foreground font-space-grotesk text-2xl font-bold">Featured Stores</h2>
+          <div className="flex items-center justify-between my-4">
+            <h2 className="text-[#EDEFF7] font-aeonikpro text-2xl ">Featured stores</h2>
           </div>
 
           <div className="relative">
-            <div className="relative bg-card border border-border rounded-xl overflow-hidden h-80 md:h-96 group shadow-lg">
-              {/* Slides track */}
-              <div
-                className="absolute inset-0 flex transition-transform duration-300 ease-out"
-                style={{ transform: `translateX(-${activeStore * 100}%)` }}
-              >
-                {stores.slice(0, 5).map((s) => (
-                  <Link key={s.slug} href={`/store/${s.slug}`} className="min-w-full h-full block relative">
-                    {/* Background image */}
-                    <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.02]">
-                      <AutoThumbnail
-                        workflow={{
-                          id: s.userId,
-                          title: s.storeName,
-                          shortDesc: s.bio || s.user.displayName,
-                          longDescMd: '',
-                          categories: [],
-                          tags: [],
-                        }}
-                        size="lg"
-                        className="absolute inset-0 w-full h-full"
-                        authorAvatarUrl={s.user.avatarUrl || undefined}
-                      />
-                    </div>
-                    {/* Gradient overlay for contrast */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    {/* Text overlay */}
-                    <div className="relative z-10 p-6 text-background h-full flex flex-col justify-end">
-                      <div className="font-space-grotesk text-xl md:text-3xl font-bold mb-2">{s.storeName}</div>
-                      <div className="text-sm md:text-lg opacity-90 mb-2">{s.bio || 'Short Description'}</div>
-                      <div className="text-xs md:text-sm opacity-80 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full w-fit">
-                        {s.workflowsCount} workflows
+            {/* Container with gradient overlays for navigation */}
+            <div className="relative overflow-hidden rounded-2xl">
+              {/* Horizontal scrollable container */}
+              <div className="store-cards-container flex gap-4 px-6 py-6 overflow-x-auto scrollbar-hide">
+                {fillStores(stores).map((s, index) => {
+                  // Generate vibrant gradient colors like in the image
+                  const gradients = [
+                    'from-blue-600 to-blue-800', // Blue like #1814FB
+                    'from-purple-600 to-purple-700', // Purple
+                    'from-indigo-600 to-indigo-700', // Indigo
+                    'from-pink-600 to-pink-800', // Pink
+                    'from-red-600 to-red-800', // Red
+                    'from-orange-600 to-orange-800', // Orange
+                    'from-yellow-600 to-yellow-700', // Yellow
+                    'from-green-600 to-green-800', // Green
+                    'from-teal-600 to-teal-800', // Teal
+                    'from-cyan-600 to-cyan-800', // Cyan
+                    'from-violet-600 to-violet-800', // Violet
+                    'from-fuchsia-600 to-fuchsia-800', // Fuchsia
+                  ]
+
+                  // Use a seeded random based on store slug for consistency
+                  const hash = s.slug.split('').reduce((a, b) => {
+                    a = (a << 5) - a + b.charCodeAt(0)
+                    return a & a
+                  }, 0)
+                  const bgColor = gradients[Math.abs(hash) % gradients.length]
+
+                  const isFake = s.userId.startsWith('fake-store-')
+
+                  const cardContent = (
+                    <div
+                      className={`relative w-80 h-64 rounded-2xl bg-gradient-to-br ${bgColor} dots-pattern p-6 flex flex-col justify-between transition-transform duration-300 hover:scale-105 cursor-pointer group flex-shrink-0 border border-[#FFFFFF]/25`}
+                    >
+                      {/* Store logo/icon */}
+                      <div className="relative z-10 flex items-start justify-between">
+                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                          {s.user.avatarUrl ? (
+                            <img src={s.user.avatarUrl} alt={s.storeName} className="w-8 h-8 rounded-xl object-cover" />
+                          ) : (
+                            <div className="w-8 h-8 bg-white/30 rounded-xl flex items-center justify-center">
+                              <span className="text-white font-bold text-sm">
+                                {s.storeName.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Store info */}
+                      <div className="relative z-10 text-white h-[72px] flex flex-col justify-start">
+                        <h3 className="font-aeonikpro text-xl mb-2 line-clamp-1">{s.storeName}</h3>
+                        <p className="font-aeonikpro text-[#BCBFCC] text-sm line-clamp-2">
+                          {s.bio || s.user.displayName}
+                        </p>
+                      </div>
+
+                      {/* Hover effect overlay */}
+                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl z-20" />
                     </div>
-                  </Link>
-                ))}
+                  )
+
+                  return (
+                    <div key={s.slug}>
+                      {isFake ? (
+                        <div onClick={() => alert('This is a demo store. Real stores will be available soon!')}>
+                          {cardContent}
+                        </div>
+                      ) : (
+                        <Link href={`/store/${s.slug}`}>{cardContent}</Link>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
-              {/* Arrows on-card, opposite sides */}
+              {/* Navigation arrows */}
               <button
                 aria-label="Previous store"
                 onClick={goPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-foreground/30 text-background hover:bg-foreground/70 transition-colors cursor-pointer backdrop-blur-sm"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors cursor-pointer z-30 flex items-center justify-center"
               >
-                <ChevronLeft className="w-5 h-5 mx-auto" />
+                <ChevronLeft className="w-6 h-6" />
               </button>
               <button
                 aria-label="Next store"
                 onClick={goNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-foreground/30 text-background hover:bg-foreground/70 transition-colors cursor-pointer backdrop-blur-sm"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors cursor-pointer z-30 flex items-center justify-center"
               >
-                <ChevronRight className="w-5 h-5 mx-auto" />
+                <ChevronRight className="w-6 h-6" />
               </button>
             </div>
 
-            {/* Dots */}
-            <div className="flex items-center justify-center gap-2 mt-3">
-              {stores.slice(0, 5).map((_, idx) => (
+            {/* Dots navigation */}
+            <div className="flex items-center justify-center gap-2 mt-4">
+              {fillStores(stores).map((_, idx) => (
                 <button
                   key={idx}
                   aria-label={`Go to store ${idx + 1}`}
                   onClick={() => setActiveStore(idx)}
                   className={`h-2 rounded-full transition-all ${
-                    activeStore === idx ? 'w-12 bg-white' : 'w-8 bg-white/40'
+                    activeStore === idx ? 'w-8 bg-white' : 'w-2 bg-white/40'
                   }`}
                 />
               ))}
-            </div>
-
-            {/* Mobile prev/next overlay */}
-            <div className="md:hidden absolute inset-y-0 left-0 right-0 flex items-center justify-between px-3">
-              <button
-                aria-label="Previous store"
-                onClick={goPrev}
-                className="w-10 h-10 rounded-full bg-black/40 text-foreground hover:bg-black/60 backdrop-blur-sm"
-              >
-                <ChevronLeft className="w-5 h-5 mx-auto" />
-              </button>
-              <button
-                aria-label="Next store"
-                onClick={goNext}
-                className="w-10 h-10 rounded-full bg-black/40 text-foreground hover:bg-black/60 backdrop-blur-sm"
-              >
-                <ChevronRight className="w-5 h-5 mx-auto" />
-              </button>
             </div>
           </div>
         </div>
