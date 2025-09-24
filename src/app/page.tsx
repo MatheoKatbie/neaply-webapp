@@ -288,18 +288,7 @@ export default function Home() {
     goTo(newIndex)
   }
 
-  // Auto-advance every 3s (stable, not tied to activeStore to avoid reset loop)
-  useEffect(() => {
-    const displayStores = fillStores(stores)
-    if (displayStores.length <= 1) return
-    const id = setInterval(() => {
-      if (isAnimating) return
-      setIsAnimating(true)
-      setActiveStore((prev) => (prev + 1) % displayStores.length)
-      setTimeout(() => setIsAnimating(false), 320)
-    }, 3000)
-    return () => clearInterval(id)
-  }, [stores, isAnimating, fillStores])
+  // Auto-advance disabled per user request
 
   const loadData = async () => {
     const qs = new URLSearchParams()
@@ -472,22 +461,30 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#02000F' }}>
-      {/* Hero Section */}
-      <Hero />
+    <>
+      <div className="min-h-screen" style={{ backgroundColor: '#02000F' }}>
+        {/* Hero Section */}
+        <Hero />
 
-      <div className="max-w-screen-2xl mx-auto px-3 md:px-4 py-4">
-        {/* Featured Stores slider (max 5) */}
+        {/* Featured Stores slider (max 5) - Full width */}
         <div className="mb-6">
-          <div className="flex items-center justify-between my-4">
-            <h2 className="text-[#EDEFF7] font-aeonikpro text-2xl ">Featured stores</h2>
+          <div className="max-w-screen-2xl mx-auto px-3 md:px-4">
+            <div className="flex items-center justify-between my-4">
+              <h2 className="text-[#EDEFF7] font-aeonikpro text-2xl ">Featured stores</h2>
+            </div>
           </div>
 
           <div className="relative">
             {/* Container with gradient overlays for navigation */}
-            <div className="relative overflow-hidden rounded-2xl">
-              {/* Horizontal scrollable container */}
-              <div className="store-cards-container flex gap-4 px-6 py-6 overflow-x-auto scrollbar-hide">
+            <div className="relative overflow-hidden">
+              {/* Calculate padding to align with text container */}
+              <div
+                className="store-cards-container flex gap-4 py-6 overflow-x-auto scrollbar-hide"
+                style={{
+                  paddingLeft: 'calc((100vw - min(100vw, 1536px)) / 2 + 0.75rem)',
+                  paddingRight: '1.5rem',
+                }}
+              >
                 {fillStores(stores).map((s, index) => {
                   // Generate vibrant gradient colors like in the image
                   const gradients = [
@@ -518,6 +515,9 @@ export default function Home() {
                     <div
                       className={`relative w-80 h-64 rounded-2xl bg-gradient-to-br ${bgColor} dots-pattern p-6 flex flex-col justify-between transition-transform duration-300 hover:scale-105 cursor-pointer group flex-shrink-0 border border-[#FFFFFF]/25`}
                     >
+                      {/* Dark gradient overlay from bottom to top */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-2xl z-5" />
+
                       {/* Store logo/icon */}
                       <div className="relative z-10 flex items-start justify-between">
                         <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -561,13 +561,15 @@ export default function Home() {
               </div>
 
               {/* Navigation arrows */}
-              <button
-                aria-label="Previous store"
-                onClick={goPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors cursor-pointer z-30 flex items-center justify-center"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
+              {activeStore > 0 && (
+                <button
+                  aria-label="Previous store"
+                  onClick={goPrev}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors cursor-pointer z-30 flex items-center justify-center"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+              )}
               <button
                 aria-label="Next store"
                 onClick={goNext}
@@ -576,23 +578,11 @@ export default function Home() {
                 <ChevronRight className="w-6 h-6" />
               </button>
             </div>
-
-            {/* Dots navigation */}
-            <div className="flex items-center justify-center gap-2 mt-4">
-              {fillStores(stores).map((_, idx) => (
-                <button
-                  key={idx}
-                  aria-label={`Go to store ${idx + 1}`}
-                  onClick={() => setActiveStore(idx)}
-                  className={`h-2 rounded-full transition-all ${
-                    activeStore === idx ? 'w-8 bg-white' : 'w-2 bg-white/40'
-                  }`}
-                />
-              ))}
-            </div>
           </div>
         </div>
+      </div>
 
+      <div className="max-w-screen-2xl mx-auto px-3 md:px-4 py-4 ">
         {/* Trending Workflows */}
         <section className="mb-6">
           <h3 className="text-foreground font-space-grotesk mb-2 text-2xl font-bold">{getDisplayData().title}</h3>
@@ -825,6 +815,6 @@ export default function Home() {
           )}
         </section>
       </div>
-    </div>
+    </>
   )
 }
