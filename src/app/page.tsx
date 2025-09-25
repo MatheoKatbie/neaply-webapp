@@ -580,7 +580,7 @@ export default function Home() {
                 {fillStores(stores).map((s, index) => {
                   // Generate vibrant gradient colors like in the image
                   const gradients = [
-                    'from-blue-600 to-blue-800', // Blue like #1814FB
+                    'from-[#1814FB] to-[#0E0C95]', // Blue like #1814FB
                     'from-purple-600 to-purple-700', // Purple
                     'from-indigo-600 to-indigo-700', // Indigo
                     'from-pink-600 to-pink-800', // Pink
@@ -605,7 +605,7 @@ export default function Home() {
 
                   const cardContent = (
                     <div
-                      className={`relative w-80 h-64 rounded-2xl bg-gradient-to-br ${bgColor} dots-pattern p-6 flex flex-col justify-between transition-transform duration-300 hover:scale-105 cursor-pointer group flex-shrink-0 border border-[#FFFFFF]/25`}
+                      className={`relative w-80 h-64 rounded-2xl bg-gradient-to-br ${bgColor} dots-pattern p-6 flex flex-col justify-between transition-transform duration-300 hover:scale-105 cursor-pointer group flex-shrink-0 border border-[#9DA2B3]/50`}
                     >
                       {/* Dark gradient overlay from bottom to top */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-2xl z-5" />
@@ -628,7 +628,7 @@ export default function Home() {
                       {/* Store info */}
                       <div className="relative z-10 text-white h-[72px] flex flex-col justify-start">
                         <h3 className="font-aeonikpro text-xl mb-2 line-clamp-1">{s.storeName}</h3>
-                        <p className="font-aeonikpro text-[#BCBFCC] text-sm line-clamp-2">
+                        <p className="font-aeonikpro  text-[#BCBFCC] text-sm line-clamp-2">
                           {s.bio || s.user.displayName}
                         </p>
                       </div>
