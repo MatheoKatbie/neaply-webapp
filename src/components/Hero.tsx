@@ -10,7 +10,7 @@ export default function Hero() {
   const { user } = useAuth()
   const router = useRouter()
   return (
-    <section className="relative min-h-[80vh] lg:min-h-[90vh] flex items-center justify-center overflow-hidden pt-[200px]">
+    <section className="relative min-h-[80vh] lg:min-h-[90vh] flex items-center justify-center overflow-hidden pt-[200px] bg-[#08080A]">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img src="/images/hero.png" alt="FlowMarket Hero Background" className="w-full h-full object-cover" />

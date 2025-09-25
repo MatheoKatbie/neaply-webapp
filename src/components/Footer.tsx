@@ -7,13 +7,13 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="mt-auto font-aeonikpro bg-[#02000F] ">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-[#D3D6E0]/5 border-t border-[#3E4E55] rounded-2xl">
+    <footer className="mt-auto font-aeonikpro bg-[#08080A] ">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-[#D3D6E0]/5 border border-[#3E4E55] rounded-[14px]">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row items-center justify-between py-8">
           {/* Logo */}
           <div className="flex items-center space-x-2 mb-4 md:mb-0">
-            <Image src="/images/neaply/logo.png" alt="Neaply" width={120} height={40} />
+            <Image src="/images/neaply/logo-light.png" alt="Neaply" width={120} height={40} />
           </div>
 
           {/* Navigation Links */}

@@ -111,7 +111,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} ${aeonikPro.variable} ${inter.className} antialiased mb-8`}
         suppressHydrationWarning={true}
-        style={{ backgroundColor: '#02000F' }}
+        style={{ backgroundColor: '#08080A' }}
       >
         <ThemeProvider>
           <AuthProvider>
