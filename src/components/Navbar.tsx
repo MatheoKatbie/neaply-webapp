@@ -199,201 +199,102 @@ export default function Navbar() {
   }, [isMenuOpen])
 
   return (
-    <nav className="sticky top-0 left-0 z-[9999] w-full bg-card border-b border-accent">
-      <div className="w-full px-4 lg:px-6">
-        <div className="relative flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center gap-2">
-              {isScrolled ? (
-                <Image src="/images/neaply/logo-search.png" alt="Neaply Logo" width={32} height={32} />
-              ) : (
-                <Image src="/images/neaply/logo.png" alt="Neaply Logo" width={100} height={100} />
-              )}
-            </Link>
-          </div>
+    <>
+      <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] font-aeonikpro w-full max-w-7xl mx-auto px-4">
+        <div
+          className="flex items-center px-6"
+          style={{
+            height: '59px',
+            borderRadius: '20px',
+            backgroundColor: 'rgba(30, 30, 36, 0.25)',
+            border: '1px solid rgba(211, 214, 224, 0.1)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
+        >
+          {/* Logo and Navigation */}
+          <div className="flex items-center flex-1">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              <Link href="/" className="flex items-center gap-2 bg-white rounded-xl py-2 px-2 cursor-pointer">
+                <Image src="/images/neaply/logo-search.png" alt="Neaply Logo" width={20} height={20} />
+              </Link>
+            </div>
 
-          {/* Mobile Search Bar - Centered - Only show on marketplace pages */}
-          {isMarketplacePage && (
-            <div className="lg:hidden flex-1 max-w-sm mx-4">
-              <form onSubmit={handleSearch} className="relative">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60 w-4 h-4" />
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => setIsSearchFocused(true)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Search in Neaply"
-                    className="pl-10 pr-3 h-9 bg-secondary border-transparent text-foreground font-space-grotesk placeholder:text-foreground/60 focus:ring-2 focus:ring-white/20 text-sm"
-                  />
-                </div>
+            {/* Search Bar - Right of logo */}
+            <div className="hidden lg:flex ml-6 flex-1 max-w-md">
+              <div className="relative w-full">
+                <form onSubmit={handleSearch} className="w-full">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      ref={searchRef}
+                      type="text"
+                      placeholder="Search workflows..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setIsSearchFocused(true)}
+                      onKeyDown={handleKeyDown}
+                      className="pl-10 pr-12 h-9 text-sm bg-white/10 border-white/20 text-white placeholder-gray-400 focus:bg-white/20 focus:border-white/40 rounded-full"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                      <kbd className="px-1.5 py-0.5 text-xs font-mono bg-white/20 text-gray-300 rounded border border-white/30">
+                        ⌘K
+                      </kbd>
+                    </div>
+                  </div>
+                </form>
 
-                {/* Mobile Search Dropdown */}
+                {/* Search Dropdown */}
                 {isSearchFocused && (
                   <div
                     ref={searchDropdownRef}
-                    className="absolute top-full left-0 right-0 mt-1 bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-80 overflow-y-auto"
                   >
-                    <div className="p-3 border-b border-white/10">
-                      <div className="flex items-center justify-between text-foreground/60 text-xs">
-                        <span>Press Enter to search</span>
-                      </div>
-                    </div>
-
                     <div className="p-2">
-                      <div className="text-foreground/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
+                      <div className="text-xs font-medium text-gray-500 mb-2 px-2">Quick searches</div>
                       {searchSuggestions.map((suggestion, index) => (
                         <button
                           key={index}
-                          type="button"
-                          tabIndex={-1}
                           onClick={() => handleSuggestionClick(suggestion.query)}
-                          className="w-full text-left px-3 py-2 text-foreground/80 hover:text-foreground hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group"
+                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors duration-200"
                         >
-                          <span>{suggestion.text}</span>
-                          <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <div className="flex items-center gap-2">
+                            <Search className="w-3 h-3 text-gray-400" />
+                            <span>{suggestion.text}</span>
+                          </div>
                         </button>
                       ))}
                     </div>
                   </div>
                 )}
-              </form>
-            </div>
-          )}
-
-          {/* Animated search (md+) moves from centered below to right of logo - Only show on marketplace pages */}
-          {isMarketplacePage && (
-            <div
-              className={`hidden lg:block absolute transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform transform-gpu ${
-                isHomepage && !isScrolled
-                  ? 'left-1/2 top-full mt-3 w-[48rem] max-w-3xl -translate-x-1/2 translate-y-0 scale-100 opacity-100'
-                  : 'left-[44px] top-1/2 w-96 translate-x-0 -translate-y-1/2 scale-100 opacity-100'
-              }`}
-              style={{
-                transformOrigin: isHomepage && !isScrolled ? 'center top' : 'left center',
-                backfaceVisibility: 'hidden',
-                perspective: '1000px',
-                containIntrinsicSize: '48rem 3rem',
-                contentVisibility: 'auto',
-              }}
-            >
-              <form onSubmit={handleSearch} className="relative">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/60 w-4 h-4 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]" />
-                  <Input
-                    ref={searchRef}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => {
-                      console.log('DESKTOP FOCUS DETECTED! Setting isSearchFocused to true')
-                      setIsSearchFocused(true)
-                    }}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Search in Neaply"
-                    className={`pl-10 pr-20 bg-secondary border-transparent text-foreground font-space-grotesk placeholder:text-foreground/60 focus:ring-2 focus:ring-white/20 transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-                      isHomepage && !isScrolled ? 'h-12 text-base' : 'h-10 text-sm'
-                    }`}
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-foreground/40 text-xs transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]">
-                    <Command className="w-3 h-3" />
-                    <span>K</span>
-                  </div>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Search Dropdown - Completely outside transformed container - Only show on marketplace pages */}
-          {/* DEBUG: isSearchFocused = {isSearchFocused ? 'true' : 'false'} */}
-          {isMarketplacePage && isSearchFocused && (
-            <div
-              ref={searchDropdownRef}
-              className="hidden lg:block absolute bg-secondary border border-white/10 rounded-lg shadow-lg z-[9999]"
-              style={{
-                backgroundColor: 'red !important',
-                border: '2px solid yellow !important',
-                minHeight: '200px',
-                minWidth: '400px',
-                top: isHomepage && !isScrolled ? '120px' : '50px',
-                left: isHomepage && !isScrolled ? '50%' : '44px',
-                transform: isHomepage && !isScrolled ? 'translateX(-50%)' : 'none',
-              }}
-            >
-              <div className="p-3 border-b border-white/10">
-                <div className="flex items-center justify-between text-foreground/60 text-xs">
-                  <span>Press Enter to search</span>
-                  <div className="flex items-center gap-1">
-                    <span>⌘K</span>
-                    <span>to focus</span>
-                  </div>
-                </div>
               </div>
-
-              <div className="p-2">
-                <div className="text-foreground/40 text-xs px-2 py-1 mb-2">Try searching for:</div>
-                {searchSuggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    tabIndex={-1}
-                    onClick={() => handleSuggestionClick(suggestion.query)}
-                    className="w-full text-left px-3 py-2 text-foreground/80 hover:text-foreground hover:bg-white/10 rounded-md text-sm transition-colors duration-200 flex items-center justify-between group cursor-pointer"
-                  >
-                    <span>{suggestion.text}</span>
-                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 z-10 font-space-grotesk">
-            <div className="flex items-baseline space-x-6">
-              <Link
-                href="/"
-                className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
-              >
-                <Trans i18nKey="navigation.marketplace" />
-              </Link>
-              <Link
-                href="/how-it-works"
-                className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
-              >
-                How It Works
-              </Link>
-              {user && user.isSeller && (
-                <Link
-                  href={`/store/${storeSlug || user.id}`}
-                  className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
-                >
-                  <Trans i18nKey="navigation.yourStore" />
-                </Link>
-              )}
-              {user && user.isAdmin && (
-                <Link
-                  href="/admin/dashboard"
-                  className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10"
-                >
-                  Admin Dashboard
-                </Link>
-              )}
-              {user && (
-                <Link
-                  href="/favorites"
-                  className="text-foreground/90 hover:text-foreground px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-white/10 flex items-center gap-1"
-                >
-                  <Trans i18nKey="navigation.favorites" />
-                </Link>
-              )}
             </div>
           </div>
 
-          <div className="hidden lg:flex items-center space-x-3">
+          <div className="hidden lg:flex items-center space-x-8">
+            {/* Navigation Links - Before auth buttons */}
+            <div className="flex items-center space-x-8 font-aeonikpro">
+              <Link
+                href="/"
+                className="relative font-medium transition-colors duration-200 group"
+                style={{ color: '#EDEFF7' }}
+              >
+                Explore
+              </Link>
+              <Link
+                href="/how-it-works"
+                className="relative font-medium transition-colors duration-200 group"
+                style={{ color: '#EDEFF7' }}
+              >
+                How it works
+              </Link>
+            </div>
+
             {loading ? (
               <div className="flex items-center space-x-3">
-                <div className="h-10 w-20 bg-muted rounded-full animate-pulse"></div>
-                <div className="h-10 w-32 bg-muted rounded-full animate-pulse"></div>
+                <div className="h-10 w-20 rounded-full animate-pulse" style={{ backgroundColor: '#40424D' }}></div>
+                <div className="h-10 w-32 rounded-full animate-pulse" style={{ backgroundColor: '#D3D6E0' }}></div>
               </div>
             ) : user ? (
               // Logged in user
@@ -401,7 +302,8 @@ export default function Navbar() {
                 {user && (
                   <button
                     onClick={handleCartClick}
-                    className="relative text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-full p-2 transition-colors duration-200 cursor-pointer"
+                    className="relative p-2 transition-colors duration-200 cursor-pointer"
+                    style={{ color: '#EDEFF7' }}
                   >
                     <ShoppingCart className="w-5 h-5" />
                     {cartItemsCount > 0 && (
@@ -411,22 +313,14 @@ export default function Navbar() {
                     )}
                   </button>
                 )}
-                {!user.isSeller && (
-                  <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10  rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-foreground"
-                    onClick={() => router.push('/become-seller')}
-                  >
-                    <Trans i18nKey="navigation.becomeCreator" />
-                  </button>
-                )}
-                {user.isSeller && (
-                  <button
-                    className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-secondary hover:bg-white/10 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-foreground"
-                    onClick={() => router.push('/dashboard/seller')}
-                  >
-                    <Trans i18nKey="navigation.creatorDashboard" />
-                  </button>
-                )}
+
+                <button
+                  className="font-aeonikpro inline-flex items-center justify-center h-10 px-6 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-black"
+                  style={{ backgroundColor: '#D3D6E0' }}
+                  onClick={() => router.push('/dashboard/seller')}
+                >
+                  Get started
+                </button>
 
                 {/* User Dropdown */}
                 <div className="relative" ref={dropdownRef}>
@@ -443,9 +337,9 @@ export default function Navbar() {
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-popover rounded-lg shadow-lg border border-border z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                       {/* User Info Section */}
-                      <div className="px-4 py-3 border-b border-border">
+                      <div className="px-4 py-3 border-b border-gray-200">
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage
@@ -453,13 +347,13 @@ export default function Navbar() {
                               alt={user.displayName}
                               className="object-cover"
                             />
-                            <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
+                            <AvatarFallback className="bg-gray-100 text-gray-600 text-sm font-medium">
                               {user.displayName.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-popover-foreground truncate">{user.displayName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                            <p className="text-sm font-medium text-black truncate">{user.displayName}</p>
+                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
                           </div>
                         </div>
                       </div>
@@ -470,34 +364,34 @@ export default function Navbar() {
                             router.push('/orders')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
                         >
-                          <Trans i18nKey="navigation.ordersHistory" />
+                          Orders History
                         </button>
                         <button
                           onClick={() => {
                             router.push('/help')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
                         >
-                          <Trans i18nKey="navigation.helpSupport" />
+                          Help & Support
                         </button>
                         <button
                           onClick={() => {
                             router.push('/settings')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
                         >
-                          <Trans i18nKey="navigation.settings" />
+                          Settings
                         </button>
-                        <div className="border-t border-border my-1"></div>
+                        <div className="border-t border-gray-200 my-1"></div>
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200 cursor-pointer"
                         >
-                          <Trans i18nKey="navigation.logout" />
+                          Logout
                         </button>
                       </div>
                     </div>
@@ -508,17 +402,16 @@ export default function Navbar() {
               // Not logged in
               <div className="flex items-center space-x-3">
                 <button
-                  className="font-space-grotesk inline-flex items-center justify-center h-10 px-5 bg-transparent border border-white/30 text-foreground rounded-full text-sm font-medium transition-all duration-300 hover:bg-white/10 cursor-pointer"
-                  onClick={() => router.push('/auth/register')}
+                  className="font-aeonikpro inline-flex items-center justify-center h-10 px-6 rounded-full text-sm text-white cursor-pointer bg-[#40424D]/25 hover:bg-[#40424D]/75 transition-all duration-300"
+                  onClick={() => router.push('/auth/login')}
                 >
-                  Sign-up
+                  Login
                 </button>
                 <button
-                  onClick={() => router.push('/login')}
-                  className="flex items-center justify-center h-10 w-10 rounded-full bg-white/10 text-foreground hover:bg-white/20 transition-colors cursor-pointer"
-                  aria-label="Login"
+                  className="font-aeonikpro inline-flex items-center justify-center h-10 px-6 rounded-full text-sm text-[#40424D] cursor-pointer bg-[#D3D6E0] hover:bg-white/90 hover:text-black transition-all duration-300"
+                  onClick={() => router.push('/auth/register')}
                 >
-                  <User className="w-5 h-5" />
+                  Get started
                 </button>
               </div>
             )}
@@ -527,7 +420,8 @@ export default function Navbar() {
           <div className="lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-muted-foreground hover:text-foreground p-2 rounded-full transition-colors duration-200"
+              className="p-2 rounded-full transition-colors duration-200"
+              style={{ color: '#EDEFF7' }}
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isMenuOpen ? (
@@ -539,13 +433,6 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-
-        {/* Smooth spacer to prevent background glitch during animation */}
-        <div
-          className={`transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-            isHomepage ? (isScrolled ? 'lg:h-0 lg:opacity-0' : 'lg:h-20 lg:opacity-100') : 'lg:h-0 lg:opacity-0'
-          } h-0 opacity-0`}
-        />
 
         {/* Mobile Menu with Animation */}
         <div
@@ -563,14 +450,13 @@ export default function Navbar() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Mobile Menu Header */}
-            <div className="flex items-center justify-between p-6 border-b border-border bg-background">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
               <div className="flex items-center gap-2">
-                <Image src="/images/neaply_logo.png" alt="Neaply Logo" width={24} height={24} />
-                <span className="font-space-grotesk text-lg font-bold text-foreground">Neaply</span>
+                <span className="font-aeonikpro text-lg font-semibold text-black">neaply</span>
               </div>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors duration-200"
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-black transition-colors duration-200"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -587,7 +473,7 @@ export default function Navbar() {
                 </span>
               </div>
               {/* Navigation Links */}
-              <div className="space-y-1 font-space-grotesk">
+              <div className="space-y-1 font-aeonikpro">
                 <Link
                   href="/"
                   className="block text-foreground/90 hover:text-foreground hover:bg-white/10 rounded-md px-2 py-3 text-base font-medium transition-colors duration-200"
@@ -726,7 +612,7 @@ export default function Navbar() {
                   // Not logged in - mobile
                   <div className="space-y-3">
                     <button
-                      className="w-full bg-transparent text-foreground py-3 px-4 rounded-lg text-sm font-space-grotesk font-medium transition-all duration-300 hover:bg-accent"
+                      className="w-full bg-transparent text-foreground py-3 px-4 rounded-lg text-sm font-aeonikpro font-medium transition-all duration-300 hover:bg-accent"
                       onClick={() => {
                         router.push('/login')
                         setIsMenuOpen(false)
@@ -740,10 +626,10 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Cart Slider */}
       <CartSlider isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-    </nav>
+    </>
   )
 }

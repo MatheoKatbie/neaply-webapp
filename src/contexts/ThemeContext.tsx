@@ -13,13 +13,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('system')
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light')
+  const [theme, setTheme] = useState<Theme>('dark')
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark')
 
   useEffect(() => {
-    // Check for saved theme preference or default to system
+    // Check for saved theme preference or default to dark
     const savedTheme = localStorage.getItem('theme') as Theme | null
-    const initialTheme = savedTheme || 'system'
+    const initialTheme = savedTheme || 'dark'
 
     setTheme(initialTheme)
     applyTheme(initialTheme)
