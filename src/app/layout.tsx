@@ -109,7 +109,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${aeonikPro.variable} ${inter.className} antialiased mb-8`}
+        className={`${inter.variable} ${spaceGrotesk.variable} ${aeonikPro.variable} ${inter.className} antialiased`}
         suppressHydrationWarning={true}
         style={{ backgroundColor: '#08080A' }}
       >
