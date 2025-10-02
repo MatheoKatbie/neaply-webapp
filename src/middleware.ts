@@ -67,6 +67,8 @@ export async function middleware(req: NextRequest) {
     '/auth/callback',
     '/auth/reset-password',
     '/',
+    '/search',
+    '/marketplace',
     '/robots.txt',
     '/sitemap.xml',
     '/checkout/success', // Allow checkout success page without auth

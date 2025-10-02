@@ -427,10 +427,149 @@ export default function Home() {
   return (
     <>
       <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#08080A' }}>
+        {/* Decorative ellipses for ambient lighting */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Bottom ellipses */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              left: '-471px',
+              bottom: '400px',
+              width: '639px',
+              height: '639px',
+              backgroundColor: '#7899A8',
+              opacity: 0.35,
+              filter: 'blur(350px)',
+            }}
+          />
+          <div
+            className="absolute rounded-full"
+            style={{
+              right: '-471px',
+              bottom: '400px',
+              width: '639px',
+              height: '639px',
+              backgroundColor: '#7899A8',
+              opacity: 0.35,
+              filter: 'blur(350px)',
+            }}
+          />
+        </div>
+
         {/* Content with higher z-index */}
         <div className="relative z-10">
           {/* Hero Section - Always displayed */}
           <section className="relative overflow-visible pt-[140px] md:pt-[170px] pb-32 bg-[#08080A]">
+            {/* Small decorative ellipses */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                right: '-200px',
+                top: '600px',
+                width: '300px',
+                height: '300px',
+                backgroundColor: '#7899A8',
+                opacity: 0.3,
+                filter: 'blur(150px)',
+                zIndex: 1,
+              }}
+            />
+            <div
+              className="absolute rounded-full"
+              style={{
+                left: '-150px',
+                top: '0px',
+                width: '350px',
+                height: '350px',
+                backgroundColor: '#7899A8',
+                opacity: 0.3,
+                filter: 'blur(150px)',
+                zIndex: 1,
+              }}
+            />
+
+            {/* Network Nodes Pattern - Left Side */}
+            <svg
+              className="absolute left-0 top-0 h-full pointer-events-none"
+              style={{ zIndex: 1, width: '150px' }}
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient id="nodeGradientLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#7899A8', stopOpacity: 0.5 }} />
+                  <stop offset="100%" style={{ stopColor: '#40424D', stopOpacity: 0.3 }} />
+                </linearGradient>
+              </defs>
+
+              {/* Lines connecting nodes - Left */}
+              <line x1="20" y1="15%" x2="80" y2="25%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+              <line x1="80" y1="25%" x2="60" y2="40%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+              <line x1="60" y1="40%" x2="100" y2="55%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+              <line x1="60" y1="40%" x2="40" y2="60%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+              <line x1="100" y1="55%" x2="80" y2="75%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+
+              {/* Nodes (circles) - Left */}
+              <circle cx="20" cy="15%" r="3" fill="url(#nodeGradientLeft)">
+                <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="80" cy="25%" r="3.5" fill="url(#nodeGradientLeft)">
+                <animate attributeName="opacity" values="0.8;0.4;0.8" dur="2.5s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="60" cy="40%" r="3" fill="url(#nodeGradientLeft)">
+                <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3.5s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="100" cy="55%" r="4" fill="url(#nodeGradientLeft)">
+                <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2.8s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="40" cy="60%" r="3" fill="url(#nodeGradientLeft)">
+                <animate attributeName="opacity" values="0.6;0.9;0.6" dur="2.6s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="80" cy="75%" r="3.5" fill="url(#nodeGradientLeft)">
+                <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3.4s" repeatCount="indefinite" />
+              </circle>
+            </svg>
+
+            {/* Network Nodes Pattern - Right Side */}
+            <svg
+              className="absolute right-0 top-0 h-full pointer-events-none"
+              style={{ zIndex: 1, width: '150px' }}
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient id="nodeGradientRight" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#7899A8', stopOpacity: 0.5 }} />
+                  <stop offset="100%" style={{ stopColor: '#40424D', stopOpacity: 0.3 }} />
+                </linearGradient>
+              </defs>
+
+              {/* Lines connecting nodes - Right */}
+              <line x1="130" y1="20%" x2="70" y2="30%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+              <line x1="70" y1="30%" x2="90" y2="45%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+              <line x1="90" y1="45%" x2="50" y2="50%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+              <line x1="90" y1="45%" x2="110" y2="65%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+              <line x1="50" y1="50%" x2="70" y2="70%" stroke="#7899A8" strokeWidth="1" opacity="0.25" />
+
+              {/* Nodes (circles) - Right */}
+              <circle cx="130" cy="20%" r="3" fill="url(#nodeGradientRight)">
+                <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2.7s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="70" cy="30%" r="3.5" fill="url(#nodeGradientRight)">
+                <animate attributeName="opacity" values="0.8;0.4;0.8" dur="3.2s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="90" cy="45%" r="4" fill="url(#nodeGradientRight)">
+                <animate attributeName="opacity" values="0.5;0.9;0.5" dur="2.9s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="50" cy="50%" r="3" fill="url(#nodeGradientRight)">
+                <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3.3s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="110" cy="65%" r="3.5" fill="url(#nodeGradientRight)">
+                <animate attributeName="opacity" values="0.6;0.9;0.6" dur="2.4s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="70" cy="70%" r="3" fill="url(#nodeGradientRight)">
+                <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3.1s" repeatCount="indefinite" />
+              </circle>
+            </svg>
+
             {/* Background Image */}
             <div className="absolute z-0 top-[350px] left-0 right-0 w-full pointer-events-none">
               <img
@@ -718,6 +857,9 @@ export default function Home() {
                 <div className="relative">
                   {/* Container with gradient overlays for navigation */}
                   <div className="relative overflow-hidden">
+                    {/* Black gradient fade on the right */}
+                    <div className="absolute right-0 top-0 bottom-0 w-64 bg-gradient-to-l from-[#08080A] to-transparent pointer-events-none z-20" />
+
                     {/* Calculate padding to align with text container */}
                     <div
                       className="store-cards-container flex gap-4 py-6 overflow-x-auto scrollbar-hide"
@@ -810,7 +952,7 @@ export default function Home() {
                       <button
                         aria-label="Previous store"
                         onClick={goPrev}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors cursor-pointer z-30 flex items-center justify-center"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all cursor-pointer z-30 flex items-center justify-center"
                       >
                         <ChevronLeft className="w-6 h-6" />
                       </button>
@@ -818,7 +960,7 @@ export default function Home() {
                     <button
                       aria-label="Next store"
                       onClick={goNext}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors cursor-pointer z-30 flex items-center justify-center"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all cursor-pointer z-30 flex items-center justify-center"
                     >
                       <ChevronRight className="w-6 h-6" />
                     </button>
@@ -836,6 +978,9 @@ export default function Home() {
                   <div className="relative">
                     {/* Container with gradient overlays for navigation */}
                     <div className="relative overflow-hidden">
+                      {/* Black gradient fade on the right */}
+                      <div className="absolute right-0 top-0 bottom-0 w-64 bg-gradient-to-l from-[#08080A] to-transparent pointer-events-none z-20" />
+
                       {/* Calculate padding to align with text container */}
                       <div
                         className="trending-workflow-cards-container flex gap-4 py-6 overflow-x-auto scrollbar-hide"
@@ -1008,7 +1153,7 @@ export default function Home() {
                         <button
                           aria-label="Previous workflow"
                           onClick={goPrevTrending}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors cursor-pointer z-30 flex items-center justify-center"
+                          className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all cursor-pointer z-30 flex items-center justify-center"
                         >
                           <ChevronLeft className="w-6 h-6" />
                         </button>
@@ -1016,7 +1161,7 @@ export default function Home() {
                       <button
                         aria-label="Next workflow"
                         onClick={goNextTrending}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors cursor-pointer z-30 flex items-center justify-center"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all cursor-pointer z-30 flex items-center justify-center"
                       >
                         <ChevronRight className="w-6 h-6" />
                       </button>
