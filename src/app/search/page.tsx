@@ -1,343 +1,559 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
-import { Search, Package, Workflow, Filter } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Search } from 'lucide-react'
 
 type SearchResult = {
-    id: string
-    type: 'workflow' | 'pack'
-    title: string
-    description: string
-    price: number
-    currency: string
-    seller: string
-    rating: number
-    ratingCount: number
-    heroImage?: string | null
-    categories: string[]
-    tags: string[]
-    isFavorite: boolean
-    slug: string
-    createdAt: string
-    // Workflow specific
-    platform?: string
-    salesCount?: number
-    isNew?: boolean
-    isTrending?: boolean
-    // Pack specific
-    workflowCount?: number
-    workflows?: Array<{
-        id: string
-        title: string
-        description: string
-        heroImage?: string | null
-        rating: number
-        ratingCount: number
-    }>
+  id: string
+  type: 'workflow' | 'pack'
+  title: string
+  description: string
+  price: number
+  currency: string
+  seller: string
+  rating: number
+  ratingCount: number
+  heroImage?: string | null
+  categories: string[]
+  tags: string[]
+  isFavorite: boolean
+  slug: string
+  createdAt: string
+  // Workflow specific
+  platform?: string
+  salesCount?: number
+  isNew?: boolean
+  isTrending?: boolean
 }
 
 export default function SearchPage() {
-    const searchParams = useSearchParams()
-    const query = searchParams.get('q') || ''
-    const typeFilter = searchParams.get('type') || 'all'
+  const searchParams = useSearchParams()
+  const query = searchParams.get('q') || ''
 
-    const [results, setResults] = useState<SearchResult[]>([])
-    const [totalCount, setTotalCount] = useState(0)
-    const [currentPage, setCurrentPage] = useState(1)
-    const [hasMore, setHasMore] = useState(true)
-    const [isLoading, setIsLoading] = useState(true)
-    const [isLoadingMore, setIsLoadingMore] = useState(false)
-    const [stats, setStats] = useState({ workflows: 0, packs: 0 })
+  const [allResults, setAllResults] = useState<SearchResult[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
 
-    const pageBg = '#202D33'
-    const topBorder = '#3E4E55'
+  // Filtres côté front
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [workflowTypeFilter, setWorkflowTypeFilter] = useState<string>('all')
+  const [priceRangeFilter, setPriceRangeFilter] = useState<string>('all')
+  const [recentlyAddedFilter, setRecentlyAddedFilter] = useState<string>('all')
 
-    const loadSearchResults = async (page: number = 1, append: boolean = false) => {
-        if (!query.trim()) return
+  const loadSearchResults = async (page: number = 1, append: boolean = false) => {
+    if (!query.trim()) return
 
-        const loadingState = page === 1 ? setIsLoading : setIsLoadingMore
-        loadingState(true)
+    const loadingState = page === 1 ? setIsLoading : setIsLoadingMore
+    loadingState(true)
 
-        try {
-            const qs = new URLSearchParams()
-            qs.set('q', query)
-            qs.set('page', page.toString())
-            qs.set('limit', '16')
-            qs.set('type', typeFilter)
+    try {
+      const qs = new URLSearchParams()
+      qs.set('q', query)
+      qs.set('page', page.toString())
+      qs.set('limit', '50') // Load more at once for client-side filtering
+      qs.set('type', 'workflows') // Only workflows, no packs
 
-            const response = await fetch(`/api/search?${qs.toString()}`)
-            const data = await response.json()
+      const response = await fetch(`/api/search?${qs.toString()}`)
+      const data = await response.json()
 
-            const newResults = data.data || []
-            const total = data.pagination?.totalCount || 0
+      const newResults = (data.data || []).filter((item: SearchResult) => item.type === 'workflow')
 
-            if (append) {
-                setResults(prev => [...prev, ...newResults])
-            } else {
-                setResults(newResults)
-            }
+      if (append) {
+        setAllResults((prev) => [...prev, ...newResults])
+      } else {
+        setAllResults(newResults)
+      }
 
-            setTotalCount(total)
-            setHasMore(data.pagination?.hasNext || false)
-            setCurrentPage(page)
-            setStats(data.stats || { workflows: 0, packs: 0 })
-        } catch (error) {
-            console.error('Error searching:', error)
-        } finally {
-            loadingState(false)
+      setHasMore(data.pagination?.hasNext || false)
+      setCurrentPage(page)
+    } catch (error) {
+      console.error('Error searching:', error)
+    } finally {
+      loadingState(false)
+    }
+  }
+
+  useEffect(() => {
+    if (query.trim()) {
+      setCurrentPage(1)
+      loadSearchResults(1, false)
+    }
+  }, [query])
+
+  const loadMore = () => {
+    if (!hasMore || isLoadingMore) return
+    loadSearchResults(currentPage + 1, true)
+  }
+
+  // Filtrage côté front
+  const filteredResults = useMemo(() => {
+    let filtered = [...allResults]
+
+    // Filter by category
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter((item) => item.categories.includes(categoryFilter))
+    }
+
+    // Filter by workflow type (platform)
+    if (workflowTypeFilter !== 'all') {
+      filtered = filtered.filter((item) => item.platform === workflowTypeFilter)
+    }
+
+    // Filter by price range
+    if (priceRangeFilter !== 'all') {
+      filtered = filtered.filter((item) => {
+        const price = item.price
+        switch (priceRangeFilter) {
+          case 'free':
+            return price === 0
+          case 'under-50':
+            return price > 0 && price < 5000
+          case '50-100':
+            return price >= 5000 && price <= 10000
+          case 'over-100':
+            return price > 10000
+          default:
+            return true
         }
+      })
     }
 
-    useEffect(() => {
-        if (query.trim()) {
-            setCurrentPage(1)
-            loadSearchResults(1, false)
+    // Filter by recently added
+    if (recentlyAddedFilter !== 'all') {
+      const now = new Date()
+      filtered = filtered.filter((item) => {
+        const createdDate = new Date(item.createdAt)
+        const diffTime = Math.abs(now.getTime() - createdDate.getTime())
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        switch (recentlyAddedFilter) {
+          case 'today':
+            return diffDays <= 1
+          case 'week':
+            return diffDays <= 7
+          case 'month':
+            return diffDays <= 30
+          default:
+            return true
         }
-    }, [query, typeFilter])
-
-    const loadMore = () => {
-        if (!hasMore || isLoadingMore) return
-        loadSearchResults(currentPage + 1, true)
+      })
     }
 
-    const updateTypeFilter = (type: string) => {
-        const params = new URLSearchParams(searchParams)
-        params.set('type', type)
-        window.history.replaceState(null, '', `?${params.toString()}`)
-    }
+    return filtered
+  }, [allResults, categoryFilter, workflowTypeFilter, priceRangeFilter, recentlyAddedFilter])
 
-    const formatPrice = (price: number, currency: string) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: currency,
-        }).format(price / 100)
-    }
+  const formatPrice = (price: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(price / 100)
+  }
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
-                <div className="border-t" style={{ borderColor: topBorder }} />
-                <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-                    {/* Search header skeleton */}
-                    <div className="mb-8">
-                        <div className="h-8 bg-[#223039] rounded-lg mb-3 animate-pulse" />
-                        <div className="h-6 bg-[#223039] rounded-lg w-48 animate-pulse" />
-                    </div>
-
-                    {/* Results skeleton */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {Array.from({ length: 16 }).map((_, i) => (
-                            <div key={i} className="space-y-2">
-                                <div className="h-44 md:h-56 bg-[#223039] rounded-xl animate-pulse" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
+  if (isLoading) {
     return (
-        <div className="min-h-screen" style={{ backgroundColor: pageBg }}>
-            <div className="border-t" style={{ borderColor: topBorder }} />
+      <div className="min-h-screen pt-24" style={{ backgroundColor: '#08080A' }}>
+        <div className="max-w-screen-2xl mx-auto px-3 md:px-4 py-8">
+          {/* Search header skeleton */}
+          <div className="mb-8">
+            <div className="h-8 rounded-lg mb-3 animate-pulse" style={{ backgroundColor: 'rgba(64, 66, 77, 0.3)' }} />
+            <div className="h-6 rounded-lg w-48 animate-pulse" style={{ backgroundColor: 'rgba(64, 66, 77, 0.3)' }} />
+          </div>
 
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-                {/* Search Header */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-3">
-                        <Search className="w-6 h-6 text-white/60" />
-                        <h1 className="text-white font-space-grotesk text-2xl">
-                            Search Results
-                        </h1>
-                    </div>
-                    <p className="text-white/80 mb-4">
-                        {totalCount === 0
-                            ? `No results found for "${query}"`
-                            : `${totalCount} result${totalCount === 1 ? '' : 's'} found for "${query}"`
-                        }
-                    </p>
-
-                    {/* Type Filter */}
-                    <div className="flex items-center gap-2 mb-6">
-                        <Filter className="w-4 h-4 text-white/60" />
-                        <span className="text-white/60 text-sm">Filter by:</span>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => updateTypeFilter('all')}
-                                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${typeFilter === 'all'
-                                    ? 'bg-white/20 text-white border border-white/30'
-                                    : 'bg-[#1B272C] text-white/80 hover:text-white hover:bg-white/10 border border-white/20'
-                                    }`}
-                            >
-                                All ({stats.workflows + stats.packs})
-                            </button>
-                            <button
-                                onClick={() => updateTypeFilter('workflows')}
-                                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-1 ${typeFilter === 'workflows'
-                                    ? 'bg-white/20 text-white border border-white/30'
-                                    : 'bg-[#1B272C] text-white/80 hover:text-white hover:bg-white/10 border border-white/20'
-                                    }`}
-                            >
-                                <Workflow className="w-4 h-4" />
-                                Workflows ({stats.workflows})
-                            </button>
-                            <button
-                                onClick={() => updateTypeFilter('packs')}
-                                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-1 ${typeFilter === 'packs'
-                                    ? 'bg-white/20 text-white border border-white/30'
-                                    : 'bg-[#1B272C] text-white/80 hover:text-white hover:bg-white/10 border border-white/20'
-                                    }`}
-                            >
-                                <Package className="w-4 h-4" />
-                                Packs ({stats.packs})
-                            </button>
+          {/* Results skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="group h-[420px]">
+                <div
+                  className="border border-[#9DA2B3]/15 rounded-xl overflow-hidden shadow-lg h-full flex flex-col"
+                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+                >
+                  <div className="h-48 p-3 animate-pulse" style={{ backgroundColor: 'rgba(30, 30, 36, 0.8)' }}>
+                    <div
+                      className="h-full rounded-lg animate-pulse"
+                      style={{ backgroundColor: 'rgba(157, 162, 179, 0.15)' }}
+                    ></div>
+                  </div>
+                  <div className="px-4 py-1 flex-1 flex flex-col">
+                    <div
+                      className="h-14 rounded animate-pulse mb-2"
+                      style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}
+                    ></div>
+                    <div
+                      className="h-16 rounded animate-pulse mb-2 flex-1"
+                      style={{ backgroundColor: 'rgba(157, 162, 179, 0.15)' }}
+                    ></div>
+                    <div className="mt-4 pt-4 border-t border-[#9DA2B3]/25">
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col gap-1">
+                          <div
+                            className="h-3 w-8 rounded animate-pulse"
+                            style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}
+                          ></div>
+                          <div
+                            className="h-6 w-16 rounded animate-pulse"
+                            style={{ backgroundColor: 'rgba(237, 239, 247, 0.2)' }}
+                          ></div>
                         </div>
+                        <div className="flex flex-col gap-1 items-end">
+                          <div
+                            className="h-3 w-10 rounded animate-pulse"
+                            style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}
+                          ></div>
+                          <div
+                            className="h-6 w-12 rounded animate-pulse"
+                            style={{ backgroundColor: 'rgba(237, 239, 247, 0.2)' }}
+                          ></div>
+                        </div>
+                      </div>
                     </div>
+                  </div>
                 </div>
-
-                {/* No Results */}
-                {totalCount === 0 && (
-                    <div className="text-center py-16">
-                        <Package className="w-16 h-16 text-white/40 mx-auto mb-4" />
-                        <h3 className="text-white font-space-grotesk text-xl mb-2">
-                            No results found
-                        </h3>
-                        <p className="text-white/60 max-w-md mx-auto">
-                            Try adjusting your search terms or browse our marketplace to discover amazing workflows and packs.
-                        </p>
-                    </div>
-                )}
-
-                {/* Results Grid */}
-                {results.length > 0 && (
-                    <>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
-                            {results.map((item) => (
-                                <div key={`${item.type}-${item.id}`} className="space-y-2">
-                                    <a
-                                        href={item.type === 'workflow' ? `/workflow/${item.id}` : `/packs/${item.id}`}
-                                        className="group relative rounded-xl overflow-hidden h-44 md:h-56 bg-[#223039] border border-[#2A3A41] block"
-                                    >
-                                        {/* Type Badge */}
-                                        <div className="absolute top-3 left-3 z-20">
-                                            <div className={`px-2 py-1 rounded-full text-xs font-medium ${item.type === 'workflow'
-                                                ? 'bg-blue-500/90 text-white'
-                                                : 'bg-purple-500/90 text-white'
-                                                }`}>
-                                                {item.type === 'workflow' ? (
-                                                    <div className="flex items-center gap-1">
-                                                        <Workflow className="w-3 h-3" />
-                                                        Workflow
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center gap-1">
-                                                        <Package className="w-3 h-3" />
-                                                        Pack ({item.workflowCount} workflows)
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Hero Image */}
-                                        {item.heroImage ? (
-                                            <img
-                                                src={item.heroImage}
-                                                alt={item.title}
-                                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
-                                            />
-                                        ) : (
-                                            <div className="absolute inset-0">
-                                                <AutoThumbnail
-                                                    workflow={{
-                                                        id: item.id,
-                                                        title: item.title,
-                                                        shortDesc: item.description,
-                                                        longDescMd: '',
-                                                        categories: item.categories.map(category => ({
-                                                            category: {
-                                                                id: category,
-                                                                name: category,
-                                                                slug: category,
-                                                            },
-                                                        })),
-                                                        tags: item.tags.map(tag => ({
-                                                            tag: {
-                                                                id: tag,
-                                                                name: tag,
-                                                                slug: tag,
-                                                            },
-                                                        })),
-                                                    }}
-                                                    size="lg"
-                                                    className="absolute inset-0 w-full h-full"
-                                                />
-                                            </div>
-                                        )}
-
-                                        {/* Overlay */}
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
-
-                                        {/* Content */}
-                                        <div className="relative z-10 p-4 text-white h-full flex flex-col justify-end transition-transform duration-300 group-hover:-translate-y-3">
-                                            <div className="font-space-grotesk text-base md:text-lg line-clamp-1">{item.title}</div>
-                                            <div className="text-sm text-white/80 line-clamp-2 mt-1">{item.description}</div>
-
-                                            {/* Price and Rating */}
-                                            <div className="flex items-center justify-between mt-2">
-                                                <span className="text-sm font-medium text-white">
-                                                    {formatPrice(item.price, item.currency)}
-                                                </span>
-                                                {item.rating > 0 && (
-                                                    <div className="flex items-center gap-1 text-sm text-white/80">
-                                                        <span>★</span>
-                                                        <span>{item.rating.toFixed(1)}</span>
-                                                        <span>({item.ratingCount})</span>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Seller */}
-                                            <div className="text-xs text-white/60 mt-1">
-                                                by {item.seller}
-                                            </div>
-                                        </div>
-
-                                        {/* Hover Action */}
-                                        <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center transition-all duration-300 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0">
-                                            <span className="px-4 py-2 rounded-full bg-white text-[#202D33] font-medium">
-                                                See Details
-                                            </span>
-                                        </div>
-                                    </a>
-                                </div>
-                            ))}
-
-                            {/* Loading skeleton for more results */}
-                            {isLoadingMore && Array.from({ length: 4 }).map((_, i) => (
-                                <div key={`loading-${i}`} className="space-y-2">
-                                    <div className="h-44 md:h-56 bg-[#223039] rounded-xl animate-pulse" />
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Load More Button */}
-                        {hasMore && (
-                            <div className="text-center">
-                                <Button
-                                    onClick={loadMore}
-                                    disabled={isLoadingMore}
-                                    className="bg-[#1B272C] hover:bg-white/10 text-white rounded-full disabled:opacity-50"
-                                >
-                                    {isLoadingMore ? 'Loading...' : `Load More ${typeFilter === 'all' ? 'Results' : typeFilter === 'workflows' ? 'Workflows' : 'Packs'}`}
-                                </Button>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
     )
+  }
+
+  return (
+    <div className="min-h-screen pt-24" style={{ backgroundColor: '#08080A' }}>
+      <div className="max-w-screen-2xl mx-auto px-3 md:px-4 py-8">
+        {/* Search Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Search className="w-6 h-6" style={{ color: '#9DA2B3' }} />
+            <h1 className="font-aeonikpro text-2xl" style={{ color: '#EDEFF7' }}>
+              Search Results
+            </h1>
+          </div>
+          <p className="font-aeonikpro text-lg mb-6" style={{ color: '#D3D6E0' }}>
+            {filteredResults.length === 0
+              ? `No results found for "${query}"`
+              : `${filteredResults.length} workflow${filteredResults.length === 1 ? '' : 's'} found for "${query}"`}
+          </p>
+
+          {/* Filters from homepage */}
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Category filter */}
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[140px] bg-[#2A2D3A] border-[#404040] text-white font-aeonikpro">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="Marketing">Marketing</SelectItem>
+                <SelectItem value="Automation">Automation</SelectItem>
+                <SelectItem value="Data">Data</SelectItem>
+                <SelectItem value="Productivity">Productivity</SelectItem>
+                <SelectItem value="E-commerce">E-commerce</SelectItem>
+                <SelectItem value="CRM">CRM</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Workflow type filter (platform) */}
+            <Select value={workflowTypeFilter} onValueChange={setWorkflowTypeFilter}>
+              <SelectTrigger className="w-[160px] bg-[#2A2D3A] border-[#404040] text-white font-aeonikpro">
+                <SelectValue placeholder="Workflow type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Platforms</SelectItem>
+                <SelectItem value="n8n">n8n</SelectItem>
+                <SelectItem value="zapier">Zapier</SelectItem>
+                <SelectItem value="make">Make</SelectItem>
+                <SelectItem value="airtable_script">Airtable</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Price range filter */}
+            <Select value={priceRangeFilter} onValueChange={setPriceRangeFilter}>
+              <SelectTrigger className="w-[140px] bg-[#2A2D3A] border-[#404040] text-white font-aeonikpro">
+                <SelectValue placeholder="Price range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Prices</SelectItem>
+                <SelectItem value="free">Free</SelectItem>
+                <SelectItem value="under-50">Under $50</SelectItem>
+                <SelectItem value="50-100">$50 - $100</SelectItem>
+                <SelectItem value="over-100">Over $100</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Recently added filter */}
+            <Select value={recentlyAddedFilter} onValueChange={setRecentlyAddedFilter}>
+              <SelectTrigger className="w-[160px] bg-[#2A2D3A] border-[#404040] text-white font-aeonikpro">
+                <SelectValue placeholder="Recently added" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This week</SelectItem>
+                <SelectItem value="month">This month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* No Results */}
+        {filteredResults.length === 0 && !isLoading && (
+          <div className="text-center py-16">
+            <Search className="w-16 h-16 mx-auto mb-4" style={{ color: '#9DA2B3' }} />
+            <h3 className="font-aeonikpro text-xl mb-2" style={{ color: '#EDEFF7' }}>
+              No results found
+            </h3>
+            <p className="font-aeonikpro max-w-md mx-auto" style={{ color: '#9DA2B3' }}>
+              Try adjusting your search terms or filters to discover amazing workflows.
+            </p>
+          </div>
+        )}
+
+        {/* Results Grid */}
+        {filteredResults.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+              {filteredResults.map((item) => {
+                // Define platform colors
+                const platformColors = {
+                  zapier: 'bg-[#FF4A00]',
+                  n8n: 'bg-[#EA4B71]',
+                  make: 'bg-gradient-to-br from-[#6D00CC] to-[#F901FC]',
+                  airtable_script: 'bg-gradient-to-r from-blue-600 to-blue-800',
+                }
+
+                const platformLogos = {
+                  zapier: {
+                    gray: '/images/hero/zapier-grey.png',
+                    color: '/images/hero/zapier-color.png',
+                  },
+                  n8n: {
+                    gray: '/images/hero/n8n-grey.png',
+                    color: '/images/hero/n8n-color.png',
+                  },
+                  make: {
+                    gray: '/images/hero/make-grey.png',
+                    color: '/images/hero/make-color.png',
+                  },
+                  airtable_script: {
+                    gray: '/images/hero/airtable-grey.png',
+                    color: '/images/hero/airtable-color.png',
+                  },
+                }
+
+                const bgColor =
+                  item.platform && platformColors[item.platform as keyof typeof platformColors]
+                    ? platformColors[item.platform as keyof typeof platformColors]
+                    : 'bg-[#1E1E24]'
+
+                const platformLogo = item.platform ? platformLogos[item.platform as keyof typeof platformLogos] : null
+
+                return (
+                  <div key={item.id} className="group h-full">
+                    <a
+                      href={`/workflow/${item.id}`}
+                      className="border border-[#9DA2B3]/15 rounded-xl overflow-hidden hover:border-[#9DA2B3]/30 transition-all duration-300 hover:scale-[1.02] h-[420px] flex flex-col"
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+                    >
+                      {/* Header with custom thumbnail */}
+                      <div className="relative h-48 p-3">
+                        <div
+                          className={`relative w-full h-full rounded-lg ${bgColor} dots-pattern p-4 flex flex-col justify-between overflow-hidden group`}
+                        >
+                          {/* Platform logo - centered and larger */}
+                          <div className="absolute inset-0 z-10 flex items-center justify-center">
+                            {platformLogo && (
+                              <div className="relative w-16 h-16">
+                                <img
+                                  src={platformLogo.color}
+                                  alt={item.platform}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Sales count badge */}
+                          {item.salesCount !== undefined && (
+                            <div
+                              className="absolute top-2 right-2 z-20 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full font-aeonikpro"
+                              style={{ backgroundColor: '#FFF', color: '#40424D' }}
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                                />
+                              </svg>
+                              <span className="font-medium">{item.salesCount || 0} sales</span>
+                            </div>
+                          )}
+
+                          {/* Dark gradient overlay from bottom to top */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent rounded-lg z-5" />
+                        </div>
+                      </div>
+
+                      {/* Content section */}
+                      <div className="px-4 py-1 flex-1 flex flex-col">
+                        {/* Title */}
+                        <h3 className="font-aeonikpro text-lg line-clamp-2 mb-2" style={{ color: '#EDEFF7' }}>
+                          {item.title}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-sm line-clamp-2 flex-1 font-aeonikpro" style={{ color: '#9DA2B3' }}>
+                          {item.description}
+                        </p>
+
+                        {/* Footer with price and rating */}
+                        <div className="mt-4 pt-4 border-t border-[#9DA2B3]/25">
+                          <div className="flex items-start justify-between">
+                            {/* Price section */}
+                            <div className="flex flex-col">
+                              <span
+                                className="text-xs font-aeonikpro uppercase tracking-wide"
+                                style={{ color: '#9DA2B3' }}
+                              >
+                                PRICE
+                              </span>
+                              <span className="text-lg font-aeonikpro font-bold" style={{ color: '#EDEFF7' }}>
+                                {item.price === 0 ? 'Free' : formatPrice(item.price, item.currency)}
+                              </span>
+                            </div>
+
+                            {/* Rating section */}
+                            <div className="flex flex-col items-end">
+                              <span
+                                className="text-xs font-aeonikpro uppercase tracking-wide"
+                                style={{ color: '#9DA2B3' }}
+                              >
+                                RATING
+                              </span>
+                              <div className="flex items-center gap-1">
+                                <svg className="w-4 h-4 text-[#FF7700]" fill="#FF7700" viewBox="0 0 24 24">
+                                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                </svg>
+                                <span className="text-lg font-aeonikpro" style={{ color: '#EDEFF7' }}>
+                                  {item.rating?.toFixed(1) || '0.0'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                )
+              })}
+
+              {/* Loading skeleton for more results */}
+              {isLoadingMore &&
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={`loading-${i}`} className="group h-[420px]">
+                    <div
+                      className="border border-[#9DA2B3]/15 rounded-xl overflow-hidden shadow-lg h-full flex flex-col"
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+                    >
+                      <div className="h-48 p-3 animate-pulse" style={{ backgroundColor: 'rgba(30, 30, 36, 0.8)' }}>
+                        <div
+                          className="h-full rounded-lg animate-pulse"
+                          style={{ backgroundColor: 'rgba(157, 162, 179, 0.15)' }}
+                        ></div>
+                      </div>
+                      <div className="px-4 py-1 flex-1 flex flex-col">
+                        <div
+                          className="h-14 rounded animate-pulse mb-2"
+                          style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}
+                        ></div>
+                        <div
+                          className="h-16 rounded animate-pulse mb-2 flex-1"
+                          style={{ backgroundColor: 'rgba(157, 162, 179, 0.15)' }}
+                        ></div>
+                        <div className="mt-4 pt-4 border-t border-[#9DA2B3]/25">
+                          <div className="flex items-start justify-between">
+                            <div className="flex flex-col gap-1">
+                              <div
+                                className="h-3 w-8 rounded animate-pulse"
+                                style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}
+                              ></div>
+                              <div
+                                className="h-6 w-16 rounded animate-pulse"
+                                style={{ backgroundColor: 'rgba(237, 239, 247, 0.2)' }}
+                              ></div>
+                            </div>
+                            <div className="flex flex-col gap-1 items-end">
+                              <div
+                                className="h-3 w-10 rounded animate-pulse"
+                                style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}
+                              ></div>
+                              <div
+                                className="h-6 w-12 rounded animate-pulse"
+                                style={{ backgroundColor: 'rgba(237, 239, 247, 0.2)' }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="text-center mt-12">
+                <Button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  className="group relative bg-white border border-gray-200 hover:border-gray-300 text-black rounded-full disabled:opacity-50 px-12 py-4 font-aeonikpro text-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-gray-500/25 disabled:hover:scale-100 disabled:hover:shadow-none"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {isLoadingMore ? (
+                      <>
+                        <svg className="animate-spin w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
+                        </svg>
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        Load More Workflows
+                        <svg
+                          className="w-5 h-5 group-hover:translate-y-0.5 transition-transform duration-200"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                          />
+                        </svg>
+                      </>
+                    )}
+                  </span>
+
+                  {/* Hover gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100/50 to-gray-200/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
 }

@@ -7,7 +7,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="mt-auto font-aeonikpro bg-[#08080A] ">
+    <footer className="mt-auto font-aeonikpro bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-[#D3D6E0]/5 border border-[#3E4E55] rounded-[14px]">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row items-center justify-between py-8">
