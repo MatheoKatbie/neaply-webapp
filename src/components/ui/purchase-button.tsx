@@ -75,7 +75,7 @@ export function PurchaseButton({
       onClick={handlePurchase}
       disabled={disabled || loading}
     >
-      {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShoppingCart className="w-4 h-4 mr-2" />}
+      {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : ''}
       {children || `Add to Cart - ${formatPrice(price, currency)}`}
     </Button>
   )

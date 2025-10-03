@@ -4,33 +4,33 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-    AlertTriangle,
-    ArrowLeft,
-    ArrowRight,
-    ArrowUpDown,
-    BarChart3,
-    Calendar,
-    CheckCircle,
-    Clock,
-    Code,
-    Cpu,
-    Globe,
-    Layers,
-    Play,
-    RefreshCw,
-    Settings,
-    Shield,
-    XCircle,
-    Zap
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpDown,
+  BarChart3,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Code,
+  Cpu,
+  Globe,
+  Layers,
+  Play,
+  RefreshCw,
+  Settings,
+  Shield,
+  XCircle,
+  Zap,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -187,35 +187,44 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 font-aeonikpro text-xl">
             <BarChart3 className="w-5 h-5" />
             Advanced Workflow Analysis
           </DialogTitle>
-          <DialogDescription>Detailed technical analysis of the workflow structure and capabilities</DialogDescription>
+          <DialogDescription className="font-aeonikpro">
+            Detailed technical analysis of the workflow structure and capabilities
+          </DialogDescription>
         </DialogHeader>
 
         {loading && (
           <div className="space-y-4">
             <div className="animate-pulse">
-              <div className="h-6 bg-muted rounded w-1/3 mb-2"></div>
-              <div className="h-4 bg-muted rounded w-1/2"></div>
+              <div className="h-6 rounded w-1/3 mb-2" style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}></div>
+              <div className="h-4 rounded w-1/2" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
             </div>
             <div className="animate-pulse space-y-4">
-              <div className="h-32 bg-muted rounded"></div>
-              <div className="h-24 bg-muted rounded"></div>
-              <div className="h-40 bg-muted rounded"></div>
+              <div className="h-32 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+              <div className="h-24 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+              <div className="h-40 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
             </div>
           </div>
         )}
 
         {error && (
           <div className="text-center py-8">
-            <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">Analysis Unavailable</h3>
-            <p className="text-muted-foreground">{error}</p>
-            <Button onClick={fetchAnalysis} className="mt-4">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-4" style={{ color: '#9DA2B3' }} />
+            <h3 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+              Analysis Unavailable
+            </h3>
+            <p className="font-aeonikpro mb-4" style={{ color: '#9DA2B3' }}>
+              {error}
+            </p>
+            <button
+              onClick={fetchAnalysis}
+              className="px-6 py-2.5 rounded-full font-aeonikpro font-medium bg-white text-black hover:bg-gray-100 transition-all duration-300"
+            >
               Try Again
-            </Button>
+            </button>
           </div>
         )}
 
@@ -233,182 +242,297 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
               <TabsContent value="overview" className="space-y-6">
                 {/* Complexity and Performance */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
+                  <div
+                    className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+                    style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                  >
+                    <div className="p-4 border-b border-[#9DA2B3]/25">
+                      <h3
+                        className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
+                        style={{ color: '#EDEFF7' }}
+                      >
                         <Cpu className="w-4 h-4" />
                         Complexity
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                      </h3>
+                    </div>
+                    <div className="p-4">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Level</span>
-                          <Badge className={getComplexityColor(analysis.complexity.level)}>
+                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                            Level
+                          </span>
+                          <div
+                            className={`px-3 py-1 rounded-full font-aeonikpro text-xs font-medium ${getComplexityColor(
+                              analysis.complexity.level
+                            )}`}
+                          >
                             {analysis.complexity.level.charAt(0).toUpperCase() + analysis.complexity.level.slice(1)}
-                          </Badge>
+                          </div>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Score</span>
-                          <span className="font-medium">{analysis.complexity.score}</span>
+                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                            Score
+                          </span>
+                          <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                            {analysis.complexity.score}
+                          </span>
                         </div>
-                        <div className="space-y-1">
-                          <span className="text-sm text-muted-foreground">Factors:</span>
+                        <div className="space-y-2">
+                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                            Factors:
+                          </span>
                           <div className="flex flex-wrap gap-1">
                             {analysis.complexity.factors.map((factor, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <div
+                                key={index}
+                                className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25"
+                                style={{ color: '#D3D6E0' }}
+                              >
                                 {factor}
-                              </Badge>
+                              </div>
                             ))}
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
 
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
+                  <div
+                    className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+                    style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                  >
+                    <div className="p-4 border-b border-[#9DA2B3]/25">
+                      <h3
+                        className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
+                        style={{ color: '#EDEFF7' }}
+                      >
                         <Clock className="w-4 h-4" />
                         Performance
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                      </h3>
+                    </div>
+                    <div className="p-4">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Min Time</span>
-                          <span className="font-medium">{formatTime(analysis.estimatedExecutionTime.min)}</span>
+                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                            Min Time
+                          </span>
+                          <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                            {formatTime(analysis.estimatedExecutionTime.min)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Average</span>
-                          <span className="font-medium">{formatTime(analysis.estimatedExecutionTime.average)}</span>
+                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                            Average
+                          </span>
+                          <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                            {formatTime(analysis.estimatedExecutionTime.average)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Max Time</span>
-                          <span className="font-medium">{formatTime(analysis.estimatedExecutionTime.max)}</span>
+                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                            Max Time
+                          </span>
+                          <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                            {formatTime(analysis.estimatedExecutionTime.max)}
+                          </span>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Node Summary */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                <div
+                  className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                >
+                  <div className="p-4 border-b border-[#9DA2B3]/25">
+                    <h3
+                      className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
+                      style={{ color: '#EDEFF7' }}
+                    >
                       <Layers className="w-4 h-4" />
                       Workflow Structure
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                    </h3>
+                  </div>
+                  <div className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">{analysis.nodeCount}</div>
-                        <div className="text-sm text-muted-foreground">Total Nodes</div>
+                      <div
+                        className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                        style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+                      >
+                        <div className="font-aeonikpro text-2xl font-bold text-blue-500">{analysis.nodeCount}</div>
+                        <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
+                          Total Nodes
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">{analysis.triggerNodes.length}</div>
-                        <div className="text-sm text-muted-foreground">Trigger Nodes</div>
+                      <div
+                        className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                        style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)' }}
+                      >
+                        <div className="font-aeonikpro text-2xl font-bold text-green-500">
+                          {analysis.triggerNodes.length}
+                        </div>
+                        <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
+                          Trigger Nodes
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-600">{analysis.actionNodes.length}</div>
-                        <div className="text-sm text-muted-foreground">Action Nodes</div>
+                      <div
+                        className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                        style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)' }}
+                      >
+                        <div className="font-aeonikpro text-2xl font-bold text-purple-500">
+                          {analysis.actionNodes.length}
+                        </div>
+                        <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
+                          Action Nodes
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* Integrations */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                <div
+                  className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                >
+                  <div className="p-4 border-b border-[#9DA2B3]/25">
+                    <h3
+                      className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
+                      style={{ color: '#EDEFF7' }}
+                    >
                       <Globe className="w-4 h-4" />
                       Integrations
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                    </h3>
+                  </div>
+                  <div className="p-4">
                     <div className="space-y-3">
                       {analysis.integrations.map((integration, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-background rounded-lg">
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 rounded-lg border border-[#9DA2B3]/25"
+                          style={{ backgroundColor: 'rgba(120, 153, 168, 0.05)' }}
+                        >
                           <div className="flex items-center gap-3">
-                            <span className="font-medium">{integration.name}</span>
-                            <Badge variant="outline" className="text-xs">
+                            <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                              {integration.name}
+                            </span>
+                            <div
+                              className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25"
+                              style={{ color: '#D3D6E0' }}
+                            >
                               {integration.type}
-                            </Badge>
+                            </div>
                           </div>
-                          <span className="text-sm text-muted-foreground">{integration.nodeCount} nodes</span>
+                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                            {integration.nodeCount} nodes
+                          </span>
                         </div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </TabsContent>
 
               <TabsContent value="structure" className="space-y-6">
                 {/* Data Flow */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                <div
+                  className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                >
+                  <div className="p-4 border-b border-[#9DA2B3]/25">
+                    <h3
+                      className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
+                      style={{ color: '#EDEFF7' }}
+                    >
                       <ArrowUpDown className="w-4 h-4" />
                       Data Flow
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                    </h3>
+                  </div>
+                  <div className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
-                        <h4 className="font-medium mb-2 flex items-center gap-2">
-                          <ArrowRight className="w-4 h-4 text-green-600" />
+                        <h4
+                          className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
+                          style={{ color: '#EDEFF7' }}
+                        >
+                          <ArrowRight className="w-4 h-4 text-green-500" />
                           Input Data
                         </h4>
                         <div className="space-y-1">
                           {analysis.dataFlow.inputDataTypes.length > 0 ? (
                             analysis.dataFlow.inputDataTypes.map((type, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <div
+                                key={index}
+                                className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
+                                style={{ color: '#D3D6E0' }}
+                              >
                                 {type}
-                              </Badge>
+                              </div>
                             ))
                           ) : (
-                            <span className="text-sm text-muted-foreground">No input data detected</span>
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              No input data detected
+                            </span>
                           )}
                         </div>
                       </div>
                       <div>
-                        <h4 className="font-medium mb-2 flex items-center gap-2">
-                          <Settings className="w-4 h-4 text-blue-600" />
+                        <h4
+                          className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
+                          style={{ color: '#EDEFF7' }}
+                        >
+                          <Settings className="w-4 h-4 text-blue-500" />
                           Transformations
                         </h4>
                         <div className="space-y-1">
                           {analysis.dataFlow.transformations.length > 0 ? (
                             analysis.dataFlow.transformations.map((transformation, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <div
+                                key={index}
+                                className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
+                                style={{ color: '#D3D6E0' }}
+                              >
                                 {transformation}
-                              </Badge>
+                              </div>
                             ))
                           ) : (
-                            <span className="text-sm text-muted-foreground">No transformations detected</span>
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              No transformations detected
+                            </span>
                           )}
                         </div>
                       </div>
                       <div>
-                        <h4 className="font-medium mb-2 flex items-center gap-2">
-                          <ArrowLeft className="w-4 h-4 text-purple-600" />
+                        <h4
+                          className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
+                          style={{ color: '#EDEFF7' }}
+                        >
+                          <ArrowLeft className="w-4 h-4 text-purple-500" />
                           Output Data
                         </h4>
                         <div className="space-y-1">
                           {analysis.dataFlow.outputDataTypes.length > 0 ? (
                             analysis.dataFlow.outputDataTypes.map((type, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <div
+                                key={index}
+                                className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
+                                style={{ color: '#D3D6E0' }}
+                              >
                                 {type}
-                              </Badge>
+                              </div>
                             ))
                           ) : (
-                            <span className="text-sm text-muted-foreground">No output data detected</span>
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              No output data detected
+                            </span>
                           )}
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* Node Types */}
                 <Card>

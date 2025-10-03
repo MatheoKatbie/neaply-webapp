@@ -2,11 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-    BarChart3,
-    Info,
-    Loader2
-} from 'lucide-react'
+import { BarChart3, Info, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { WorkflowAnalysisModal } from './workflow-analysis-modal'
 
@@ -97,103 +93,161 @@ export function WorkflowAnalysisPreview({ className, workflowId }: WorkflowAnaly
 
   if (loading) {
     return (
-      <Card className={className}>
-        <CardContent className="p-6">
+      <div
+        className={`rounded-xl border border-[#9DA2B3]/25 overflow-hidden ${className}`}
+        style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+      >
+        <div className="p-6">
           <div className="space-y-6">
             <div className="text-center">
-              <h4 className="text-lg font-semibold mb-2">Technical Analysis Preview</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+                Technical Analysis Preview
+              </h4>
+              <p className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
                 Get detailed insights into workflow structure, complexity, and capabilities
               </p>
             </div>
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-              <span className="ml-2 text-sm text-muted-foreground">Loading analysis...</span>
+              <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#7899A8' }} />
+              <span className="ml-2 font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                Loading analysis...
+              </span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <Card className={className}>
-        <CardContent className="p-6">
+      <div
+        className={`rounded-xl border border-[#9DA2B3]/25 overflow-hidden ${className}`}
+        style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+      >
+        <div className="p-6">
           <div className="space-y-6">
             <div className="text-center">
-              <h4 className="text-lg font-semibold mb-2">Technical Analysis Preview</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+                Technical Analysis Preview
+              </h4>
+              <p className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
                 Get detailed insights into workflow structure, complexity, and capabilities
               </p>
             </div>
             <div className="text-center py-8">
-              <Info className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">{error}</p>
+              <Info className="w-8 h-8 mx-auto mb-2" style={{ color: '#9DA2B3' }} />
+              <p className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                {error}
+              </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     )
   }
 
   return (
-    <Card className={className}>
-      <CardContent className="p-6">
+    <div
+      className={`rounded-xl border border-[#9DA2B3]/25 overflow-hidden ${className}`}
+      style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+    >
+      <div className="p-6">
         <div className="space-y-6">
           {/* Header */}
           <div className="text-center">
-            <h4 className="text-lg font-semibold mb-2">Technical Analysis Preview</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+              Technical Analysis Preview
+            </h4>
+            <p className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
               Get detailed insights into workflow structure, complexity, and capabilities
             </p>
           </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-background rounded-lg">
-              <div className="text-2xl font-bold text-foreground">{getNodeTypesCount()}</div>
-              <div className="text-xs text-muted-foreground">Node Types</div>
+            <div
+              className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+              style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+            >
+              <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                {getNodeTypesCount()}
+              </div>
+              <div className="font-aeonikpro text-xs mt-1" style={{ color: '#9DA2B3' }}>
+                Node Types
+              </div>
             </div>
-            <div className="text-center p-3 bg-background rounded-lg">
-              <div className="text-2xl font-bold text-foreground">{getIntegrationsCount()}</div>
-              <div className="text-xs text-muted-foreground">Integrations</div>
+            <div
+              className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+              style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+            >
+              <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                {getIntegrationsCount()}
+              </div>
+              <div className="font-aeonikpro text-xs mt-1" style={{ color: '#9DA2B3' }}>
+                Integrations
+              </div>
             </div>
-            <div className="text-center p-3 bg-background rounded-lg">
-              <div className="text-2xl font-bold text-foreground">{getAvgRuntime()}</div>
-              <div className="text-xs text-muted-foreground">Avg Runtime</div>
+            <div
+              className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+              style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+            >
+              <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                {getAvgRuntime()}
+              </div>
+              <div className="font-aeonikpro text-xs mt-1" style={{ color: '#9DA2B3' }}>
+                Avg Runtime
+              </div>
             </div>
-            <div className="text-center p-3 bg-background rounded-lg">
-              <div className="text-2xl font-bold text-foreground">{getComplexity()}</div>
-              <div className="text-xs text-muted-foreground">Complexity</div>
+            <div
+              className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+              style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+            >
+              <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                {getComplexity()}
+              </div>
+              <div className="font-aeonikpro text-xs mt-1" style={{ color: '#9DA2B3' }}>
+                Complexity
+              </div>
             </div>
           </div>
 
           {/* Call to Action */}
-          <div className="text-center p-4 bg-background rounded-lg border border-border">
-            <h5 className="font-medium mb-2">Ready to dive deeper?</h5>
-            <p className="text-sm text-muted-foreground mb-3">
+          <div
+            className="text-center p-5 rounded-xl border border-[#9DA2B3]/25"
+            style={{ backgroundColor: 'rgba(120, 153, 168, 0.05)' }}
+          >
+            <h5 className="font-aeonikpro font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+              Ready to dive deeper?
+            </h5>
+            <p className="font-aeonikpro text-sm mb-4" style={{ color: '#9DA2B3' }}>
               Access comprehensive technical analysis with detailed breakdowns and insights
             </p>
             {workflowId ? (
               <WorkflowAnalysisModal
                 workflowId={workflowId}
                 trigger={
-                  <Button variant="outline" className="bg-background border-border text-muted-foreground hover:bg-background">
-                    <BarChart3 className="w-4 h-4 mr-2" />
+                  <button
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25 hover:bg-white/10 transition-all duration-300"
+                    style={{ color: '#D3D6E0' }}
+                  >
+                    <BarChart3 className="w-4 h-4" />
                     View Advanced Analysis
-                  </Button>
+                  </button>
                 }
               />
             ) : (
-              <Button variant="outline" className="bg-background border-border text-muted-foreground hover:bg-background">
-                <BarChart3 className="w-4 h-4 mr-2" />
+              <button
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25 hover:bg-white/10 transition-all duration-300"
+                style={{ color: '#D3D6E0' }}
+              >
+                <BarChart3 className="w-4 h-4" />
                 View Advanced Analysis
-              </Button>
+              </button>
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
