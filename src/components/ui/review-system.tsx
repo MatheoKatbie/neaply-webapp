@@ -5,23 +5,17 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { MessageSquare, Star, ThumbsUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -55,7 +49,11 @@ interface ReviewFormData {
 }
 
 // Star Rating Component
-function StarRating({ rating, onRatingChange, readonly = false }: {
+function StarRating({
+  rating,
+  onRatingChange,
+  readonly = false,
+}: {
   rating: number
   onRatingChange?: (rating: number) => void
   readonly?: boolean
@@ -76,9 +74,7 @@ function StarRating({ rating, onRatingChange, readonly = false }: {
         >
           <Star
             className={`w-5 h-5 ${
-              star <= (hoverRating || rating)
-                ? 'fill-yellow-400 text-yellow-400'
-                : 'text-gray-300'
+              star <= (hoverRating || rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
             }`}
           />
         </button>
@@ -104,7 +100,7 @@ function ReviewCard({ review }: { review: Review }) {
 
       if (response.ok) {
         setIsHelpful(!isHelpful)
-        setHelpfulCount(prev => isHelpful ? prev - 1 : prev + 1)
+        setHelpfulCount((prev) => (isHelpful ? prev - 1 : prev + 1))
         toast.success(isHelpful ? 'Helpful vote removed' : 'Marked as helpful')
       } else {
         const error = await response.json()
@@ -116,21 +112,26 @@ function ReviewCard({ review }: { review: Review }) {
   }
 
   return (
-    <Card className="mb-4">
-      <CardHeader>
-        <div className="flex items-start justify-between">
+    <div
+      className="mb-4 rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+    >
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10">
               <AvatarImage src={review.user.avatarUrl} />
-              <AvatarFallback>
+              <AvatarFallback style={{ backgroundColor: 'rgba(120, 153, 168, 0.2)', color: '#EDEFF7' }}>
                 {review.user.displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-semibold">{review.user.displayName}</div>
+              <div className="font-aeonikpro font-semibold" style={{ color: '#EDEFF7' }}>
+                {review.user.displayName}
+              </div>
               <div className="flex items-center gap-2">
                 <StarRating rating={review.rating} readonly />
-                <span className="text-sm text-muted-foreground">
+                <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
                   {new Date(review.createdAt).toLocaleDateString()}
                 </span>
               </div>
@@ -138,36 +139,38 @@ function ReviewCard({ review }: { review: Review }) {
           </div>
         </div>
         {review.title && (
-          <CardTitle className="text-lg mt-2">{review.title}</CardTitle>
+          <h4 className="font-aeonikpro text-lg font-semibold mb-3" style={{ color: '#EDEFF7' }}>
+            {review.title}
+          </h4>
         )}
-      </CardHeader>
-      {review.bodyMd && (
-        <CardContent>
-          <div className="prose prose-sm max-w-none">
-            <p className="whitespace-pre-wrap">{review.bodyMd}</p>
+        {review.bodyMd && (
+          <div>
+            <div className="prose prose-sm max-w-none mb-4">
+              <p className="font-aeonikpro whitespace-pre-wrap leading-relaxed" style={{ color: '#D3D6E0' }}>
+                {review.bodyMd}
+              </p>
+            </div>
+            <div className="flex items-center gap-4 pt-4 border-t border-[#9DA2B3]/25">
+              <button
+                onClick={handleHelpfulClick}
+                className={`font-aeonikpro flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all duration-300 ${
+                  isHelpful ? 'bg-[#7899A8]/20 text-[#7899A8]' : 'hover:bg-white/10'
+                }`}
+                style={{ color: isHelpful ? '#7899A8' : '#9DA2B3' }}
+              >
+                <ThumbsUp className="w-4 h-4" />
+                Helpful ({helpfulCount})
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-4 mt-4 pt-4 border-t">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleHelpfulClick}
-              className={isHelpful ? 'text-blue-600' : 'text-muted-foreground'}
-            >
-              <ThumbsUp className="w-4 h-4 mr-1" />
-              Helpful ({helpfulCount})
-            </Button>
-          </div>
-        </CardContent>
-      )}
-    </Card>
+        )}
+      </div>
+    </div>
   )
 }
 
 // Review Form Component
-function ReviewForm({ workflowId, onReviewSubmitted }: {
-  workflowId: string
-  onReviewSubmitted: () => void
-}) {
+function ReviewForm({ workflowId, onReviewSubmitted }: { workflowId: string; onReviewSubmitted: () => void }) {
   const [formData, setFormData] = useState<ReviewFormData>({
     rating: 0,
     title: '',
@@ -178,7 +181,7 @@ function ReviewForm({ workflowId, onReviewSubmitted }: {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+
     if (formData.rating === 0) {
       toast.error('Please select a rating')
       return
@@ -218,55 +221,69 @@ function ReviewForm({ workflowId, onReviewSubmitted }: {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full">
-          <MessageSquare className="w-4 h-4 mr-2" />
+        <button className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium bg-white text-black hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2">
+          <MessageSquare className="w-4 h-4" />
           Write a Review
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Write a Review</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-aeonikpro text-xl">Write a Review</DialogTitle>
+          <DialogDescription className="font-aeonikpro">
             Share your experience with this workflow to help other users.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className='space-y-2'>
-            <Label htmlFor="rating">Rating *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="rating" className="font-aeonikpro">
+              Rating *
+            </Label>
             <div className="mt-2">
-              <StarRating
-                rating={formData.rating}
-                onRatingChange={(rating) => setFormData({ ...formData, rating })}
-              />
+              <StarRating rating={formData.rating} onRatingChange={(rating) => setFormData({ ...formData, rating })} />
             </div>
           </div>
-          <div className='space-y-2'>
-            <Label htmlFor="title">Review Title (Optional)</Label>
+          <div className="space-y-2">
+            <Label htmlFor="title" className="font-aeonikpro">
+              Review Title (Optional)
+            </Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="Summarize your review..."
               maxLength={200}
+              className="font-aeonikpro"
             />
           </div>
-          <div className='space-y-2'>
-            <Label htmlFor="bodyMd">Review Details (Optional)</Label>
+          <div className="space-y-2">
+            <Label htmlFor="bodyMd" className="font-aeonikpro">
+              Review Details (Optional)
+            </Label>
             <Textarea
               id="bodyMd"
               value={formData.bodyMd}
               onChange={(e) => setFormData({ ...formData, bodyMd: e.target.value })}
               placeholder="Share your detailed experience with this workflow..."
               rows={4}
+              className="font-aeonikpro"
             />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="py-2 px-4 rounded-full font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25 hover:bg-white/10 transition-all duration-300"
+              style={{ color: '#D3D6E0' }}
+            >
               Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting || formData.rating === 0}>
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || formData.rating === 0}
+              className="py-2 px-4 rounded-full font-aeonikpro text-sm font-medium bg-white text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+            >
               {isSubmitting ? 'Submitting...' : 'Submit Review'}
-            </Button>
+            </button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -319,13 +336,18 @@ export function ReviewSystem({ workflowId, userCanReview, userHasReviewed, class
 
   return (
     <div className={className}>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">Reviews ({pagination.totalCount})</CardTitle>
+      <div
+        className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+        style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+      >
+        <div className="p-6 md:p-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h2 className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+              Reviews ({pagination.totalCount})
+            </h2>
             <div className="flex items-center gap-4">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 bg-[#2A2D3A] border-[#9DA2B3]/25 text-white font-aeonikpro">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -339,60 +361,66 @@ export function ReviewSystem({ workflowId, userCanReview, userHasReviewed, class
             </div>
           </div>
           {userCanReview && (
-            <div className="pt-4">
+            <div className="mb-6">
               <ReviewForm workflowId={workflowId} onReviewSubmitted={handleReviewSubmitted} />
             </div>
           )}
           {userHasReviewed && (
-            <div className="pt-4">
-              <Badge variant="outline" className="text-green-600 border-green-600">
+            <div className="mb-6">
+              <div
+                className="px-4 py-2 rounded-full font-aeonikpro text-sm inline-flex items-center border border-green-600"
+                style={{ color: '#22c55e' }}
+              >
                 You have already reviewed this workflow
-              </Badge>
+              </div>
             </div>
           )}
-        </CardHeader>
-        <CardContent>
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-6">
               {[...Array(3)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-muted rounded-full"></div>
-                      <div className="space-y-2">
-                        <div className="h-4 bg-muted rounded w-32"></div>
-                        <div className="h-3 bg-muted rounded w-24"></div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
+                <div
+                  key={i}
+                  className="animate-pulse rounded-xl border border-[#9DA2B3]/25 p-6"
+                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-10 h-10 rounded-full"
+                      style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}
+                    ></div>
                     <div className="space-y-2">
-                      <div className="h-4 bg-muted rounded w-full"></div>
-                      <div className="h-4 bg-muted rounded w-3/4"></div>
+                      <div className="h-4 rounded w-32" style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}></div>
+                      <div className="h-3 rounded w-24" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="space-y-2 mt-4">
+                    <div className="h-4 rounded w-full" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+                    <div className="h-4 rounded w-3/4" style={{ backgroundColor: 'rgba(157, 162, 179, 0.15)' }}></div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : reviews.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-6">
               {reviews.map((review) => (
                 <ReviewCard key={review.id} review={review} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No reviews yet</h3>
-              <p className="text-muted-foreground">
+            <div className="text-center py-12">
+              <MessageSquare className="w-12 h-12 mx-auto mb-4" style={{ color: '#9DA2B3' }} />
+              <h3 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+                No reviews yet
+              </h3>
+              <p className="font-aeonikpro" style={{ color: '#9DA2B3' }}>
                 {userCanReview
                   ? 'Be the first to review this workflow!'
                   : 'Reviews will appear here once users start sharing their experiences.'}
               </p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

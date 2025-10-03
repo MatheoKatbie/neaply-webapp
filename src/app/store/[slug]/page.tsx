@@ -1,15 +1,9 @@
 'use client'
 
-import Navbar from '@/components/Navbar'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
-import { PlatformBadge } from '@/components/ui/platform-badge'
 import { ReportDialog } from '@/components/ui/report-dialog'
-import { Separator } from '@/components/ui/separator'
 import { ArrowLeft, Calendar, Download, Globe, Mail, Package, Star } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -128,113 +122,143 @@ function WorkflowCard({
   }
 
   return (
-    <Card
-      className="cursor-pointer hover:shadow-lg transition-all duration-300 group relative overflow-hidden py-0 pb-6"
+    <div
+      className="border border-[#9DA2B3]/15 rounded-xl overflow-hidden hover:border-[#9DA2B3]/30 transition-all duration-300 hover:scale-[1.02] cursor-pointer group flex flex-col h-[420px]"
+      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
       onClick={handleCardClick}
     >
-      {/* Favorite button */}
-      <div className="absolute top-3 right-3 z-10">
-        <AnimatedHeart
-          isFavorite={favorite}
-          onToggle={(e) => handleFavoriteClick(e)}
-          className="bg-background/80 hover:bg-background/90"
-          size="md"
-        />
-      </div>
-
-      {/* Hero image */}
+      {/* Hero image section */}
       <div className="h-48 relative overflow-hidden">
-        {heroImage ? (
-          <img
-            src={heroImage}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <AutoThumbnail
-            workflow={{
-              id,
-              title,
-              shortDesc,
-              longDescMd: '',
-              categories: categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
-              tags: tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
-              platform,
-            }}
-            size="md"
-            className="w-full h-full"
-          />
-        )}
+        {(() => {
+          // Get platform logo path based on platform name
+          const getPlatformLogo = (platformName?: string) => {
+            if (!platformName) return null
+            const normalizedName = platformName.toLowerCase().replace(/\s+/g, '-')
+            return {
+              gray: `/images/company-logo/${normalizedName}.png`,
+              color: `/images/company-logo/${normalizedName}.png`,
+            }
+          }
 
-        {/* Rating - top left */}
-        <div className="absolute top-3 left-3 z-10">
-          <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs font-medium text-white">({rating.toFixed(1)})</span>
-          </div>
-        </div>
+          // Check if we have a hero image
+          if (heroImage) {
+            return (
+              <div className="relative h-full">
+                <img src={heroImage} alt={title} className="w-full h-full object-cover" />
 
-        {/* Price - top right */}
-        <div className="absolute top-3 right-3 z-10">
-          <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
-            <span className="text-xs font-bold text-green-400">{formatPrice(price, currency)}</span>
-          </div>
-        </div>
+                {/* Sales count badge */}
+                <div
+                  className="absolute top-2 right-2 z-20 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full font-aeonikpro"
+                  style={{ backgroundColor: '#FFF', color: '#40424D' }}
+                >
+                  <Download className="w-3 h-3" />
+                  <span className="font-medium">{salesCount || 0} sales</span>
+                </div>
 
-        {/* Platform badge - moved to bottom left */}
-        {platform && (
-          <div className="absolute bottom-3 left-3 z-10">
-            <PlatformBadge platform={platform} size="sm" variant="default" className="shadow-sm" />
-          </div>
-        )}
+                {/* Dark gradient overlay from bottom to top */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent rounded-lg z-5" />
+              </div>
+            )
+          }
+
+          // Platform-based colored background with logo
+          const platformColors: Record<string, string> = {
+            n8n: '#EA4B71',
+            make: '#6E42D3',
+            zapier: '#FF4F00',
+            activepieces: '#7C3AED',
+            pipedream: '#0055FF',
+          }
+          const bgColor = platform ? platformColors[platform.toLowerCase()] || '#7899A8' : '#7899A8'
+          const platformLogo = platform ? getPlatformLogo(platform) : null
+
+          return (
+            <div className="h-full p-3 relative" style={{ backgroundColor: 'rgba(30, 30, 36, 0.8)' }}>
+              <div
+                className="h-full rounded-lg flex items-center justify-center relative overflow-hidden"
+                style={{ backgroundColor: bgColor }}
+              >
+                {/* Platform logo - Gray on default, color on hover */}
+                {platformLogo && (
+                  <div className="relative w-16 h-16">
+                    <img
+                      src={platformLogo.gray}
+                      alt={platform}
+                      className="w-full h-full object-contain absolute inset-0 opacity-100 group-hover:opacity-0 transition-opacity duration-300"
+                    />
+                    <img
+                      src={platformLogo.color}
+                      alt={platform}
+                      className="w-full h-full object-contain absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    />
+                  </div>
+                )}
+
+                {/* Sales count badge */}
+                <div
+                  className="absolute top-2 right-2 z-20 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full font-aeonikpro"
+                  style={{ backgroundColor: '#FFF', color: '#40424D' }}
+                >
+                  <Download className="w-3 h-3" />
+                  <span className="font-medium">{salesCount || 0} sales</span>
+                </div>
+
+                {/* Dark gradient overlay from bottom to top */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent rounded-lg z-5" />
+              </div>
+            </div>
+          )
+        })()}
       </div>
 
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold group-hover:text-foreground transition-colors">{title}</CardTitle>
-        <CardDescription className="text-sm text-muted-foreground line-clamp-2">{shortDesc}</CardDescription>
-      </CardHeader>
+      {/* Content section */}
+      <div className="px-4 py-1 flex-1 flex flex-col">
+        {/* Title */}
+        <h3 className="font-aeonikpro text-lg line-clamp-2 mb-2" style={{ color: '#EDEFF7' }}>
+          {title}
+        </h3>
 
-      <CardContent className="space-y-4">
-        {/* Categories and tags */}
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-1">
-            {categories.slice(0, 2).map((category) => (
-              <Badge key={category} variant="secondary" className="text-xs">
-                {category}
-              </Badge>
-            ))}
-            {categories.length > 2 && (
-              <Badge variant="outline" className="text-xs">
-                +{categories.length - 2}
-              </Badge>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs text-muted-foreground">
-                #{tag}
-              </Badge>
-            ))}
-          </div>
-        </div>
+        {/* Description */}
+        <p className="text-sm line-clamp-2 flex-1 font-aeonikpro" style={{ color: '#9DA2B3' }}>
+          {shortDesc}
+        </p>
 
-        <Separator />
+        {/* Footer with price and rating */}
+        <div className="mt-4 pt-4 border-t border-[#9DA2B3]/25">
+          <div className="flex items-start justify-between">
+            {/* Price section */}
+            <div className="flex flex-col">
+              <span className="text-xs font-aeonikpro uppercase tracking-wide" style={{ color: '#9DA2B3' }}>
+                PRICE
+              </span>
+              <span className="text-lg font-aeonikpro font-bold" style={{ color: '#EDEFF7' }}>
+                {price === 0
+                  ? 'Free'
+                  : new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: currency,
+                    }).format(price / 100)}
+              </span>
+            </div>
 
-        {/* Seller and stats */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">by {storeName}</span>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Download className="w-3 h-3" />
-              <span>{salesCount} sales</span>
+            {/* Rating section */}
+            <div className="flex flex-col items-end">
+              <span className="text-xs font-aeonikpro uppercase tracking-wide" style={{ color: '#9DA2B3' }}>
+                RATING
+              </span>
+              <div className="flex items-center gap-1">
+                <svg className="w-4 h-4 text-[#FF7700]" fill="#FF7700" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <span className="text-lg font-aeonikpro" style={{ color: '#EDEFF7' }}>
+                  {rating?.toFixed(1) || '0.0'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-        <Button className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-gray-800">
-          View Workflow
-        </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 
@@ -338,189 +362,331 @@ export default function StorePage() {
 
   if (loading) {
     return (
-      <>
-        <div className="min-h-screen bg-background pt-20 md:pt-24">
-          <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="animate-pulse">
-              <div className="h-64 bg-muted rounded-lg mb-8"></div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-64 bg-muted rounded-lg"></div>
-                ))}
-              </div>
+      <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#08080A' }}>
+        {/* Decorative ellipses */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div
+            className="absolute rounded-full"
+            style={{
+              left: '-471px',
+              bottom: '400px',
+              width: '639px',
+              height: '639px',
+              backgroundColor: '#7899A8',
+              opacity: 0.35,
+              filter: 'blur(350px)',
+            }}
+          />
+          <div
+            className="absolute rounded-full"
+            style={{
+              right: '-471px',
+              bottom: '400px',
+              width: '639px',
+              height: '639px',
+              backgroundColor: '#7899A8',
+              opacity: 0.35,
+              filter: 'blur(350px)',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-12">
+          <div className="animate-pulse">
+            <div className="h-64 rounded-xl mb-8" style={{ backgroundColor: 'rgba(64, 66, 77, 0.3)' }}></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-96 rounded-xl" style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}></div>
+              ))}
             </div>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
   if (error || !store) {
     return (
-      <>
-        <div className="min-h-screen bg-background pt-20 md:pt-24">
-          <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Package className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">{error || 'Store not found'}</h3>
-              <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                The store you're looking for doesn't exist or may have been removed.
-              </p>
-              <Button onClick={() => router.push('/')} className="cursor-pointer">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Marketplace
-              </Button>
+      <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#08080A' }}>
+        {/* Decorative ellipses */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div
+            className="absolute rounded-full"
+            style={{
+              left: '-471px',
+              bottom: '400px',
+              width: '639px',
+              height: '639px',
+              backgroundColor: '#7899A8',
+              opacity: 0.35,
+              filter: 'blur(350px)',
+            }}
+          />
+          <div
+            className="absolute rounded-full"
+            style={{
+              right: '-471px',
+              bottom: '400px',
+              width: '639px',
+              height: '639px',
+              backgroundColor: '#7899A8',
+              opacity: 0.35,
+              filter: 'blur(350px)',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-12">
+          <div className="text-center py-12">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: 'rgba(64, 66, 77, 0.5)' }}
+            >
+              <Package className="w-8 h-8" style={{ color: '#9DA2B3' }} />
             </div>
+            <h3 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+              {error || 'Store not found'}
+            </h3>
+            <p className="font-aeonikpro max-w-md mx-auto mb-6" style={{ color: '#9DA2B3' }}>
+              The store you're looking for doesn't exist or may have been removed.
+            </p>
+            <button
+              onClick={() => router.push('/')}
+              className="font-aeonikpro bg-white text-black hover:bg-gray-100 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Marketplace
+            </button>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Breadcrumb */}
-          <div className="mb-6">
-            <Button variant="ghost" onClick={() => router.push('/')} className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Marketplace
-            </Button>
-          </div>
-
-          {/* Store Header */}
-          <Card className="mb-8 overflow-hidden">
-            {/* Hero Section */}
-            {generateStoreHero(store.storeName, store.id)}
-
-            {/* Store Info */}
-            <div className="p-6">
-              <div className="flex flex-col md:flex-row md:items-start gap-6">
-                {/* Store Avatar */}
-                <div className="flex-shrink-0">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center border-4 border-white shadow-lg -mt-16 relative z-10">
-                    {store.user.avatarUrl ? (
-                      <img
-                        src={store.user.avatarUrl}
-                        alt={store.storeName}
-                        className="w-full h-full rounded-lg object-cover"
-                      />
-                    ) : (
-                      <Package className="w-8 h-8 text-blue-600" />
-                    )}
-                  </div>
-                </div>
-
-                {/* Store Details */}
-                <div className="flex-1">
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                    <div>
-                      <h1 className="text-3xl font-bold text-foreground mb-2">{store.storeName}</h1>
-                      <p className="text-lg text-muted-foreground mb-1">by {store.user.displayName}</p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>Member since {formatDate(store.stats.memberSince)}</span>
-                        </div>
-                        {store.websiteUrl && (
-                          <div className="flex items-center gap-1">
-                            <Globe className="w-4 h-4" />
-                            <a
-                              href={store.websiteUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
-                            >
-                              Website
-                            </a>
-                          </div>
-                        )}
-                        {store.supportEmail && (
-                          <div className="flex items-center gap-1">
-                            <Mail className="w-4 h-4" />
-                            <a href={`mailto:${store.supportEmail}`} className="text-blue-600 hover:underline">
-                              Contact
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Store Stats */}
-                    <div className="flex flex-wrap gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-foreground">{store.stats.totalWorkflows}</div>
-                        <div className="text-sm text-muted-foreground">Workflows</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-foreground">{store.stats.totalSales}</div>
-                        <div className="text-sm text-muted-foreground">Sales</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="flex items-center gap-1 mb-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-2xl font-bold text-foreground">{store.stats.avgRating.toFixed(1)}</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground">{store.stats.totalReviews} reviews</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Store Bio */}
-                  {store.bio && (
-                    <div className="mt-6">
-                      <p className="text-muted-foreground leading-relaxed">{store.bio}</p>
-                    </div>
-                  )}
-
-                  {/* Contact Seller Button */}
-                  <div className="mt-6 pt-4 border-t">
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <ContactSellerButton
-                        seller={{
-                          displayName: store.user.displayName,
-                          storeName: store.storeName,
-                          email: store.supportEmail,
-                          phoneNumber: store.phoneNumber,
-                          countryCode: store.countryCode,
-                          avatarUrl: store.user.avatarUrl,
-                        }}
-                        className="w-full sm:w-auto"
-                      />
-                      <ReportDialog entityType="store" entityId={store.user.id} entityName={store.storeName} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Workflows Section */}
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-foreground mb-2">Workflows</h2>
-            <p className="text-muted-foreground">Browse all workflows from {store.storeName}</p>
-          </div>
-
-          {store.workflows.length === 0 ? (
-            <Card className="p-12 text-center">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Package className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">No workflows yet</h3>
-              <p className="text-muted-foreground">This store hasn't published any workflows yet. Check back later!</p>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {store.workflows.map((workflow) => (
-                <WorkflowCard key={workflow.id} {...workflow} storeName={store.storeName} />
-              ))}
-            </div>
-          )}
-        </div>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#08080A' }}>
+      {/* Decorative ellipses */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute rounded-full"
+          style={{
+            left: '-471px',
+            top: '200px',
+            width: '639px',
+            height: '639px',
+            backgroundColor: '#7899A8',
+            opacity: 0.35,
+            filter: 'blur(350px)',
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            right: '-471px',
+            bottom: '400px',
+            width: '639px',
+            height: '639px',
+            backgroundColor: '#7899A8',
+            opacity: 0.35,
+            filter: 'blur(350px)',
+          }}
+        />
       </div>
-    </>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-12">
+        {/* Back Button */}
+        <div className="mb-8">
+          <button
+            onClick={() => router.push('/')}
+            className="font-aeonikpro flex items-center gap-2 text-[#D3D6E0] hover:text-white transition-colors duration-300 group cursor-pointer"
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+            <span>Back to Marketplace</span>
+          </button>
+        </div>
+
+        {/* Store Header */}
+        <div
+          className="mb-8 rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+          style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+        >
+          {/* Hero Section */}
+          {generateStoreHero(store.storeName, store.id)}
+
+          {/* Store Info */}
+          <div className="p-6 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
+              {/* Store Avatar */}
+              <div className="flex-shrink-0">
+                <div
+                  className="w-20 h-20 rounded-xl flex items-center justify-center border-4 shadow-lg -mt-16 relative z-10"
+                  style={{ borderColor: '#08080A', backgroundColor: 'rgba(120, 153, 168, 0.3)' }}
+                >
+                  {store.user.avatarUrl ? (
+                    <img
+                      src={store.user.avatarUrl}
+                      alt={store.storeName}
+                      className="w-full h-full rounded-lg object-cover"
+                    />
+                  ) : (
+                    <Package className="w-8 h-8 text-blue-400" />
+                  )}
+                </div>
+              </div>
+
+              {/* Store Details */}
+              <div className="flex-1">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                  <div>
+                    <h1 className="font-aeonikpro text-3xl font-bold mb-2" style={{ color: '#EDEFF7' }}>
+                      {store.storeName}
+                    </h1>
+                    <p className="font-aeonikpro text-lg mb-2" style={{ color: '#9DA2B3' }}>
+                      by {store.user.displayName}
+                    </p>
+                    <div
+                      className="flex flex-wrap items-center gap-4 font-aeonikpro text-sm"
+                      style={{ color: '#9DA2B3' }}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4" />
+                        <span>Member since {formatDate(store.stats.memberSince)}</span>
+                      </div>
+                      {store.websiteUrl && (
+                        <div className="flex items-center gap-1.5">
+                          <Globe className="w-4 h-4" />
+                          <a
+                            href={store.websiteUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            Website
+                          </a>
+                        </div>
+                      )}
+                      {store.supportEmail && (
+                        <div className="flex items-center gap-1.5">
+                          <Mail className="w-4 h-4" />
+                          <a
+                            href={`mailto:${store.supportEmail}`}
+                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            Contact
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Store Stats */}
+                  <div className="flex flex-wrap gap-4">
+                    <div
+                      className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                    >
+                      <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                        {store.stats.totalWorkflows}
+                      </div>
+                      <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
+                        Workflows
+                      </div>
+                    </div>
+                    <div
+                      className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                    >
+                      <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                        {store.stats.totalSales}
+                      </div>
+                      <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
+                        Sales
+                      </div>
+                    </div>
+                    <div
+                      className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                    >
+                      <div className="flex items-center gap-1 mb-1 justify-center">
+                        <Star className="w-4 h-4 text-[#FF7700]" fill="#FF7700" />
+                        <span className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                          {store.stats.avgRating.toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                        {store.stats.totalReviews} reviews
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Store Bio */}
+                {store.bio && (
+                  <div className="mt-6">
+                    <p className="font-aeonikpro leading-relaxed" style={{ color: '#D3D6E0' }}>
+                      {store.bio}
+                    </p>
+                  </div>
+                )}
+
+                {/* Contact Seller Button */}
+                <div className="mt-6 pt-4 border-t border-[#9DA2B3]/25">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <ContactSellerButton
+                      seller={{
+                        displayName: store.user.displayName,
+                        storeName: store.storeName,
+                        email: store.supportEmail,
+                        phoneNumber: store.phoneNumber,
+                        countryCode: store.countryCode,
+                        avatarUrl: store.user.avatarUrl,
+                      }}
+                      className="w-full sm:w-auto"
+                    />
+                    <ReportDialog entityType="store" entityId={store.user.id} entityName={store.storeName} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Workflows Section */}
+        <div className="mb-6">
+          <h2 className="font-aeonikpro text-2xl font-bold mb-2" style={{ color: '#EDEFF7' }}>
+            Workflows
+          </h2>
+          <p className="font-aeonikpro" style={{ color: '#9DA2B3' }}>
+            Browse all workflows from {store.storeName}
+          </p>
+        </div>
+
+        {store.workflows.length === 0 ? (
+          <div
+            className="p-12 text-center rounded-xl border border-[#9DA2B3]/25"
+            style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+          >
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: 'rgba(64, 66, 77, 0.5)' }}
+            >
+              <Package className="w-8 h-8" style={{ color: '#9DA2B3' }} />
+            </div>
+            <h3 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+              No workflows yet
+            </h3>
+            <p className="font-aeonikpro" style={{ color: '#9DA2B3' }}>
+              This store hasn't published any workflows yet. Check back later!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {store.workflows.map((workflow) => (
+              <WorkflowCard key={workflow.id} {...workflow} storeName={store.storeName} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
