@@ -199,7 +199,7 @@ export default function RegisterPage() {
                     <Separator className="w-full" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or create with email</span>
+                    <span className="bg-[#08080A] px-2 text-[#9DA2B3] font-aeonikpro">Or create with email</span>
                   </div>
                 </div>
 

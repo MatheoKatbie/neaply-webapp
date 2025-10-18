@@ -57,17 +57,17 @@ export default function OrdersHistoryPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-500/20 text-green-300'
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-yellow-500/20 text-yellow-300'
       case 'failed':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-500/20 text-red-300'
       case 'refunded':
-        return 'bg-muted text-gray-800'
+        return 'bg-[#40424D]/40 text-[#9DA2B3]'
       case 'cancelled':
-        return 'bg-muted text-gray-800'
+        return 'bg-[#40424D]/40 text-[#9DA2B3]'
       default:
-        return 'bg-muted text-gray-800'
+        return 'bg-[#40424D]/40 text-[#9DA2B3]'
     }
   }
 
@@ -122,10 +122,10 @@ export default function OrdersHistoryPage() {
   if (loading) {
     return (
       <>
-        <div className="min-h-screen bg-background pt-20 md:pt-24">
+        <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
           <div className="max-w-6xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
+              <div className="h-8 bg-[#40424D]/40 rounded w-1/4 mb-6"></div>
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="h-32 bg-muted rounded-lg"></div>
@@ -140,33 +140,33 @@ export default function OrdersHistoryPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
+      <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
         <div className="max-w-6xl mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Order History</h1>
-            <p className="text-muted-foreground">View and manage all your workflow purchases</p>
+            <h1 className="text-3xl font-bold text-[#EDEFF7] font-aeonikpro mb-2">Order History</h1>
+            <p className="text-[#9DA2B3] font-aeonikpro">View and manage all your workflow purchases</p>
           </div>
 
           {error && (
-            <Card className="mb-6 border-red-200 bg-red-50">
+            <Card className="mb-6 border-red-500/50 bg-red-500/10">
               <CardContent className="p-6">
                 <div className="flex items-center space-x-3">
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                  <p className="text-red-700">{error}</p>
+                  <p className="text-red-300 font-aeonikpro">{error}</p>
                 </div>
               </CardContent>
             </Card>
           )}
 
           {orders.length === 0 && !error ? (
-            <Card className="text-center py-12">
+            <Card className="text-center py-12 bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
               <CardContent>
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-[#40424D]/40 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShoppingBag className="w-8 h-8 text-[#9DA2B3]" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">No Orders Found</h3>
-                <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                <h3 className="text-lg font-semibold text-[#EDEFF7] font-aeonikpro mb-2">No Orders Found</h3>
+                <p className="text-[#9DA2B3] font-aeonikpro max-w-md mx-auto mb-6">
                   You haven't made any purchases yet. Browse our marketplace to discover amazing workflows.
                 </p>
                 <Button onClick={() => router.push('/marketplace')}>Browse Marketplace</Button>
@@ -175,16 +175,16 @@ export default function OrdersHistoryPage() {
           ) : (
             <div className="space-y-6">
               {orders.map((order) => (
-                <Card key={order.id} className="overflow-hidden">
-                  <CardHeader className="bg-background/50">
+                <Card key={order.id} className="overflow-hidden bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
+                  <CardHeader className="bg-[#1E1E24]/50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Package className="w-5 h-5 text-blue-600" />
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                          <Package className="w-5 h-5 text-blue-400" />
                         </div>
                         <div>
-                          <CardTitle className="text-lg">Order #{order.id.slice(-8)}</CardTitle>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
+                          <CardTitle className="text-lg text-[#EDEFF7] font-aeonikpro">Order #{order.id.slice(-8)}</CardTitle>
+                          <div className="flex items-center space-x-4 text-sm text-[#9DA2B3] font-aeonikpro mt-1">
                             <div className="flex items-center space-x-1">
                               <Calendar className="w-4 h-4" />
                               <span>{formatDate(order.createdAt)}</span>
@@ -210,7 +210,7 @@ export default function OrdersHistoryPage() {
 
                   <CardContent className="p-6">
                     <div className="space-y-4">
-                      <h4 className="font-medium text-foreground">Items Purchased:</h4>
+                      <h4 className="font-medium text-[#EDEFF7] font-aeonikpro">Items Purchased:</h4>
 
                       {/* Individual Workflow Items */}
                       {order.items && order.items.length > 0 && (
@@ -218,7 +218,7 @@ export default function OrdersHistoryPage() {
                           {order.items.map((item) => (
                             <div
                               key={item.id}
-                              className="flex items-center justify-between p-4 bg-background rounded-lg"
+                              className="flex items-center justify-between p-4 bg-[#1E1E24] rounded-lg border border-[#9DA2B3]/25"
                             >
                               <Link href={`workflow/${item.workflowId}`} className="flex items-center space-x-4">
                                 {item.workflow.heroImageUrl ? (
@@ -228,16 +228,16 @@ export default function OrdersHistoryPage() {
                                     className="w-12 h-12 object-cover rounded-lg"
                                   />
                                 ) : (
-                                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <FileText className="w-6 h-6 text-blue-600" />
+                                  <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <FileText className="w-6 h-6 text-blue-400" />
                                   </div>
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="text-sm font-medium text-gray-900 truncate">{item.workflow.title}</h4>
-                                  <p className="text-xs text-muted-foreground mb-2">
+                                  <h4 className="text-sm font-medium text-[#EDEFF7] font-aeonikpro truncate">{item.workflow.title}</h4>
+                                  <p className="text-xs text-[#9DA2B3] font-aeonikpro mb-2">
                                     by {item.workflow.seller.displayName}
                                   </p>
-                                  <p className="text-sm font-medium text-gray-900">
+                                  <p className="text-sm font-medium text-green-400 font-aeonikpro">
                                     {formatPrice(item.unitPriceCents, order.currency)}
                                   </p>
                                 </div>
@@ -276,16 +276,16 @@ export default function OrdersHistoryPage() {
                           {order.packItems.map((packItem) => (
                             <div
                               key={packItem.id}
-                              className="flex items-center justify-between p-4 bg-background rounded-lg"
+                              className="flex items-center justify-between p-4 bg-[#1E1E24] rounded-lg border border-[#9DA2B3]/25"
                             >
                               <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                  <Package className="w-6 h-6 text-purple-600" />
+                                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                  <Package className="w-6 h-6 text-purple-400" />
                                 </div>
                                 <div>
-                                  <h5 className="font-medium text-foreground">{packItem.pack.title}</h5>
-                                  <p className="text-sm text-muted-foreground">by {packItem.pack.seller.displayName}</p>
-                                  <p className="text-sm font-medium text-green-600">
+                                  <h5 className="font-medium text-[#EDEFF7] font-aeonikpro">{packItem.pack.title}</h5>
+                                  <p className="text-sm text-[#9DA2B3] font-aeonikpro">by {packItem.pack.seller.displayName}</p>
+                                  <p className="text-sm font-medium text-green-400 font-aeonikpro">
                                     {formatPrice(packItem.unitPriceCents, order.currency)}
                                   </p>
                                 </div>
@@ -320,17 +320,17 @@ export default function OrdersHistoryPage() {
                       {/* Show message if no items found */}
                       {(!order.items || order.items.length === 0) &&
                         (!order.packItems || order.packItems.length === 0) && (
-                          <div className="text-center py-4 text-muted-foreground">
+                          <div className="text-center py-4 text-[#9DA2B3] font-aeonikpro">
                             <p>No items found for this order.</p>
                           </div>
                         )}
                     </div>
 
                     {order.status === 'paid' && order.paidAt && (
-                      <div className="mt-4 pt-4 border-t border-border">
+                      <div className="mt-4 pt-4 border-t border-[#9DA2B3]/25">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Payment completed on:</span>
-                          <span className="font-medium">{formatDate(order.paidAt)}</span>
+                          <span className="text-[#9DA2B3] font-aeonikpro">Payment completed on:</span>
+                          <span className="font-medium text-[#EDEFF7] font-aeonikpro">{formatDate(order.paidAt)}</span>
                         </div>
                       </div>
                     )}
@@ -343,7 +343,7 @@ export default function OrdersHistoryPage() {
           {/* Pagination or Load More could be added here */}
           {orders.length > 0 && (
             <div className="mt-8 text-center">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                 Showing {orders.length} order{orders.length !== 1 ? 's' : ''}
               </p>
             </div>
