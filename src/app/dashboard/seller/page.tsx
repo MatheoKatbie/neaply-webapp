@@ -1089,7 +1089,7 @@ export default function SellerDashboard() {
               </div>
 
               {/* Create Workflow Button */}
-              <Button onClick={handleCreateWorkflow} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
+              <Button onClick={handleCreateWorkflow} className="bg-white text-black font-aeonikpro">
                 Create Workflow
               </Button>
             </div>

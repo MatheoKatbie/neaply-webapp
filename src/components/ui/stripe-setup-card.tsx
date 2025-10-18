@@ -1,7 +1,7 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Building2, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
@@ -36,7 +36,7 @@ export function StripeSetupCard({ className }: StripeSetupCardProps) {
 
         {/* Action Button */}
         <Link href="/dashboard/stripe/connect" className="block">
-          <Button className="w-full bg-white text-black hover:bg-[#40424D]/30 font-medium py-3 px-6 rounded-lg mb-4 font-aeonikpro">
+          <Button className="w-full bg-white text-black font-medium py-3 px-6 rounded-lg mb-4 font-aeonikpro">
             <ExternalLink className="w-4 h-4 mr-2" />
             Set up payments
           </Button>

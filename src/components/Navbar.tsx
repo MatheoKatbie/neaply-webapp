@@ -322,9 +322,9 @@ export default function Navbar() {
                 <button
                   className="font-aeonikpro inline-flex items-center justify-center h-10 px-6 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-black"
                   style={{ backgroundColor: '#D3D6E0' }}
-                  onClick={() => router.push('/dashboard/seller')}
+                  onClick={() => router.push(user.isSeller ? '/dashboard/seller' : '/become-seller')}
                 >
-                  Get started
+                  {user.isSeller ? 'Dashboard' : 'Get started'}
                 </button>
 
                 {/* User Dropdown */}
