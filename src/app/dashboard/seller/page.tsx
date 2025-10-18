@@ -6,8 +6,6 @@ import { safeDecrypt } from '@/lib/encryption'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import Link from 'next/link'
-import { Building2, ExternalLink } from 'lucide-react'
 
 import { AnimatedTooltip } from '@/components/ui/animated-tooltip'
 import { DeleteConfirmationModal } from '@/components/ui/delete-confirmation-modal'
@@ -1042,17 +1040,17 @@ export default function SellerDashboard() {
   // Show Stripe setup card if no Stripe account is configured
   if (stripeStatus && !stripeStatus.hasStripeAccount) {
     return (
-      <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 pt-24">
+      <div className="min-h-screen bg-[#08080A] py-12 px-4 sm:px-6 lg:px-8 pt-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <div className="flex justify-between items-start">
               <div className="flex items-center space-x-8">
                 {/* Profile Picture */}
-                <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                <div className="w-16 h-16 rounded-full bg-[#1E1E24] flex items-center justify-center overflow-hidden border border-[#9DA2B3]/25">
                   {user?.avatar_url ? (
                     <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                    <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl font-aeonikpro">
                       {user?.email?.charAt(0).toUpperCase() || 'U'}
                     </div>
                   )}
@@ -1061,19 +1059,19 @@ export default function SellerDashboard() {
                 {/* User Info and Balance */}
                 <div className="flex items-center space-x-8">
                   <div>
-                    <h1 className="text-2xl font-bold text-foreground">
+                    <h1 className="text-2xl font-bold text-[#EDEFF7] font-aeonikpro">
                       {user?.displayName || user?.name || user?.email?.split('@')[0] || 'User'}
                     </h1>
-                    <p className="text-muted-foreground">{user?.email}</p>
+                    <p className="text-[#9DA2B3] font-aeonikpro">{user?.email}</p>
                   </div>
 
                   {/* Balance Section */}
                   <div className="text-left">
                     <div className="flex items-center space-x-2 mb-1">
-                      <span className="text-sm text-muted-foreground">Balance</span>
+                      <span className="text-sm text-[#9DA2B3] font-aeonikpro">Balance</span>
                       <button
                         onClick={handleSeePayoutsClick}
-                        className="text-blue-600 hover:text-blue-700 text-sm flex items-center cursor-pointer"
+                        className="text-blue-400 hover:text-blue-300 text-sm flex items-center cursor-pointer font-aeonikpro"
                       >
                         See Payouts
                         <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1081,7 +1079,7 @@ export default function SellerDashboard() {
                         </svg>
                       </button>
                     </div>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className="text-2xl font-bold text-[#EDEFF7] font-aeonikpro">
                       {currentMonthEarnings
                         ? formatCurrency(currentMonthEarnings.totalNet, currentMonthEarnings.currency)
                         : 'USD 0.00'}
@@ -1091,7 +1089,7 @@ export default function SellerDashboard() {
               </div>
 
               {/* Create Workflow Button */}
-              <Button onClick={handleCreateWorkflow} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button onClick={handleCreateWorkflow} className="bg-white text-black hover:bg-gray-100 font-aeonikpro">
                 Create Workflow
               </Button>
             </div>
@@ -1104,17 +1102,17 @@ export default function SellerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 pt-24">
+    <div className="min-h-screen bg-[#08080A] py-12 px-4 sm:px-6 lg:px-8 pt-24">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-8">
               {/* Profile Picture */}
-              <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+              <div className="w-16 h-16 rounded-full bg-[#1E1E24] flex items-center justify-center overflow-hidden border border-[#9DA2B3]/25">
                 {user?.avatar_url ? (
                   <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl font-aeonikpro">
                     {user?.email?.charAt(0).toUpperCase() || 'U'}
                   </div>
                 )}
@@ -1123,19 +1121,19 @@ export default function SellerDashboard() {
               {/* User Info and Balance */}
               <div className="flex items-center space-x-8">
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">
+                  <h1 className="text-2xl font-bold text-[#EDEFF7] font-aeonikpro">
                     {user?.displayName || user?.name || user?.email?.split('@')[0] || 'User'}
                   </h1>
-                  <p className="text-muted-foreground">{user?.email}</p>
+                  <p className="text-[#9DA2B3] font-aeonikpro">{user?.email}</p>
                 </div>
 
                 {/* Balance Section */}
                 <div className="text-left">
                   <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-sm text-muted-foreground">Balance</span>
+                    <span className="text-sm text-[#9DA2B3] font-aeonikpro">Balance</span>
                     <button
                       onClick={handleSeePayoutsClick}
-                      className="text-blue-600 hover:text-blue-700 text-sm flex items-center cursor-pointer"
+                      className="text-blue-400 hover:text-blue-300 text-sm flex items-center cursor-pointer font-aeonikpro"
                     >
                       See Payouts
                       <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1143,17 +1141,17 @@ export default function SellerDashboard() {
                       </svg>
                     </button>
                   </div>
-                  <div className="text-2xl font-bold text-foreground">
+                  <div className="text-2xl font-bold text-[#EDEFF7] font-aeonikpro">
                     {balanceLoading ? (
-                      <span className="text-muted-foreground">Loading...</span>
+                      <span className="text-[#9DA2B3]">Loading...</span>
                     ) : balance ? (
                       `${(balance.currency || 'USD').toUpperCase()} ${(balance.total / 100).toFixed(2)}`
                     ) : (
-                      <span className="text-muted-foreground">USD 0.00</span>
+                      <span className="text-[#9DA2B3]">USD 0.00</span>
                     )}
                   </div>
                   {balance && balance.available > 0 && (
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-[#9DA2B3] font-aeonikpro">
                       Available: {(balance.currency || 'USD').toUpperCase()} {(balance.available / 100).toFixed(2)}
                     </div>
                   )}
@@ -1168,7 +1166,7 @@ export default function SellerDashboard() {
               description="Your account and payout information have been verified. You can now add your first workflow to FlowMarket."
               position="bottom"
             >
-              <Button onClick={handleCreateWorkflow} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button onClick={handleCreateWorkflow} className="bg-white text-black hover:bg-gray-100 font-aeonikpro">
                 Create Workflow
               </Button>
             </AnimatedTooltip>
@@ -1176,13 +1174,13 @@ export default function SellerDashboard() {
         </div>
 
         {error && (
-          <div className="mb-6 border-red-200 bg-red-50 border px-4 py-3 rounded">
-            <div className="text-red-700 text-sm">{error}</div>
+          <div className="mb-6 border border-red-500/50 bg-red-500/10 px-4 py-3 rounded-lg">
+            <div className="text-red-400 text-sm font-aeonikpro">{error}</div>
           </div>
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 bg-transparent">
+          <TabsList className="grid w-full grid-cols-4 bg-transparent border-b border-[#9DA2B3]/25">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="workflows">Workflows ({workflows.length})</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>

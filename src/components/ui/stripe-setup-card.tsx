@@ -11,24 +11,24 @@ interface StripeSetupCardProps {
 
 export function StripeSetupCard({ className }: StripeSetupCardProps) {
   return (
-    <Card className={`max-w-md mx-auto text-center ${className}`}>
+    <Card className={`max-w-md mx-auto text-center bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25 ${className}`}>
       <CardContent className="pt-8 pb-8 px-8">
         {/* Icon */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Building2 className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-blue-500/20 border border-blue-500/50 rounded-lg flex items-center justify-center">
+            <Building2 className="w-8 h-8 text-blue-400" />
           </div>
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+        <h2 className="text-2xl font-bold text-[#EDEFF7] mb-3 font-aeonikpro">
           Set up your payouts
           <br />
           with Stripe
         </h2>
 
         {/* Description */}
-        <p className="text-gray-600 mb-8 leading-relaxed">
+        <p className="text-[#9DA2B3] mb-8 leading-relaxed font-aeonikpro">
           Neaply partners with Stripe to transfer
           <br />
           earnings to your bank account.
@@ -36,14 +36,14 @@ export function StripeSetupCard({ className }: StripeSetupCardProps) {
 
         {/* Action Button */}
         <Link href="/dashboard/stripe/connect" className="block">
-          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg mb-4">
+          <Button className="w-full bg-white text-black hover:bg-gray-100 font-medium py-3 px-6 rounded-lg mb-4 font-aeonikpro">
             <ExternalLink className="w-4 h-4 mr-2" />
             Set up payments
           </Button>
         </Link>
 
         {/* Info Text */}
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[#9DA2B3] font-aeonikpro">
           You'll be redirected to Stripe to complete the
           <br />
           onboarding process.

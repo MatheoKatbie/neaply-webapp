@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AlertCircle, CheckCircle, ExternalLink, Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function StripeConnectReturnPage() {
   const router = useRouter()
@@ -62,11 +62,11 @@ export default function StripeConnectReturnPage() {
 
   if (status === 'loading') {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 max-w-2xl min-h-screen bg-[#08080A]">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p>Verifying your account setup...</p>
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[#9DA2B3]" />
+            <p className="text-[#9DA2B3] font-aeonikpro">Verifying your account setup...</p>
           </div>
         </div>
       </div>
@@ -74,18 +74,18 @@ export default function StripeConnectReturnPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl pt-24">
-      <Card>
+    <div className="container mx-auto px-4 py-8 max-w-2xl pt-24 min-h-screen bg-[#08080A]">
+      <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
         <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
+          <CardTitle className="flex items-center justify-center gap-2 text-[#EDEFF7] font-aeonikpro">
             {status === 'success' ? (
-              <CheckCircle className="h-6 w-6 text-green-600" />
+              <CheckCircle className="h-6 w-6 text-green-400" />
             ) : (
-              <AlertCircle className="h-6 w-6 text-orange-600" />
+              <AlertCircle className="h-6 w-6 text-orange-400" />
             )}
             Stripe Connect Setup
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-[#9DA2B3] font-aeonikpro">
             {status === 'success'
               ? 'Your account has been successfully configured'
               : 'Your account setup requires additional information'}
@@ -93,36 +93,36 @@ export default function StripeConnectReturnPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           {status === 'success' ? (
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>{message}</AlertDescription>
+            <Alert className="bg-green-500/10 border border-green-500/50">
+              <CheckCircle className="h-4 w-4 text-green-400" />
+              <AlertDescription className="text-green-300 font-aeonikpro">{message}</AlertDescription>
             </Alert>
           ) : (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{message}</AlertDescription>
+            <Alert className="bg-orange-500/10 border border-orange-500/50" variant="destructive">
+              <AlertCircle className="h-4 w-4 text-orange-400" />
+              <AlertDescription className="text-orange-300 font-aeonikpro">{message}</AlertDescription>
             </Alert>
           )}
 
           {accountStatus && (
-            <div className="bg-muted p-4 rounded-lg">
-              <h4 className="font-semibold mb-3">Account Status:</h4>
+            <div className="bg-[#1E1E24] p-4 rounded-lg border border-[#9DA2B3]/25">
+              <h4 className="font-semibold mb-3 text-[#EDEFF7] font-aeonikpro">Account Status:</h4>
               <div className="grid grid-cols-1 gap-2 text-sm">
                 <div className="flex justify-between">
-                  <span>Payments Enabled:</span>
-                  <span className={accountStatus.charges_enabled ? 'text-green-600' : 'text-red-600'}>
+                  <span className="text-[#9DA2B3] font-aeonikpro">Payments Enabled:</span>
+                  <span className={accountStatus.charges_enabled ? 'text-green-400' : 'text-red-400'} style={{ fontFamily: 'var(--font-aeonikpro)' }}>
                     {accountStatus.charges_enabled ? 'Yes' : 'No'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Payouts Enabled:</span>
-                  <span className={accountStatus.payouts_enabled ? 'text-green-600' : 'text-red-600'}>
+                  <span className="text-[#9DA2B3] font-aeonikpro">Payouts Enabled:</span>
+                  <span className={accountStatus.payouts_enabled ? 'text-green-400' : 'text-red-400'} style={{ fontFamily: 'var(--font-aeonikpro)' }}>
                     {accountStatus.payouts_enabled ? 'Yes' : 'No'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Details Submitted:</span>
-                  <span className={accountStatus.details_submitted ? 'text-green-600' : 'text-red-600'}>
+                  <span className="text-[#9DA2B3] font-aeonikpro">Details Submitted:</span>
+                  <span className={accountStatus.details_submitted ? 'text-green-400' : 'text-red-400'} style={{ fontFamily: 'var(--font-aeonikpro)' }}>
                     {accountStatus.details_submitted ? 'Yes' : 'No'}
                   </span>
                 </div>
@@ -132,16 +132,16 @@ export default function StripeConnectReturnPage() {
 
           <div className="flex gap-4">
             {status === 'success' ? (
-              <Button onClick={goToDashboard} className="flex-1">
+              <Button onClick={goToDashboard} className="flex-1 bg-white text-black hover:bg-gray-100 font-aeonikpro">
                 Go to Dashboard
               </Button>
             ) : (
               <>
-                <Button onClick={continueOnboarding} variant="outline" className="flex-1">
+                <Button onClick={continueOnboarding} variant="outline" className="flex-1 border-[#9DA2B3]/25 text-[#9DA2B3] hover:bg-[#1E1E24] font-aeonikpro">
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Continue Setup
                 </Button>
-                <Button onClick={goToDashboard} className="flex-1">
+                <Button onClick={goToDashboard} className="flex-1 bg-white text-black hover:bg-gray-100 font-aeonikpro">
                   Go to Dashboard
                 </Button>
               </>

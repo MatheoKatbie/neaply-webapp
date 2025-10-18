@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import CountrySelect from '@/components/ui/country-select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -228,7 +227,7 @@ export default function BecomeSellerPage() {
       }
 
       setSuccess(true)
-      // Rafraîchir les données utilisateur pour mettre à jour le statut seller
+      // Refresh user data to update seller status
       await refreshUser()
       setTimeout(() => {
         router.push('/dashboard/seller')
@@ -281,360 +280,369 @@ export default function BecomeSellerPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#08080A]">
+        <div className="animate-pulse text-[#EDEFF7]">Loading...</div>
       </div>
     )
   }
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-[#08080A] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-center text-green-600">
-                {existingProfile ? t('becomeSeller.success.editTitle') : t('becomeSeller.success.title')}
-              </CardTitle>
-              <CardDescription className="text-center">
-                {existingProfile ? t('becomeSeller.success.editDescription') : t('becomeSeller.success.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center p-6 bg-green-50 rounded-lg">
-                <svg
-                  className="mx-auto h-12 w-12 text-green-600 mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
+          <div className="rounded-2xl border border-[#9DA2B3]/25 bg-[rgba(64,66,77,0.25)] p-8">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-green-500/20 mb-4">
+                <svg className="h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <p className="text-sm text-muted-foreground">
-                  {existingProfile ? t('becomeSeller.success.editRedirecting') : t('becomeSeller.success.redirecting')}
-                </p>
               </div>
-            </CardContent>
-          </Card>
+              <h2 className="font-aeonikpro text-2xl font-bold text-[#EDEFF7] mb-2">
+                {existingProfile ? 'Profile updated!' : 'Welcome to the seller community!'}
+              </h2>
+              <p className="font-aeonikpro text-[#9DA2B3] text-sm mb-4">
+                {existingProfile
+                  ? 'Your seller profile has been successfully updated.'
+                  : 'Your seller profile has been created. Redirecting to your dashboard...'}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8 pt-24">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            {existingProfile ? t('becomeSeller.editTitle') : t('becomeSeller.title')}
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            {existingProfile ? t('becomeSeller.editSubtitle') : t('becomeSeller.subtitle')}
-          </p>
-        </div>
+    <div className="min-h-screen relative overflow-hidden bg-[#08080A]" style={{ backgroundColor: '#08080A' }}>
+      {/* Decorative ellipses for ambient lighting */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Bottom ellipses */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            left: '-471px',
+            bottom: '400px',
+            width: '639px',
+            height: '639px',
+            backgroundColor: '#7899A8',
+            opacity: 0.35,
+            filter: 'blur(350px)',
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            right: '-471px',
+            bottom: '400px',
+            width: '639px',
+            height: '639px',
+            backgroundColor: '#7899A8',
+            opacity: 0.35,
+            filter: 'blur(350px)',
+          }}
+        />
+      </div>
 
-        {/* Main Content - Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Left Column - Benefits & Information */}
-          <div className="space-y-6">
-            {!existingProfile && (
-              <>
-                {/* Benefits Section */}
-                <Card className="bg-gradient-to-br bg-background/90">
-                  <CardHeader>
-                    <CardTitle className="text-2xl">{t('becomeSeller.whyCreate')}</CardTitle>
-                    <CardDescription className="">{t('becomeSeller.whyCreateDescription')}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">{t('becomeSeller.benefits.upload.title')}</h3>
-                        <p className="">{t('becomeSeller.benefits.upload.description')}</p>
-                      </div>
+      {/* Content with higher z-index */}
+      <div className="relative z-10">
+        {/* Hero Section */}
+        <section className="relative overflow-visible pt-[140px] md:pt-[170px] pb-32">
+          {/* Small decorative ellipses */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              right: '-200px',
+              top: '600px',
+              width: '300px',
+              height: '300px',
+              backgroundColor: '#7899A8',
+              opacity: 0.3,
+              filter: 'blur(150px)',
+              zIndex: 1,
+            }}
+          />
+          <div
+            className="absolute rounded-full"
+            style={{
+              left: '-150px',
+              top: '0px',
+              width: '350px',
+              height: '350px',
+              backgroundColor: '#7899A8',
+              opacity: 0.3,
+              filter: 'blur(150px)',
+              zIndex: 1,
+            }}
+          />
+
+          {/* Content */}
+          <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 w-full">
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left Column - Text Content */}
+              <div className="text-white">
+                <p className="font-aeonikpro text-[#BCBFCC] text-[16px] md:text-[18px] mb-4">
+                  Build Your Business
+                </p>
+
+                {/* Main Heading */}
+                <h1 className="font-aeonikpro text-3xl md:text-4xl lg:text-5xl xl:text-[64px] text-[#EDEFF7] leading-tight lg:leading-[1.2] tracking-tight mb-6">
+                  Become a Seller
+                  <br />
+                  on neaply
+                </h1>
+
+                {/* Subheading */}
+                <p className="font-aeonikpro text-[18px] md:text-[20px] text-[#D3D6E0] mb-8 max-w-xl leading-relaxed">
+                  Turn your automation expertise into revenue. Sell your n8n workflows to thousands of businesses worldwide and earn recurring income.
+                </p>
+
+                {/* Key Benefits */}
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
+                      <svg className="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
                     </div>
-
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">{t('becomeSeller.benefits.earn.title')}</h3>
-                        <p className="">{t('becomeSeller.benefits.earn.description')}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">{t('becomeSeller.benefits.grow.title')}</h3>
-                        <p className="">{t('becomeSeller.benefits.grow.description')}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-
-            {/* Trust Indicators */}
-            <Card className="bg-background border-green-200">
-              <CardContent>
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                    <span className="font-aeonikpro text-[#BCBFCC]">Reach a global audience of automation professionals</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground">{t('becomeSeller.trust.title')}</h3>
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
+                      <svg className="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="font-aeonikpro text-[#BCBFCC]">Set your own prices and earn recurring revenue</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
+                      <svg className="h-4 w-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="font-aeonikpro text-[#BCBFCC]">Get paid securely through Stripe Connect</span>
+                  </div>
                 </div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center space-x-2">
-                    <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>{t('becomeSeller.trust.ssl')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>{t('becomeSeller.trust.payouts')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>{t('becomeSeller.trust.support')}</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
 
-          {/* Right Column - Form */}
-          <div>
-            <Card className="sticky top-8">
-              <CardHeader>
-                <CardTitle className="text-2xl">
-                  {existingProfile ? t('becomeSeller.form.storeInfo') : t('becomeSeller.form.storeSetup')}
-                </CardTitle>
-                <CardDescription>
-                  {existingProfile ? t('becomeSeller.form.editDescription') : t('becomeSeller.form.description')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {error && (
-                  <div className="mb-6 border-red-200 bg-red-50 border px-4 py-3 rounded">
-                    <div className="text-red-700 text-sm">{error}</div>
-                  </div>
-                )}
+              {/* Right Column - Form */}
+              <div className="relative">
+                <div
+                  className="rounded-2xl border border-[#9DA2B3]/25 p-8 backdrop-blur-xl"
+                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+                >
+                  <h2 className="font-aeonikpro text-2xl font-bold text-[#EDEFF7] mb-2">
+                    {existingProfile ? 'Update Store Information' : 'Create Your Store'}
+                  </h2>
+                  <p className="font-aeonikpro text-[#9DA2B3] text-sm mb-6">
+                    {existingProfile
+                      ? 'Update your store details'
+                      : 'Tell us about your store and the workflows you plan to sell'}
+                  </p>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="storeName">{t('becomeSeller.form.storeName')} *</Label>
-                    <Input
-                      id="storeName"
-                      name="storeName"
-                      type="text"
-                      required
-                      value={formData.storeName}
-                      onChange={handleInputChange}
-                      onBlur={handleInputBlur}
-                      placeholder={t('becomeSeller.form.storeNamePlaceholder')}
-                      maxLength={50}
-                      className={validationErrors.storeName ? 'border-red-500 focus:border-red-500' : ''}
-                    />
-                    {validationErrors.storeName ? (
-                      <p className="text-xs text-red-600">{validationErrors.storeName}</p>
-                    ) : (
-                      <p className="text-xs text-muted-foreground">
-                        {formData.storeName.length}/50 characters (min. 2). {t('becomeSeller.form.storeNameHelp')}
-                      </p>
-                    )}
-                  </div>
+                  {error && (
+                    <div className="mb-6 border border-red-500/50 bg-red-500/10 px-4 py-3 rounded-lg">
+                      <div className="text-red-400 text-sm font-aeonikpro">{error}</div>
+                    </div>
+                  )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="bio">{t('becomeSeller.form.bio')} *</Label>
-                    <Textarea
-                      id="bio"
-                      name="bio"
-                      required
-                      className={`h-24  ${validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''}`}
-                      value={formData.bio}
-                      onChange={handleInputChange}
-                      onBlur={handleInputBlur}
-                      placeholder={t('becomeSeller.form.bioPlaceholder')}
-                      maxLength={500}
-                      rows={4}
-                    />
-                    {validationErrors.bio ? (
-                      <p className="text-xs text-red-600">{validationErrors.bio}</p>
-                    ) : (
-                      <p className="text-xs text-muted-foreground">
-                        {formData.bio.length}/500 characters (min. 10, required). {t('becomeSeller.form.bioHelp')}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2 col-span-1">
-                      <Label htmlFor="phoneNumber">{t('becomeSeller.form.phone')}</Label>
-                      <PhoneInputComponent
-                        value={formData.phoneNumber}
-                        onChange={(value) => {
-                          setFormData((prev) => ({ ...prev, phoneNumber: value || '' }))
-                        }}
-                        placeholder={t('becomeSeller.form.phonePlaceholder')}
-                        defaultCountry={formData.countryCode}
-                        disableCountrySelect={true}
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="storeName" className="font-aeonikpro text-[#EDEFF7]">
+                        Store Name *
+                      </Label>
+                      <Input
+                        id="storeName"
+                        name="storeName"
+                        type="text"
+                        required
+                        value={formData.storeName}
+                        onChange={handleInputChange}
+                        onBlur={handleInputBlur}
+                        placeholder="Your Store Name"
+                        maxLength={50}
+                        className={`bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro ${
+                          validationErrors.storeName ? 'border-red-500 focus:border-red-500' : ''
+                        }`}
                       />
-                      {validationErrors.phoneNumber ? (
-                        <p className="text-xs text-red-600">{validationErrors.phoneNumber}</p>
+                      {validationErrors.storeName ? (
+                        <p className="text-xs text-red-400 font-aeonikpro">{validationErrors.storeName}</p>
                       ) : (
-                        <p className="text-xs text-muted-foreground">
-                          {formData.phoneNumber
-                            ? `${formData.phoneNumber.replace(/\D/g, '').length} digits (min. 8)`
-                            : '0 digits (min. 8)'}{' '}
-                          - {t('becomeSeller.form.phoneHelp')}
+                        <p className="text-xs text-[#9DA2B3] font-aeonikpro">
+                          {formData.storeName.length}/50 characters (min. 2)
                         </p>
                       )}
                     </div>
 
-                    <div className="space-y-2 col-span-1">
-                      <Label htmlFor="countryCode">{t('becomeSeller.form.country')} *</Label>
-                      <CountrySelect
-                        id="countryCode"
-                        open={countrySelectOpen}
-                        disabled={false}
-                        onToggle={handleCountryToggle}
-                        onChange={handleCountryChange}
-                        selectedValue={selectedCountry}
+                    <div className="space-y-2">
+                      <Label htmlFor="bio" className="font-aeonikpro text-[#EDEFF7]">
+                        Store Description *
+                      </Label>
+                      <Textarea
+                        id="bio"
+                        name="bio"
+                        required
+                        className={`h-24 bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro resize-none ${
+                          validationErrors.bio ? 'border-red-500 focus:border-red-500' : ''
+                        }`}
+                        value={formData.bio}
+                        onChange={handleInputChange}
+                        onBlur={handleInputBlur}
+                        placeholder="Describe your store and expertise..."
+                        maxLength={500}
+                        rows={4}
                       />
-                      {validationErrors.countryCode && (
-                        <p className="text-xs text-red-600">{validationErrors.countryCode}</p>
+                      {validationErrors.bio ? (
+                        <p className="text-xs text-red-400 font-aeonikpro">{validationErrors.bio}</p>
+                      ) : (
+                        <p className="text-xs text-[#9DA2B3] font-aeonikpro">
+                          {formData.bio.length}/500 characters (min. 10, required)
+                        </p>
                       )}
-                      <p className="text-xs text-muted-foreground">{t('becomeSeller.form.countryHelp')}</p>
                     </div>
-                  </div>
-                  {/* Important warning about bank account */}
-                  <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
-                    <div className="flex items-start space-x-2">
-                      <svg
-                        className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phoneNumber" className="font-aeonikpro text-[#EDEFF7]">
+                          Phone Number
+                        </Label>
+                        <PhoneInputComponent
+                          value={formData.phoneNumber}
+                          onChange={(value) => {
+                            setFormData((prev) => ({ ...prev, phoneNumber: value || '' }))
+                          }}
+                          placeholder="Enter your phone number"
+                          defaultCountry={formData.countryCode}
+                          disableCountrySelect={true}
                         />
-                      </svg>
-                      <div>
-                        <p className="text-sm font-medium text-red-800">Important</p>
-                        <p className="text-xs text-red-700 mt-1">
-                          You must have a bank account in the selected country to receive payments. Please ensure you
-                          have access to a local bank account before proceeding.
-                        </p>
+                        {validationErrors.phoneNumber ? (
+                          <p className="text-xs text-red-400 font-aeonikpro">{validationErrors.phoneNumber}</p>
+                        ) : (
+                          <p className="text-xs text-[#9DA2B3] font-aeonikpro">
+                            {formData.phoneNumber
+                              ? `${formData.phoneNumber.replace(/\D/g, '').length} digits (min. 8)`
+                              : '0 digits (min. 8)'}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="countryCode" className="font-aeonikpro text-[#EDEFF7]">
+                          Country *
+                        </Label>
+                        <CountrySelect
+                          id="countryCode"
+                          open={countrySelectOpen}
+                          disabled={false}
+                          onToggle={handleCountryToggle}
+                          onChange={handleCountryChange}
+                          selectedValue={selectedCountry}
+                        />
+                        {validationErrors.countryCode && (
+                          <p className="text-xs text-red-400 font-aeonikpro">{validationErrors.countryCode}</p>
+                        )}
+                        <p className="text-xs text-[#9DA2B3] font-aeonikpro">Where your bank account is located</p>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Stripe Connect Info */}
-                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <div className="flex items-start space-x-2">
-                      <svg
-                        className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
-                      <div>
-                        <p className="text-sm font-medium text-blue-800">Stripe Connect Setup</p>
-                        <p className="text-xs text-blue-700 mt-1">
-                          After creating your seller profile, you'll be automatically redirected to Stripe to set up
-                          your payment account with pre-filled business information.
-                        </p>
+                    {/* Important warning about bank account */}
+                    <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500/25 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <svg
+                          className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                          />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-orange-300 font-aeonikpro">Important</p>
+                          <p className="text-xs text-orange-200 mt-1 font-aeonikpro">
+                            You must have a bank account in your selected country to receive payments.
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                    <Button type="submit" className="flex-1" disabled={isLoading || !isFormValid()}>
-                      {isLoading
-                        ? existingProfile
-                          ? t('becomeSeller.form.updating')
-                          : t('becomeSeller.form.creating')
-                        : existingProfile
-                        ? t('becomeSeller.form.updateProfile')
-                        : t('becomeSeller.form.createStore')}
-                    </Button>
+                    {/* Stripe Connect Info */}
+                    <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/25 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <svg
+                          className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                          />
+                        </svg>
+                        <div>
+                          <p className="text-sm font-medium text-blue-300 font-aeonikpro">Stripe Connect</p>
+                          <p className="text-xs text-blue-200 mt-1 font-aeonikpro">
+                            After creating your store, you'll set up Stripe payments to start selling.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-                    <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>
-                      {t('becomeSeller.form.cancel')}
-                    </Button>
-                  </div>
-                </form>
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                      <Button
+                        type="submit"
+                        className="flex-1 font-aeonikpro bg-white text-black hover:bg-gray-100 disabled:opacity-50"
+                        disabled={isLoading || !isFormValid()}
+                      >
+                        {isLoading
+                          ? existingProfile
+                            ? 'Updating...'
+                            : 'Creating Store...'
+                          : existingProfile
+                          ? 'Update Store'
+                          : 'Create Store'}
+                      </Button>
 
-                {!existingProfile && (
-                  <div className="mt-6 pt-6 border-t">
-                    <p className="text-xs text-muted-foreground text-center">
-                      {t('becomeSeller.terms')}{' '}
-                      <Link href="/terms-sellers" className="underline hover:text-muted-foreground">
-                        {t('becomeSeller.sellerTerms')}
-                      </Link>{' '}
-                      {t('becomeSeller.and')}{' '}
-                      <Link href="/privacy" className="underline hover:text-muted-foreground">
-                        {t('becomeSeller.privacyPolicy')}
-                      </Link>
-                      .
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="font-aeonikpro border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24]"
+                        onClick={() => router.back()}
+                        disabled={isLoading}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+
+                  {!existingProfile && (
+                    <div className="mt-6 pt-6 border-t border-[#9DA2B3]/25">
+                      <p className="text-xs text-[#9DA2B3] text-center font-aeonikpro">
+                        By creating a store, you agree to our{' '}
+                        <Link href="/terms-sellers" className="underline hover:text-[#BCBFCC]">
+                          Seller Terms
+                        </Link>{' '}
+                        and{' '}
+                        <Link href="/privacy" className="underline hover:text-[#BCBFCC]">
+                          Privacy Policy
+                        </Link>
+                        .
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   )
