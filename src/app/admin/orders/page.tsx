@@ -1,11 +1,11 @@
-import { prisma } from '@/lib/prisma'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ShoppingCart, CheckCircle, XCircle, Clock, DollarSign } from 'lucide-react'
 import { AdminPagination } from '@/components/admin/AdminPagination'
 import { AdminSearchFilters } from '@/components/admin/AdminSearchFilters'
 import { OrderDetailsDialog } from '@/components/admin/OrderDetailsDialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { prisma } from '@/lib/prisma'
+import { CheckCircle, Clock, DollarSign, ShoppingCart, XCircle } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 
 async function getOrders(
@@ -213,10 +213,10 @@ export default async function AdminOrders({
     ]
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold text-foreground font-space-grotesk">Orders Management</h1>
-                <p className="text-muted-foreground">View and manage all orders</p>
+                <h1 className="text-4xl font-bold text-[#EDEFF7] font-space-grotesk mb-2">Orders Management</h1>
+                <p className="text-[#9DA2B3] text-lg">View and manage all customer orders</p>
             </div>
 
             <AdminSearchFilters
@@ -225,50 +225,50 @@ export default async function AdminOrders({
                 dateRangeFilter={true}
             />
 
-            <Card>
+            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                        <ShoppingCart className="h-5 w-5" />
+                    <CardTitle className="flex items-center space-x-2 text-2xl">
+                        <ShoppingCart className="h-6 w-6 text-blue-400" />
                         <span>All Orders ({totalCount})</span>
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-[#9DA2B3]/70 text-base">
                         Monitor order status and payment information
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {orders.map((order) => (
                             <div
                                 key={order.id}
-                                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted"
+                                className="flex items-center justify-between p-4 border border-[#9DA2B3]/20 rounded-lg hover:border-[#9DA2B3]/40 hover:bg-[#40424D]/20 transition-all duration-200"
                             >
                                 <div className="flex-1 space-y-2">
                                     <div className="flex items-center space-x-2">
-                                        <h3 className="text-lg font-medium">Order #{order.id}</h3>
+                                        <h3 className="text-base font-semibold text-[#EDEFF7] font-aeonikpro">Order #{order.id.slice(0, 8)}</h3>
                                         {getStatusBadge(order.status)}
                                     </div>
 
-                                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                        <span>Customer: {order.user.displayName}</span>
+                                    <div className="flex items-center space-x-4 text-sm text-[#9DA2B3] flex-wrap">
+                                        <span>Customer: <span className="text-[#EDEFF7]">{order.user.displayName}</span></span>
                                         <span>•</span>
-                                        <span>{order.user.email}</span>
+                                        <span className="text-[#9DA2B3]/70">{order.user.email}</span>
                                         <span>•</span>
-                                        <span className="font-medium text-green-600">
+                                        <span className="font-medium text-green-400">
                                             {formatCurrency(order.totalCents)}
                                         </span>
                                     </div>
 
-                                    <div className="space-y-1">
+                                    <div className="space-y-1 pt-1">
                                         {order.items.map((item) => (
-                                            <div key={item.id} className="text-sm text-muted-foreground">
-                                                <span className="font-medium">{item.workflow.title}</span>
+                                            <div key={item.id} className="text-xs text-[#9DA2B3]">
+                                                <span className="text-[#EDEFF7]">{item.workflow.title}</span>
                                                 <span className="text-[#9DA2B3]"> by {item.workflow.seller.displayName}</span>
                                                 <span className="text-[#9DA2B3]"> • {formatCurrency(item.unitPriceCents)}</span>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="flex items-center space-x-4 text-xs text-[#9DA2B3]">
+                                    <div className="flex items-center space-x-4 text-xs text-[#9DA2B3]/60 pt-1">
                                         <span>Created: {formatDate(order.createdAt)}</span>
                                         {order.paidAt && (
                                             <>
@@ -277,11 +277,11 @@ export default async function AdminOrders({
                                             </>
                                         )}
                                         <span>•</span>
-                                        <span>Provider: {order.provider}</span>
+                                        <span>Provider: <span className="capitalize">{order.provider}</span></span>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center space-x-2 ml-4">
+                                <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
                                     <OrderDetailsDialog
                                         order={{
                                             id: order.id,
@@ -294,16 +294,16 @@ export default async function AdminOrders({
                                             items: order.items.map((i) => ({ id: i.id, unitPriceCents: i.unitPriceCents, workflow: { title: i.workflow.title, seller: { displayName: i.workflow.seller.displayName } } })),
                                         }}
                                         trigger={
-                                            <Button variant="outline" size="sm">
+                                            <Button variant="outline" size="sm" className="text-xs">
                                                 <DollarSign className="h-4 w-4 mr-1" />
-                                                View Details
+                                                Details
                                             </Button>
                                         }
                                     />
                                     {order.status === 'pending' && (
                                         <form action={markPaidAction}>
                                             <input type="hidden" name="orderId" value={order.id} />
-                                            <Button variant="outline" size="sm">
+                                            <Button variant="outline" size="sm" className="text-xs bg-green-500/10 hover:bg-green-500/20 border-green-500/30 text-green-300">
                                                 <CheckCircle className="h-4 w-4 mr-1" />
                                                 Mark Paid
                                             </Button>

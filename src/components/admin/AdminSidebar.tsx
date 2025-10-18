@@ -10,58 +10,80 @@ import {
     ShoppingCart,
     Flag,
 } from 'lucide-react'
+import { Separator } from '@/components/ui/separator'
 
 const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: BarChart3 },
-    { name: 'Users', href: '/admin/users', icon: Users },
-    { name: 'Workflows', href: '/admin/workflows', icon: Package },
-    { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
-    { name: 'Reports', href: '/admin/reports', icon: Flag },
+    { name: 'Dashboard', href: '/admin/dashboard', icon: BarChart3, description: 'Overview & statistics' },
+    { name: 'Users', href: '/admin/users', icon: Users, description: 'Manage users' },
+    { name: 'Workflows', href: '/admin/workflows', icon: Package, description: 'Manage workflows' },
+    { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, description: 'View orders' },
+    { name: 'Reports', href: '/admin/reports', icon: Flag, description: 'View reports' },
 ]
 
 export function AdminSidebar() {
     const pathname = usePathname()
 
     return (
-        <div className="w-64 bg-background border-r border-border h-full flex flex-col">
+        <aside className="w-64 bg-gradient-to-b from-[#1E1E24] to-[#161619] border-r border-[#9DA2B3]/25 h-full flex flex-col overflow-y-auto">
             {/* Navigation Section */}
-            <nav className="flex-1 py-6">
-                <div className="px-3">
-                    <ul className="space-y-1">
-                        {navigation.map((item) => {
-                            const isActive = pathname === item.href
-                            return (
-                                <li key={item.name}>
-                                    <Link
-                                        href={item.href}
-                                        className={cn(
-                                            'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
-                                            isActive
-                                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-700 dark:border-blue-300'
-                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                        )}
-                                    >
-                                        <item.icon
+            <nav className="flex-1 py-8 px-4">
+                <div className="space-y-2">
+                    {navigation.map((item) => {
+                        const isActive = pathname === item.href
+                        const Icon = item.icon
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className={cn(
+                                    'flex items-start px-4 py-3 rounded-lg transition-all duration-200 group',
+                                    isActive
+                                        ? 'bg-blue-500/20 border border-blue-500/50 shadow-lg shadow-blue-500/10'
+                                        : 'text-[#9DA2B3] hover:bg-[#40424D]/30 hover:border hover:border-[#9DA2B3]/30'
+                                )}
+                            >
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-0.5">
+                                        <Icon
                                             className={cn(
-                                                'mr-3 h-5 w-5 flex-shrink-0',
-                                                isActive ? 'text-blue-700 dark:text-blue-300' : 'text-muted-foreground group-hover:text-foreground'
+                                                'h-5 w-5 flex-shrink-0 transition-colors',
+                                                isActive 
+                                                    ? 'text-blue-400' 
+                                                    : 'text-[#9DA2B3] group-hover:text-[#EDEFF7]'
                                             )}
                                         />
-                                        {item.name}
-                                    </Link>
-                                </li>
-                            )
-                        })}
-                    </ul>
+                                        <span className={cn(
+                                            'font-medium text-sm transition-colors',
+                                            isActive ? 'text-blue-100 font-semibold' : 'group-hover:text-[#EDEFF7]'
+                                        )}>
+                                            {item.name}
+                                        </span>
+                                    </div>
+                                    <p className={cn(
+                                        'text-xs pl-8 transition-colors',
+                                        isActive ? 'text-blue-300/70' : 'text-[#9DA2B3]/50 group-hover:text-[#9DA2B3]/70'
+                                    )}>
+                                        {item.description}
+                                    </p>
+                                </div>
+                            </Link>
+                        )
+                    })}
                 </div>
             </nav>
 
+            {/* Divider */}
+            <Separator className="mx-4 bg-[#9DA2B3]/15" />
+
             {/* Footer Section */}
-            <div className="p-4 border-t border-border bg-background">
-                <div className="text-xs text-muted-foreground text-center">
-                    Neaply Admin Panel
+            <div className="p-4 text-center">
+                <div className="text-xs text-[#9DA2B3]/60">
+                    Neaply Admin
+                </div>
+                <div className="text-xs text-[#9DA2B3]/40 mt-1">
+                    v1.0.0
                 </div>
             </div>
-        </div>
+        </aside>
     )
 }

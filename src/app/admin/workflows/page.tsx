@@ -1,13 +1,13 @@
-import { prisma } from '@/lib/prisma'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Package, Eye, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { AdminPagination } from '@/components/admin/AdminPagination'
 import { AdminSearchFilters } from '@/components/admin/AdminSearchFilters'
-import Link from 'next/link'
-import { revalidatePath } from 'next/cache'
 import { WorkflowStatusForm } from '@/components/admin/WorkflowStatusForm'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { prisma } from '@/lib/prisma'
+import { CheckCircle, Clock, Eye, Package, XCircle } from 'lucide-react'
+import { revalidatePath } from 'next/cache'
+import Link from 'next/link'
 
 async function getWorkflows(
   page: number = 1,
@@ -208,10 +208,10 @@ export default async function AdminWorkflows({
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-foreground font-space-grotesk">Workflows Management</h1>
-        <p className="text-muted-foreground">Review and manage workflow submissions</p>
+        <h1 className="text-4xl font-bold text-[#EDEFF7] font-space-grotesk mb-2">Workflows Management</h1>
+        <p className="text-[#9DA2B3] text-lg">Review and manage workflow submissions from creators</p>
       </div>
 
       <AdminSearchFilters
@@ -220,56 +220,56 @@ export default async function AdminWorkflows({
         dateRangeFilter={true}
       />
 
-      <Card>
+      <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Package className="h-5 w-5" />
+          <CardTitle className="flex items-center space-x-2 text-2xl">
+            <Package className="h-6 w-6 text-green-400" />
             <span>All Workflows ({totalCount})</span>
           </CardTitle>
-          <CardDescription>Review, approve, or reject workflow submissions</CardDescription>
+          <CardDescription className="text-[#9DA2B3]/70 text-base">Review, approve, or reject workflow submissions</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {workflows.map((workflow) => (
-              <div key={workflow.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted">
+              <div key={workflow.id} className="flex items-center justify-between p-4 border border-[#9DA2B3]/20 rounded-lg hover:border-[#9DA2B3]/40 hover:bg-[#40424D]/20 transition-all duration-200">
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center space-x-2">
-                    <h3 className="text-lg font-medium">{workflow.title}</h3>
+                    <h3 className="text-base font-semibold text-[#EDEFF7] font-aeonikpro">{workflow.title}</h3>
                     {getStatusBadge(workflow.status)}
                   </div>
 
-                  <p className="text-sm text-muted-foreground line-clamp-2">{workflow.shortDesc}</p>
+                  <p className="text-sm text-[#9DA2B3]/70 line-clamp-2">{workflow.shortDesc}</p>
 
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span>By {workflow.seller.displayName}</span>
+                  <div className="flex items-center space-x-3 text-xs text-[#9DA2B3] flex-wrap pt-1">
+                    <span>By <span className="text-[#EDEFF7]">{workflow.seller.displayName}</span></span>
                     <span>•</span>
-                    <span>{formatCurrency(workflow.basePriceCents)}</span>
+                    <span className="text-green-400 font-medium">{formatCurrency(workflow.basePriceCents)}</span>
                     <span>•</span>
                     <span>{workflow.salesCount} sales</span>
                     <span>•</span>
-                    <span>{workflow._count.reviews} reviews</span>
+                    <span>⭐ {workflow._count.reviews} reviews</span>
                     <span>•</span>
-                    <span>{workflow._count.favorites} favorites</span>
+                    <span>❤️ {workflow._count.favorites} favorites</span>
                   </div>
 
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-2 pt-1">
                     {workflow.categories.slice(0, 3).map((cat) => (
-                      <Badge key={cat.category.id} variant="outline" className="text-xs">
+                      <Badge key={cat.category.id} variant="outline" className="text-xs bg-blue-500/10 text-blue-300 border-blue-500/30">
                         {cat.category.name}
                       </Badge>
                     ))}
                     {workflow.categories.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-xs bg-[#40424D]/30 text-[#9DA2B3]/70">
                         +{workflow.categories.length - 3} more
                       </Badge>
                     )}
                   </div>
 
-                  <p className="text-xs text-[#9DA2B3]">Created {formatDate(workflow.createdAt)}</p>
+                  <p className="text-xs text-[#9DA2B3]/50 pt-1">Created {formatDate(workflow.createdAt)}</p>
                 </div>
 
-                <div className="flex items-center space-x-2 ml-4">
-                  <Button asChild variant="outline" size="sm">
+                <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+                  <Button asChild variant="outline" size="sm" className="text-xs">
                     <Link href={`/workflow/${workflow.id}`}>
                       <Eye className="h-4 w-4 mr-1" />
                       View

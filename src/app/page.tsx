@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import Link from 'next/link'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { useAuth } from '@/hooks/useAuth'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 
 interface StoreCard {
   userId: string
@@ -604,20 +603,18 @@ export default function Home() {
 
                   {/* CTA Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                    <button
+                    <Button
                       onClick={() => router.push('/register')}
-                      className="font-aeonikpro bg-white text-black hover:bg-[#40424D]/30 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
                     >
                       Get started — it&apos;s free
-                    </button>
-
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => router.push('/become-seller')}
                       className="relative font-aeonikpro bg-transparent text-white py-3 px-6 text-lg transition-all duration-300 cursor-pointer group"
                     >
                       Upload workflow
                       <span className="absolute left-0 bottom-1 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"></span>
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
