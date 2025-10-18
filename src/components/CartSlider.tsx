@@ -112,7 +112,7 @@ export default function CartSlider({ isOpen, onClose }: CartSliderProps) {
           ) : !cart || cart.items.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <ShoppingCart className="w-12 h-12 text-[#9DA2B3] mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
                 <p className="text-sm text-gray-500 mb-4">Add some workflows to get started</p>
                 <Button onClick={onClose} variant="outline">
@@ -136,8 +136,8 @@ export default function CartSlider({ isOpen, onClose }: CartSliderProps) {
                               className="w-16 h-16 object-cover rounded-lg"
                             />
                           ) : (
-                            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                              <File className="w-8 h-8 text-gray-400" />
+                            <div className="w-16 h-16 bg-[#40424D]/40 rounded-lg flex items-center justify-center">
+                              <File className="w-8 h-8 text-[#9DA2B3]" />
                             </div>
                           )}
                         </div>

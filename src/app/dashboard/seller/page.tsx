@@ -1089,7 +1089,7 @@ export default function SellerDashboard() {
               </div>
 
               {/* Create Workflow Button */}
-              <Button onClick={handleCreateWorkflow} className="bg-white text-black hover:bg-gray-100 font-aeonikpro">
+              <Button onClick={handleCreateWorkflow} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 Create Workflow
               </Button>
             </div>
@@ -1166,7 +1166,7 @@ export default function SellerDashboard() {
               description="Your account and payout information have been verified. You can now add your first workflow to FlowMarket."
               position="bottom"
             >
-              <Button onClick={handleCreateWorkflow} className="bg-white text-black hover:bg-gray-100 font-aeonikpro">
+              <Button onClick={handleCreateWorkflow} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 Create Workflow
               </Button>
             </AnimatedTooltip>

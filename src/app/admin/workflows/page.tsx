@@ -265,7 +265,7 @@ export default async function AdminWorkflows({
                     )}
                   </div>
 
-                  <p className="text-xs text-gray-400">Created {formatDate(workflow.createdAt)}</p>
+                  <p className="text-xs text-[#9DA2B3]">Created {formatDate(workflow.createdAt)}</p>
                 </div>
 
                 <div className="flex items-center space-x-2 ml-4">

@@ -298,7 +298,7 @@ export default function WorkflowDetailPage() {
             </p>
             <button
               onClick={() => router.push('/')}
-              className="font-aeonikpro bg-white text-black hover:bg-gray-100 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer inline-flex items-center gap-2 cursor-pointer"
+              className="font-aeonikpro bg-white text-black hover:bg-[#40424D]/30 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer inline-flex items-center gap-2 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Marketplace
@@ -716,7 +716,7 @@ export default function WorkflowDetailPage() {
                       workflowId={workflowId}
                       price={workflow.price}
                       currency={workflow.currency}
-                      className="w-full bg-white text-black hover:bg-gray-100 py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
+                      className="w-full bg-white text-black hover:bg-[#40424D]/30 py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
                     >
                       Buy Now
                     </PurchaseButton>

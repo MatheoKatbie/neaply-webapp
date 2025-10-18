@@ -204,7 +204,7 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
 
                 <div className="space-y-2">
                   <svg
-                    className="mx-auto h-12 w-12 text-gray-400"
+                    className="mx-auto h-12 w-12 text-[#9DA2B3]"
                     stroke="currentColor"
                     fill="none"
                     viewBox="0 0 48 48"

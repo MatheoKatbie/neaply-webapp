@@ -118,7 +118,7 @@ export default function StripeConnectStatus() {
             </Alert>
 
             <Link href="/dashboard/stripe/connect">
-              <Button className="w-full bg-white text-black hover:bg-gray-100 font-aeonikpro">
+              <Button className="w-full bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 <CreditCard className="mr-2 h-4 w-4" />
                 Set Up Stripe Connect
               </Button>
@@ -168,7 +168,7 @@ export default function StripeConnectStatus() {
                 </Alert>
 
                 <div className="flex gap-2">
-                  <Button onClick={continueOnboarding} size="sm" className="bg-white text-black hover:bg-gray-100 font-aeonikpro">
+                  <Button onClick={continueOnboarding} size="sm" className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Continue Setup
                   </Button>

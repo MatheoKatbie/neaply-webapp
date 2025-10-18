@@ -361,7 +361,7 @@ export default function MarketplacePage() {
                     Search Workflows
                   </Label>
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9DA2B3] w-5 h-5" />
                     <Input
                       id="search"
                       placeholder="Search workflows, tags, or categories..."

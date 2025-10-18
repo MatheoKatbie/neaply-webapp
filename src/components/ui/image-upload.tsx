@@ -203,7 +203,7 @@ export function ImageUpload({
           </div>
         ) : (
           <div className="text-center p-6">
-            <ImageIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <ImageIcon className="mx-auto h-12 w-12 text-[#9DA2B3] mb-4" />
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">{placeholder}</p>
               <p className="text-xs text-muted-foreground">JPG, PNG, GIF, WebP up to {maxSizeMB}MB</p>

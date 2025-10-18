@@ -132,7 +132,7 @@ export default function StripeConnectReturnPage() {
 
           <div className="flex gap-4">
             {status === 'success' ? (
-              <Button onClick={goToDashboard} className="flex-1 bg-white text-black hover:bg-gray-100 font-aeonikpro">
+              <Button onClick={goToDashboard} className="flex-1 bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 Go to Dashboard
               </Button>
             ) : (
@@ -141,7 +141,7 @@ export default function StripeConnectReturnPage() {
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Continue Setup
                 </Button>
-                <Button onClick={goToDashboard} className="flex-1 bg-white text-black hover:bg-gray-100 font-aeonikpro">
+                <Button onClick={goToDashboard} className="flex-1 bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                   Go to Dashboard
                 </Button>
               </>

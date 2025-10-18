@@ -711,7 +711,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <Button onClick={handleProfileUpdate} disabled={loading} className="bg-white text-black hover:bg-gray-100 font-aeonikpro">
+              <Button onClick={handleProfileUpdate} disabled={loading} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 {loading ? 'Updating...' : 'Update Profile'}
               </Button>
             </CardContent>
@@ -760,7 +760,7 @@ export default function SettingsPage() {
               <CardDescription className="text-[#9DA2B3] font-aeonikpro">Change your password to keep your account secure.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={() => setShowPasswordChangeModal(true)} className="flex items-center gap-2 bg-white text-black hover:bg-gray-100 font-aeonikpro">
+              <Button onClick={() => setShowPasswordChangeModal(true)} className="flex items-center gap-2 bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 <Key className="h-4 w-4" />
                 Change Password
               </Button>
@@ -1031,7 +1031,7 @@ export default function SettingsPage() {
             <Button variant="outline" onClick={() => setShowPasswordChangeModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
               Cancel
             </Button>
-            <Button onClick={handlePasswordChange} disabled={loading || !newPassword || !confirmPassword} className="bg-white text-black hover:bg-gray-100 font-aeonikpro">
+            <Button onClick={handlePasswordChange} disabled={loading || !newPassword || !confirmPassword} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
               {loading ? 'Updating...' : 'Update Password'}
             </Button>
           </DialogFooter>
@@ -1174,7 +1174,7 @@ export default function SettingsPage() {
                 <Button variant="outline" onClick={() => setShow2FASetupModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
                   Cancel
                 </Button>
-                <Button onClick={() => setSetupStep('verify')} className="bg-white text-black hover:bg-gray-100 font-aeonikpro">Continue</Button>
+                <Button onClick={() => setSetupStep('verify')} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">Continue</Button>
               </>
             )}
 
@@ -1183,14 +1183,14 @@ export default function SettingsPage() {
                 <Button variant="outline" onClick={() => setSetupStep('qr')} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
                   Back
                 </Button>
-                <Button onClick={verify2FASetup} disabled={loading || totpCode.length !== 6} className="bg-white text-black hover:bg-gray-100 font-aeonikpro">
+                <Button onClick={verify2FASetup} disabled={loading || totpCode.length !== 6} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                   {loading ? 'Verifying...' : 'Verify & Enable'}
                 </Button>
               </>
             )}
 
             {setupStep === 'backup' && (
-              <Button onClick={complete2FASetup} className="w-full bg-white text-black hover:bg-gray-100 font-aeonikpro">
+              <Button onClick={complete2FASetup} className="w-full bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 Complete Setup
               </Button>
             )}

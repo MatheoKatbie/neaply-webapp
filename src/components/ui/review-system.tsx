@@ -221,7 +221,7 @@ function ReviewForm({ workflowId, onReviewSubmitted }: { workflowId: string; onR
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium bg-white text-black hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2">
+        <button className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium bg-white text-black hover:bg-[#40424D]/30 transition-all duration-300 flex items-center justify-center gap-2">
           <MessageSquare className="w-4 h-4" />
           Write a Review
         </button>
@@ -280,7 +280,7 @@ function ReviewForm({ workflowId, onReviewSubmitted }: { workflowId: string; onR
             <button
               type="submit"
               disabled={isSubmitting || formData.rating === 0}
-              className="py-2 px-4 rounded-full font-aeonikpro text-sm font-medium bg-white text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="py-2 px-4 rounded-full font-aeonikpro text-sm font-medium bg-white text-black hover:bg-[#40424D]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Review'}
             </button>

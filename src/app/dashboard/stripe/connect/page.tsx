@@ -177,7 +177,7 @@ export default function StripeConnectPage() {
                 </ul>
               </div>
 
-              <Button onClick={createStripeAccount} disabled={creating} className="w-full bg-white text-black hover:bg-gray-100 font-aeonikpro">
+              <Button onClick={createStripeAccount} disabled={creating} className="w-full bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 {creating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -262,7 +262,7 @@ export default function StripeConnectPage() {
                     </AlertDescription>
                   </Alert>
 
-                  <Button onClick={continueOnboarding} className="w-full bg-white text-black hover:bg-gray-100 font-aeonikpro">
+                  <Button onClick={continueOnboarding} className="w-full bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Continue Setup
                   </Button>

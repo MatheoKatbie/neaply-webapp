@@ -599,7 +599,7 @@ export default function BecomeSellerPage() {
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
                       <Button
                         type="submit"
-                        className="flex-1 font-aeonikpro bg-white text-black hover:bg-gray-100 disabled:opacity-50"
+                        className="flex-1 font-aeonikpro bg-white text-black hover:bg-[#40424D]/30 disabled:opacity-50"
                         disabled={isLoading || !isFormValid()}
                       >
                         {isLoading

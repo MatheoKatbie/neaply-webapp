@@ -68,8 +68,8 @@ export function CartItem({ item }: CartItemProps) {
             className="w-20 h-20 object-cover rounded-lg"
           />
         ) : (
-          <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-            <span className="text-gray-400 text-2xl">📄</span>
+          <div className="w-20 h-20 bg-[#40424D]/40 rounded-lg flex items-center justify-center">
+            <span className="text-[#9DA2B3] text-2xl">📄</span>
           </div>
         )}
       </div>
@@ -80,7 +80,7 @@ export function CartItem({ item }: CartItemProps) {
         <p className="text-sm text-gray-500 mb-1">
           by {item.workflow.seller.sellerProfile?.storeName || item.workflow.seller.displayName}
         </p>
-        <p className="text-sm text-gray-600 mb-2">{item.workflow.shortDesc}</p>
+        <p className="text-sm text-[#9DA2B3] mb-2">{item.workflow.shortDesc}</p>
         <p className="text-lg font-semibold text-green-600">{formatPrice(getPrice(), getCurrency())}</p>
       </div>
 

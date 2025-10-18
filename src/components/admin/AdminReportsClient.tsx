@@ -145,10 +145,10 @@ export function AdminReportsClient({ initialReports, totalCount }: AdminReportsC
                       }
                     </span>
                     {report.workflowId && report.workflow?.seller?.displayName && (
-                      <span className="text-gray-400"> by {report.workflow.seller.displayName}</span>
+                      <span className="text-[#9DA2B3]"> by {report.workflow.seller.displayName}</span>
                     )}
                     {report.storeId && report.store?.user?.displayName && (
-                      <span className="text-gray-400"> by {report.store.user.displayName}</span>
+                      <span className="text-[#9DA2B3]"> by {report.store.user.displayName}</span>
                     )}
                   </div>
 
@@ -159,7 +159,7 @@ export function AdminReportsClient({ initialReports, totalCount }: AdminReportsC
                     </div>
                   )}
 
-                  <div className="flex items-center space-x-4 text-xs text-gray-400">
+                  <div className="flex items-center space-x-4 text-xs text-[#9DA2B3]">
                     <span>Reported: {formatDate(report.createdAt)}</span>
                     {report.status === 'resolved' && report.resolvedAt && (
                       <>

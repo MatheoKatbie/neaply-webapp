@@ -606,7 +606,7 @@ export default function Home() {
                   <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                     <button
                       onClick={() => router.push('/register')}
-                      className="font-aeonikpro bg-white text-black hover:bg-gray-100 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                      className="font-aeonikpro bg-white text-black hover:bg-[#40424D]/30 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
                     >
                       Get started — it&apos;s free
                     </button>

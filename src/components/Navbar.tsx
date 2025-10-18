@@ -461,7 +461,7 @@ export default function Navbar() {
               </div>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-black transition-colors duration-200"
+                className="w-8 h-8 rounded-full bg-[#40424D]/30 flex items-center justify-center text-[#9DA2B3] hover:text-black transition-colors duration-200"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -546,8 +546,8 @@ export default function Navbar() {
               <div className="space-y-3">
                 {loading ? (
                   <div className="space-y-3">
-                    <div className="h-12 w-full bg-muted rounded-lg animate-pulse"></div>
-                    <div className="h-12 w-full bg-muted rounded-lg animate-pulse"></div>
+                    <div className="h-12 w-full bg-[#40424D]/40 rounded-lg animate-pulse"></div>
+                    <div className="h-12 w-full bg-[#40424D]/40 rounded-lg animate-pulse"></div>
                   </div>
                 ) : user ? (
                   // Logged in user - mobile

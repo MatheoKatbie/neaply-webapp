@@ -177,7 +177,7 @@ export default async function AdminOrders({
                 )
             case 'cancelled':
                 return (
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-800">
+                    <Badge variant="secondary" className="bg-[#40424D]/30 text-gray-800">
                         Cancelled
                     </Badge>
                 )
@@ -262,13 +262,13 @@ export default async function AdminOrders({
                                         {order.items.map((item) => (
                                             <div key={item.id} className="text-sm text-muted-foreground">
                                                 <span className="font-medium">{item.workflow.title}</span>
-                                                <span className="text-gray-400"> by {item.workflow.seller.displayName}</span>
-                                                <span className="text-gray-400"> • {formatCurrency(item.unitPriceCents)}</span>
+                                                <span className="text-[#9DA2B3]"> by {item.workflow.seller.displayName}</span>
+                                                <span className="text-[#9DA2B3]"> • {formatCurrency(item.unitPriceCents)}</span>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="flex items-center space-x-4 text-xs text-gray-400">
+                                    <div className="flex items-center space-x-4 text-xs text-[#9DA2B3]">
                                         <span>Created: {formatDate(order.createdAt)}</span>
                                         {order.paidAt && (
                                             <>

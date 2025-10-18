@@ -221,7 +221,7 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
             </p>
             <button
               onClick={fetchAnalysis}
-              className="px-6 py-2.5 rounded-full font-aeonikpro font-medium bg-white text-black hover:bg-gray-100 transition-all duration-300"
+              className="px-6 py-2.5 rounded-full font-aeonikpro font-medium bg-white text-black hover:bg-[#40424D]/30 transition-all duration-300"
             >
               Try Again
             </button>
