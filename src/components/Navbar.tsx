@@ -1,18 +1,17 @@
 'use client'
 
+import CartSlider from '@/components/CartSlider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ShoppingCart } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { Trans } from '@/components/ui/Trans'
 import { useAuth } from '@/hooks/useAuth'
 import { useCart } from '@/hooks/useCart'
 import { useTranslation } from '@/hooks/useTranslation'
-import { Heart, Search, User, ArrowRight, Command } from 'lucide-react'
+import { Heart, Search, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Input } from '@/components/ui/input'
-import CartSlider from '@/components/CartSlider'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -337,9 +336,9 @@ export default function Navbar() {
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-[rgba(30,30,36,0.95)] rounded-lg shadow-lg border border-[#9DA2B3]/25 z-50 backdrop-blur-md">
                       {/* User Info Section */}
-                      <div className="px-4 py-3 border-b border-gray-200">
+                      <div className="px-4 py-3 border-b border-[#9DA2B3]/25">
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage
@@ -347,13 +346,13 @@ export default function Navbar() {
                               alt={user.displayName}
                               className="object-cover"
                             />
-                            <AvatarFallback className="bg-gray-100 text-gray-600 text-sm font-medium">
+                            <AvatarFallback className="bg-[#1E1E24] text-[#9DA2B3] text-sm font-medium">
                               {user.displayName.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-black truncate">{user.displayName}</p>
-                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                            <p className="text-sm font-medium text-[#EDEFF7] truncate font-aeonikpro">{user.displayName}</p>
+                            <p className="text-xs text-[#9DA2B3] truncate font-aeonikpro">{user.email}</p>
                           </div>
                         </div>
                       </div>
@@ -364,7 +363,7 @@ export default function Navbar() {
                             router.push('/orders')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-[#9DA2B3] hover:bg-[#40424D]/30 hover:text-[#EDEFF7] transition-colors duration-200 cursor-pointer font-aeonikpro"
                         >
                           Orders History
                         </button>
@@ -373,7 +372,7 @@ export default function Navbar() {
                             router.push('/help')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-[#9DA2B3] hover:bg-[#40424D]/30 hover:text-[#EDEFF7] transition-colors duration-200 cursor-pointer font-aeonikpro"
                         >
                           Help & Support
                         </button>
@@ -382,14 +381,14 @@ export default function Navbar() {
                             router.push('/settings')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-[#9DA2B3] hover:bg-[#40424D]/30 hover:text-[#EDEFF7] transition-colors duration-200 cursor-pointer font-aeonikpro"
                         >
                           Settings
                         </button>
-                        <div className="border-t border-gray-200 my-1"></div>
+                        <div className="border-t border-[#9DA2B3]/25 my-1"></div>
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors duration-200 cursor-pointer font-aeonikpro"
                         >
                           Logout
                         </button>
