@@ -172,22 +172,22 @@ function LoginContent() {
     <>
       <div className="h-screen grid lg:grid-cols-2 font-aeonikpro overflow-hidden">
         {/* Left side - Form */}
-        <div className="flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8 overflow-y-auto">
+        <div className="flex items-center justify-center bg-[#08080A] px-4 sm:px-6 lg:px-8 overflow-y-auto">
           <div className="max-w-md w-full py-8">
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-aeonikpro">Welcome to Neaply</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <h2 className="text-3xl font-aeonikpro text-[#EDEFF7]">Welcome to Neaply</h2>
+              <p className="mt-2 text-sm text-[#9DA2B3] font-aeonikpro">
                 {loginStep === 'credentials' ? 'Sign in to your account' : 'Enter your verification code'}
               </p>
             </div>
 
-            <Card>
+            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-[#EDEFF7] font-aeonikpro">
                   {loginStep === '2fa' && <Shield className="h-5 w-5" />}
                   {loginStep === 'credentials' ? 'Sign In' : 'Two-Factor Authentication'}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-[#9DA2B3] font-aeonikpro">
                   {loginStep === 'credentials'
                     ? 'Enter your credentials to access your account'
                     : 'Verify your identity with your authenticator app or backup code'}
@@ -196,13 +196,13 @@ function LoginContent() {
               <CardContent className="space-y-6">
                 {/* Message d'erreur de callback */}
                 {callbackError === 'callback_error' && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                  <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">
                     An error occurred during authentication. Please try again.
                   </div>
                 )}
 
                 {/* Message d'erreur général */}
-                {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+                {error && <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">{error}</div>}
 
                 {loginStep === 'credentials' && (
                   <>
@@ -258,18 +258,19 @@ function LoginContent() {
                         <Separator className="w-full" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                        <span className="bg-[#08080A] px-2 text-[#9DA2B3] font-aeonikpro">Or continue with</span>
                       </div>
                     </div>
 
                     {/* Formulaire de connexion */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="text-[#EDEFF7] font-aeonikpro">Email</Label>
                         <Input
                           id="email"
                           name="email"
                           type="email"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                           autoComplete="email"
                           required
                           value={formData.email}
@@ -279,11 +280,12 @@ function LoginContent() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password" className="text-[#EDEFF7] font-aeonikpro">Password</Label>
                         <Input
                           id="password"
                           name="password"
                           type="password"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                           autoComplete="current-password"
                           required
                           value={formData.password}
@@ -315,9 +317,10 @@ function LoginContent() {
 
                       <TabsContent value="totp" className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="totpCode">Verification Code</Label>
+                          <Label htmlFor="totpCode" className="text-[#EDEFF7] font-aeonikpro">Verification Code</Label>
                           <Input
                             id="totpCode"
+                            className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                             value={totpCode}
                             onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                             placeholder="000000"
@@ -333,9 +336,10 @@ function LoginContent() {
 
                       <TabsContent value="backup" className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="backupCode">Backup Code</Label>
+                          <Label htmlFor="backupCode" className="text-[#EDEFF7] font-aeonikpro">Backup Code</Label>
                           <Input
                             id="backupCode"
+                            className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                             value={backupCode}
                             onChange={(e) =>
                               setBackupCode(
@@ -349,7 +353,7 @@ function LoginContent() {
                             className="text-center text-lg font-mono tracking-wider"
                             maxLength={8}
                           />
-                          <p className="text-sm text-muted-foreground">Enter one of your 8-character backup codes</p>
+                          <p className="text-sm text-[#9DA2B3] font-aeonikpro">Enter one of your 8-character backup codes</p>
                         </div>
                       </TabsContent>
                     </Tabs>
@@ -361,9 +365,9 @@ function LoginContent() {
                       </Label>
                     </div>
 
-                    <Alert>
+                    <Alert className="bg-blue-500/10 border-blue-500/50">
                       <Shield className="h-4 w-4" />
-                      <AlertDescription>
+                      <AlertDescription className="text-blue-300 font-aeonikpro">
                         {rememberDevice
                           ? "This device will be remembered and won't require 2FA for 30 days."
                           : "You'll need to verify your identity each time you sign in from this device."}
@@ -404,7 +408,7 @@ function LoginContent() {
                       </Link>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Don't have an account? </span>
+                      <span className="text-[#9DA2B3] font-aeonikpro">Don't have an account? </span>
                       <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
                         Create account
                       </Link>

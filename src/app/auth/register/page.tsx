@@ -74,9 +74,9 @@ export default function RegisterPage() {
       <>
         <div className="h-screen grid lg:grid-cols-2 font-aeonikpro">
           {/* Left side - Success message */}
-          <div className="flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8 overflow-y-auto">
+          <div className="flex items-center justify-center bg-[#08080A] px-4 sm:px-6 lg:px-8 overflow-y-auto">
             <div className="max-w-md w-full py-8">
-              <Card>
+              <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <CardHeader>
                   <CardTitle className="text-center text-green-600">Registration successful!</CardTitle>
                   <CardDescription className="text-center">Check your email to confirm your account</CardDescription>
@@ -131,21 +131,21 @@ export default function RegisterPage() {
     <>
       <div className="h-screen grid lg:grid-cols-2 font-aeonikpro overflow-hidden">
         {/* Left side - Form */}
-        <div className="flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8 overflow-y-auto">
+        <div className="flex items-center justify-center bg-[#08080A] px-4 sm:px-6 lg:px-8 overflow-y-auto">
           <div className="max-w-md w-full py-8">
             <div className="text-center mb-6">
               <h2 className="text-3xl font-aeonikpro text-foreground">Create an account</h2>
               <p className="mt-2 text-sm text-muted-foreground">Join Neaply today</p>
             </div>
 
-            <Card>
+            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
               <CardHeader>
                 <CardTitle>Registration</CardTitle>
-                <CardDescription>Create your account to get started</CardDescription>
+                <CardDescription className="text-[#9DA2B3] font-aeonikpro">Create your account to get started</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Message d'erreur */}
-                {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+                {error && <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">{error}</div>}
 
                 {/* Boutons OAuth */}
                 <div className="space-y-3">
@@ -206,11 +206,12 @@ export default function RegisterPage() {
                 {/* Formulaire d'inscription */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full name</Label>
+                    <Label htmlFor="name" className="text-[#EDEFF7] font-aeonikpro">Full name</Label>
                     <Input
-                      id="name"
-                      name="name"
-                      type="text"
+                          id="name"
+                          name="name"
+                          type="text"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                       autoComplete="name"
                       required
                       value={formData.name}
@@ -220,11 +221,12 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-[#EDEFF7] font-aeonikpro">Email</Label>
                     <Input
-                      id="email"
-                      name="email"
-                      type="email"
+                          id="email"
+                          name="email"
+                          type="email"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                       autoComplete="email"
                       required
                       value={formData.email}
@@ -234,11 +236,12 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-[#EDEFF7] font-aeonikpro">Password</Label>
                     <Input
-                      id="password"
-                      name="password"
-                      type="password"
+                          id="password"
+                          name="password"
+                          type="password"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                       autoComplete="new-password"
                       required
                       value={formData.password}
@@ -250,11 +253,12 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm password</Label>
+                    <Label htmlFor="confirmPassword" className="text-[#EDEFF7] font-aeonikpro">Confirm password</Label>
                     <Input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type="password"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                       autoComplete="new-password"
                       required
                       value={formData.confirmPassword}
@@ -269,7 +273,7 @@ export default function RegisterPage() {
                 </form>
 
                 <div className="text-center text-sm">
-                  <span className="text-muted-foreground">Already have an account? </span>
+                  <span className="text-[#9DA2B3] font-aeonikpro">Already have an account? </span>
                   <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
                     Sign in
                   </Link>
