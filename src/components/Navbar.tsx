@@ -33,6 +33,7 @@ export default function Navbar() {
   const isHomepage = pathname === '/'
   const isMarketplacePage = pathname === '/' || pathname === '/marketplace'
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMac, setIsMac] = useState(false)
 
   // Debug effect for search focus
   useEffect(() => {
@@ -73,6 +74,11 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Detect if the user is on Mac OS
+  useEffect(() => {
+    setIsMac(navigator.platform.toUpperCase().includes('MAC'))
   }, [])
 
   // Fetch seller profile to get store slug
@@ -225,7 +231,7 @@ export default function Navbar() {
               <div className="relative w-full">
                 <form onSubmit={handleSearch} className="w-full">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#9DA2B3] w-4 h-4" />
                     <Input
                       ref={searchRef}
                       type="text"
@@ -234,11 +240,11 @@ export default function Navbar() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setIsSearchFocused(true)}
                       onKeyDown={handleKeyDown}
-                      className="pl-10 pr-12 h-9 text-sm bg-white/10 border-white/20 text-white placeholder-gray-400 focus:bg-white/20 focus:border-white/40 rounded-full"
+                      className="pl-10 pr-12 h-9 text-sm bg-[#40424D]/60 border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 focus:bg-[#40424D]/80 focus:border-[#9DA2B3]/50 rounded-full font-aeonikpro"
                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                      <kbd className="px-1.5 py-0.5 text-xs font-mono bg-white/20 text-gray-300 rounded border border-white/30">
-                        ⌘K
+                      <kbd className="px-1.5 py-0.5 text-xs font-mono bg-[#40424D]/70 text-[#9DA2B3] rounded border border-[#9DA2B3]/25 font-aeonikpro">
+                        {isMac ? '⌘K' : 'Ctrl+K'}
                       </kbd>
                     </div>
                   </div>
@@ -248,18 +254,18 @@ export default function Navbar() {
                 {isSearchFocused && (
                   <div
                     ref={searchDropdownRef}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-80 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-2 bg-[rgba(30,30,36,0.95)] rounded-lg shadow-lg border border-[#9DA2B3]/25 z-50 max-h-80 overflow-y-auto backdrop-blur-md"
                   >
                     <div className="p-2">
-                      <div className="text-xs font-medium text-gray-500 mb-2 px-2">Quick searches</div>
+                      <div className="text-xs font-medium text-[#9DA2B3] mb-2 px-2 font-aeonikpro">Quick searches</div>
                       {searchSuggestions.map((suggestion, index) => (
                         <button
                           key={index}
                           onClick={() => handleSuggestionClick(suggestion.query)}
-                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                          className="w-full text-left px-3 py-2 text-sm text-[#9DA2B3] hover:bg-[#40424D]/30 hover:text-[#EDEFF7] rounded-md transition-colors duration-200 font-aeonikpro"
                         >
                           <div className="flex items-center gap-2">
-                            <Search className="w-3 h-3 text-gray-400" />
+                            <Search className="w-3 h-3 text-[#9DA2B3]" />
                             <span>{suggestion.text}</span>
                           </div>
                         </button>
