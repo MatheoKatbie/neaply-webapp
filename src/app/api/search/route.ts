@@ -1,14 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
 import { createClient } from '@/lib/supabase-server'
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 
 // Schema for search query parameters
 const searchQuerySchema = z.object({
-    q: z.string().min(1, 'Search query is required'),
+    q: z.string().optional(),
     page: z.string().optional().default('1'),
     limit: z.string().optional().default('16'),
     type: z.enum(['all', 'workflows', 'packs']).optional().default('all'),
+    platform: z.enum(['n8n', 'zapier', 'make', 'airtable_script']).optional(),
 })
 
 export async function GET(req: NextRequest) {
@@ -27,35 +28,39 @@ export async function GET(req: NextRequest) {
         const page = parseInt(validatedParams.page)
         const limit = Math.min(parseInt(validatedParams.limit), 50) // Max 50 items per page
         const skip = (page - 1) * limit
-        const searchTerm = validatedParams.q.toLowerCase()
+        const searchTerm = validatedParams.q?.toLowerCase()
 
         // Build search conditions
-        const searchConditions = [
-            {
-                title: {
-                    contains: searchTerm,
-                    mode: 'insensitive' as const,
+        let searchConditions: any[] = []
+        
+        if (searchTerm) {
+            searchConditions = [
+                {
+                    title: {
+                        contains: searchTerm,
+                        mode: 'insensitive' as const,
+                    },
                 },
-            },
-            {
-                shortDesc: {
-                    contains: searchTerm,
-                    mode: 'insensitive' as const,
+                {
+                    shortDesc: {
+                        contains: searchTerm,
+                        mode: 'insensitive' as const,
+                    },
                 },
-            },
-            {
-                tags: {
-                    some: {
-                        tag: {
-                            name: {
-                                contains: searchTerm,
-                                mode: 'insensitive' as const,
+                {
+                    tags: {
+                        some: {
+                            tag: {
+                                name: {
+                                    contains: searchTerm,
+                                    mode: 'insensitive' as const,
+                                },
                             },
                         },
                     },
                 },
-            },
-        ]
+            ]
+        }
 
         let workflows: any[] = []
         let packs: any[] = []
@@ -66,13 +71,22 @@ export async function GET(req: NextRequest) {
         if (validatedParams.type === 'all' || validatedParams.type === 'workflows') {
             const workflowWhere: any = {
                 status: 'published',
-                OR: searchConditions,
                 // Only show workflows from active sellers
                 seller: {
                     sellerProfile: {
                         status: 'active'
                     }
                 }
+            }
+
+            // Add search conditions if search term is provided
+            if (searchConditions.length > 0) {
+                workflowWhere.OR = searchConditions
+            }
+
+            // Filter by platform if specified
+            if (validatedParams.platform) {
+                workflowWhere.platform = validatedParams.platform
             }
 
             // Exclude user's own workflows if logged in

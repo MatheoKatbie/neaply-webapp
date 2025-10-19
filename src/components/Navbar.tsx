@@ -281,7 +281,7 @@ export default function Navbar() {
             {/* Navigation Links - Before auth buttons */}
             <div className="flex items-center space-x-8 font-aeonikpro">
               <Link
-                href="/"
+                href="/marketplace"
                 className="relative font-medium transition-colors duration-200 group"
                 style={{ color: '#EDEFF7' }}
               >

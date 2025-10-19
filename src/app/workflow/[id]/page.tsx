@@ -1,19 +1,14 @@
 'use client'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { AddToCartButton } from '@/components/ui/add-to-cart-button'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { CopyButton } from '@/components/ui/copy-button'
-import { ReportDialog } from '@/components/ui/report-dialog'
-import { PlatformBadge } from '@/components/ui/platform-badge'
 import { PurchaseButton } from '@/components/ui/purchase-button'
+import { ReportDialog } from '@/components/ui/report-dialog'
 import { ReviewSystem } from '@/components/ui/review-system'
 import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
 import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
@@ -716,7 +711,7 @@ export default function WorkflowDetailPage() {
                       workflowId={workflowId}
                       price={workflow.price}
                       currency={workflow.currency}
-                      className="w-full bg-white text-black hover:bg-[#40424D]/30 py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
+                      className="w-full bg-white text-black py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
                     >
                       Buy Now
                     </PurchaseButton>
@@ -789,7 +784,7 @@ export default function WorkflowDetailPage() {
                   <div className="space-y-2">
                     <button
                       onClick={() => workflow.seller.slug && router.push(`/store/${workflow.seller.slug}`)}
-                      className="w-full py-2.5 px-4 rounded-full font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25 hover:bg-white/10 transition-all duration-300"
+                      className="w-full py-2.5 px-4 rounded-md cursor-pointer font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25 hover:bg-white/10 transition-all duration-300"
                       style={{ color: '#D3D6E0' }}
                     >
                       View Store

@@ -636,6 +636,7 @@ export default function Home() {
                 <div className="flex flex-wrap justify-center gap-6">
                   {/* n8n Card */}
                   <div
+                    onClick={() => router.push('/search?platform=n8n')}
                     className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
@@ -661,6 +662,7 @@ export default function Home() {
 
                   {/* Zapier Card */}
                   <div
+                    onClick={() => router.push('/search?platform=zapier')}
                     className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
@@ -686,6 +688,7 @@ export default function Home() {
 
                   {/* Make Card */}
                   <div
+                    onClick={() => router.push('/search?platform=make')}
                     className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
@@ -711,6 +714,7 @@ export default function Home() {
 
                   {/* Airtable Card */}
                   <div
+                    onClick={() => router.push('/search?platform=airtable_script')}
                     className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
