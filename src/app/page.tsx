@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { WorkflowCard } from '@/components/ui/workflow-card'
 import { useAuth } from '@/hooks/useAuth'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
@@ -1235,166 +1236,33 @@ export default function Home() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {fillWorkflows(newestWorkflows, 10).map((wf) => (
-                      <div key={wf.id} className="group h-full">
-                        <a
-                          href={wf.isFake ? '#' : `/workflow/${wf.id}`}
-                          onClick={
-                            wf.isFake
-                              ? (e) => {
-                                  e.preventDefault()
-                                  alert('This is a demo workflow. Real workflows will be available soon!')
-                                }
-                              : undefined
-                          }
-                          className="border border-[#9DA2B3]/15 rounded-xl overflow-hidden hover:border-[#9DA2B3]/30 transition-all duration-300 hover:scale-[1.02] h-[420px] flex flex-col"
-                          style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
-                        >
-                          {/* Header with custom thumbnail */}
-                          <div className="relative h-48 p-3">
-                            {(() => {
-                              // Define platform colors
-                              const platformColors = {
-                                zapier: 'bg-[#FF4A00]',
-                                n8n: 'bg-[#EA4B71]',
-                                make: 'bg-gradient-to-br from-[#6D00CC] to-[#F901FC]',
-                                airtable_script: 'bg-gradient-to-r from-blue-600 to-blue-800',
-                              }
-
-                              return (
-                                <div className="relative w-full h-full rounded-lg bg-[#1E1E24] dots-pattern p-4 flex flex-col justify-between overflow-hidden group">
-                                  {/* Platform logo - centered and larger */}
-                                  <div className="absolute inset-0 z-10 flex items-center justify-center">
-                                    {(() => {
-                                      const platformLogos = {
-                                        zapier: {
-                                          gray: '/images/hero/zapier-grey.png',
-                                          color: '/images/hero/zapier-color.png',
-                                        },
-                                        n8n: {
-                                          gray: '/images/hero/n8n-grey.png',
-                                          color: '/images/hero/n8n-color.png',
-                                        },
-                                        make: {
-                                          gray: '/images/hero/make-grey.png',
-                                          color: '/images/hero/make-color.png',
-                                        },
-                                        airtable_script: {
-                                          gray: '/images/hero/airtable-grey.png',
-                                          color: '/images/hero/airtable-color.png',
-                                        },
-                                      }
-
-                                      const platformLogo = platformLogos[wf.platform as keyof typeof platformLogos]
-
-                                      if (platformLogo) {
-                                        return (
-                                          <div className="relative w-16 h-16">
-                                            <img
-                                              src={platformLogo.color}
-                                              alt={wf.platform}
-                                              className="w-full h-full object-contain"
-                                            />
-                                          </div>
-                                        )
-                                      }
-                                      return null
-                                    })()}
-                                  </div>
-
-                                  {/* Sales count badge */}
-                                  <div
-                                    className="absolute top-2 right-2 z-20 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full font-aeonikpro"
-                                    style={{ backgroundColor: '#FFF', color: '#40424D' }}
-                                  >
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                                      />
-                                    </svg>
-                                    <span className="font-medium">{wf.salesCount || 0} sales</span>
-                                  </div>
-
-                                  {/* Dark gradient overlay from bottom to top */}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent rounded-lg z-5" />
-                                </div>
-                              )
-                            })()}
-                          </div>
-
-                          {/* Content section */}
-                          <div className="px-4 py-1 flex-1 flex flex-col">
-                            {/* Title */}
-                            <h3 className="font-aeonikpro text-lg line-clamp-2 mb-2" style={{ color: '#EDEFF7' }}>
-                              {wf.title}
-                            </h3>
-
-                            {/* Description */}
-                            <p className="text-sm line-clamp-2 flex-1 font-aeonikpro" style={{ color: '#9DA2B3' }}>
-                              {wf.description}
-                            </p>
-
-                            {/* Footer with price and rating */}
-                            <div className="mt-4 pt-4 border-t border-[#9DA2B3]/25">
-                              <div className="flex items-start justify-between">
-                                {/* Price section */}
-                                <div className="flex flex-col">
-                                  <span
-                                    className="text-xs font-aeonikpro uppercase tracking-wide"
-                                    style={{ color: '#9DA2B3' }}
-                                  >
-                                    PRICE
-                                  </span>
-                                  <span className="text-lg font-aeonikpro font-bold" style={{ color: '#EDEFF7' }}>
-                                    {wf.price === 0
-                                      ? 'Free'
-                                      : new Intl.NumberFormat('en-US', {
-                                          style: 'currency',
-                                          currency: 'USD',
-                                        }).format(wf.price / 100)}
-                                  </span>
-                                </div>
-
-                                {/* Rating section */}
-                                <div className="flex flex-col items-end">
-                                  <span
-                                    className="text-xs font-aeonikpro uppercase tracking-wide"
-                                    style={{ color: '#9DA2B3' }}
-                                  >
-                                    RATING
-                                  </span>
-                                  <div className="flex items-center gap-1">
-                                    <svg className="w-4 h-4 text-[#FF7700]" fill="#FF7700" viewBox="0 0 24 24">
-                                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <span className="text-lg font-aeonikpro" style={{ color: '#EDEFF7' }}>
-                                      {wf.rating?.toFixed(1) || '0.0'}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </a>
-                      </div>
+                      <WorkflowCard
+                        key={wf.id}
+                        id={wf.id}
+                        title={wf.title}
+                        description={wf.description}
+                        price={wf.price}
+                        currency="USD"
+                        platform={wf.platform}
+                        rating={wf.rating}
+                        salesCount={wf.salesCount}
+                        isFake={wf.isFake}
+                      />
                     ))}
                     {/* Loading skeleton for new workflows */}
                     {isLoadingNewest &&
                       Array.from({ length: 4 }).map((_, i) => (
                         <div key={`loading-${i}`} className="group h-[420px]">
                           <div
-                            className="border border-[#9DA2B3]/15 rounded-xl overflow-hidden shadow-lg h-full flex flex-col"
-                            style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+                            className="border border-[#2a2a2a] rounded-xl overflow-hidden h-full flex flex-col bg-[#0a0a0a] animate-pulse"
                           >
                             <div
-                              className="h-48 p-3 animate-pulse"
-                              style={{ backgroundColor: 'rgba(30, 30, 36, 0.8)' }}
+                              className="h-48 p-3"
+                              style={{ backgroundColor: '#1a1a1a' }}
                             >
                               <div
                                 className="h-full rounded-lg animate-pulse"
-                                style={{ backgroundColor: 'rgba(157, 162, 179, 0.15)' }}
+                                style={{ backgroundColor: '#2a2a2a' }}
                               ></div>
                             </div>
                             <div className="px-4 py-1 flex-1 flex flex-col">
