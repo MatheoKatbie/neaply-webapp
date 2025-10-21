@@ -112,9 +112,9 @@ export default function RegisterPage() {
           {/* Right side - Hero Image */}
           <div className="hidden lg:block relative bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
             {/* Logo Neaply en haut à droite */}
-            <div className="absolute top-8 right-8 z-20">
+            <Link href="/" className="absolute top-8 right-8 z-20">
               <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
-            </div>
+            </Link>
 
             <div className="absolute inset-0">
               <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />
@@ -298,9 +298,9 @@ export default function RegisterPage() {
         {/* Right side - Hero Image */}
         <div className="hidden lg:block relative bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
           {/* Logo Neaply en haut à droite */}
-          <div className="absolute top-8 right-8 z-20">
-            <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
-          </div>
+          <Link href="/" className="absolute top-8 right-8 z-20">
+              <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
+            </Link>
 
           <div className="absolute inset-0">
             <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />

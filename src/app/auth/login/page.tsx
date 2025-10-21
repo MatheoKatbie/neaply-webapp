@@ -324,7 +324,6 @@ function LoginContent() {
                             value={totpCode}
                             onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                             placeholder="000000"
-                            className="text-center text-lg font-mono tracking-wider"
                             maxLength={6}
                             autoComplete="one-time-code"
                           />
@@ -350,7 +349,6 @@ function LoginContent() {
                               )
                             }
                             placeholder="XXXXXXXX"
-                            className="text-center text-lg font-mono tracking-wider"
                             maxLength={8}
                           />
                           <p className="text-sm text-[#9DA2B3] font-aeonikpro">Enter one of your 8-character backup codes</p>
@@ -423,9 +421,9 @@ function LoginContent() {
         {/* Right side - Hero Image */}
         <div className="hidden lg:block relative bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
           {/* Logo Neaply en haut à droite */}
-          <div className="absolute top-8 right-8 z-20">
+          <Link href="/" className="absolute top-8 right-8 z-20">
             <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
-          </div>
+          </Link>
 
           <div className="absolute inset-0">
             <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />
