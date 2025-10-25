@@ -22,6 +22,7 @@ interface ReportDialogProps {
   entityId: string
   entityName: string
   trigger?: React.ReactNode
+  className?: string
 }
 
 const REPORT_REASONS = {
@@ -45,7 +46,7 @@ const REPORT_REASONS = {
   ],
 }
 
-export function ReportDialog({ entityType, entityId, entityName, trigger }: ReportDialogProps) {
+export function ReportDialog({ entityType, entityId, entityName, trigger, className }: ReportDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedReason, setSelectedReason] = useState('')
   const [description, setDescription] = useState('')
@@ -92,7 +93,7 @@ export function ReportDialog({ entityType, entityId, entityName, trigger }: Repo
   }
 
   const defaultTrigger = (
-    <Button variant="destructive" size="sm" className="w-full border-1 border-secondary/10 hover:border-secondary/20">
+    <Button variant="destructive" size="sm" className={className}>
       <Flag className="w-4 h-4 mr-2" />
       Report
     </Button>

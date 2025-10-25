@@ -802,7 +802,7 @@ export default function WorkflowDetailPage() {
                       size="sm"
                       className="w-full"
                     />
-                    <ReportDialog entityType="workflow" entityId={workflow.id} entityName={workflow.title} />
+                    <ReportDialog className='w-full' entityType="workflow" entityId={workflow.id} entityName={workflow.title} />
                   </div>
                 </div>
               </div>

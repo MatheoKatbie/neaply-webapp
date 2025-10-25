@@ -641,9 +641,9 @@ export default function StorePage() {
                         countryCode: store.countryCode,
                         avatarUrl: store.user.avatarUrl,
                       }}
-                      className="w-full sm:w-auto"
+                      className="w-full sm:w-auto py-1"
                     />
-                    <ReportDialog entityType="store" entityId={store.user.id} entityName={store.storeName} />
+                    <ReportDialog className='w-full sm:w-auto' entityType="store" entityId={store.user.id} entityName={store.storeName} />
                   </div>
                 </div>
               </div>
