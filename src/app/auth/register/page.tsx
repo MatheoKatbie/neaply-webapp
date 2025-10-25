@@ -10,10 +10,10 @@ import type { RegisterFormData } from '@/types/auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function RegisterPage() {
-  const { signUp, signInWithProvider, error } = useAuth()
+  const { signUp, signInWithProvider, error: globalError, clearError } = useAuth()
   const router = useRouter()
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
@@ -23,18 +23,34 @@ export default function RegisterPage() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
+
+  // Clear global error when component mounts and use only local errors
+  useEffect(() => {
+    clearError()
+  }, [clearError])
+
+  // Use only local error, ignore global error completely
+  const displayError = localError
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting new registration attempt
 
     try {
       const { error } = await signUp(formData)
+      if (error) {
+        setLocalError(error)
+        return
+      }
       if (!error) {
         setRegistrationSuccess(true)
       }
     } catch (err) {
       console.error('Registration error:', err)
+      setLocalError('An error occurred during registration')
     } finally {
       setIsLoading(false)
     }
@@ -42,10 +58,15 @@ export default function RegisterPage() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting OAuth
     try {
-      await signInWithProvider('google')
+      const { error } = await signInWithProvider('google')
+      if (error) {
+        setLocalError(error)
+      }
     } catch (err) {
       console.error('Google login error:', err)
+      setLocalError('An error occurred during Google authentication')
     } finally {
       setIsLoading(false)
     }
@@ -53,10 +74,15 @@ export default function RegisterPage() {
 
   const handleGitHubSignIn = async () => {
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting OAuth
     try {
-      await signInWithProvider('github')
+      const { error } = await signInWithProvider('github')
+      if (error) {
+        setLocalError(error)
+      }
     } catch (err) {
       console.error('GitHub login error:', err)
+      setLocalError('An error occurred during GitHub authentication')
     } finally {
       setIsLoading(false)
     }
@@ -145,7 +171,7 @@ export default function RegisterPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Message d'erreur */}
-                {error && <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">{error}</div>}
+                {displayError && <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">{displayError}</div>}
 
                 {/* Boutons OAuth */}
                 <div className="space-y-3">

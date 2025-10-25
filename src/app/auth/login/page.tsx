@@ -20,7 +20,7 @@ import { toast } from 'sonner'
 
 // Component that uses searchParams - needs to be wrapped in Suspense
 function LoginContent() {
-  const { signIn, signInWithProvider, loading, error } = useAuth()
+  const { signIn, signInWithProvider, loading, error: globalError, clearError } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState<LoginFormData>({
@@ -29,6 +29,7 @@ function LoginContent() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [resetEmailSent, setResetEmailSent] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
 
   // 2FA States
   const [loginStep, setLoginStep] = useState<'credentials' | '2fa'>('credentials')
@@ -40,6 +41,14 @@ function LoginContent() {
   const [use2FATab, setUse2FATab] = useState<'totp' | 'backup'>('totp')
 
   const callbackError = searchParams.get('error')
+  
+  // Clear global error when component mounts and use only local errors
+  useEffect(() => {
+    clearError()
+  }, [clearError])
+  
+  // Use only local error, ignore global error completely
+  const displayError = localError
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -53,10 +62,16 @@ function LoginContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting new login attempt
 
     try {
       // First, check if device is remembered (but only after auth attempt)
       const { error } = await signIn(formData)
+      if (error) {
+        setLocalError(error)
+        return
+      }
+      
       if (!error) {
         // Check if 2FA is required for this user
         if (deviceFingerprint) {
@@ -141,10 +156,15 @@ function LoginContent() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting OAuth
     try {
-      await signInWithProvider('google')
+      const { error } = await signInWithProvider('google')
+      if (error) {
+        setLocalError(error)
+      }
     } catch (err) {
       console.error('Google login error:', err)
+      setLocalError('An error occurred during Google authentication')
     } finally {
       setIsLoading(false)
     }
@@ -152,10 +172,15 @@ function LoginContent() {
 
   const handleGitHubSignIn = async () => {
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting OAuth
     try {
-      await signInWithProvider('github')
+      const { error } = await signInWithProvider('github')
+      if (error) {
+        setLocalError(error)
+      }
     } catch (err) {
       console.error('GitHub login error:', err)
+      setLocalError('An error occurred during GitHub authentication')
     } finally {
       setIsLoading(false)
     }
@@ -202,7 +227,7 @@ function LoginContent() {
                 )}
 
                 {/* Message d'erreur général */}
-                {error && <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">{error}</div>}
+                {displayError && <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">{displayError}</div>}
 
                 {loginStep === 'credentials' && (
                   <>

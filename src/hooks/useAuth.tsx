@@ -17,6 +17,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error?: string }>
   refreshUser: () => Promise<void>
+  clearError: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -236,6 +237,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const clearError = () => {
+    setError(null)
+  }
+
   const value = {
     user,
     session,
@@ -247,6 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     resetPassword,
     refreshUser,
+    clearError,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
