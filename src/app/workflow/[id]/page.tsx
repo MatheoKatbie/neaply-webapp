@@ -711,7 +711,7 @@ export default function WorkflowDetailPage() {
                       workflowId={workflowId}
                       price={workflow.price}
                       currency={workflow.currency}
-                      className="w-full bg-white text-black py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
+                      className="w-full bg-white hover:bg-white/90 text-black py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
                     >
                       Buy Now
                     </PurchaseButton>
@@ -719,7 +719,7 @@ export default function WorkflowDetailPage() {
                       workflowId={workflowId}
                       price={workflow.price}
                       currency={workflow.currency}
-                      className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium border border-[#9DA2B3]/25 hover:bg-white transition-all duration-300 text-[#D3D6E0] bg-white/10 hover:text-black"
+                      className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium border border-[#9DA2B3]/25 transition-all duration-300 text-[#D3D6E0]"
                     />
                   </div>
                 )}

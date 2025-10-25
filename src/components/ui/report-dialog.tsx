@@ -92,7 +92,7 @@ export function ReportDialog({ entityType, entityId, entityName, trigger }: Repo
   }
 
   const defaultTrigger = (
-    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
+    <Button variant="destructive" size="sm" className="w-full border-1 border-secondary/10 hover:border-secondary/20">
       <Flag className="w-4 h-4 mr-2" />
       Report
     </Button>

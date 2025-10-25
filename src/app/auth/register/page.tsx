@@ -105,10 +105,10 @@ export default function RegisterPage() {
               <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <CardHeader>
                   <CardTitle className="text-center text-green-600">Registration successful!</CardTitle>
-                  <CardDescription className="text-center">Check your email to confirm your account</CardDescription>
+                  <CardDescription className="text-center text-[#9DA2B3] font-aeonikpro">Check your email to confirm your account</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="text-center p-6 bg-green-50 rounded-lg">
+                  <div className="text-center p-6 bg-primary rounded-lg">
                     <svg
                       className="mx-auto h-12 w-12 text-green-600 mb-4"
                       fill="none"
@@ -122,7 +122,7 @@ export default function RegisterPage() {
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                       A confirmation email has been sent to <strong>{formData.email}</strong>. Click the link in the
                       email to activate your account.
                     </p>
