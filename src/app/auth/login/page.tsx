@@ -210,8 +210,8 @@ function LoginContent() {
                     <div className="space-y-3">
                       <Button
                         type="button"
-                        variant="outline"
-                        className="w-full"
+                        variant="default"
+                        className="w-full border-1 border-secondary/10 hover:border-secondary/20"
                         onClick={handleGoogleSignIn}
                         disabled={isLoading}
                       >
@@ -238,8 +238,8 @@ function LoginContent() {
 
                       <Button
                         type="button"
-                        variant="outline"
-                        className="w-full"
+                        variant="default"
+                        className="w-full border-1 border-secondary/10 hover:border-secondary/20"
                         onClick={handleGitHubSignIn}
                         disabled={isLoading}
                       >
@@ -294,7 +294,7 @@ function LoginContent() {
                         />
                       </div>
 
-                      <Button type="submit" className="w-full" disabled={isLoading}>
+                      <Button type="submit" variant="outline" className="w-full border-1 border-secondary/10 hover:border-secondary/20"  disabled={isLoading}>
                         {isLoading ? 'Signing in...' : 'Sign In'}
                       </Button>
                     </form>

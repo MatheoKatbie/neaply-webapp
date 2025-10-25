@@ -151,8 +151,8 @@ export default function RegisterPage() {
                 <div className="space-y-3">
                   <Button
                     type="button"
-                    variant="outline"
-                    className="w-full"
+                    variant="default"
+                    className="w-full border-1 border-secondary/10 hover:border-secondary/20"
                     onClick={handleGoogleSignIn}
                     disabled={isLoading}
                   >
@@ -179,8 +179,8 @@ export default function RegisterPage() {
 
                   <Button
                     type="button"
-                    variant="outline"
-                    className="w-full"
+                    variant="default"
+                    className="w-full border-1 border-secondary/10 hover:border-secondary/20"
                     onClick={handleGitHubSignIn}
                     disabled={isLoading}
                   >
@@ -267,7 +267,7 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" variant="outline" className="w-full border-1 border-secondary/10 hover:border-secondary/20"  disabled={isLoading}>
                     {isLoading ? 'Creating...' : 'Create account'}
                   </Button>
                 </form>
