@@ -24,6 +24,8 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
+  const [emailExists, setEmailExists] = useState(false)
+  const [rejectedEmails, setRejectedEmails] = useState<Set<string>>(new Set())
 
   // Clear global error when component mounts and use only local errors
   useEffect(() => {
@@ -33,13 +35,47 @@ export default function RegisterPage() {
   // Use only local error, ignore global error completely
   const displayError = localError
 
+  // Reset emailExists when email changes
+  useEffect(() => {
+    // Check cache first
+    if (rejectedEmails.has(formData.email)) {
+      setEmailExists(true)
+    } else {
+      setEmailExists(false)
+    }
+  }, [formData.email, rejectedEmails])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setLocalError(null) // Clear local error when starting new registration attempt
+    setEmailExists(false)
 
     try {
+      // First, check if email already exists
+      let emailAlreadyExists = false
+      try {
+        const checkResponse = await fetch('/api/auth/check-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email })
+        })
+
+        emailAlreadyExists = checkResponse.ok;
+      } catch (fetchErr) {
+        console.warn('Email check error:', fetchErr)
+        // Continue with signup anyway if email check fails
+      }
+
+      if (emailAlreadyExists) {
+        setEmailExists(true)
+        setRejectedEmails(prev => new Set([...prev, formData.email]))
+        setLocalError('This email is already registered. Please sign in or use a different email.')
+        setIsLoading(false)
+        return
+      }
+
+      // If email doesn't exist, proceed with signup
       const { error } = await signUp(formData)
       if (error) {
         setLocalError(error)
@@ -252,13 +288,18 @@ export default function RegisterPage() {
                           id="email"
                           name="email"
                           type="email"
-                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
+                          className={`bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro ${
+                            emailExists ? 'border-red-500/50 border-2' : ''
+                          }`}
                       autoComplete="email"
                       required
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="your@email.com"
                     />
+                    {emailExists && (
+                      <p className="text-xs text-red-400 font-aeonikpro">This email is already registered</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -293,8 +334,8 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  <Button type="submit" variant="outline" className="w-full border-1 border-secondary/10 hover:border-secondary/20"  disabled={isLoading}>
-                    {isLoading ? 'Creating...' : 'Create account'}
+                  <Button type="submit" variant="outline" className="w-full border-1 border-secondary/10 hover:border-secondary/20"  disabled={isLoading || emailExists}>
+                    {isLoading ? 'Creating...' : emailExists ? 'Email already registered' : 'Create account'}
                   </Button>
                 </form>
 

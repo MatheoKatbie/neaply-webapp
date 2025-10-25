@@ -18,6 +18,25 @@ export default function ResetPasswordPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [emailSent, setEmailSent] = useState(false)
     const [localError, setLocalError] = useState<string | null>(null)
+    const [resendCountdown, setResendCountdown] = useState(0)
+    const [resendSuccess, setResendSuccess] = useState(false)
+
+    // Countdown timer for resend button
+    useEffect(() => {
+        if (resendCountdown <= 0) return
+
+        const timer = setInterval(() => {
+            setResendCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer)
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+
+        return () => clearInterval(timer)
+    }, [resendCountdown])
 
     // Clear global error when component mounts and use only local errors
     useEffect(() => {
@@ -40,10 +59,32 @@ export default function ResetPasswordPage() {
             }
             if (!error) {
                 setEmailSent(true)
+                setResendCountdown(60) // Start 60 second countdown
+                setResendSuccess(false)
             }
         } catch (err) {
             console.error('Reset request error:', err)
             setLocalError('An error occurred while sending the reset email')
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleResendEmail = async () => {
+        setIsLoading(true)
+        setResendSuccess(false)
+
+        try {
+            const { error } = await resetPassword(email)
+            if (error) {
+                setLocalError(error)
+            } else {
+                setResendSuccess(true)
+                setResendCountdown(60) // Restart 60 second countdown
+            }
+        } catch (err) {
+            console.error('Resend error:', err)
+            setLocalError('An error occurred while resending the email')
         } finally {
             setIsLoading(false)
         }
@@ -62,6 +103,18 @@ export default function ResetPasswordPage() {
 
                     <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                         <CardContent className="space-y-6 pt-6">
+                            {resendSuccess && (
+                                <div className="bg-green-500/10 border border-green-500/50 text-green-300 px-4 py-3 rounded">
+                                    Email resent successfully! Check your inbox.
+                                </div>
+                            )}
+
+                            {displayError && (
+                                <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">
+                                    {displayError}
+                                </div>
+                            )}
+
                             <div className="text-center p-6 bg-green-500/10 border border-green-500/50 rounded-lg">
                                 <svg
                                     className="mx-auto h-12 w-12 text-green-400 mb-4"
@@ -81,12 +134,26 @@ export default function ResetPasswordPage() {
                                     <strong className="text-[#EDEFF7]">{email}</strong>.
                                 </p>
                             </div>
-                            <Button
-                                className="w-full bg-black text-white hover:bg-gray-800 font-aeonikpro"
-                                onClick={() => router.push('/auth/login')}
-                            >
-                                Back to sign in
-                            </Button>
+
+                            <div className="space-y-3">
+                                <Button
+                                    className="w-full bg-black text-white hover:bg-gray-800 font-aeonikpro"
+                                    onClick={handleResendEmail}
+                                    disabled={isLoading || resendCountdown > 0}
+                                >
+                                    {resendCountdown > 0 
+                                        ? `Resend email (${resendCountdown}s)` 
+                                        : 'Resend email'}
+                                </Button>
+
+                                <Button
+                                    variant="outline"
+                                    className="w-full font-aeonikpro"
+                                    onClick={() => router.push('/auth/login')}
+                                >
+                                    Back to sign in
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
