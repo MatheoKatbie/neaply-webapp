@@ -593,20 +593,20 @@ export default function SettingsPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 bg-transparent">
         <TabsList className={`grid w-full ${user.isSeller ? 'grid-cols-4' : 'grid-cols-3'} bg-transparent border-b border-[#9DA2B3]/25`}>
-          <TabsTrigger value="profile" className="flex items-center gap-2">
+          <TabsTrigger value="profile" className="flex items-center gap-2 bg-primary/20 hover:bg-primary/40">
             <User className="h-4 w-4" />
             Profile
           </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
+          <TabsTrigger value="security" className="flex items-center gap-2 bg-primary/20 hover:bg-primary/40">
             <Shield className="h-4 w-4" />
             Security
           </TabsTrigger>
-          <TabsTrigger value="devices" className="flex items-center gap-2">
+          <TabsTrigger value="devices" className="flex items-center gap-2 bg-primary/20 hover:bg-primary/40">
             <Monitor className="h-4 w-4" />
             Devices
           </TabsTrigger>
           {user.isSeller && (
-            <TabsTrigger value="store" className="flex items-center gap-2">
+            <TabsTrigger value="store" className="flex items-center gap-2 bg-primary/20 hover:bg-primary/40">
               <Store className="h-4 w-4" />
               Store
             </TabsTrigger>
@@ -628,7 +628,7 @@ export default function SettingsPage() {
                 </Avatar>
                 <div className="flex-1">
                   <Button
-                    variant="outline"
+      
                     disabled={uploadingAvatar}
                     className="flex items-center gap-2"
                     style={{borderColor: '#9DA2B3/25', color: '#EDEFF7'}}
@@ -711,7 +711,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <Button onClick={handleProfileUpdate} disabled={loading} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
+              <Button onClick={handleProfileUpdate} disabled={loading} className="font-aeonikpro">
                 {loading ? 'Updating...' : 'Update Profile'}
               </Button>
             </CardContent>
@@ -743,7 +743,6 @@ export default function SettingsPage() {
               <Button
                 variant="destructive"
                 onClick={() => setShowDeleteAccountModal(true)}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 font-aeonikpro"
               >
                 <Trash2 className="h-4 w-4" />
                 Delete My Account
@@ -760,7 +759,7 @@ export default function SettingsPage() {
               <CardDescription className="text-[#9DA2B3] font-aeonikpro">Change your password to keep your account secure.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={() => setShowPasswordChangeModal(true)} className="flex items-center gap-2 bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
+              <Button onClick={() => setShowPasswordChangeModal(true)} className="flex items-centerfont-aeonikpro">
                 <Key className="h-4 w-4" />
                 Change Password
               </Button>
@@ -789,7 +788,7 @@ export default function SettingsPage() {
               {twoFA.enabled && (
                 <div className="space-y-3">
                   <Alert className="bg-green-500/10 border-green-500/50">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <CheckCircle color='#10B981' className="h-4 w-4 text-green-400" />
                     <AlertDescription className="text-green-300 font-aeonikpro">
                       Two-factor authentication is active on your account.
                       {twoFA.enabledAt && (
@@ -805,7 +804,6 @@ export default function SettingsPage() {
                     size="sm"
                     onClick={() => setShowBackupCodesModal(true)}
                     className="flex items-center gap-2"
-                    style={{borderColor: '#9DA2B3/25', color: '#EDEFF7'}}
                   >
                     <Key className="h-4 w-4" />
                     View Backup Codes
@@ -847,7 +845,8 @@ export default function SettingsPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <h4 className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">{device.name}</h4>
-                            <Badge variant="secondary" className="text-xs">
+                            <Badge variant="default" className="text-xs text-black bg-green-400 hover:bg-green-400" >
+                              <CheckCircle color='black' className="h-3 w-3" />
                               Trusted
                             </Badge>
                           </div>
@@ -873,11 +872,10 @@ export default function SettingsPage() {
                         </div>
                       </div>
                       <Button
-                        variant="outline"
+                        variant="destructive"
                         size="sm"
                         onClick={() => removeDevice(device.id)}
                         disabled={loadingDevices}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10 border-[#9DA2B3]/25 font-aeonikpro"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -889,7 +887,7 @@ export default function SettingsPage() {
               {rememberedDevices.length > 0 && (
                 <div className="mt-6 pt-4 border-t border-[#9DA2B3]/25">
                   <Alert className="bg-orange-500/10 border-orange-500/50">
-                    <AlertTriangle className="h-4 w-4 text-orange-400" />
+                    <AlertTriangle color='#F59E0B' className="h-4 w-4 text-orange-400" />
                     <AlertDescription className="text-orange-300 font-aeonikpro">
                       Removing a device will require two-factor authentication the next time you sign in from that
                       device.
@@ -929,13 +927,12 @@ export default function SettingsPage() {
                   </div>
                   {rememberedDevices.length > 0 && (
                     <Button
-                      variant="outline"
+                      variant="destructive"
                       size="sm"
                       onClick={() => {
                         rememberedDevices.forEach((device) => removeDevice(device.id))
                       }}
                       disabled={loadingDevices}
-                      className="text-red-400 hover:text-red-300 border-[#9DA2B3]/25 font-aeonikpro"
                     >
                       Remove All
                     </Button>
@@ -1289,10 +1286,10 @@ export default function SettingsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShow2FADisableModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
+            <Button onClick={() => setShow2FADisableModal(false)} variant="outline">
               Cancel
             </Button>
-            <Button onClick={handleDisable2FA} disabled={loading || totpCode.length !== 6} className="bg-red-600 hover:bg-red-700 font-aeonikpro">
+            <Button onClick={handleDisable2FA} disabled={loading || totpCode.length !== 6} variant="destructive">
               {loading ? 'Disabling...' : 'Disable 2FA'}
             </Button>
           </DialogFooter>

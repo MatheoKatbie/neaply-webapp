@@ -83,10 +83,10 @@ export function ContactSellerButton({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-[#1E1E24] border-[#9DA2B3]/25">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#9DA2B3]/20 to-[#9DA2B3]/10 rounded-full flex items-center justify-center">
               {seller.avatarUrl ? (
                 <img
                   src={seller.avatarUrl}
@@ -94,33 +94,33 @@ export function ContactSellerButton({
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <User className="w-5 h-5 text-blue-600" />
+                <User className="w-5 h-5 text-[#9DA2B3]" />
               )}
             </div>
             <div>
-              <p className="font-semibold">{seller.storeName || seller.displayName}</p>
-              <p className="text-sm text-muted-foreground font-normal">Seller on Neaply</p>
+              <p className="font-semibold text-[#EDEFF7]">{seller.storeName || seller.displayName}</p>
+              <p className="text-sm text-[#9DA2B3] font-normal">Seller on Neaply</p>
             </div>
           </DialogTitle>
-          <DialogDescription>Choose how you'd like to contact this seller</DialogDescription>
+          <DialogDescription className="text-[#9DA2B3]">Choose how you'd like to contact this seller</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Seller Contact Options */}
           <div className="grid gap-3">
             {seller.email && (
-              <Card className="p-3 hover:shadow-sm transition-shadow">
+              <Card className="p-3 hover:shadow-sm transition-shadow bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Mail className="w-4 h-4 text-blue-600" />
+                    <div className="w-8 h-8 bg-[#9DA2B3]/20 rounded-full flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-[#9DA2B3]" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm">Email</p>
-                      <p className="text-xs text-muted-foreground">{seller.email}</p>
+                      <p className="font-medium text-sm text-[#EDEFF7]">Email</p>
+                      <p className="text-xs text-[#9DA2B3]">{seller.email}</p>
                     </div>
                   </div>
-                  <Button size="sm" onClick={handleEmailContact} className="cursor-pointer">
+                  <Button size="sm" variant="outline" onClick={handleEmailContact} className="cursor-pointer">
                     Send Email
                   </Button>
                 </div>
@@ -128,15 +128,15 @@ export function ContactSellerButton({
             )}
 
             {seller.phoneNumber && (
-              <Card className="p-3 hover:shadow-sm transition-shadow">
+              <Card className="p-3 hover:shadow-sm transition-shadow bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <Phone className="w-4 h-4 text-green-600" />
+                    <div className="w-8 h-8 bg-[#9DA2B3]/20 rounded-full flex items-center justify-center">
+                      <Phone className="w-4 h-4 text-[#9DA2B3]" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm">Phone</p>
-                      <p className="text-xs text-muted-foreground">{seller.phoneNumber}</p>
+                      <p className="font-medium text-sm text-[#EDEFF7]">Phone</p>
+                      <p className="text-xs text-[#9DA2B3]">{seller.phoneNumber}</p>
                     </div>
                   </div>
                   <Button size="sm" variant="outline" onClick={handlePhoneContact} className="cursor-pointer">
@@ -149,14 +149,14 @@ export function ContactSellerButton({
 
 
             {seller.countryCode && (
-              <Card className="p-3">
+              <Card className="p-3 bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <div className="w-8 h-8 bg-[#9DA2B3]/20 rounded-full flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-[#9DA2B3]" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Location</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <p className="font-medium text-sm text-[#EDEFF7]">Location</p>
+                    <p className="text-xs text-[#9DA2B3] flex items-center gap-1">
                       <span>{getCountryFlag(seller.countryCode)}</span>
                       {seller.countryCode.toUpperCase()}
                     </p>
@@ -167,8 +167,8 @@ export function ContactSellerButton({
           </div>
 
           {!seller.email && !seller.phoneNumber && (
-            <Card className="p-4 text-center">
-              <p className="text-sm text-muted-foreground">This seller hasn't provided contact information yet.</p>
+            <Card className="p-4 text-center bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
+              <p className="text-sm text-[#9DA2B3]">This seller hasn't provided contact information yet.</p>
             </Card>
           )}
         </div>
