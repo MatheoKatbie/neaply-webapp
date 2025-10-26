@@ -600,7 +600,8 @@ export default function BecomeSellerPage() {
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
                       <Button
                         type="submit"
-                        className="flex-1 font-aeonikpro bg-white text-black hover:bg-[#40424D]/30 disabled:opacity-50"
+                        variant="outline"
+                        className="font-aeonikpro flex-1"
                         disabled={isLoading || !isFormValid()}
                       >
                         {isLoading
@@ -614,7 +615,7 @@ export default function BecomeSellerPage() {
 
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="default"
                         className="font-aeonikpro border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24]"
                         onClick={() => router.back()}
                         disabled={isLoading}

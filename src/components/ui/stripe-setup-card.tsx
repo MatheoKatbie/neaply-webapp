@@ -36,7 +36,7 @@ export function StripeSetupCard({ className }: StripeSetupCardProps) {
 
         {/* Action Button */}
         <Link href="/dashboard/stripe/connect" className="block">
-          <Button className="w-full bg-white text-black font-medium py-3 px-6 rounded-lg mb-4 font-aeonikpro">
+          <Button variant="outline" className="w-full font-aeonikpro mb-4">
             <ExternalLink className="w-4 h-4 mr-2" />
             Set up payments
           </Button>

@@ -46,8 +46,8 @@ export default function CountrySelector({
         <button
           type="button"
           className={`${
-            disabled ? 'text-primary-foreground/50' : 'text-primary-foreground'
-          } relative w-full border text-primary-foreground  border-white/10 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 sm:text-sm`}
+            disabled ? 'text-[#9DA2B3]' : 'text-[#EDEFF7]'
+          } relative w-full border text-[#EDEFF7] bg-primary/80  border-[#9DA2B3]/25 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#9DA2B3]/50 focus:border-[#9DA2B3]/50 sm:text-sm`}
           aria-haspopup="listbox"
           aria-expanded="true"
           aria-labelledby="listbox-label"
@@ -90,30 +90,30 @@ export default function CountrySelector({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.1 }}
-              className="absolute z-10 mt-1 w-full bg-primary shadow-lg max-h-80 rounded-md text-base text-primary-foreground ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+              className="absolute z-10 mt-1 w-full bg-[#1E1E24] shadow-lg max-h-80 rounded-md text-base text-[#EDEFF7] ring-1 ring-[#9DA2B3]/25 focus:outline-none sm:text-sm"
               tabIndex={-1}
               role="listbox"
               aria-labelledby="listbox-label"
               aria-activedescendant="listbox-option-3"
             >
-              <div className="sticky top-0 z-10 bg-primary/80">
-                <li className=" text-foreground cursor-default select-none relative py-2 px-3">
+              <div className="sticky top-0 z-10 bg-[#1E1E24]/80">
+                <li className="text-[#EDEFF7] cursor-default select-none relative py-2 px-3">
                   <input
                     type="search"
                     name="search"
                     autoComplete={'off'}
-                    className="focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full sm:text-sm border-border rounded-md"
+                    className="focus:outline-none"
                     placeholder={'Search a country'}
                     onChange={(e) => setQuery(e.target.value)}
                   />
                 </li>
-                <hr />
+                <hr className="border-[#9DA2B3]/25" />
               </div>
 
               <div className={'max-h-64 overflow-y-auto'}>
                 {COUNTRIES.filter((country) => country.title.toLowerCase().startsWith(query.toLowerCase())).length ===
                 0 ? (
-                  <li className="text-foreground cursor-default select-none relative py-2 pl-3 pr-9">
+                  <li className="text-[#9DA2B3] cursor-default select-none relative py-2 pl-3 pr-9">
                     No countries found
                   </li>
                 ) : (
@@ -122,7 +122,7 @@ export default function CountrySelector({
                       return (
                         <li
                           key={`${id}-${index}`}
-                          className="text-foreground cursor-default select-none relative py-2 pl-3 pr-9 flex items-center hover:bg-background transition"
+                          className="text-[#EDEFF7] cursor-default select-none relative py-2 pl-3 pr-9 flex items-center hover:bg-[#40424D]/30 transition"
                           id="listbox-option-0"
                           role="option"
                           onClick={() => {
@@ -139,7 +139,7 @@ export default function CountrySelector({
 
                           <span className="font-normal truncate">{value.title}</span>
                           {value.value === selectedValue.value ? (
-                            <span className="text-blue-600 absolute inset-y-0 right-0 flex items-center pr-8">
+                            <span className="text-[#9DA2B3] absolute inset-y-0 right-0 flex items-center pr-8">
                               <svg
                                 className="h-5 w-5"
                                 xmlns="http://www.w3.org/2000/svg"
