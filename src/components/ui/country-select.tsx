@@ -46,8 +46,8 @@ export default function CountrySelector({
         <button
           type="button"
           className={`${
-            disabled ? 'bg-neutral-100' : 'bg-background'
-          } relative w-full border border-border rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+            disabled ? 'text-primary-foreground/50' : 'text-primary-foreground'
+          } relative w-full border text-primary-foreground  border-white/10 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 sm:text-sm`}
           aria-haspopup="listbox"
           aria-expanded="true"
           aria-labelledby="listbox-label"
@@ -90,13 +90,13 @@ export default function CountrySelector({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.1 }}
-              className="absolute z-10 mt-1 w-full bg-background shadow-lg max-h-80 rounded-md text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+              className="absolute z-10 mt-1 w-full bg-primary shadow-lg max-h-80 rounded-md text-base text-primary-foreground ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
               tabIndex={-1}
               role="listbox"
               aria-labelledby="listbox-label"
               aria-activedescendant="listbox-option-3"
             >
-              <div className="sticky top-0 z-10 bg-background">
+              <div className="sticky top-0 z-10 bg-primary/80">
                 <li className=" text-foreground cursor-default select-none relative py-2 px-3">
                   <input
                     type="search"

@@ -512,6 +512,7 @@ export default function BecomeSellerPage() {
                           onChange={(value) => {
                             setFormData((prev) => ({ ...prev, phoneNumber: value || '' }))
                           }}
+                          className='bg-primary/80 text-primary-foreground font-aeonikpro'
                           placeholder="Enter your phone number"
                           defaultCountry={formData.countryCode}
                           disableCountrySelect={true}

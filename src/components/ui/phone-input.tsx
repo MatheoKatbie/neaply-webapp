@@ -128,8 +128,8 @@ export function PhoneInputComponent({
             onClick={() => !disableCountrySelect && setCountrySelectOpen(!countrySelectOpen)}
             disabled={disabled || disableCountrySelect}
             className={cn(
-              'flex items-center gap-1 px-2 py-3 border border-r-0 border-border rounded-l-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer min-w-0',
-              (disabled || disableCountrySelect) && 'bg-muted cursor-not-allowed'
+              'flex text-primary-foreground items-center gap-1 px-2 py-3 border border-r-0 border-white/10 rounded-l-md  text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 cursor-pointer min-w-0',
+              (disabled || disableCountrySelect) && 'bg-primary/80 cursor-not-allowed'
             )}
           >
             <img
@@ -157,7 +157,7 @@ export function PhoneInputComponent({
                   placeholder="Search countries..."
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  className="w-full px-2 py-1 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary/50"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto">
@@ -197,7 +197,7 @@ export function PhoneInputComponent({
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
-            'flex-1 min-w-0 px-3 py-2 border border-border rounded-r-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+            'flex-1 min-w-0 px-3 py-2 border rounded-r-md text-sm border-l-0 border-y-1 border-white/10 text-primary-foreground focus:outline-primary/20 focus:outline-none focus:ring-1 focus:ring-primary/50',
             disabled && 'bg-muted cursor-not-allowed'
           )}
         />
