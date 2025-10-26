@@ -126,12 +126,22 @@ export default function WorkflowDetailPage() {
       try {
         const response = await fetch('/api/favorites')
         if (response.ok) {
+          const contentType = response.headers.get('content-type')
+          if (!contentType?.includes('application/json')) {
+            console.warn('Received non-JSON response when checking favorites')
+            return
+          }
           const data = await response.json()
           const isWorkflowFavorited = data.favorites.some((fav: any) => fav.id === workflowId)
           setIsFavorite(isWorkflowFavorited)
         }
       } catch (error) {
-        console.error('Error checking favorite status:', error)
+        // Silently ignore errors when checking favorites (e.g., when not authenticated)
+        if (error instanceof SyntaxError) {
+          console.debug('Could not parse favorites response - user may not be authenticated')
+        } else {
+          console.error('Error checking favorite status:', error)
+        }
       }
     }
 

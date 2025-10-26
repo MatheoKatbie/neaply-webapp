@@ -205,7 +205,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] font-aeonikpro w-full max-w-7xl mx-auto px-4">
+      <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9998] font-aeonikpro w-full max-w-7xl mx-auto px-4">
         <div
           className="flex items-center px-6"
           style={{

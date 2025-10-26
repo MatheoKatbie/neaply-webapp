@@ -315,12 +315,23 @@ export function ReviewSystem({ workflowId, userCanReview, userHasReviewed, class
 
       const response = await fetch(`/api/reviews?${params.toString()}`)
       if (response.ok) {
+        // Check content type before parsing JSON
+        const contentType = response.headers.get('content-type')
+        if (!contentType?.includes('application/json')) {
+          console.warn('Received non-JSON response when fetching reviews')
+          return
+        }
         const data = await response.json()
         setReviews(data.data || [])
         setPagination(data.pagination)
       }
     } catch (error) {
-      console.error('Error fetching reviews:', error)
+      // Silently ignore errors when fetching reviews (e.g., when not authenticated)
+      if (error instanceof SyntaxError) {
+        console.debug('Could not parse reviews response - user may not be authenticated')
+      } else {
+        console.error('Error fetching reviews:', error)
+      }
     } finally {
       setLoading(false)
     }

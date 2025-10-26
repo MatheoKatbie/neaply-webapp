@@ -32,7 +32,28 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {!isAuthPage && !isAdminPage && <Navbar />}
       <main className="flex-1">{children}</main>
       {!isAuthPage && !isAdminPage && <Footer />}
-      <Toaster position="bottom-right" richColors closeButton duration={5000} />
+      <Toaster 
+        position="bottom-right" 
+        richColors 
+        closeButton 
+        duration={5000}
+        theme="dark"
+        toastOptions={{
+          classNames: {
+            toast: 'bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7]',
+            title: 'text-[#EDEFF7]',
+            description: 'text-[#9DA2B3]',
+            actionButton: 'bg-black text-white hover:bg-gray-800',
+            cancelButton: 'bg-[#9DA2B3]/20 text-[#EDEFF7] hover:bg-[#9DA2B3]/30',
+            closeButton: 'text-[#9DA2B3] hover:text-[#EDEFF7]',
+          },
+          style: {
+            backgroundColor: '#1E1E24',
+            borderColor: 'rgba(157, 162, 179, 0.25)',
+            color: '#EDEFF7',
+          },
+        }}
+      />
     </div>
   )
 }

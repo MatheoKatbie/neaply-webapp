@@ -69,6 +69,7 @@ export async function middleware(req: NextRequest) {
     '/',
     '/search',
     '/marketplace',
+    '/how-it-works',
     '/robots.txt',
     '/sitemap.xml',
     '/checkout/success', // Allow checkout success page without auth
@@ -126,6 +127,15 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith('/api/search') ||
     pathname.startsWith('/api/categories') ||
     pathname.startsWith('/api/tags')
+  ) {
+    return response
+  }
+
+  // Protected API routes that return proper auth errors instead of redirecting
+  if (
+    pathname.startsWith('/api/favorites') ||
+    pathname.startsWith('/api/reviews') ||
+    pathname.startsWith('/api/workflows/') && pathname.includes('/analysis')
   ) {
     return response
   }

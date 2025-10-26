@@ -121,14 +121,31 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
       const response = await fetch(`/api/workflows/${workflowId}/analysis`)
 
       if (!response.ok) {
-        throw new Error('Failed to load workflow analysis')
+        // Check if it's an HTML error page (auth redirect, etc)
+        const contentType = response.headers.get('content-type')
+        if (contentType?.includes('text/html')) {
+          setError('Please sign in to view technical analysis')
+        } else {
+          setError('Failed to load workflow analysis')
+        }
+        return
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (!contentType?.includes('application/json')) {
+        setError('Invalid response format. Please try again.')
+        return
       }
 
       const data = await response.json()
-      setAnalysis(data.data)
+      setAnalysis(data.data || data)
     } catch (error) {
       console.error('Error fetching workflow analysis:', error)
-      setError('Failed to load workflow analysis')
+      if (error instanceof SyntaxError) {
+        setError('Failed to parse response. Please sign in to view analysis.')
+      } else {
+        setError('Failed to load workflow analysis')
+      }
     } finally {
       setLoading(false)
     }
@@ -150,28 +167,28 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
   const getComplexityColor = (level: string) => {
     switch (level) {
       case 'simple':
-        return 'bg-green-100 text-green-800'
+        return 'bg-emerald-500/20 text-emerald-300'
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-amber-500/20 text-amber-300'
       case 'complex':
-        return 'bg-orange-100 text-orange-800'
+        return 'bg-orange-500/20 text-orange-300'
       case 'expert':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-500/20 text-red-300'
       default:
-        return 'bg-muted text-gray-800'
+        return 'bg-[#9DA2B3]/20 text-[#9DA2B3]'
     }
   }
 
   const getUpdateFrequencyColor = (frequency: string) => {
     switch (frequency) {
       case 'low':
-        return 'bg-green-100 text-green-800'
+        return 'bg-emerald-500/20 text-emerald-300'
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-amber-500/20 text-amber-300'
       case 'high':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-500/20 text-red-300'
       default:
-        return 'bg-muted text-gray-800'
+        return 'bg-[#9DA2B3]/20 text-[#9DA2B3]'
     }
   }
 
@@ -179,69 +196,170 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+          <Button variant="outline" size="sm" className="bg-black border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#40424D]/50">
             <BarChart3 className="w-4 h-4 mr-2" />
             View Advanced Analysis
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-aeonikpro text-xl">
+      <DialogContent className="w-[90vw] h-[90vh] max-w-5xl bg-[#1E1E24] border-[#9DA2B3]/25 flex flex-col p-6">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle className="flex items-center gap-2 font-aeonikpro text-xl text-[#EDEFF7]">
             <BarChart3 className="w-5 h-5" />
             Advanced Workflow Analysis
           </DialogTitle>
-          <DialogDescription className="font-aeonikpro">
+          <DialogDescription className="font-aeonikpro text-[#9DA2B3]">
             Detailed technical analysis of the workflow structure and capabilities
           </DialogDescription>
         </DialogHeader>
 
-        {loading && (
-          <div className="space-y-4">
-            <div className="animate-pulse">
-              <div className="h-6 rounded w-1/3 mb-2" style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}></div>
-              <div className="h-4 rounded w-1/2" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+        <div className="flex-1 overflow-y-auto pr-4">
+          {loading && (
+            <div className="space-y-4">
+              <div className="animate-pulse">
+                <div className="h-6 rounded w-1/3 mb-2" style={{ backgroundColor: 'rgba(157, 162, 179, 0.3)' }}></div>
+                <div className="h-4 rounded w-1/2" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+              </div>
+              <div className="animate-pulse space-y-4">
+                <div className="h-32 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+                <div className="h-24 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+                <div className="h-40 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+              </div>
             </div>
-            <div className="animate-pulse space-y-4">
-              <div className="h-32 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
-              <div className="h-24 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
-              <div className="h-40 rounded-xl" style={{ backgroundColor: 'rgba(157, 162, 179, 0.2)' }}></div>
+          )}
+
+          {error && (
+            <div className="text-center py-8">
+              <AlertTriangle className="w-12 h-12 mx-auto mb-4" style={{ color: '#9DA2B3' }} />
+              <h3 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
+                Analysis Unavailable
+              </h3>
+              <p className="font-aeonikpro mb-4" style={{ color: '#9DA2B3' }}>
+                {error}
+              </p>
+              <button
+                onClick={fetchAnalysis}
+                className="px-6 py-2.5 rounded-full font-aeonikpro font-medium bg-black text-[#EDEFF7] border border-[#9DA2B3]/25 hover:bg-[#40424D]/50 transition-all duration-300"
+              >
+                Try Again
+              </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {error && (
-          <div className="text-center py-8">
-            <AlertTriangle className="w-12 h-12 mx-auto mb-4" style={{ color: '#9DA2B3' }} />
-            <h3 className="font-aeonikpro text-lg font-semibold mb-2" style={{ color: '#EDEFF7' }}>
-              Analysis Unavailable
-            </h3>
-            <p className="font-aeonikpro mb-4" style={{ color: '#9DA2B3' }}>
-              {error}
-            </p>
-            <button
-              onClick={fetchAnalysis}
-              className="px-6 py-2.5 rounded-full font-aeonikpro font-medium bg-white text-black hover:bg-[#40424D]/30 transition-all duration-300"
-            >
-              Try Again
-            </button>
-          </div>
-        )}
+          {analysis && (
+            <div className="space-y-6">
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="grid w-full grid-cols-5">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="structure">Structure</TabsTrigger>
+                  <TabsTrigger value="automation">Automation</TabsTrigger>
+                  <TabsTrigger value="security">Security</TabsTrigger>
+                  <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+                </TabsList>
 
-        {analysis && (
-          <div className="space-y-6">
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="structure">Structure</TabsTrigger>
-                <TabsTrigger value="automation">Automation</TabsTrigger>
-                <TabsTrigger value="security">Security</TabsTrigger>
-                <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-              </TabsList>
+                <TabsContent value="overview" className="space-y-6">
+                  {/* Complexity and Performance */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div
+                      className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                    >
+                      <div className="p-4 border-b border-[#9DA2B3]/25">
+                        <h3
+                          className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
+                          style={{ color: '#EDEFF7' }}
+                        >
+                          <Cpu className="w-4 h-4" />
+                          Complexity
+                        </h3>
+                      </div>
+                      <div className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              Level
+                            </span>
+                            <div
+                              className={`px-3 py-1 rounded-full font-aeonikpro text-xs font-medium ${getComplexityColor(
+                                analysis.complexity.level
+                              )}`}
+                            >
+                              {analysis.complexity.level.charAt(0).toUpperCase() + analysis.complexity.level.slice(1)}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              Score
+                            </span>
+                            <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                              {analysis.complexity.score}
+                            </span>
+                          </div>
+                          <div className="space-y-2">
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              Factors:
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {analysis.complexity.factors.map((factor, index) => (
+                                <div
+                                  key={index}
+                                  className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25"
+                                  style={{ color: '#D3D6E0' }}
+                                >
+                                  {factor}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-              <TabsContent value="overview" className="space-y-6">
-                {/* Complexity and Performance */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div
+                      className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                    >
+                      <div className="p-4 border-b border-[#9DA2B3]/25">
+                        <h3
+                          className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
+                          style={{ color: '#EDEFF7' }}
+                        >
+                          <Clock className="w-4 h-4" />
+                          Performance
+                        </h3>
+                      </div>
+                      <div className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              Min Time
+                            </span>
+                            <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                              {formatTime(analysis.estimatedExecutionTime.min)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              Average
+                            </span>
+                            <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                              {formatTime(analysis.estimatedExecutionTime.average)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              Max Time
+                            </span>
+                            <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                              {formatTime(analysis.estimatedExecutionTime.max)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Node Summary */}
                   <div
                     className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
                     style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
@@ -251,52 +369,92 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                         className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
                         style={{ color: '#EDEFF7' }}
                       >
-                        <Cpu className="w-4 h-4" />
-                        Complexity
+                        <Layers className="w-4 h-4" />
+                        Workflow Structure
+                      </h3>
+                    </div>
+                    <div className="p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div
+                          className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                          style={{ backgroundColor: 'rgba(64, 66, 77, 0.2)' }}
+                        >
+                          <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>{analysis.nodeCount}</div>
+                          <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
+                            Total Nodes
+                          </div>
+                        </div>
+                        <div
+                          className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                          style={{ backgroundColor: 'rgba(64, 66, 77, 0.2)' }}
+                        >
+                          <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                            {analysis.triggerNodes.length}
+                          </div>
+                          <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
+                            Trigger Nodes
+                          </div>
+                        </div>
+                        <div
+                          className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                          style={{ backgroundColor: 'rgba(64, 66, 77, 0.2)' }}
+                        >
+                          <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                            {analysis.actionNodes.length}
+                          </div>
+                          <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
+                            Action Nodes
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Integrations */}
+                  <div
+                    className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
+                    style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
+                  >
+                    <div className="p-4 border-b border-[#9DA2B3]/25">
+                      <h3
+                        className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
+                        style={{ color: '#EDEFF7' }}
+                      >
+                        <Globe className="w-4 h-4" />
+                        Integrations
                       </h3>
                     </div>
                     <div className="p-4">
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                            Level
-                          </span>
+                        {analysis.integrations.map((integration, index) => (
                           <div
-                            className={`px-3 py-1 rounded-full font-aeonikpro text-xs font-medium ${getComplexityColor(
-                              analysis.complexity.level
-                            )}`}
+                            key={index}
+                            className="flex items-center justify-between p-3 rounded-lg border border-[#9DA2B3]/25"
+                            style={{ backgroundColor: 'rgba(120, 153, 168, 0.05)' }}
                           >
-                            {analysis.complexity.level.charAt(0).toUpperCase() + analysis.complexity.level.slice(1)}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                            Score
-                          </span>
-                          <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
-                            {analysis.complexity.score}
-                          </span>
-                        </div>
-                        <div className="space-y-2">
-                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                            Factors:
-                          </span>
-                          <div className="flex flex-wrap gap-1">
-                            {analysis.complexity.factors.map((factor, index) => (
+                            <div className="flex items-center gap-3">
+                              <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
+                                {integration.name}
+                              </span>
                               <div
-                                key={index}
                                 className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25"
                                 style={{ color: '#D3D6E0' }}
                               >
-                                {factor}
+                                {integration.type}
                               </div>
-                            ))}
+                            </div>
+                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                              {integration.nodeCount} nodes
+                            </span>
                           </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   </div>
+                </TabsContent>
 
+                <TabsContent value="structure" className="space-y-6">
+                  {/* Data Flow */}
                   <div
                     className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
                     style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
@@ -306,417 +464,278 @@ export function WorkflowAnalysisModal({ workflowId, trigger }: WorkflowAnalysisM
                         className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
                         style={{ color: '#EDEFF7' }}
                       >
-                        <Clock className="w-4 h-4" />
-                        Performance
+                        <ArrowUpDown className="w-4 h-4" />
+                        Data Flow
                       </h3>
                     </div>
                     <div className="p-4">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                            Min Time
-                          </span>
-                          <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
-                            {formatTime(analysis.estimatedExecutionTime.min)}
-                          </span>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <h4
+                            className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
+                            style={{ color: '#EDEFF7' }}
+                          >
+                            <ArrowRight className="w-4 h-4 text-green-500" />
+                            Input Data
+                          </h4>
+                          <div className="space-y-1">
+                            {analysis.dataFlow.inputDataTypes.length > 0 ? (
+                              analysis.dataFlow.inputDataTypes.map((type, index) => (
+                                <div
+                                  key={index}
+                                  className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
+                                  style={{ color: '#D3D6E0' }}
+                                >
+                                  {type}
+                                </div>
+                              ))
+                            ) : (
+                              <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                                No input data detected
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                            Average
-                          </span>
-                          <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
-                            {formatTime(analysis.estimatedExecutionTime.average)}
-                          </span>
+                        <div>
+                          <h4
+                            className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
+                            style={{ color: '#EDEFF7' }}
+                          >
+                            <Settings className="w-4 h-4 text-blue-500" />
+                            Transformations
+                          </h4>
+                          <div className="space-y-1">
+                            {analysis.dataFlow.transformations.length > 0 ? (
+                              analysis.dataFlow.transformations.map((transformation, index) => (
+                                <div
+                                  key={index}
+                                  className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
+                                  style={{ color: '#D3D6E0' }}
+                                >
+                                  {transformation}
+                                </div>
+                              ))
+                            ) : (
+                              <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                                No transformations detected
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                            Max Time
-                          </span>
-                          <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
-                            {formatTime(analysis.estimatedExecutionTime.max)}
-                          </span>
+                        <div>
+                          <h4
+                            className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
+                            style={{ color: '#EDEFF7' }}
+                          >
+                            <ArrowLeft className="w-4 h-4 text-purple-500" />
+                            Output Data
+                          </h4>
+                          <div className="space-y-1">
+                            {analysis.dataFlow.outputDataTypes.length > 0 ? (
+                              analysis.dataFlow.outputDataTypes.map((type, index) => (
+                                <div
+                                  key={index}
+                                  className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
+                                  style={{ color: '#D3D6E0' }}
+                                >
+                                  {type}
+                                </div>
+                              ))
+                            ) : (
+                              <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                                No output data detected
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Node Summary */}
-                <div
-                  className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
-                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
-                >
-                  <div className="p-4 border-b border-[#9DA2B3]/25">
-                    <h3
-                      className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
-                      style={{ color: '#EDEFF7' }}
-                    >
-                      <Layers className="w-4 h-4" />
-                      Workflow Structure
-                    </h3>
-                  </div>
-                  <div className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div
-                        className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                        style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
-                      >
-                        <div className="font-aeonikpro text-2xl font-bold text-blue-500">{analysis.nodeCount}</div>
-                        <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
-                          Total Nodes
-                        </div>
+                  {/* Node Types */}
+                  <Card className="bg-[#1E1E24]/50 border-[#9DA2B3]/25">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2 text-[#EDEFF7]">
+                        <Code className="w-4 h-4" />
+                        Node Types
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {Object.entries(analysis.nodeTypes).map(([type, count]) => (
+                          <div key={type} className="flex items-center justify-between p-2 bg-[#40424D]/30 rounded border border-[#9DA2B3]/25">
+                            <span className="text-sm font-medium truncate text-[#EDEFF7]">{type.split('.').pop()}</span>
+                            <Badge variant="secondary" className="text-xs bg-[#9DA2B3]/20 text-[#D3D6E0]">
+                              {count}
+                            </Badge>
+                          </div>
+                        ))}
                       </div>
-                      <div
-                        className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                        style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)' }}
-                      >
-                        <div className="font-aeonikpro text-2xl font-bold text-green-500">
-                          {analysis.triggerNodes.length}
-                        </div>
-                        <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
-                          Trigger Nodes
-                        </div>
-                      </div>
-                      <div
-                        className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                        style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)' }}
-                      >
-                        <div className="font-aeonikpro text-2xl font-bold text-purple-500">
-                          {analysis.actionNodes.length}
-                        </div>
-                        <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
-                          Action Nodes
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-                {/* Integrations */}
-                <div
-                  className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
-                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
-                >
-                  <div className="p-4 border-b border-[#9DA2B3]/25">
-                    <h3
-                      className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
-                      style={{ color: '#EDEFF7' }}
-                    >
-                      <Globe className="w-4 h-4" />
-                      Integrations
-                    </h3>
-                  </div>
-                  <div className="p-4">
-                    <div className="space-y-3">
-                      {analysis.integrations.map((integration, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between p-3 rounded-lg border border-[#9DA2B3]/25"
-                          style={{ backgroundColor: 'rgba(120, 153, 168, 0.05)' }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="font-aeonikpro font-medium" style={{ color: '#EDEFF7' }}>
-                              {integration.name}
-                            </span>
-                            <div
-                              className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25"
-                              style={{ color: '#D3D6E0' }}
-                            >
-                              {integration.type}
+                <TabsContent value="automation" className="space-y-6">
+                  {/* Triggers */}
+                  <Card className="bg-[#1E1E24]/50 border-[#9DA2B3]/25">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2 text-[#EDEFF7]">
+                        <Zap className="w-4 h-4" />
+                        Automation Triggers
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {analysis.automation.webhooks.length > 0 && (
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center gap-2 text-[#EDEFF7]">
+                              <Globe className="w-4 h-4" />
+                              Webhooks ({analysis.automation.webhooks.length})
+                            </h4>
+                            <div className="space-y-1">
+                              {analysis.automation.webhooks.map((webhook, index) => (
+                                <Badge key={index} variant="outline" className="text-xs bg-[#40424D]/30 border-[#9DA2B3]/25 text-[#D3D6E0]">
+                                  {webhook}
+                                </Badge>
+                              ))}
                             </div>
                           </div>
-                          <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                            {integration.nodeCount} nodes
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
+                        )}
 
-              <TabsContent value="structure" className="space-y-6">
-                {/* Data Flow */}
-                <div
-                  className="rounded-xl border border-[#9DA2B3]/25 overflow-hidden"
-                  style={{ backgroundColor: 'rgba(64, 66, 77, 0.15)' }}
-                >
-                  <div className="p-4 border-b border-[#9DA2B3]/25">
-                    <h3
-                      className="font-aeonikpro text-lg font-semibold flex items-center gap-2"
-                      style={{ color: '#EDEFF7' }}
-                    >
-                      <ArrowUpDown className="w-4 h-4" />
-                      Data Flow
-                    </h3>
-                  </div>
-                  <div className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div>
-                        <h4
-                          className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
-                          style={{ color: '#EDEFF7' }}
-                        >
-                          <ArrowRight className="w-4 h-4 text-green-500" />
-                          Input Data
-                        </h4>
-                        <div className="space-y-1">
-                          {analysis.dataFlow.inputDataTypes.length > 0 ? (
-                            analysis.dataFlow.inputDataTypes.map((type, index) => (
-                              <div
-                                key={index}
-                                className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
-                                style={{ color: '#D3D6E0' }}
-                              >
-                                {type}
-                              </div>
-                            ))
-                          ) : (
-                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                              No input data detected
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h4
-                          className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
-                          style={{ color: '#EDEFF7' }}
-                        >
-                          <Settings className="w-4 h-4 text-blue-500" />
-                          Transformations
-                        </h4>
-                        <div className="space-y-1">
-                          {analysis.dataFlow.transformations.length > 0 ? (
-                            analysis.dataFlow.transformations.map((transformation, index) => (
-                              <div
-                                key={index}
-                                className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
-                                style={{ color: '#D3D6E0' }}
-                              >
-                                {transformation}
-                              </div>
-                            ))
-                          ) : (
-                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                              No transformations detected
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h4
-                          className="font-aeonikpro font-medium mb-2 flex items-center gap-2"
-                          style={{ color: '#EDEFF7' }}
-                        >
-                          <ArrowLeft className="w-4 h-4 text-purple-500" />
-                          Output Data
-                        </h4>
-                        <div className="space-y-1">
-                          {analysis.dataFlow.outputDataTypes.length > 0 ? (
-                            analysis.dataFlow.outputDataTypes.map((type, index) => (
-                              <div
-                                key={index}
-                                className="px-2 py-1 rounded-full font-aeonikpro text-xs border border-[#9DA2B3]/25 inline-block mr-1"
-                                style={{ color: '#D3D6E0' }}
-                              >
-                                {type}
-                              </div>
-                            ))
-                          ) : (
-                            <span className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
-                              No output data detected
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                        {analysis.automation.schedules.length > 0 && (
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center gap-2 text-[#EDEFF7]">
+                              <Calendar className="w-4 h-4" />
+                              Scheduled ({analysis.automation.schedules.length})
+                            </h4>
+                            <div className="space-y-1">
+                              {analysis.automation.schedules.map((schedule, index) => (
+                                <Badge key={index} variant="outline" className="text-xs bg-[#40424D]/30 border-[#9DA2B3]/25 text-[#D3D6E0]">
+                                  {schedule}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
-                {/* Node Types */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Code className="w-4 h-4" />
-                      Node Types
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {Object.entries(analysis.nodeTypes).map(([type, count]) => (
-                        <div key={type} className="flex items-center justify-between p-2 bg-background rounded">
-                          <span className="text-sm font-medium truncate">{type.split('.').pop()}</span>
-                          <Badge variant="secondary" className="text-xs">
-                            {count}
+                        {analysis.automation.manualTriggers && (
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center gap-2 text-[#EDEFF7]">
+                              <Play className="w-4 h-4" />
+                              Manual Triggers
+                            </h4>
+                            <Badge variant="outline" className="text-xs bg-[#40424D]/30 border-[#9DA2B3]/25 text-[#D3D6E0]">
+                              Manual execution available
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="security" className="space-y-6">
+                  <Card className="bg-[#1E1E24]/50 border-[#9DA2B3]/25">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2 text-[#EDEFF7]">
+                        <Shield className="w-4 h-4" />
+                        Security Features
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[#EDEFF7]">Authentication</span>
+                            {analysis.security.hasAuthentication ? (
+                              <CheckCircle className="w-5 h-5 text-emerald-400" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-400" />
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[#EDEFF7]">Data Validation</span>
+                            {analysis.security.hasDataValidation ? (
+                              <CheckCircle className="w-5 h-5 text-emerald-400" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-400" />
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[#EDEFF7]">Error Handling</span>
+                            {analysis.security.hasErrorHandling ? (
+                              <CheckCircle className="w-5 h-5 text-emerald-400" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-400" />
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[#EDEFF7]">Rate Limiting</span>
+                            {analysis.security.hasRateLimiting ? (
+                              <CheckCircle className="w-5 h-5 text-emerald-400" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-400" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="maintenance" className="space-y-6">
+                  <Card className="bg-[#1E1E24]/50 border-[#9DA2B3]/25">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2 text-[#EDEFF7]">
+                        <RefreshCw className="w-4 h-4" />
+                        Maintenance Requirements
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-[#EDEFF7]">Update Frequency</span>
+                          <Badge className={getUpdateFrequencyColor(analysis.maintenance.updateFrequency)}>
+                            {analysis.maintenance.updateFrequency.charAt(0).toUpperCase() +
+                              analysis.maintenance.updateFrequency.slice(1)}
                           </Badge>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
 
-              <TabsContent value="automation" className="space-y-6">
-                {/* Triggers */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Zap className="w-4 h-4" />
-                      Automation Triggers
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {analysis.automation.webhooks.length > 0 && (
-                        <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-blue-600" />
-                            Webhooks ({analysis.automation.webhooks.length})
-                          </h4>
-                          <div className="space-y-1">
-                            {analysis.automation.webhooks.map((webhook, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {webhook}
-                              </Badge>
-                            ))}
+                        {analysis.maintenance.externalServices.length > 0 && (
+                          <div>
+                            <h4 className="font-medium mb-2 text-[#EDEFF7]">External Services</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {analysis.maintenance.externalServices.map((service, index) => (
+                                <Badge key={index} variant="outline" className="text-xs bg-[#40424D]/30 border-[#9DA2B3]/25 text-[#D3D6E0]">
+                                  {service}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      {analysis.automation.schedules.length > 0 && (
-                        <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-green-600" />
-                            Scheduled ({analysis.automation.schedules.length})
-                          </h4>
-                          <div className="space-y-1">
-                            {analysis.automation.schedules.map((schedule, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {schedule}
-                              </Badge>
-                            ))}
+                        {analysis.maintenance.dependencies.length > 0 && (
+                          <div>
+                            <h4 className="font-medium mb-2 text-[#EDEFF7]">Dependencies</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {analysis.maintenance.dependencies.map((dependency, index) => (
+                                <Badge key={index} variant="outline" className="text-xs bg-[#40424D]/30 border-[#9DA2B3]/25 text-[#D3D6E0]">
+                                  {dependency}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-
-                      {analysis.automation.manualTriggers && (
-                        <div>
-                          <h4 className="font-medium mb-2 flex items-center gap-2">
-                            <Play className="w-4 h-4 text-purple-600" />
-                            Manual Triggers
-                          </h4>
-                          <Badge variant="outline" className="text-xs">
-                            Manual execution available
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="security" className="space-y-6">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
-                      Security Features
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Authentication</span>
-                          {analysis.security.hasAuthentication ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-red-600" />
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Data Validation</span>
-                          {analysis.security.hasDataValidation ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-red-600" />
-                          )}
-                        </div>
+                        )}
                       </div>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Error Handling</span>
-                          {analysis.security.hasErrorHandling ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-red-600" />
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Rate Limiting</span>
-                          {analysis.security.hasRateLimiting ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-red-600" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="maintenance" className="space-y-6">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4" />
-                      Maintenance Requirements
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">Update Frequency</span>
-                        <Badge className={getUpdateFrequencyColor(analysis.maintenance.updateFrequency)}>
-                          {analysis.maintenance.updateFrequency.charAt(0).toUpperCase() +
-                            analysis.maintenance.updateFrequency.slice(1)}
-                        </Badge>
-                      </div>
-
-                      {analysis.maintenance.externalServices.length > 0 && (
-                        <div>
-                          <h4 className="font-medium mb-2">External Services</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {analysis.maintenance.externalServices.map((service, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {service}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {analysis.maintenance.dependencies.length > 0 && (
-                        <div>
-                          <h4 className="font-medium mb-2">Dependencies</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {analysis.maintenance.dependencies.map((dependency, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {dependency}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )
