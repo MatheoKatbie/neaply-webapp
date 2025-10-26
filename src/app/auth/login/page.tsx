@@ -65,37 +65,47 @@ function LoginContent() {
     setLocalError(null) // Clear local error when starting new login attempt
 
     try {
-      // First, check if device is remembered (but only after auth attempt)
+      // First, check if 2FA is required BEFORE creating a session
+      const check2FAResponse = await fetch('/api/auth/check-2fa-required', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: formData.email,
+          fingerprint: deviceFingerprint 
+        }),
+      })
+
+      if (!check2FAResponse.ok) {
+        setLocalError('Failed to check authentication requirements')
+        return
+      }
+
+      const { requires2FA, exists } = await check2FAResponse.json()
+
+      if (!exists) {
+        setLocalError('Invalid email or password')
+        return
+      }
+
+      // If 2FA is required, do NOT create a session yet
+      if (requires2FA) {
+        setRequiresTwoFA(true)
+        setLoginStep('2fa')
+        return
+      }
+
+      // If no 2FA required, proceed with normal sign in
       const { error } = await signIn(formData)
       if (error) {
         setLocalError(error)
         return
       }
-      
-      if (!error) {
-        // Check if 2FA is required for this user
-        if (deviceFingerprint) {
-          const deviceCheckResponse = await fetch('/api/auth/devices/check', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fingerprint: deviceFingerprint }),
-          })
 
-          if (deviceCheckResponse.ok) {
-            const deviceData = await deviceCheckResponse.json()
-            if (deviceData.requiresTwoFA) {
-              setRequiresTwoFA(true)
-              setLoginStep('2fa')
-              return
-            }
-          }
-        }
-
-        // If no 2FA required, redirect
-        router.push('/')
-      }
+      // If no 2FA required, redirect
+      router.push('/')
     } catch (err) {
       console.error('Login error:', err)
+      setLocalError('An error occurred during login')
     } finally {
       setIsLoading(false)
     }
@@ -112,10 +122,13 @@ function LoginContent() {
         toast.error('Code Required', {
           description: `Please enter a ${use2FATab === 'totp' ? '6-digit' : 'backup'} code`,
         })
+        setIsLoading(false)
         return
       }
 
       const requestBody = {
+        email: formData.email,
+        password: formData.password,
         ...(use2FATab === 'totp' ? { totpCode: code } : { backupCode: code }),
         rememberDevice,
         deviceInfo: rememberDevice
@@ -127,17 +140,25 @@ function LoginContent() {
           : undefined,
       }
 
-      const response = await fetch('/api/auth/verify-2fa', {
+      // Use the secure login-with-2fa endpoint that verifies credentials + 2FA
+      // and only creates a session if both are valid
+      const response = await fetch('/api/auth/login-with-2fa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
       })
 
       if (response.ok) {
+        const data = await response.json()
+        
+        // Session is now created on the server, we need to refresh the auth state
+        // The useAuth hook will automatically pick up the new session
         toast.success('Login Successful', {
           description: 'Two-factor authentication verified successfully.',
         })
-        router.push('/')
+        
+        // Force a reload to refresh the auth state
+        window.location.href = '/'
       } else {
         const error = await response.json()
         toast.error('Verification Failed', {

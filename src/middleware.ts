@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
+  
+  // Pour les routes API, on veut toujours retourner du JSON, jamais des redirects HTML
+  const isApiRoute = pathname.startsWith('/api/')
+
   let response = NextResponse.next({
     request: {
       headers: req.headers,
@@ -93,8 +98,6 @@ export async function middleware(req: NextRequest) {
     '/admin/settings',
   ]
 
-  const { pathname } = req.nextUrl
-
   // Permettre l'accès aux routes publiques
   const isPublicRoute =
     publicRoutes.includes(pathname) ||
@@ -109,38 +112,60 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
+  // ============================================
+  // API ROUTES HANDLING
+  // ============================================
+  
   // Webhook routes should never require authentication
   if (pathname.startsWith('/api/webhooks/')) {
     return response
   }
 
-  // Public API routes for order access
-  if (pathname.startsWith('/api/orders/public/')) {
+  // Public API routes - allow without authentication
+  const publicApiPatterns = [
+    '/api/orders/public/',
+    '/api/auth/check-2fa-required',
+    '/api/auth/login-with-2fa',
+    '/api/auth/check-email',
+    '/api/marketplace/',
+    '/api/packs',
+    '/api/store/',
+    '/api/search',
+    '/api/categories',
+    '/api/tags',
+  ]
+
+  const isPublicApi = publicApiPatterns.some((pattern) => pathname.startsWith(pattern))
+
+  if (isPublicApi) {
     return response
   }
 
-  // Public API routes for marketplace and homepage
-  if (
-    pathname.startsWith('/api/marketplace/') ||
-    pathname.startsWith('/api/packs') ||
-    pathname.startsWith('/api/store/') ||
-    pathname.startsWith('/api/search') ||
-    pathname.startsWith('/api/categories') ||
-    pathname.startsWith('/api/tags')
-  ) {
+  // Protected API routes - let the API handle auth errors (return JSON 401, not redirect)
+  const protectedApiPatterns = [
+    '/api/favorites',
+    '/api/reviews',
+    '/api/auth/',
+    '/api/user',
+    '/api/workflows/',
+    '/api/orders/',
+    '/api/cart/',
+    '/api/checkout/',
+  ]
+
+  const isProtectedApi = protectedApiPatterns.some((pattern) => pathname.startsWith(pattern))
+
+  if (isProtectedApi || isApiRoute) {
+    // Pour les routes API protégées, on laisse l'API gérer l'authentification
+    // et retourner une erreur 401 JSON appropriée au lieu de rediriger
     return response
   }
 
-  // Protected API routes that return proper auth errors instead of redirecting
-  if (
-    pathname.startsWith('/api/favorites') ||
-    pathname.startsWith('/api/reviews') ||
-    pathname.startsWith('/api/workflows/') && pathname.includes('/analysis')
-  ) {
-    return response
-  }
+  // ============================================
+  // PAGE ROUTES HANDLING
+  // ============================================
 
-  // Vérifier si l'utilisateur est authentifié pour les routes protégées
+  // Vérifier si l'utilisateur est authentifié pour les routes de pages protégées
   if (!session) {
     // Rediriger vers la page de connexion avec l'URL de retour
     const redirectUrl = new URL('/auth/login', req.url)
