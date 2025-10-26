@@ -421,6 +421,7 @@ function LoginContent() {
                     <div className="space-y-2">
                       <Button
                         type="submit"
+                        variant="outline"
                         className="w-full"
                         disabled={isLoading || (use2FATab === 'totp' ? totpCode.length !== 6 : backupCode.length !== 8)}
                       >
@@ -429,7 +430,7 @@ function LoginContent() {
 
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="default"
                         className="w-full"
                         onClick={() => {
                           setLoginStep('credentials')

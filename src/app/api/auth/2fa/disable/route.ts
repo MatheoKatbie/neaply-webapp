@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '2FA secret not found' }, { status: 400 })
     }
 
-    // Verify the TOTP code using the same logic as enable
+    // Verify the TOTP code (strict verification - only current token)
     const secret = Secret.fromBase32(totpSecret)
     const totp = new TOTP({
       issuer: 'Neaply',
@@ -47,13 +47,7 @@ export async function POST(request: NextRequest) {
     const currentToken = totp.generate()
     const isValid = totpCode === currentToken
 
-    // Also check the previous and next tokens for clock skew tolerance
-    const previousToken = totp.generate({ timestamp: Date.now() - 30000 })
-    const nextToken = totp.generate({ timestamp: Date.now() + 30000 })
-
-    const isValidWithSkew = isValid || totpCode === previousToken || totpCode === nextToken
-
-    if (!isValidWithSkew) {
+    if (!isValid) {
       return NextResponse.json({ error: 'Invalid verification code' }, { status: 400 })
     }
 
