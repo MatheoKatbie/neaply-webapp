@@ -198,7 +198,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
               <SelectItem value="24">Last 24 months</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={fetchAnalytics} variant="outline" size="sm">
+          <Button className="font-aeonikpro" onClick={fetchAnalytics} variant="outline" size="lg">
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
