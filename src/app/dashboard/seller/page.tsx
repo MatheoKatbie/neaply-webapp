@@ -1071,7 +1071,7 @@ export default function SellerDashboard() {
                       <span className="text-sm text-[#9DA2B3] font-aeonikpro">Balance</span>
                       <button
                         onClick={handleSeePayoutsClick}
-                        className="text-blue-400 hover:text-blue-300 text-sm flex items-center cursor-pointer font-aeonikpro"
+                        className="text-[#EDEFF7] hover:text-white text-sm flex items-center cursor-pointer font-aeonikpro transition-colors"
                       >
                         See Payouts
                         <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1089,7 +1089,7 @@ export default function SellerDashboard() {
               </div>
 
               {/* Create Workflow Button */}
-              <Button onClick={handleCreateWorkflow} className="bg-white text-black font-aeonikpro">
+              <Button onClick={handleCreateWorkflow} className="font-aeonikpro">
                 Create Workflow
               </Button>
             </div>
@@ -1133,7 +1133,7 @@ export default function SellerDashboard() {
                     <span className="text-sm text-[#9DA2B3] font-aeonikpro">Balance</span>
                     <button
                       onClick={handleSeePayoutsClick}
-                      className="text-blue-400 hover:text-blue-300 text-sm flex items-center cursor-pointer font-aeonikpro"
+                      className="text-[#EDEFF7] hover:text-white text-sm flex items-center cursor-pointer font-aeonikpro transition-colors"
                     >
                       See Payouts
                       <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1166,7 +1166,7 @@ export default function SellerDashboard() {
               description="Your account and payout information have been verified. You can now add your first workflow to FlowMarket."
               position="bottom"
             >
-              <Button onClick={handleCreateWorkflow} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
+              <Button onClick={handleCreateWorkflow} className="bg-opacity-30 font-aeonikpro">
                 Create Workflow
               </Button>
             </AnimatedTooltip>

@@ -79,15 +79,15 @@ export default function CartSlider({ isOpen, onClose }: CartSliderProps) {
 
       {/* Cart slider */}
       <div
-        className={`fixed right-0 top-0 h-screen w-full max-w-md bg-[#0F0F13] border-l border-[#9DA2B3]/25 shadow-2xl transform transition-transform duration-300 ease-in-out z-50 flex flex-col ${
+        className={`fixed right-0 top-0 h-screen w-full max-w-md bg-[#0F0F13] border-l border-[#9DA2B3]/25 shadow-2xl transform transition-transform duration-300 ease-in-out z-[9999] flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Header - fixed height */}
         <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-[#9DA2B3]/25 bg-[#1E1E24]">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/20 rounded-lg">
-              <ShoppingCart className="w-5 h-5 text-blue-400" />
+            <div className="p-2 text-primary-foreground rounded-lg">
+              <ShoppingCart className="w-5 h-5 " />
             </div>
             <h2 className="text-lg font-semibold text-[#EDEFF7] font-aeonikpro">Shopping Cart</h2>
             {cart && cart.items.length > 0 && (
@@ -96,13 +96,13 @@ export default function CartSlider({ isOpen, onClose }: CartSliderProps) {
               </Badge>
             )}
           </div>
-          <button
+          <Button
             onClick={onClose}
-            className="h-8 w-8 p-0 rounded-lg hover:bg-[#40424D]/40 transition-colors text-[#9DA2B3] hover:text-[#EDEFF7]"
+            className="!p-2"
             aria-label="Close cart"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Content - flexible height with proper scroll */}
@@ -122,7 +122,7 @@ export default function CartSlider({ isOpen, onClose }: CartSliderProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-[#EDEFF7] mb-2 font-aeonikpro">Your cart is empty</h3>
                 <p className="text-sm text-[#9DA2B3]/70 mb-6">Add some workflows to get started</p>
-                <Button onClick={onClose} variant="outline" className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#40424D]/30">
+                <Button onClick={onClose} variant="default" className="font-aeonikpro">
                   Continue Shopping
                 </Button>
               </div>
@@ -152,7 +152,7 @@ export default function CartSlider({ isOpen, onClose }: CartSliderProps) {
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-semibold text-[#EDEFF7] truncate font-aeonikpro">{item.workflow.title}</h4>
                           <p className="text-xs text-[#9DA2B3]/70 mb-2">by {item.workflow.seller.displayName}</p>
-                          <p className="text-sm font-semibold text-green-400">
+                          <p className="text-sm font-semibold text-primary-foreground">
                             {formatPrice(item.workflow.basePriceCents)}
                           </p>
                         </div>
@@ -177,10 +177,10 @@ export default function CartSlider({ isOpen, onClose }: CartSliderProps) {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center text-sm font-semibold text-[#EDEFF7] font-aeonikpro">
                     <span>Total ({totalItems} items):</span>
-                    <span className="text-lg text-green-400">{formatPrice(totalAmount)}</span>
+                    <span className="text-lg ">{formatPrice(totalAmount)}</span>
                   </div>
 
-                  <Button onClick={handleCheckout} className="w-full bg-blue-600 hover:bg-blue-700 text-white" size="lg">
+                  <Button variant="outline" onClick={handleCheckout} className="w-full" size="lg">
                     Go to Checkout
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>

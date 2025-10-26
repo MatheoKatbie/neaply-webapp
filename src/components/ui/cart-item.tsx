@@ -58,7 +58,7 @@ export function CartItem({ item }: CartItemProps) {
   const getCurrency = () => item.workflow.currency
 
   return (
-    <div className="flex items-center gap-4 p-4 border rounded-lg">
+    <div className="flex items-center gap-4 p-4 border border-[#9DA2B3]/25 rounded-lg bg-[#1E1E24]/30">
       {/* Item image */}
       <div className="flex-shrink-0">
         {item.workflow.heroImageUrl ? (
@@ -76,17 +76,17 @@ export function CartItem({ item }: CartItemProps) {
 
       {/* Item details */}
       <div className="flex-1 min-w-0">
-        <h3 className="font-medium text-gray-900 truncate">{item.workflow.title}</h3>
-        <p className="text-sm text-gray-500 mb-1">
+        <h3 className="font-medium text-[#EDEFF7] truncate font-aeonikpro">{item.workflow.title}</h3>
+        <p className="text-sm text-[#9DA2B3] mb-1 font-aeonikpro">
           by {item.workflow.seller.sellerProfile?.storeName || item.workflow.seller.displayName}
         </p>
-        <p className="text-sm text-[#9DA2B3] mb-2">{item.workflow.shortDesc}</p>
-        <p className="text-lg font-semibold text-green-600">{formatPrice(getPrice(), getCurrency())}</p>
+        <p className="text-sm text-[#9DA2B3] mb-2 font-aeonikpro">{item.workflow.shortDesc}</p>
+        <p className="text-lg font-semibold text-primary-foreground font-aeonikpro">{formatPrice(getPrice(), getCurrency())}</p>
       </div>
 
       {/* Price display */}
       <div className="text-right">
-        <p className="text-lg font-semibold text-gray-900">{formatPrice(getPrice(), getCurrency())}</p>
+        <p className="text-lg font-semibold text-[#EDEFF7] font-aeonikpro">{formatPrice(getPrice(), getCurrency())}</p>
       </div>
 
       {/* Remove button */}
@@ -95,7 +95,7 @@ export function CartItem({ item }: CartItemProps) {
         size="sm"
         onClick={handleRemove}
         disabled={isUpdating}
-        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+        className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20"
       >
         <Trash2 className="w-4 h-4" />
       </Button>

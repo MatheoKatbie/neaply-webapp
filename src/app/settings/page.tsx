@@ -661,10 +661,9 @@ export default function SettingsPage() {
                   />
                   <p className="text-sm text-[#9DA2B3] mt-1 font-aeonikpro">JPG, PNG or GIF. Max size 2MB.</p>
                   <Button
-                    variant="ghost"
+                    
                     size="sm"
                     className="text-xs mt-2"
-                    style={{color: '#EDEFF7'}}
                     onClick={async () => {
                       try {
                         const response = await fetch('/api/test-storage')
@@ -803,7 +802,7 @@ export default function SettingsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setShowBackupCodesModal(true)}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-primary"
                   >
                     <Key className="h-4 w-4" />
                     View Backup Codes
@@ -982,7 +981,6 @@ export default function SettingsPage() {
                   variant="destructive"
                   onClick={() => setShowDeleteStoreModal(true)}
                   className="flex items-center gap-2"
-                  style={{backgroundColor: '#DC2626'}}
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete Store
@@ -1025,7 +1023,7 @@ export default function SettingsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPasswordChangeModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
+            <Button onClick={() => setShowPasswordChangeModal(false)} className="font-aeonikpro">
               Cancel
             </Button>
             <Button onClick={handlePasswordChange} disabled={loading || !newPassword || !confirmPassword} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
@@ -1052,10 +1050,10 @@ export default function SettingsPage() {
             </AlertDescription>
           </Alert>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteStoreModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
+            <Button onClick={() => setShowDeleteStoreModal(false)} className="font-aeonikpro">
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteStore} disabled={loading} className="bg-red-600 hover:bg-red-700 font-aeonikpro">
+            <Button variant="destructive" onClick={handleDeleteStore} disabled={loading} className="font-aeonikpro">
               {loading ? 'Deleting...' : 'Delete Store Permanently'}
             </Button>
           </DialogFooter>
@@ -1168,7 +1166,7 @@ export default function SettingsPage() {
           <DialogFooter>
             {setupStep === 'qr' && (
               <>
-                <Button variant="outline" onClick={() => setShow2FASetupModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
+                <Button onClick={() => setShow2FASetupModal(false)} className="font-aeonikpro">
                   Cancel
                 </Button>
                 <Button onClick={() => setSetupStep('verify')} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">Continue</Button>
@@ -1252,7 +1250,7 @@ export default function SettingsPage() {
             </AlertDescription>
           </Alert>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteAccountModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
+            <Button onClick={() => setShowDeleteAccountModal(false)} className="font-aeonikpro">
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading} className="bg-red-600 hover:bg-red-700 font-aeonikpro">
@@ -1286,7 +1284,7 @@ export default function SettingsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => setShow2FADisableModal(false)} variant="outline">
+            <Button onClick={() => setShow2FADisableModal(false)} className="font-aeonikpro">
               Cancel
             </Button>
             <Button onClick={handleDisable2FA} disabled={loading || totpCode.length !== 6} variant="destructive">

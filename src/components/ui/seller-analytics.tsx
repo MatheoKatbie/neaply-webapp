@@ -140,11 +140,11 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
           {[...Array(4)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader className="pb-2">
-                <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="h-4 bg-primary rounded w-3/4"></div>
               </CardHeader>
               <CardContent>
-                <div className="h-8 bg-muted rounded w-1/2 mb-2"></div>
-                <div className="h-3 bg-muted rounded w-full"></div>
+                <div className="h-8 bg-primary rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-primary rounded w-full"></div>
               </CardContent>
             </Card>
           ))}
@@ -183,8 +183,8 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Analytics Dashboard</h2>
-          <p className="text-muted-foreground mt-1">Track your workflows and packs performance and sales trends</p>
+          <h2 className="text-2xl font-bold text-[#EDEFF7] font-aeonikpro">Analytics Dashboard</h2>
+          <p className="text-[#9DA2B3] mt-1 font-aeonikpro">Track your workflows and packs performance and sales trends</p>
         </div>
         <div className="flex items-center gap-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
@@ -207,47 +207,47 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
+        <Card >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Workflows</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Total Workflows</CardTitle>
+            <Package className="h-4 w-4 text-[#9DA2B3]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.overview.totalWorkflows}</div>
-            <p className="text-xs text-muted-foreground">All statuses included</p>
+            <div className="text-2xl font-bold text-[#EDEFF7]">{data.overview.totalWorkflows}</div>
+            <p className="text-xs text-[#9DA2B3] font-aeonikpro">All statuses included</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Packs</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Total Packs</CardTitle>
+            <Heart className="h-4 w-4 text-[#9DA2B3]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.overview.totalPacks}</div>
-            <p className="text-xs text-muted-foreground">All statuses included</p>
+            <div className="text-2xl font-bold text-[#EDEFF7]">{data.overview.totalPacks}</div>
+            <p className="text-xs text-[#9DA2B3] font-aeonikpro">All statuses included</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Total Sales</CardTitle>
+            <TrendingUp className="h-4 w-4 text-[#9DA2B3]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.overview.totalSales}</div>
-            <p className="text-xs text-muted-foreground">Completed orders</p>
+            <div className="text-2xl font-bold text-[#EDEFF7]">{data.overview.totalSales}</div>
+            <p className="text-xs text-[#9DA2B3] font-aeonikpro">Completed orders</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Total Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-[#9DA2B3]" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(data.overview.totalRevenueCents)}</div>
-            <p className="text-xs text-muted-foreground">All time earnings</p>
+            <div className="text-2xl font-bold text-[#EDEFF7]">{formatCurrency(data.overview.totalRevenueCents)}</div>
+            <p className="text-xs text-[#9DA2B3] font-aeonikpro">All time earnings</p>
           </CardContent>
         </Card>
       </div>
@@ -255,7 +255,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Sales Over Time Chart */}
-        <Card>
+        <Card >
           <CardHeader>
             <CardTitle>Items Sold Over Time</CardTitle>
             <CardDescription>Workflows and packs sold per month</CardDescription>
@@ -286,7 +286,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
         </Card>
 
         {/* Workflow Status Distribution */}
-        <Card>
+        <Card >
           <CardHeader>
             <CardTitle>Workflow Status Distribution</CardTitle>
             <CardDescription>Breakdown of workflows by status</CardDescription>
@@ -321,7 +321,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
 
       {/* Revenue Chart Section */}
       <div className="mb-8">
-        <Card>
+        <Card >
           <CardHeader>
             <CardTitle>Monthly Revenue</CardTitle>
             <CardDescription>Revenue generated per month</CardDescription>
@@ -346,7 +346,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
       </div>
 
       {/* Top Workflows Table */}
-      <Card>
+      <Card >
         <CardHeader>
           <CardTitle>Top Performing Workflows</CardTitle>
           <CardDescription>Your best-selling workflows ranked by sales count</CardDescription>
@@ -355,30 +355,29 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Workflow</th>
-                  <th className="text-left py-3 px-4 font-medium">Status</th>
-                  <th className="text-left py-3 px-4 font-medium">Sales</th>
-                  <th className="text-left py-3 px-4 font-medium">Rating</th>
-                  <th className="text-left py-3 px-4 font-medium">Favorites</th>
-                  <th className="text-left py-3 px-4 font-medium">Reviews</th>
+                <tr className="border-b border-[#9DA2B3]/25">
+                  <th className="text-left py-3 px-4 font-medium text-[#EDEFF7] font-aeonikpro">Workflow</th>
+                  <th className="text-left py-3 px-4 font-medium text-[#EDEFF7] font-aeonikpro">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-[#EDEFF7] font-aeonikpro">Sales</th>
+                  <th className="text-left py-3 px-4 font-medium text-[#EDEFF7] font-aeonikpro">Rating</th>
+                  <th className="text-left py-3 px-4 font-medium text-[#EDEFF7] font-aeonikpro">Favorites</th>
+                  <th className="text-left py-3 px-4 font-medium text-[#EDEFF7] font-aeonikpro">Reviews</th>
                 </tr>
               </thead>
               <tbody>
                 {data.topWorkflows.map((workflow) => (
-                  <tr key={workflow.id} className="border-b hover:bg-background">
+                  <tr key={workflow.id} className="border-b border-[#9DA2B3]/25 hover:bg-[#40424D]/20">
                     <td className="py-3 px-4">
-                      <div className="font-medium text-foreground truncate max-w-xs">{workflow.title}</div>
+                      <div className="font-medium text-[#EDEFF7] truncate max-w-xs font-aeonikpro">{workflow.title}</div>
                     </td>
                     <td className="py-3 px-4">
                       <Badge
                         variant={workflow.status === 'published' ? 'default' : 'secondary'}
-                        className={workflow.status === 'published' ? 'bg-green-100 text-green-800' : ''}
                       >
                         {STATUS_LABELS[workflow.status as keyof typeof STATUS_LABELS] || workflow.status}
                       </Badge>
                     </td>
-                    <td className="py-3 px-4 font-medium">{workflow.salesCount}</td>
+                    <td className="py-3 px-4 font-medium text-[#EDEFF7] font-aeonikpro">{workflow.salesCount}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -408,7 +407,7 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
 
       {/* Top Packs Table */}
       <div className="mt-8" />
-      <Card>
+      <Card >
         <CardHeader>
           <CardTitle>Top Performing Packs</CardTitle>
           <CardDescription>Your best-selling packs ranked by paid orders</CardDescription>

@@ -75,7 +75,7 @@ export function SellerOverviewTab({
                 <CardContent>
                     {workflows.length === 0 ? (
                         <div className="text-center py-8">
-                            <p className="text-muted-foreground mb-4">No workflows yet</p>
+                            <p className="text-[#9DA2B3] mb-4 font-aeonikpro">No workflows yet</p>
                             <Button
                                 onClick={() => {
                                     onResetTouchedState()
@@ -92,12 +92,12 @@ export function SellerOverviewTab({
                                 .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
                                 .slice(0, 5)
                                 .map((item) => (
-                                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                                    <div key={item.id} className="flex items-center justify-between p-4 border border-[#9DA2B3]/25 rounded-lg bg-[#40424D]/20">
                                         <div className="flex items-center space-x-4 flex-1">
                                             {/* Thumbnail Preview */}
                                             <div className="flex-shrink-0">
                                                 {item.heroImageUrl ? (
-                                                    <div className="w-24 h-16 rounded-md overflow-hidden bg-muted border">
+                                                    <div className="w-24 h-16 rounded-md overflow-hidden bg-[#40424D]/30 border border-[#9DA2B3]/25">
                                                         <img
                                                             src={item.heroImageUrl}
                                                             alt={item.title}
@@ -107,7 +107,7 @@ export function SellerOverviewTab({
                                                                 const target = e.target as HTMLImageElement
                                                                 target.style.display = 'none'
                                                                 target.parentElement!.innerHTML = `
-                                <div class="w-full h-full flex items-center justify-center bg-muted text-[#9DA2B3]">
+                                <div class="w-full h-full flex items-center justify-center bg-[#40424D]/30 text-[#9DA2B3]">
                                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                   </svg>
@@ -117,7 +117,7 @@ export function SellerOverviewTab({
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div className="w-24 h-16 rounded-md bg-muted border flex items-center justify-center">
+                                                    <div className="w-24 h-16 rounded-md bg-[#40424D]/30 border border-[#9DA2B3]/25 flex items-center justify-center">
                                                         <svg
                                                             className="w-6 h-6 text-[#9DA2B3]"
                                                             fill="none"
@@ -137,19 +137,19 @@ export function SellerOverviewTab({
 
                                             {/* Content */}
                                             <div>
-                                                <h3 className="font-medium">{item.title}</h3>
-                                                <p className="text-sm text-muted-foreground">{item.shortDesc}</p>
+                                                <h3 className="font-medium text-[#EDEFF7] font-aeonikpro">{item.title}</h3>
+                                                <p className="text-sm text-[#9DA2B3] font-aeonikpro">{item.shortDesc}</p>
                                                 <div className="flex items-center space-x-2 mt-2">
                                                     <Badge className={getStatusColor(item.status)}>
                                                         {STATUS_LABELS[item.status] || item.status}
                                                     </Badge>
-                                                    <span className="text-sm text-muted-foreground">{item._count.orderItems} sales</span>
+                                                    <span className="text-sm text-[#9DA2B3] font-aeonikpro">{item._count.orderItems} sales</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="font-medium">{formatPrice(item.basePriceCents, item.currency)}</div>
-                                            <div className="text-sm text-muted-foreground">
+                                            <div className="font-medium text-[#EDEFF7] font-aeonikpro">{formatPrice(item.basePriceCents, item.currency)}</div>
+                                            <div className="text-sm text-[#9DA2B3] font-aeonikpro">
                                                 Updated {new Date(item.updatedAt).toLocaleDateString()}
                                             </div>
                                         </div>

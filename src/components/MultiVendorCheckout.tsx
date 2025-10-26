@@ -141,19 +141,22 @@ function CheckoutForm({ cartId, totalAmount, onSuccess, onError }: MultiVendorCh
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Card Details</label>
-            <div className="border rounded-md p-3">
+            <div className="border border-[#9DA2B3]/25 focus-within:border-[#9DA2B3]/50 rounded-md p-3">
               <CardElement
+              className=' border-0 outline-none text-primary-foreground'
                 options={{
+                  
                   style: {
                     base: {
+                      iconColor: 'white',
                       fontSize: '16px',
-                      color: '#424770',
+                      color: 'white',
                       '::placeholder': {
-                        color: '#aab7c4',
+                        color: 'text-muted-foreground',
                       },
                     },
                     invalid: {
-                      color: '#9e2146',
+                      color: 'destructive-foreground',
                     },
                   },
                 }}
@@ -161,7 +164,7 @@ function CheckoutForm({ cartId, totalAmount, onSuccess, onError }: MultiVendorCh
             </div>
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-md">
+          <div className="bg-[#1E1E24] p-4 rounded-md">
             <div className="flex justify-between items-center">
               <span className="font-medium">Total Amount:</span>
               <span className="text-lg font-bold">{formatPrice(totalAmount)}</span>
