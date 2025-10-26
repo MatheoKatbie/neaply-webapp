@@ -389,8 +389,8 @@ function LoginContent() {
                     </div>
 
                     <Alert className="bg-blue-500/10 border-blue-500/50">
-                      <Shield className="h-4 w-4" />
-                      <AlertDescription className="text-blue-300 font-aeonikpro">
+                    <Shield color='white' className="h-4 w-4" />
+                    <AlertDescription className="text-blue-300 font-aeonikpro">
                         {rememberDevice
                           ? "This device will be remembered and won't require 2FA for 30 days."
                           : "You'll need to verify your identity each time you sign in from this device."}
