@@ -176,7 +176,7 @@ export default function OrdersHistoryPage() {
             <div className="space-y-6">
               {orders.map((order) => (
                 <Card key={order.id} className="overflow-hidden bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
-                  <CardHeader className="bg-[#1E1E24]/50">
+                  <CardHeader className="">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
@@ -200,7 +200,7 @@ export default function OrdersHistoryPage() {
                         <Badge className={`${getStatusColor(order.status)} border-0`}>
                           {getStatusText(order.status)}
                         </Badge>
-                        <Button variant="ghost" size="sm" onClick={() => router.push(`/orders/${order.id}`)}>
+                        <Button variant="link" size="sm" onClick={() => router.push(`/orders/${order.id}`)}>
                           View Details
                           <ChevronRight className="w-4 h-4 ml-1" />
                         </Button>
@@ -208,7 +208,7 @@ export default function OrdersHistoryPage() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="p-6">
+                  <CardContent className="">
                     <div className="space-y-4">
                       <h4 className="font-medium text-[#EDEFF7] font-aeonikpro">Items Purchased:</h4>
 
@@ -246,6 +246,11 @@ export default function OrdersHistoryPage() {
                               <div className="flex items-center space-x-2">
                                 {order.status === 'paid' && (
                                   <>
+                                  <Button
+                                  onClick={() => router.push(`/workflow/${item.workflowId}`)}
+                                >
+                                  View Workflow
+                                </Button>
                                     <CopyButton workflowId={item.workflowId} />
                                     <Button
                                       variant="outline"
@@ -253,17 +258,11 @@ export default function OrdersHistoryPage() {
                                       onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
                                     >
                                       <Download className="w-4 h-4 mr-2" />
-                                      ZIP
+                                      Download ZIP
                                     </Button>
                                   </>
                                 )}
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => router.push(`/workflow/${item.workflowId}`)}
-                                >
-                                  View Workflow
-                                </Button>
+
                               </div>
                             </div>
                           ))}

@@ -14,26 +14,26 @@ function CheckoutCancelledContent() {
 
   return (
     <>
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
+      <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
-          <Card className="text-center py-12">
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25 text-center py-12">
             <CardContent>
-              <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <XCircle className="w-10 h-10 text-orange-500" />
+              <div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <XCircle className="w-10 h-10 text-orange-400" />
               </div>
 
-              <h1 className="text-3xl font-bold text-foreground mb-4">Payment Cancelled</h1>
-              <p className="text-lg text-muted-foreground mb-2">Your payment was cancelled and no charges were made.</p>
-              <p className="text-muted-foreground mb-8">
+              <h1 className="text-3xl font-bold text-[#EDEFF7] mb-4 font-aeonikpro">Payment Cancelled</h1>
+              <p className="text-lg text-[#9DA2B3] mb-2 font-aeonikpro">Your payment was cancelled and no charges were made.</p>
+              <p className="text-[#9DA2B3] mb-8 font-aeonikpro">
                 You can try again anytime or continue browsing our marketplace.
               </p>
 
               {orderId && (
-                <div className="bg-background rounded-lg p-4 mb-8">
-                  <p className="text-sm text-muted-foreground">
-                    Order ID: <span className="font-mono">{orderId}</span>
+                <div className="bg-[#1E1E24] border border-[#9DA2B3]/25 rounded-lg p-4 mb-8">
+                  <p className="text-sm text-[#9DA2B3] font-aeonikpro">
+                    Order ID: <span className="font-mono text-[#EDEFF7]">{orderId}</span>
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-[#9DA2B3] mt-1 font-aeonikpro">
                     This order has been cancelled and will not be processed.
                   </p>
                 </div>
@@ -60,25 +60,25 @@ function CheckoutCancelledContent() {
           </Card>
 
           {/* Help Section */}
-          <Card className="mt-8">
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25 mt-8">
             <CardContent className="p-6">
-              <h2 className="text-lg font-semibold mb-4">Need Help?</h2>
+              <h2 className="text-lg font-semibold mb-4 text-[#EDEFF7] font-aeonikpro">Need Help?</h2>
               <div className="space-y-3 text-sm">
                 <div>
-                  <p className="font-medium text-foreground">Payment Issues</p>
-                  <p className="text-muted-foreground">
+                  <p className="font-medium text-[#EDEFF7] font-aeonikpro">Payment Issues</p>
+                  <p className="text-[#9DA2B3] font-aeonikpro">
                     If you encountered technical difficulties during checkout, please try again or contact support.
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Questions about Workflows</p>
-                  <p className="text-muted-foreground">
+                  <p className="font-medium text-[#EDEFF7] font-aeonikpro">Questions about Workflows</p>
+                  <p className="text-[#9DA2B3] font-aeonikpro">
                     Browse our marketplace to discover automation workflows for your business needs.
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Customer Support</p>
-                  <p className="text-muted-foreground">
+                  <p className="font-medium text-[#EDEFF7] font-aeonikpro">Customer Support</p>
+                  <p className="text-[#9DA2B3] font-aeonikpro">
                     Contact our support team if you need assistance with your purchase or account.
                   </p>
                 </div>
@@ -95,10 +95,10 @@ export default function CheckoutCancelledPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-background pt-20 md:pt-24 flex items-center justify-center">
+        <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#EDEFF7] mx-auto mb-4"></div>
+            <p className="text-[#9DA2B3] font-aeonikpro">Loading...</p>
           </div>
         </div>
       }

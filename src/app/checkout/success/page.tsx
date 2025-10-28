@@ -105,11 +105,11 @@ function CheckoutSuccessContent() {
   if (loading) {
     return (
       <>
-        <div className="min-h-screen bg-background pt-20 md:pt-24">
+        <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-8 bg-muted rounded w-1/3 mb-6"></div>
-              <div className="h-64 bg-muted rounded-lg"></div>
+              <div className="h-8 bg-[#40424D]/40 rounded w-1/3 mb-6"></div>
+              <div className="h-64 bg-[#40424D]/40 rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -120,15 +120,15 @@ function CheckoutSuccessContent() {
   if (error || !order) {
     return (
       <>
-        <div className="min-h-screen bg-background pt-20 md:pt-24">
+        <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
-            <Card className="text-center py-12">
+            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25 text-center py-12">
               <CardContent>
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <XCircle className="w-8 h-8 text-red-500" />
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <XCircle className="w-8 h-8 text-red-400" />
                 </div>
-                <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
-                <p className="text-muted-foreground mb-6">
+                <h2 className="text-xl font-semibold mb-2 text-[#EDEFF7] font-aeonikpro">Order Not Found</h2>
+                <p className="text-[#9DA2B3] mb-6 font-aeonikpro">
                   {error || "The order you're looking for could not be found."}
                 </p>
                 <Button onClick={() => router.push('/')}>
@@ -145,46 +145,46 @@ function CheckoutSuccessContent() {
 
   return (
     <>
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
+      <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Success Header */}
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-10 h-10 text-green-500" />
+            <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-10 h-10 text-green-400" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Payment Successful!</h1>
-            <p className="text-lg text-muted-foreground">
+            <h1 className="text-3xl font-bold text-[#EDEFF7] mb-2 font-aeonikpro">Payment Successful!</h1>
+            <p className="text-lg text-[#9DA2B3] font-aeonikpro">
               Thank you for your purchase. Your workflows and packs are ready for download.
             </p>
           </div>
 
           {/* Order Details */}
-          <Card className="mb-6">
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25 mb-6">
             <CardHeader>
-              <CardTitle>Order Details</CardTitle>
+              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Order Details</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Order ID</span>
-                  <p className="text-lg font-mono">{order.id}</p>
+                  <span className="text-sm font-medium text-[#9DA2B3] font-aeonikpro">Order ID</span>
+                  <p className="text-lg font-mono text-[#EDEFF7]">{order.id}</p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Total Amount</span>
-                  <p className="text-lg font-semibold text-green-600">
+                  <span className="text-sm font-medium text-[#9DA2B3] font-aeonikpro">Total Amount</span>
+                  <p className="text-lg font-semibold text-green-400">
                     {formatPrice(order.totalCents, order.currency)}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Payment Date</span>
-                  <p className="text-lg">
+                  <span className="text-sm font-medium text-[#9DA2B3] font-aeonikpro">Payment Date</span>
+                  <p className="text-lg text-[#EDEFF7]">
                     {order.paidAt ? new Date(order.paidAt).toLocaleDateString() : 'Processing...'}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-muted-foreground">Status</span>
+                  <span className="text-sm font-medium text-[#9DA2B3] font-aeonikpro">Status</span>
                   <p className="text-lg">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
                       {order.status === 'paid' ? 'Completed' : order.status}
                     </span>
                   </p>
@@ -193,9 +193,9 @@ function CheckoutSuccessContent() {
 
               {/* Multi-vendor notice */}
               {relatedOrders.length > 0 && (
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="font-semibold text-blue-800 mb-2">Multi-Vendor Purchase</h4>
-                  <p className="text-sm text-blue-700">
+                <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                  <h4 className="font-semibold text-blue-300 mb-2 font-aeonikpro">Multi-Vendor Purchase</h4>
+                  <p className="text-sm text-blue-200/80 font-aeonikpro">
                     Your purchase included items from {relatedOrders.length + 1} different sellers. All orders have been
                     processed successfully.
                   </p>
@@ -204,22 +204,22 @@ function CheckoutSuccessContent() {
 
               {/* Multi-vendor total display */}
               {relatedOrders.length > 0 && (
-                <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                  <h3 className="text-xl font-semibold text-blue-900 mb-4">Purchase Summary</h3>
+                <div className="mb-6 p-6 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30 rounded-lg">
+                  <h3 className="text-xl font-semibold text-[#EDEFF7] mb-4 font-aeonikpro">Purchase Summary</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
-                      <span className="text-sm font-medium text-blue-700">Total Items</span>
-                      <p className="text-2xl font-bold text-blue-900">
+                      <span className="text-sm font-medium text-[#9DA2B3] font-aeonikpro">Total Items</span>
+                      <p className="text-2xl font-bold text-[#EDEFF7]">
                         {relatedOrders.reduce((total, order) => total + order.items.length, 0) + order.items.length}
                       </p>
                     </div>
                     <div className="text-center">
-                      <span className="text-sm font-medium text-blue-700">Total Sellers</span>
-                      <p className="text-2xl font-bold text-blue-900">{relatedOrders.length + 1}</p>
+                      <span className="text-sm font-medium text-[#9DA2B3] font-aeonikpro">Total Sellers</span>
+                      <p className="text-2xl font-bold text-[#EDEFF7]">{relatedOrders.length + 1}</p>
                     </div>
                     <div className="text-center">
-                      <span className="text-sm font-medium text-blue-700">Total Amount</span>
-                      <p className="text-2xl font-bold text-green-600">
+                      <span className="text-sm font-medium text-[#9DA2B3] font-aeonikpro">Total Amount</span>
+                      <p className="text-2xl font-bold text-green-400">
                         {formatPrice(
                           relatedOrders.reduce((total, order) => total + order.totalCents, 0) + order.totalCents,
                           order.currency
@@ -232,20 +232,20 @@ function CheckoutSuccessContent() {
 
               {/* Order Items (Workflows) */}
               <div>
-                <h3 className="text-lg font-semibold mb-4">Your Workflows</h3>
+                <h3 className="text-lg font-semibold mb-4 text-[#EDEFF7] font-aeonikpro">Your Workflows</h3>
 
                 {/* Multi-vendor: Show all orders grouped by seller */}
                 {relatedOrders.length > 0 ? (
                   <div className="space-y-6">
                     {/* Current order */}
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                    <div className="border border-[#9DA2B3]/25 rounded-lg p-4 bg-[#1E1E24]">
+                      <h4 className="font-medium text-[#EDEFF7] mb-3 flex items-center font-aeonikpro">
                         <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
                         Order {order.id.slice(-8)} - {formatPrice(order.totalCents, order.currency)}
                       </h4>
                       <div className="space-y-3">
                         {order.items.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div key={item.id} className="flex items-center justify-between p-3 bg-[#40424D]/40 rounded-lg">
                             <div className="flex items-center space-x-3">
                               {item.workflow.heroImageUrl ? (
                                 <img
@@ -259,14 +259,14 @@ function CheckoutSuccessContent() {
                                 </div>
                               )}
                               <div>
-                                <h4 className="font-medium">{item.workflow.title}</h4>
-                                <p className="text-sm text-muted-foreground">
+                                <h4 className="font-medium text-[#EDEFF7] font-aeonikpro">{item.workflow.title}</h4>
+                                <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                                   by{' '}
                                   {item.workflow.seller?.sellerProfile?.storeName ||
                                     item.workflow.seller?.displayName ||
                                     'Unknown Seller'}
                                 </p>
-                                <p className="text-xs font-medium text-green-600">
+                                <p className="text-xs font-medium text-green-400">
                                   {formatPrice(item.unitPriceCents, order.currency)}
                                 </p>
                               </div>
@@ -289,8 +289,8 @@ function CheckoutSuccessContent() {
 
                     {/* Related orders */}
                     {relatedOrders.map((relatedOrder, index) => (
-                      <div key={relatedOrder.id} className="border border-gray-200 rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                      <div key={relatedOrder.id} className="border border-[#9DA2B3]/25 rounded-lg p-4 bg-[#1E1E24]">
+                        <h4 className="font-medium text-[#EDEFF7] mb-3 flex items-center font-aeonikpro">
                           <span
                             className={`w-3 h-3 rounded-full mr-2 ${
                               index === 0
@@ -307,7 +307,7 @@ function CheckoutSuccessContent() {
                         </h4>
                         <div className="space-y-3">
                           {relatedOrder.items.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div key={item.id} className="flex items-center justify-between p-3 bg-[#40424D]/40 rounded-lg">
                               <div className="flex items-center space-x-3">
                                 {item.workflow.heroImageUrl ? (
                                   <img
@@ -321,14 +321,14 @@ function CheckoutSuccessContent() {
                                   </div>
                                 )}
                                 <div>
-                                  <h4 className="font-medium">{item.workflow.title}</h4>
-                                  <p className="text-sm text-muted-foreground">
+                                  <h4 className="font-medium text-[#EDEFF7] font-aeonikpro">{item.workflow.title}</h4>
+                                  <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                                     by{' '}
                                     {item.workflow.seller?.sellerProfile?.storeName ||
                                       item.workflow.seller?.displayName ||
                                       'Unknown Seller'}
                                   </p>
-                                  <p className="text-xs font-medium text-green-600">
+                                  <p className="text-xs font-medium text-green-400">
                                     {formatPrice(item.unitPriceCents, relatedOrder.currency)}
                                   </p>
                                 </div>
@@ -354,7 +354,7 @@ function CheckoutSuccessContent() {
                   /* Single vendor: Show items normally */
                   <div className="space-y-4">
                     {order.items.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                      <div key={item.id} className="flex items-center justify-between p-4 bg-[#1E1E24] border border-[#9DA2B3]/25 rounded-lg">
                         <div className="flex items-center space-x-4">
                           {item.workflow.heroImageUrl ? (
                             <img
@@ -368,36 +368,36 @@ function CheckoutSuccessContent() {
                             </div>
                           )}
                           <div>
-                            <h4 className="font-medium">{item.workflow.title}</h4>
-                            <p className="text-sm text-muted-foreground">
+                            <h4 className="font-medium text-[#EDEFF7] font-aeonikpro">{item.workflow.title}</h4>
+                            <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                               by{' '}
                               {item.workflow.seller?.sellerProfile?.storeName ||
                                 item.workflow.seller?.displayName ||
                                 'Unknown Seller'}
                             </p>
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-green-400">
                               {formatPrice(item.unitPriceCents, order.currency)}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
+                          <Button
+                            size={'default'}
+                            onClick={() => router.push(`/workflow/${item.workflowId}`)}
+                          >
+                            View Details
+                          </Button>
                           <CopyButton workflowId={item.workflowId} />
                           <Button
-                            size="sm"
+                            variant="outline"
+                            size={'default'}
                             onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
-                            className="bg-blue-600 hover:bg-blue-700"
+                           
                           >
                             <Download className="w-4 h-4 mr-2" />
                             Download ZIP
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => router.push(`/workflow/${item.workflowId}`)}
-                            className="cursor-pointer"
-                          >
-                            View Details
-                          </Button>
+
                         </div>
                       </div>
                     ))}
@@ -407,10 +407,10 @@ function CheckoutSuccessContent() {
 
               {order.packItems && order.packItems.length > 0 && (
                 <div className="mt-8">
-                  <h3 className="text-lg font-semibold mb-4">Your Packs</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-[#EDEFF7] font-aeonikpro">Your Packs</h3>
                   <div className="space-y-4">
                     {order.packItems.map((packItem) => (
-                      <div key={packItem.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                      <div key={packItem.id} className="flex items-center justify-between p-4 bg-[#1E1E24] border border-[#9DA2B3]/25 rounded-lg">
                         <div className="flex items-center space-x-4">
                           {packItem.pack.heroImageUrl ? (
                             <img
@@ -424,14 +424,14 @@ function CheckoutSuccessContent() {
                             </div>
                           )}
                           <div>
-                            <h4 className="font-medium">{packItem.pack.title}</h4>
-                            <p className="text-sm text-muted-foreground">
+                            <h4 className="font-medium text-[#EDEFF7] font-aeonikpro">{packItem.pack.title}</h4>
+                            <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                               by{' '}
                               {packItem.pack.seller?.sellerProfile?.storeName ||
                                 packItem.pack.seller?.displayName ||
                                 'Unknown Seller'}
                             </p>
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-green-400">
                               {formatPrice(packItem.unitPriceCents, order.currency)}
                             </p>
                           </div>
@@ -463,41 +463,41 @@ function CheckoutSuccessContent() {
           </Card>
 
           {/* Next Steps */}
-          <Card>
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
             <CardHeader>
-              <CardTitle>What's Next?</CardTitle>
+              <CardTitle className="text-[#EDEFF7] font-aeonikpro">What's Next?</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-sm font-medium text-blue-600">1</span>
+                  <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-sm font-medium text-blue-400">1</span>
                   </div>
                   <div>
-                    <p className="font-medium">Download your workflows</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-medium text-[#EDEFF7] font-aeonikpro">Download your workflows</p>
+                    <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                       Click the download buttons above to get your workflow files.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-sm font-medium text-blue-600">2</span>
+                  <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-sm font-medium text-blue-400">2</span>
                   </div>
                   <div>
-                    <p className="font-medium">Import to n8n</p>
-                    <p className="text-sm text-muted-foreground">
-                      Open n8n and import the downloaded workflow files to start using them.
+                    <p className="font-medium text-[#EDEFF7] font-aeonikpro">Import to your workflow platform</p>
+                    <p className="text-sm text-[#9DA2B3] font-aeonikpro">
+                      Open your workflow platform and import the downloaded / copied workflow files to start using them.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-sm font-medium text-blue-600">3</span>
+                  <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-sm font-medium text-blue-400">3</span>
                   </div>
                   <div>
-                    <p className="font-medium">Need help?</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-medium text-[#EDEFF7] font-aeonikpro">Need help?</p>
+                    <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                       Check the workflow documentation or contact the creator for support.
                     </p>
                   </div>
@@ -527,10 +527,10 @@ export default function CheckoutSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-background pt-20 md:pt-24 flex items-center justify-center">
+        <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#EDEFF7] mx-auto mb-4"></div>
+            <p className="text-[#9DA2B3] font-aeonikpro">Loading...</p>
           </div>
         </div>
       }

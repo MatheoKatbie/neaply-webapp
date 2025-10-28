@@ -131,32 +131,32 @@ function CheckoutForm({ cartId, totalAmount, onSuccess, onError }: MultiVendorCh
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
+      <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-[#EDEFF7] font-aeonikpro">
             <CreditCard className="h-5 w-5" />
             Payment Information
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Card Details</label>
-            <div className="border border-[#9DA2B3]/25 focus-within:border-[#9DA2B3]/50 rounded-md p-3">
+            <label className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Card Details</label>
+            <div className="border border-[#9DA2B3]/25 focus-within:border-[#9DA2B3]/50 rounded-md p-3 bg-[#1E1E24]">
               <CardElement
               className=' border-0 outline-none text-primary-foreground'
                 options={{
                   
                   style: {
                     base: {
-                      iconColor: 'white',
+                      iconColor: '#EDEFF7',
                       fontSize: '16px',
-                      color: 'white',
+                      color: '#EDEFF7',
                       '::placeholder': {
-                        color: 'text-muted-foreground',
+                        color: '#9DA2B3',
                       },
                     },
                     invalid: {
-                      color: 'destructive-foreground',
+                      color: '#EF4444',
                     },
                   },
                 }}
@@ -164,10 +164,10 @@ function CheckoutForm({ cartId, totalAmount, onSuccess, onError }: MultiVendorCh
             </div>
           </div>
 
-          <div className="bg-[#1E1E24] p-4 rounded-md">
+          <div className="bg-[#1E1E24] border border-[#9DA2B3]/25 p-4 rounded-md">
             <div className="flex justify-between items-center">
-              <span className="font-medium">Total Amount:</span>
-              <span className="text-lg font-bold">{formatPrice(totalAmount)}</span>
+              <span className="font-medium text-[#EDEFF7] font-aeonikpro">Total Amount:</span>
+              <span className="text-lg font-bold text-green-400">{formatPrice(totalAmount)}</span>
             </div>
           </div>
 
