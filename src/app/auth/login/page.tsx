@@ -101,8 +101,9 @@ function LoginContent() {
         return
       }
 
-      // If no 2FA required, redirect
-      router.push('/')
+      // If no 2FA required, redirect to the original page or home
+      const redirectTo = searchParams.get('redirectTo') || '/'
+      router.push(redirectTo)
     } catch (err) {
       console.error('Login error:', err)
       setLocalError('An error occurred during login')
@@ -157,8 +158,9 @@ function LoginContent() {
           description: 'Two-factor authentication verified successfully.',
         })
         
-        // Force a reload to refresh the auth state
-        window.location.href = '/'
+        // Redirect to the original page or home
+        const redirectTo = searchParams.get('redirectTo') || '/'
+        window.location.href = redirectTo
       } else {
         const error = await response.json()
         toast.error('Verification Failed', {

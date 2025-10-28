@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { ShoppingCart, Loader2, AlertCircle } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -27,35 +27,55 @@ export function PurchaseButton({
   children,
 }: PurchaseButtonProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const { user } = useAuth()
-  const { addToCart } = useCart()
+  const { addToCart, hasItem } = useCart()
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<{ text: string; type: 'error' } | null>(null)
+
+  const isInCart = hasItem(workflowId)
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
+
+  const showMessage = (text: string, type: 'error' = 'error') => {
+    setMessage({ text, type })
+  }
 
   const handlePurchase = async () => {
     if (disabled || loading) return
 
     if (!user) {
-      alert('Please login to add items to cart')
+      // Rediriger vers la page de login avec le chemin actuel
+      router.push(`/auth/login?redirectTo=${encodeURIComponent(pathname)}`)
       return
     }
 
     try {
       setLoading(true)
 
-      // Add to cart
-      const success = await addToCart({
+      // Si l'article est déjà dans le panier, rediriger directement vers le panier
+      if (isInCart) {
+        router.push('/cart')
+        return
+      }
+
+      // Sinon, ajouter au panier puis rediriger
+      await addToCart({
         workflowId,
       })
 
-      if (success) {
-        // Redirect to cart page
-        router.push('/cart')
-      } else {
-        throw new Error('Failed to add item to cart')
-      }
+      // Rediriger vers le panier
+      router.push('/cart')
     } catch (error) {
       console.error('Error adding to cart:', error)
-      alert(error instanceof Error ? error.message : 'Failed to add item to cart')
+      showMessage(error instanceof Error ? error.message : 'Failed to add item to cart', 'error')
     } finally {
       setLoading(false)
     }
@@ -68,6 +88,20 @@ export function PurchaseButton({
     }).format(priceCents / 100)
   }
 
+  // Afficher le message d'erreur dans le bouton
+  if (message) {
+    return (
+      <Button
+        size={size}
+        className={`${className} transition-all duration-300 bg-red-500/30 hover:bg-red-600 text-white border-red-500`}
+        disabled
+      >
+        <AlertCircle className="w-4 h-4 mr-2" />
+        {message.text}
+      </Button>
+    )
+  }
+
   return (
     <Button
       size={size}
@@ -76,7 +110,7 @@ export function PurchaseButton({
       disabled={disabled || loading}
     >
       {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : ''}
-      {children || `Add to Cart - ${formatPrice(price, currency)}`}
+      {children || `Buy Now - ${formatPrice(price, currency)}`}
     </Button>
   )
 }
