@@ -128,7 +128,7 @@ export default function OrdersHistoryPage() {
               <div className="h-8 bg-[#40424D]/40 rounded w-1/4 mb-6"></div>
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-32 bg-muted rounded-lg"></div>
+                  <div key={i} className="h-32 bg-[#40424D]/40 rounded-lg"></div>
                 ))}
               </div>
             </div>
