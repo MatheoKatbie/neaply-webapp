@@ -302,7 +302,6 @@ export function WorkflowForm({
         <div className="flex items-center gap-4">
           <Button
             type="button"
-            variant="outline"
             onClick={goToPreviousTab}
             disabled={currentTabIndex === 0}
             className="flex items-center gap-2"
@@ -314,6 +313,7 @@ export function WorkflowForm({
           {currentTabIndex === tabs.length - 1 ? (
             <Button
               type="submit"
+              variant="outline"
               disabled={isSubmitting}
               onClick={() => {
                 setShowErrors(true)
@@ -326,7 +326,7 @@ export function WorkflowForm({
               {isSubmitting ? 'Saving...' : editingWorkflow ? 'Update Workflow' : 'Create Workflow'}
             </Button>
           ) : (
-            <Button type="button" variant="outline" onClick={goToNextTab} className="flex items-center gap-2">
+            <Button type="button" onClick={goToNextTab} className="flex items-center gap-2">
               Next
               <ChevronRight className="h-4 w-4" />
             </Button>

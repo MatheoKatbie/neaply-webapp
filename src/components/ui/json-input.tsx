@@ -153,7 +153,7 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
                 value={textContent}
                 onChange={(e) => handleTextChange(e.target.value)}
                 placeholder={placeholder || 'Paste your n8n workflow JSON here...'}
-                className="w-full h-64 font-mono text-sm border rounded-md p-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full h-64 font-mono text-sm border border-[#9DA2B3]/25 bg-[#1E1E24] text-[#EDEFF7] placeholder-[#9DA2B3] rounded-md p-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                 spellCheck={false}
               />
 
@@ -184,7 +184,7 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
             <CardContent>
               <div
                 className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                  dragOver ? 'border-blue-500 bg-blue-50' : 'border-border hover:border-gray-400'
+                  dragOver ? 'border-blue-500 bg-blue-500/10' : 'border-[#9DA2B3]/25 hover:border-[#9DA2B3]/50 bg-[#1E1E24]'
                 }`}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -216,10 +216,10 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-medium">Click to upload</span> or drag and drop
+                  <p className="text-sm text-[#9DA2B3] font-aeonikpro">
+                    <span className="font-medium text-[#EDEFF7]">Click to upload</span> or drag and drop
                   </p>
-                  <p className="text-xs text-muted-foreground">JSON files only</p>
+                  <p className="text-xs text-[#9DA2B3] font-aeonikpro">JSON files only</p>
                 </div>
               </div>
             </CardContent>

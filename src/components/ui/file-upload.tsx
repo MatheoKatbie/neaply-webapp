@@ -206,7 +206,7 @@ export function FileUpload({
           {
             'border-primary': isDragOver && !disabled,
             'border-border hover:border-gray-400/20': !isDragOver && !disabled && !hasFile,
-            'border-red-300 bg-red-50': hasError && required && !isValid,
+            'border-red-500/50 bg-red-500/10': hasError && required && !isValid,
             'border-border': disabled || hasFile,
             'cursor-not-allowed opacity-50': disabled,
           }

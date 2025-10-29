@@ -152,9 +152,9 @@ export function ImageUpload({
           getAspectRatioClass(),
           'min-h-[120px] flex items-center justify-center cursor-pointer',
           {
-            'border-primary bg-primary/5': isDragOver && !disabled,
-            'border-border hover:border-gray-400': !isDragOver && !disabled && !value,
-            'border-border': disabled,
+            'border-blue-500 bg-blue-500/10': isDragOver && !disabled,
+            'border-[#9DA2B3]/25 hover:border-[#9DA2B3]/50 bg-[#1E1E24]': !isDragOver && !disabled && !value,
+            'border-[#9DA2B3]/25 bg-[#1E1E24]': disabled,
             'cursor-not-allowed opacity-50': disabled,
           }
         )}
@@ -205,8 +205,8 @@ export function ImageUpload({
           <div className="text-center p-6">
             <ImageIcon className="mx-auto h-12 w-12 text-[#9DA2B3] mb-4" />
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">{placeholder}</p>
-              <p className="text-xs text-muted-foreground">JPG, PNG, GIF, WebP up to {maxSizeMB}MB</p>
+              <p className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">{placeholder}</p>
+              <p className="text-xs text-[#9DA2B3] font-aeonikpro">JPG, PNG, GIF, WebP up to {maxSizeMB}MB</p>
             </div>
           </div>
         )}
@@ -221,9 +221,9 @@ export function ImageUpload({
         />
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p className="text-sm text-red-400 font-aeonikpro">{error}</p>}
 
-      {uploading && <div className="text-sm text-muted-foreground">Uploading image...</div>}
+      {uploading && <div className="text-sm text-[#9DA2B3] font-aeonikpro">Uploading image...</div>}
     </div>
   )
 }
