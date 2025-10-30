@@ -14,7 +14,7 @@ import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
 import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
 import { downloadWorkflowAsZip } from '@/lib/download-utils'
-import { ArrowLeft, BarChart3, CheckCircle, Download, Eye, FileText, ShoppingBag, Star, Users, Zap } from 'lucide-react'
+import { ArrowLeft, BarChart3, CheckCircle, Download, Eye, FileText, FileWarning, ShoppingBag, Star, Users, Zap } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
@@ -293,7 +293,7 @@ export default function WorkflowDetailPage() {
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ backgroundColor: 'rgba(64, 66, 77, 0.5)' }}
             >
-              <Zap className="w-8 h-8" style={{ color: '#9DA2B3' }} />
+              <FileWarning className="w-8 h-8" style={{ color: '#9DA2B3' }} />
             </div>
             <h3 className="text-lg font-aeonikpro font-semibold mb-2" style={{ color: '#EDEFF7' }}>
               {error || 'Workflow not found'}
@@ -303,7 +303,7 @@ export default function WorkflowDetailPage() {
             </p>
             <button
               onClick={() => router.push('/')}
-              className="font-aeonikpro bg-white text-black hover:bg-[#40424D]/30 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer inline-flex items-center gap-2 cursor-pointer"
+              className="font-aeonikpro bg-white text-black hover:bg-white/80 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Marketplace
