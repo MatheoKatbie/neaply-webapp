@@ -38,7 +38,7 @@ export default function HelpPage() {
         },
         {
           q: 'How do I create an account?',
-          a: 'Click on the "Sign Up" button in the top right corner of the page. You can sign up using your email, Google account, or GitHub account. Once registered, you can start browsing and purchasing workflows immediately.',
+          a: 'Click on the "Get started" button in the top right corner of the page. You can sign up using your email, Google account, or GitHub account. Once registered, you can start browsing and purchasing workflows immediately.',
         },
         {
           q: 'Do I need an account to browse workflows?',
@@ -64,7 +64,7 @@ export default function HelpPage() {
         },
         {
           q: 'How do I download my purchased workflows?',
-          a: 'After purchase, you can download your workflows from the "Orders" page in your dashboard. You\'ll receive both a JSON file and a ZIP archive containing all workflow assets.',
+          a: 'After purchase, you can download your workflows from the "Orders" page in your dashboard. You\'ll be able to download a ZIP file containing your workflow and, eventually, its documentation if the seller provided one.',
         },
       ],
     },
