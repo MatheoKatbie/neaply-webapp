@@ -36,10 +36,10 @@ export function AdminSidebar() {
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    'flex items-start px-4 py-3 rounded-lg transition-all duration-200 group',
+                                    'flex items-start px-4 py-3 rounded-lg transition-all duration-200 group outline-none font-aeonikpro',
                                     isActive
                                         ? 'bg-blue-500/20 border border-blue-500/50 shadow-lg shadow-blue-500/10'
-                                        : 'text-[#9DA2B3] hover:bg-[#40424D]/30 hover:border hover:border-[#9DA2B3]/30'
+                                        : 'text-[#9DA2B3] hover:bg-[#40424D]/30  '
                                 )}
                             >
                                 <div className="flex-1">

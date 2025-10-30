@@ -226,21 +226,21 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <h4 className="font-medium mb-1">Reporter</h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-primary-foreground/70">
                   {report.reporter?.displayName || 'Unknown'}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-primary-foreground/70">
                   {report.reporter?.email || 'No email'}
                 </p>
               </div>
               <div>
                 <h4 className="font-medium mb-1">Reported {entityType}</h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-primary-foreground/70">
                   {entityName || 'Unknown'}
                 </p>
                 {canRestrictSeller && (
                   <div className="text-xs space-y-1">
-                    <p className="text-muted-foreground">
+                    <p className="text-primary-foreground/70">
                       <span className="font-medium">Seller:</span> {sellerName}
                     </p>
                     <p className="flex items-center space-x-1">
@@ -264,20 +264,20 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
             
             <div>
               <h4 className="font-medium mb-1">Reason</h4>
-              <p className="text-sm text-muted-foreground">{report.reason}</p>
+              <p className="text-sm text-primary-foreground/70">{report.reason}</p>
             </div>
             
             {report.description && (
               <div>
                 <h4 className="font-medium mb-1">Description</h4>
-                <p className="text-sm text-muted-foreground">{report.description}</p>
+                <p className="text-sm text-primary-foreground/70">{report.description}</p>
               </div>
             )}
             
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="font-medium">Reported:</span>
-                <p className="text-muted-foreground">{formatDate(report.createdAt)}</p>
+                <p className="text-primary-foreground/70">{formatDate(report.createdAt)}</p>
               </div>
               {report.resolvedAt && (
                 <div>
@@ -305,7 +305,7 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button size="sm">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -365,7 +365,7 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
       {report.status === 'reviewing' && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button size="sm">
               <AlertTriangle className="h-4 w-4 mr-1" />
               Actions
             </Button>
@@ -425,7 +425,7 @@ export function ReportActionButtons({ report, onStatusChange }: ReportActionButt
       {(report.status === 'resolved' || report.status === 'dismissed') && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button size="sm">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

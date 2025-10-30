@@ -56,21 +56,21 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
     const getRoleBadge = () => {
         if (user.isAdmin) {
             return (
-                <Badge variant="default" className="bg-purple-100 text-purple-800">
+                <Badge className="bg-purple-500/20 text-purple-300 border border-purple-500/30">
                     <Crown className="h-3 w-3 mr-1" />
                     Admin
                 </Badge>
             )
         } else if (user.isSeller) {
             return (
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <Badge className="bg-green-500/20 text-green-300 border border-green-500/30">
                     <Store className="h-3 w-3 mr-1" />
                     Creator
                 </Badge>
             )
         } else {
             return (
-                <Badge variant="outline">
+                <Badge variant="outline" className="bg-[#40424D]/30 text-[#9DA2B3]">
                     <User className="h-3 w-3 mr-1" />
                     User
                 </Badge>
@@ -82,13 +82,13 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
         if (!user.sellerProfile?.status) return null
 
         const statusColors = {
-            active: 'bg-green-100 text-green-800',
-            suspended: 'bg-red-100 text-red-800',
-            pending: 'bg-yellow-100 text-yellow-800'
+            active: 'bg-green-500/20 text-green-300 border border-green-500/30',
+            suspended: 'bg-red-500/20 text-red-300 border border-red-500/30',
+            pending: 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
         }
 
         return (
-            <Badge variant="outline" className={statusColors[user.sellerProfile.status as keyof typeof statusColors]}>
+            <Badge className={statusColors[user.sellerProfile.status as keyof typeof statusColors]}>
                 {user.sellerProfile.status.charAt(0).toUpperCase() + user.sellerProfile.status.slice(1)}
             </Badge>
         )
@@ -135,15 +135,15 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
                 <div className="space-y-6">
                     {/* Basic Information */}
                     <div>
-                        <h3 className="text-lg font-medium mb-3">Basic Information</h3>
+                        <h3 className="text-lg font-medium mb-3 text-[#EDEFF7] font-aeonikpro">Basic Information</h3>
                         <div className="space-y-3">
                             <div className="flex items-center space-x-3">
-                                <Mail className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">{user.email}</span>
+                                <Mail className="h-4 w-4 text-[#9DA2B3]" />
+                                <span className="text-sm text-[#EDEFF7]">{user.email}</span>
                             </div>
                             <div className="flex items-center space-x-3">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">Joined {formatDate(user.createdAt)}</span>
+                                <Calendar className="h-4 w-4 text-[#9DA2B3]" />
+                                <span className="text-sm text-[#EDEFF7]">Joined {formatDate(user.createdAt)}</span>
                             </div>
                         </div>
                     </div>
@@ -152,19 +152,19 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
 
                     {/* Statistics */}
                     <div>
-                        <h3 className="text-lg font-medium mb-3">Statistics</h3>
+                        <h3 className="text-lg font-medium mb-3 text-[#EDEFF7] font-aeonikpro">Statistics</h3>
                         <div className="grid grid-cols-3 gap-4">
-                            <div className="text-center p-3 bg-muted rounded-lg">
-                                <div className="text-2xl font-bold text-blue-600">{user._count.workflows}</div>
-                                <div className="text-sm text-muted-foreground">Workflows</div>
+                            <div className="text-center p-3 bg-[rgba(64,66,77,0.25)] border border-[#9DA2B3]/25 rounded-lg">
+                                <div className="text-2xl font-bold text-blue-400">{user._count.workflows}</div>
+                                <div className="text-sm text-[#9DA2B3]">Workflows</div>
                             </div>
-                            <div className="text-center p-3 bg-muted rounded-lg">
-                                <div className="text-2xl font-bold text-green-600">{user._count.orders}</div>
-                                <div className="text-sm text-muted-foreground">Orders</div>
+                            <div className="text-center p-3 bg-[rgba(64,66,77,0.25)] border border-[#9DA2B3]/25 rounded-lg">
+                                <div className="text-2xl font-bold text-green-400">{user._count.orders}</div>
+                                <div className="text-sm text-[#9DA2B3]">Orders</div>
                             </div>
-                            <div className="text-center p-3 bg-muted rounded-lg">
-                                <div className="text-2xl font-bold text-purple-600">{user._count.reviews}</div>
-                                <div className="text-sm text-muted-foreground">Reviews</div>
+                            <div className="text-center p-3 bg-[rgba(64,66,77,0.25)] border border-[#9DA2B3]/25 rounded-lg">
+                                <div className="text-2xl font-bold text-purple-400">{user._count.reviews}</div>
+                                <div className="text-sm text-[#9DA2B3]">Reviews</div>
                             </div>
                         </div>
                     </div>
@@ -174,27 +174,27 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
                         <>
                             <Separator />
                             <div>
-                                <h3 className="text-lg font-medium mb-3">Creator Profile</h3>
+                                <h3 className="text-lg font-medium mb-3 text-[#EDEFF7] font-aeonikpro">Creator Profile</h3>
                                 <div className="space-y-3">
                                     {user.sellerProfile.storeName && (
                                         <div className="flex items-center space-x-3">
-                                            <Store className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-sm font-medium">{user.sellerProfile.storeName}</span>
+                                            <Store className="h-4 w-4 text-[#9DA2B3]" />
+                                            <span className="text-sm font-medium text-[#EDEFF7]">{user.sellerProfile.storeName}</span>
                                         </div>
                                     )}
                                     {user.sellerProfile.bio && (
                                         <div>
-                                            <p className="text-sm text-muted-foreground">{user.sellerProfile.bio}</p>
+                                            <p className="text-sm text-[#9DA2B3]">{user.sellerProfile.bio}</p>
                                         </div>
                                     )}
                                     {user.sellerProfile.websiteUrl && (
                                         <div className="flex items-center space-x-3">
-                                            <Globe className="h-4 w-4 text-muted-foreground" />
+                                            <Globe className="h-4 w-4 text-[#9DA2B3]" />
                                             <a
                                                 href={user.sellerProfile.websiteUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="text-sm text-blue-600 hover:underline"
+                                                className="text-sm text-blue-400 hover:underline"
                                             >
                                                 {user.sellerProfile.websiteUrl}
                                             </a>
@@ -202,8 +202,8 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
                                     )}
                                     {user.sellerProfile.phoneNumber && (
                                         <div className="flex items-center space-x-3">
-                                            <Phone className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-sm">
+                                            <Phone className="h-4 w-4 text-[#9DA2B3]" />
+                                            <span className="text-sm text-[#EDEFF7]">
                                                 {user.sellerProfile.countryCode && `+${user.sellerProfile.countryCode} `}
                                                 {user.sellerProfile.phoneNumber}
                                             </span>
@@ -211,8 +211,8 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
                                     )}
                                     {user.sellerProfile.countryCode && !user.sellerProfile.phoneNumber && (
                                         <div className="flex items-center space-x-3">
-                                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-sm">Country: {user.sellerProfile.countryCode}</span>
+                                            <MapPin className="h-4 w-4 text-[#9DA2B3]" />
+                                            <span className="text-sm text-[#EDEFF7]">Country: {user.sellerProfile.countryCode}</span>
                                         </div>
                                     )}
                                 </div>
@@ -222,16 +222,16 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
 
                     {/* Delete Confirmation Alert */}
                     {showDeleteConfirmation && (
-                        <Alert className="border-red-200 bg-red-50">
-                            <AlertTriangle className="h-4 w-4 text-red-600" />
-                            <AlertDescription className="text-red-800">
+                        <Alert className="border-red-500/50 bg-red-500/10">
+                            <AlertTriangle className="h-4 w-4 text-red-400" />
+                            <AlertDescription className="text-[#EDEFF7]">
                                 <div className="space-y-3">
-                                    <p className="font-medium">Delete User Account</p>
+                                    <p className="font-medium text-red-300">Delete User Account</p>
                                     <p className="text-sm">
                                         Are you sure you want to delete the account for <strong>{user.displayName}</strong>?
                                         This action cannot be undone and will permanently remove all user data including:
                                     </p>
-                                    <ul className="list-disc list-inside text-sm space-y-1">
+                                    <ul className="list-disc list-inside text-sm space-y-1 text-[#9DA2B3]">
                                         <li>User profile and settings</li>
                                         <li>All workflows ({user._count.workflows})</li>
                                         <li>All orders ({user._count.orders})</li>
@@ -261,7 +261,7 @@ export function UserDetailsModal({ user, isOpen, onClose, onEdit, onDelete }: Us
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-4 border-t">
-                    <Button variant="outline" onClick={onClose}>
+                    <Button onClick={onClose}>
                         <X className="h-4 w-4 mr-1" />
                         Close
                     </Button>

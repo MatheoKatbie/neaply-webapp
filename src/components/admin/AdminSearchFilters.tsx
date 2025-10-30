@@ -126,16 +126,16 @@ export function AdminSearchFilters({
     return (
         <div className="space-y-4">
             {/* Search and Filters Row */}
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-3">
                 {/* Search Input */}
                 <div className="flex-1 min-w-[200px]">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9DA2B3]" />
                         <Input
                             placeholder={searchPlaceholder}
                             value={searchQuery}
                             onChange={(e) => handleSearch(e.target.value)}
-                            className="pl-10"
+                            className="pl-10 py-5"
                         />
                     </div>
                 </div>
@@ -165,28 +165,27 @@ export function AdminSearchFilters({
                 {dateRangeFilter && (
                     <div className="flex gap-2">
                         <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9DA2B3] pointer-events-none" />
                             <Input
                                 type="date"
                                 value={dateFrom}
                                 onChange={(e) => setDateFrom(e.target.value)}
-                                className="pl-10 w-40"
+                                className="pl-10 py-4 w-40 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
                                 placeholder="From"
                             />
                         </div>
                         <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9DA2B3] pointer-events-none" />
                             <Input
                                 type="date"
                                 value={dateTo}
                                 onChange={(e) => setDateTo(e.target.value)}
-                                className="pl-10 w-40"
+                                className="pl-10 py-4 w-40 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
                                 placeholder="To"
                             />
                         </div>
                         <Button
                             variant="outline"
-                            size="sm"
                             onClick={handleDateRangeChange}
                         >
                             Apply
@@ -198,7 +197,6 @@ export function AdminSearchFilters({
                 {hasActiveFilters && (
                     <Button
                         variant="outline"
-                        size="sm"
                         onClick={clearAllFilters}
                     >
                         Clear All

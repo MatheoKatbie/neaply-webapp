@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { prisma } from '@/lib/prisma'
-import { CheckCircle, Clock, DollarSign, ShoppingCart, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, DollarSign, Eye, ShoppingCart, XCircle } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 
 async function getOrders(
@@ -150,40 +150,40 @@ export default async function AdminOrders({
         switch (status) {
             case 'paid':
                 return (
-                    <Badge variant="default" className="bg-green-100 text-green-800">
+                    <Badge className="bg-green-500/20 text-green-300 border border-green-500/30">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Paid
                     </Badge>
                 )
             case 'pending':
                 return (
-                    <Badge variant="outline">
+                    <Badge className="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
                         <Clock className="h-3 w-3 mr-1" />
                         Pending
                     </Badge>
                 )
             case 'failed':
                 return (
-                    <Badge variant="destructive">
+                    <Badge className="bg-red-500/20 text-red-300 border border-red-500/30">
                         <XCircle className="h-3 w-3 mr-1" />
                         Failed
                     </Badge>
                 )
             case 'refunded':
                 return (
-                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                    <Badge className="bg-orange-500/20 text-orange-300 border border-orange-500/30">
                         Refunded
                     </Badge>
                 )
             case 'cancelled':
                 return (
-                    <Badge variant="secondary" className="bg-[#40424D]/30 text-gray-800">
+                    <Badge className="bg-[#40424D]/30 text-[#9DA2B3] border border-[#9DA2B3]/30">
                         Cancelled
                     </Badge>
                 )
             default:
                 return (
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="bg-[#40424D]/30 text-[#9DA2B3]">
                         {status}
                     </Badge>
                 )
@@ -295,7 +295,7 @@ export default async function AdminOrders({
                                         }}
                                         trigger={
                                             <Button variant="outline" size="sm" className="text-xs">
-                                                <DollarSign className="h-4 w-4 mr-1" />
+                                                <Eye className="h-4 w-4 mr-1" />
                                                 Details
                                             </Button>
                                         }

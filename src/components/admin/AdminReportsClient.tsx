@@ -85,60 +85,60 @@ export function AdminReportsClient({ initialReports, totalCount }: AdminReportsC
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return <Badge variant="destructive">Open</Badge>
+        return <Badge className="bg-red-500/20 text-red-300 border border-red-500/30">Open</Badge>
       case 'reviewing':
-        return <Badge variant="secondary">Reviewing</Badge>
+        return <Badge className="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">Reviewing</Badge>
       case 'resolved':
-        return <Badge variant="default">Resolved</Badge>
+        return <Badge className="bg-green-500/20 text-green-300 border border-green-500/30">Resolved</Badge>
       case 'dismissed':
-        return <Badge variant="outline">Dismissed</Badge>
+        return <Badge className="bg-[#40424D]/30 text-[#9DA2B3] border border-[#9DA2B3]/30">Dismissed</Badge>
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline" className="bg-[#40424D]/30 text-[#9DA2B3]">{status}</Badge>
     }
   }
 
   return (
-    <Card>
+    <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Flag className="h-5 w-5" />
+        <CardTitle className="flex items-center space-x-2 text-2xl">
+          <Flag className="h-6 w-6 text-red-400" />
           <span>All Reports ({reports.length})</span>
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-[#9DA2B3]/70 text-base">
           Review and take action on user-submitted reports
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {reports.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-[#9DA2B3]">
               No reports found.
             </div>
           ) : (
             reports.map((report) => (
               <div
                 key={report.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted"
+                className="flex items-center justify-between p-4 border border-[#9DA2B3]/20 rounded-lg hover:border-[#9DA2B3]/40 hover:bg-[#40424D]/20 transition-all duration-200"
               >
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center space-x-2">
-                    <h3 className="text-lg font-medium">Report #{report.id.slice(0, 8)}</h3>
+                    <h3 className="text-base font-semibold text-[#EDEFF7] font-aeonikpro">Report #{report.id.slice(0, 8)}</h3>
                     {getStatusBadge(report.status)}
                   </div>
 
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span>Reporter: {report.reporter?.displayName || 'Unknown'}</span>
+                  <div className="flex items-center space-x-4 text-sm text-[#9DA2B3] flex-wrap">
+                    <span>Reporter: <span className="text-[#EDEFF7]">{report.reporter?.displayName || 'Unknown'}</span></span>
                     <span>•</span>
-                    <span>{report.reporter?.email || 'No email'}</span>
+                    <span className="text-[#9DA2B3]/70">{report.reporter?.email || 'No email'}</span>
                     <span>•</span>
                     <span className="font-medium">Type: {report.reason}</span>
                   </div>
 
-                  <div className="text-sm text-muted-foreground">
-                    <span className="font-medium">
+                  <div className="text-sm text-[#9DA2B3]">
+                    <span className="font-medium text-[#EDEFF7]">
                       {report.workflowId ? 'Workflow' : 'Store'}: 
                     </span>
-                    <span className="ml-1">
+                    <span className="ml-1 text-[#EDEFF7]">
                       {report.workflowId 
                         ? report.workflow?.title || 'Unknown workflow'
                         : report.store?.storeName || 'Unknown store'
@@ -153,13 +153,13 @@ export function AdminReportsClient({ initialReports, totalCount }: AdminReportsC
                   </div>
 
                   {report.description && (
-                    <div className="text-sm text-muted-foreground">
-                      <span className="font-medium">Description: </span>
+                    <div className="text-sm text-[#9DA2B3]">
+                      <span className="font-medium text-[#EDEFF7]">Description: </span>
                       <span>{report.description}</span>
                     </div>
                   )}
 
-                  <div className="flex items-center space-x-4 text-xs text-[#9DA2B3]">
+                  <div className="flex items-center space-x-4 text-xs text-[#9DA2B3]/60">
                     <span>Reported: {formatDate(report.createdAt)}</span>
                     {report.status === 'resolved' && report.resolvedAt && (
                       <>
@@ -170,7 +170,7 @@ export function AdminReportsClient({ initialReports, totalCount }: AdminReportsC
                   </div>
                 </div>
 
-                <div className="ml-4">
+                <div className="ml-4 flex-shrink-0">
                   <ReportActionButtons 
                     report={report} 
                     onStatusChange={handleStatusChange}

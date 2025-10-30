@@ -58,7 +58,7 @@
   --popover-foreground: oklch(0.18 0.005 240);
 
   /* Primary - Dark aesthetic gray for actions and highlights */
-  --primary: oklch(0.25 0.01 240); /* Dark aesthetic gray */
+  --primary: oklch(0.25 0.0078 240); /* Dark aesthetic gray */
   --primary-foreground: oklch(0.99 0.001 0);
 
   /* Secondary - Neutral gray for secondary actions */

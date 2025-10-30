@@ -30,7 +30,7 @@ export function WorkflowStatusForm({ workflowId, defaultStatus, action }: Workfl
           <SelectItem value="pack_only">Pack Only</SelectItem>
         </SelectContent>
       </Select>
-      <Button variant="outline" size="sm">
+      <Button variant="outline">
         Apply
       </Button>
     </form>

@@ -204,7 +204,7 @@ export default function AdminUsers({ users, totalCount, totalPages, currentPage 
                                                     </>
                                                 )}
                                                 {!user.isAdmin && !user.isSeller && (
-                                                    <Badge variant="outline" className="bg-[#40424D]/30">
+                                                    <Badge variant="outline" className="bg-[#40424D]/30 text-[#9DA2B3] border border-[#9DA2B3]/30">
                                                         <User className="h-3 w-3 mr-1" />
                                                         User
                                                     </Badge>

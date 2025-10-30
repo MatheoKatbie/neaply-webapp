@@ -151,34 +151,34 @@ export default async function AdminWorkflows({
     switch (status) {
       case 'published':
         return (
-          <Badge variant="default" className="bg-green-100 text-green-800">
+          <Badge className="bg-green-500/20 text-green-300 border border-green-500/30">
             <CheckCircle className="h-3 w-3 mr-1" />
             Published
           </Badge>
         )
       case 'draft':
         return (
-          <Badge variant="outline">
+          <Badge className="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">
             <Clock className="h-3 w-3 mr-1" />
             Draft
           </Badge>
         )
       case 'disabled':
         return (
-          <Badge variant="destructive">
+          <Badge className="bg-red-500/20 text-red-300 border border-red-500/30">
             <XCircle className="h-3 w-3 mr-1" />
             Disabled
           </Badge>
         )
       case 'admin_disabled':
         return (
-          <Badge variant="destructive">
+          <Badge className="bg-red-500/20 text-red-300 border border-red-500/30">
             <XCircle className="h-3 w-3 mr-1" />
             Disabled by Admin
           </Badge>
         )
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline" className="bg-[#40424D]/30 text-[#9DA2B3]">{status}</Badge>
     }
   }
 
@@ -269,7 +269,7 @@ export default async function AdminWorkflows({
                 </div>
 
                 <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
-                  <Button asChild variant="outline" size="sm" className="text-xs">
+                  <Button asChild  className="text-xs">
                     <Link href={`/workflow/${workflow.id}`}>
                       <Eye className="h-4 w-4 mr-1" />
                       View
