@@ -33,7 +33,7 @@ export function SellerDashboardSkeleton() {
 
                 {/* Tabs skeleton */}
                 <div className="bg-[rgba(64,66,77,0.25)] rounded-lg border border-[#9DA2B3]/25">
-                    <div className="border-b p-1">
+                    <div className="border-b border-[#9DA2B3]/25 p-1">
                         <div className="flex space-x-1">
                             {[1, 2, 3].map((i) => (
                                 <div key={i} className="h-10 bg-[#40424D]/40 rounded w-24 animate-pulse"></div>

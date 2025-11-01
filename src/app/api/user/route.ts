@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
       where: { id: user.id },
     })
 
+    // Get OAuth avatar from Supabase Auth metadata
+    const oauthAvatarUrl = user.user_metadata?.avatar_url
+
     if (!dbUser) {
       // Créer l'utilisateur s'il n'existe pas
       dbUser = await prisma.user.create({
@@ -27,16 +30,22 @@ export async function GET(request: NextRequest) {
           id: user.id,
           email: user.email!,
           displayName: user.user_metadata?.full_name || user.user_metadata?.name || user.email!.split('@')[0],
-          avatarUrl: user.user_metadata?.avatar_url,
+          avatarUrl: oauthAvatarUrl,
           passwordHash: null,
           isSeller: false,
           isAdmin: false,
         },
       })
+    } else if (oauthAvatarUrl && oauthAvatarUrl !== dbUser.avatarUrl) {
+      // Synchronize OAuth avatar to database if different
+      dbUser = await prisma.user.update({
+        where: { id: user.id },
+        data: { avatarUrl: oauthAvatarUrl },
+      })
     }
 
-    // Prioritize Supabase Auth metadata for avatar (more recent)
-    const avatarUrl = user.user_metadata?.avatar_url || dbUser.avatarUrl
+    // Prioritize Supabase Auth metadata for avatar (most up-to-date)
+    const avatarUrl = oauthAvatarUrl || dbUser.avatarUrl
 
     return NextResponse.json({
       id: dbUser.id,
