@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No 2FA setup found. Please start setup first.' }, { status: 400 })
     }
 
-    // Verify the TOTP code (strict verification - only current token)
+    // Verify the TOTP code with window of 2 (accepts tokens from ±1 time period)
     const secret = Secret.fromBase32(tempSecret)
     const totp = new TOTP({
       issuer: 'Neaply',
@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
       secret: secret,
     })
 
-    const currentToken = totp.generate()
-    const isValid = totpCode === currentToken
+    const delta = totp.validate({ token: totpCode, window: 2 })
+    const isValid = delta !== null
 
     if (!isValid) {
       return NextResponse.json({ error: 'Invalid TOTP code' }, { status: 400 })

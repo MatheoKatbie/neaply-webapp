@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '2FA secret not found' }, { status: 400 })
     }
 
-    // Verify the TOTP code (strict verification - only current token)
+    // Verify the TOTP code with window of 2 (accepts tokens from ±1 time period)
     const secret = Secret.fromBase32(totpSecret)
     const totp = new TOTP({
       issuer: 'Neaply',
@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
       secret: secret,
     })
 
-    const currentToken = totp.generate()
-    const isValid = totpCode === currentToken
+    const delta = totp.validate({ token: totpCode, window: 2 })
+    const isValid = delta !== null
 
     if (!isValid) {
       return NextResponse.json({ error: 'Invalid verification code' }, { status: 400 })
