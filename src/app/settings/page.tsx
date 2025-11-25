@@ -26,6 +26,8 @@ import {
   Camera,
   CheckCircle,
   Copy,
+  Github,
+  Info,
   Key,
   MapPin,
   Monitor,
@@ -59,6 +61,10 @@ export default function SettingsPage() {
   const { user, refreshUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
+
+  // Detect if user is using OAuth provider
+  const isOAuthUser = user?.authProvider && user.authProvider !== 'email'
+  const oauthProviderName = user?.authProvider === 'google' ? 'Google' : user?.authProvider === 'github' ? 'GitHub' : user?.authProvider === 'discord' ? 'Discord' : null
 
   // Profile state
   const [profile, setProfile] = useState<UserProfile>({
@@ -628,10 +634,10 @@ export default function SettingsPage() {
                 </Avatar>
                 <div className="flex-1">
                   <Button
-      
+
                     disabled={uploadingAvatar}
                     className="flex items-center gap-2"
-                    style={{borderColor: '#9DA2B3/25', color: '#EDEFF7'}}
+                    style={{ borderColor: '#9DA2B3/25', color: '#EDEFF7' }}
                     onClick={() => {
                       fileInputRef.current?.click()
                     }}
@@ -661,7 +667,7 @@ export default function SettingsPage() {
                   />
                   <p className="text-sm text-[#9DA2B3] mt-1 font-aeonikpro">JPG, PNG or GIF. Max size 2MB.</p>
                   <Button
-                    
+
                     size="sm"
                     className="text-xs mt-2"
                     onClick={async () => {
@@ -716,6 +722,102 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
+        </TabsContent>
+
+        {/* Security Tab */}
+        <TabsContent value="security" className="space-y-6">
+          {/* OAuth Provider Badge */}
+          {isOAuthUser && oauthProviderName && (
+            <Alert className="bg-blue-500/10 border-blue-500/50">
+              <Info className="h-4 w-4 text-blue-400" />
+              <AlertDescription className="text-blue-300 font-aeonikpro">
+                <div className="flex items-center gap-2">
+                  <span>You are signed in with {oauthProviderName}.</span>
+                  {user?.authProvider === 'github' && <Github className="h-4 w-4" />}
+                  {user?.authProvider === 'google' && (
+                    <svg className="h-4 w-4" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                  )}
+                </div>
+                <span className="block text-xs text-blue-200 mt-1">Password and 2FA settings are managed by your {oauthProviderName} account.</span>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
+            <CardHeader>
+              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Password</CardTitle>
+              <CardDescription className="text-[#9DA2B3] font-aeonikpro">
+                Change your password to keep your account secure.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!isOAuthUser && (
+                <Button onClick={() => setShowPasswordChangeModal(true)} className="flex items-center gap-2 font-aeonikpro">
+                  <Key className="h-4 w-4" />
+                  Change Password
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
+            <CardHeader>
+              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Two-Factor Authentication</CardTitle>
+              <CardDescription className="text-[#9DA2B3] font-aeonikpro">
+                Add an extra layer of security to your account with 2FA.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!isOAuthUser && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Shield className="h-5 w-5 text-[#9DA2B3]" />
+                      <span className="font-medium text-[#EDEFF7] font-aeonikpro">Two-Factor Authentication</span>
+                      {twoFA.enabled && (
+                        <Badge variant="default" className="flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" />
+                          Enabled
+                        </Badge>
+                      )}
+                    </div>
+                    <Switch checked={twoFA.enabled} onCheckedChange={handleToggle2FA} />
+                  </div>
+                  {twoFA.enabled && (
+                    <div className="space-y-3">
+                      <Alert className="bg-green-500/10 border-green-500/50">
+                        <CheckCircle color='#10B981' className="h-4 w-4 text-green-400" />
+                        <AlertDescription className="text-green-300 font-aeonikpro">
+                          Two-factor authentication is active on your account.
+                          {twoFA.enabledAt && (
+                            <span className="block text-xs text-green-200 mt-1 font-aeonikpro">
+                              Enabled on {new Date(twoFA.enabledAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowBackupCodesModal(true)}
+                        className="flex items-center gap-2 text-primary"
+                      >
+                        <Key className="h-4 w-4" />
+                        View Backup Codes
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Account Deletion Section */}
           <Card className="bg-[rgba(64,66,77,0.25)] border-red-500/25">
             <CardHeader>
@@ -746,69 +848,6 @@ export default function SettingsPage() {
                 <Trash2 className="h-4 w-4" />
                 Delete My Account
               </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Security Tab */}
-        <TabsContent value="security" className="space-y-6">
-          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
-            <CardHeader>
-              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Password</CardTitle>
-              <CardDescription className="text-[#9DA2B3] font-aeonikpro">Change your password to keep your account secure.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => setShowPasswordChangeModal(true)} className="flex items-centerfont-aeonikpro">
-                <Key className="h-4 w-4" />
-                Change Password
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
-            <CardHeader>
-              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Two-Factor Authentication</CardTitle>
-              <CardDescription className="text-[#9DA2B3] font-aeonikpro">Add an extra layer of security to your account with 2FA.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5 text-[#9DA2B3]" />
-                  <span className="font-medium text-[#EDEFF7] font-aeonikpro">Two-Factor Authentication</span>
-                  {twoFA.enabled && (
-                    <Badge variant="default" className="flex items-center gap-1">
-                      <CheckCircle className="h-3 w-3" />
-                      Enabled
-                    </Badge>
-                  )}
-                </div>
-                <Switch checked={twoFA.enabled} onCheckedChange={handleToggle2FA} />
-              </div>
-              {twoFA.enabled && (
-                <div className="space-y-3">
-                  <Alert className="bg-green-500/10 border-green-500/50">
-                    <CheckCircle color='#10B981' className="h-4 w-4 text-green-400" />
-                    <AlertDescription className="text-green-300 font-aeonikpro">
-                      Two-factor authentication is active on your account.
-                      {twoFA.enabledAt && (
-                        <span className="block text-xs text-green-200 mt-1 font-aeonikpro">
-                          Enabled on {new Date(twoFA.enabledAt).toLocaleDateString()}
-                        </span>
-                      )}
-                    </AlertDescription>
-                  </Alert>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowBackupCodesModal(true)}
-                    className="flex items-center gap-2 text-primary"
-                  >
-                    <Key className="h-4 w-4" />
-                    View Backup Codes
-                  </Button>
-                </div>
-              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -943,56 +982,58 @@ export default function SettingsPage() {
         </TabsContent>
 
         {/* Store Tab (only for sellers) */}
-        {user.isSeller && (
-          <TabsContent value="store" className="space-y-6">
-            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
-              <CardHeader>
-                <CardTitle className="text-[#EDEFF7] font-aeonikpro">Store Information</CardTitle>
-                <CardDescription className="text-[#9DA2B3] font-aeonikpro">Manage your store settings and information.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[#EDEFF7] font-aeonikpro">Store Name</Label>
-                    <Input value={storeInfo.storeName} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
+        {
+          user.isSeller && (
+            <TabsContent value="store" className="space-y-6">
+              <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
+                <CardHeader>
+                  <CardTitle className="text-[#EDEFF7] font-aeonikpro">Store Information</CardTitle>
+                  <CardDescription className="text-[#9DA2B3] font-aeonikpro">Manage your store settings and information.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[#EDEFF7] font-aeonikpro">Store Name</Label>
+                      <Input value={storeInfo.storeName} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[#EDEFF7] font-aeonikpro">Store URL</Label>
+                      <Input value={`neaply.com/store/${storeInfo.slug}`} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[#EDEFF7] font-aeonikpro">Store URL</Label>
-                    <Input value={`neaply.com/store/${storeInfo.slug}`} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
+                    <Label className="text-[#EDEFF7] font-aeonikpro">Bio</Label>
+                    <Input value={storeInfo.bio || 'No bio set'} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[#EDEFF7] font-aeonikpro">Bio</Label>
-                  <Input value={storeInfo.bio || 'No bio set'} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-[rgba(64,66,77,0.25)] border-red-500/25">
-              <CardHeader>
-                <CardTitle className="text-red-400 flex items-center gap-2 font-aeonikpro">
-                  <AlertTriangle className="h-5 w-5" />
-                  Danger Zone
-                </CardTitle>
-                <CardDescription className="text-[#9DA2B3] font-aeonikpro">Permanently delete your store and all associated data.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowDeleteStoreModal(true)}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete Store
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
-      </Tabs>
+              <Card className="bg-[rgba(64,66,77,0.25)] border-red-500/25">
+                <CardHeader>
+                  <CardTitle className="text-red-400 flex items-center gap-2 font-aeonikpro">
+                    <AlertTriangle className="h-5 w-5" />
+                    Danger Zone
+                  </CardTitle>
+                  <CardDescription className="text-[#9DA2B3] font-aeonikpro">Permanently delete your store and all associated data.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowDeleteStoreModal(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Store
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )
+        }
+      </Tabs >
 
       {/* Password Change Modal */}
-      <Dialog open={showPasswordChangeModal} onOpenChange={setShowPasswordChangeModal}>
+      < Dialog open={showPasswordChangeModal} onOpenChange={setShowPasswordChangeModal} >
         <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
             <DialogTitle className="text-[#EDEFF7] font-aeonikpro">Change Password</DialogTitle>
@@ -1031,10 +1072,10 @@ export default function SettingsPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Delete Store Modal */}
-      <Dialog open={showDeleteStoreModal} onOpenChange={setShowDeleteStoreModal}>
+      < Dialog open={showDeleteStoreModal} onOpenChange={setShowDeleteStoreModal} >
         <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
             <DialogTitle className="text-red-600 font-aeonikpro">Delete Store</DialogTitle>
@@ -1058,10 +1099,10 @@ export default function SettingsPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* 2FA Setup Modal */}
-      <Dialog open={show2FASetupModal} onOpenChange={setShow2FASetupModal}>
+      < Dialog open={show2FASetupModal} onOpenChange={setShow2FASetupModal} >
         <DialogContent className="sm:max-w-lg bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-aeonikpro text-[#EDEFF7]">
@@ -1191,10 +1232,10 @@ export default function SettingsPage() {
             )}
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Backup Codes Modal */}
-      <Dialog open={showBackupCodesModal} onOpenChange={setShowBackupCodesModal}>
+      < Dialog open={showBackupCodesModal} onOpenChange={setShowBackupCodesModal} >
         <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
             <DialogTitle className="text-[#EDEFF7] font-aeonikpro">Backup Codes</DialogTitle>
@@ -1231,10 +1272,10 @@ export default function SettingsPage() {
             <Button onClick={() => setShowBackupCodesModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro" variant="outline">Close</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Delete Account Modal */}
-      <Dialog open={showDeleteAccountModal} onOpenChange={setShowDeleteAccountModal}>
+      < Dialog open={showDeleteAccountModal} onOpenChange={setShowDeleteAccountModal} >
         <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
             <DialogTitle className="text-red-600 font-aeonikpro">Delete Account</DialogTitle>
@@ -1258,10 +1299,10 @@ export default function SettingsPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* 2FA Disable Modal */}
-      <Dialog open={show2FADisableModal} onOpenChange={setShow2FADisableModal}>
+      < Dialog open={show2FADisableModal} onOpenChange={setShow2FADisableModal} >
         <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
             <DialogTitle className="text-red-600 font-aeonikpro">Disable Two-Factor Authentication</DialogTitle>
@@ -1292,7 +1333,7 @@ export default function SettingsPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-    </div>
+      </Dialog >
+    </div >
   )
 }

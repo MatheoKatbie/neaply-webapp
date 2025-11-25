@@ -8,6 +8,7 @@ export interface AuthUser {
   displayName: string
   createdAt?: Date
   updatedAt?: Date
+  authProvider?: 'email' | 'google' | 'github' | 'discord'
 }
 
 export interface LoginFormData {

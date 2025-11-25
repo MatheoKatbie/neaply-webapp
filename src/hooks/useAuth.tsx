@@ -66,6 +66,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Helper function to detect authentication provider
+  const detectAuthProvider = (user: User): 'email' | 'google' | 'github' | 'discord' => {
+    // Check user identities to determine the provider
+    if (user.identities && user.identities.length > 0) {
+      // Get the provider from the first identity (primary auth method)
+      const provider = user.identities[0].provider
+      if (provider === 'google' || provider === 'github' || provider === 'discord') {
+        return provider
+      }
+    }
+    // Default to email if no OAuth provider found
+    return 'email'
+  }
+
   const mapSupabaseUserToAuthUser = async (user: User): Promise<AuthUser> => {
     // Récupérer les données utilisateur depuis notre API pour avoir les informations à jour
     try {
@@ -92,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user.email!.split('@')[0],
           createdAt: user.created_at ? new Date(user.created_at) : undefined,
           updatedAt: user.updated_at ? new Date(user.updated_at) : undefined,
+          authProvider: detectAuthProvider(user),
         }
       } else {
         console.log('Failed to fetch user data from API, status:', response.status)
@@ -127,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   user.email!.split('@')[0],
                 createdAt: user.created_at ? new Date(user.created_at) : undefined,
                 updatedAt: user.updated_at ? new Date(user.updated_at) : undefined,
+                authProvider: detectAuthProvider(user),
               }
             }
           }
@@ -151,6 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user.email!.split('@')[0],
       createdAt: user.created_at ? new Date(user.created_at) : undefined,
       updatedAt: user.updated_at ? new Date(user.updated_at) : undefined,
+      authProvider: detectAuthProvider(user),
     }
   }
 

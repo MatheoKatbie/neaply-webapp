@@ -1,7 +1,19 @@
 import crypto from 'crypto'
 
 // Encryption key should be stored in environment variables
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'your-fallback-encryption-key-32-chars-long'
+// CRITICAL: Encryption key MUST be set in environment variables
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
+
+if (!ENCRYPTION_KEY) {
+  throw new Error('FATAL: ENCRYPTION_KEY must be set in environment variables. Generate one with: openssl rand -hex 32')
+}
+
+if (ENCRYPTION_KEY.length !== 64) {
+  throw new Error('FATAL: ENCRYPTION_KEY must be exactly 64 characters (32 bytes in hex). Generate one with: openssl rand -hex 32')
+}
+
+// After validation, we know ENCRYPTION_KEY is defined and valid
+const VALIDATED_ENCRYPTION_KEY: string = ENCRYPTION_KEY
 const ALGORITHM = 'aes-256-gcm'
 const IV_LENGTH = 16
 const TAG_LENGTH = 16
@@ -20,7 +32,7 @@ export function encryptJsonContent(jsonContent: any): string {
     const iv = crypto.randomBytes(IV_LENGTH)
 
     // Create cipher using the new API
-    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv)
+    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(VALIDATED_ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv)
     cipher.setAAD(Buffer.from('workflow-json', 'utf8'))
 
     // Encrypt the data
@@ -57,7 +69,7 @@ export function decryptJsonContent(encryptedContent: string): any {
     const encrypted = combined.subarray(IV_LENGTH, combined.length - TAG_LENGTH)
 
     // Create decipher using the new API
-    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv)
+    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(VALIDATED_ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv)
     decipher.setAAD(Buffer.from('workflow-json', 'utf8'))
     decipher.setAuthTag(tag)
 
