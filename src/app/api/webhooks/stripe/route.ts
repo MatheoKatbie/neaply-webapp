@@ -11,24 +11,32 @@ export async function POST(request: NextRequest) {
     const body = await request.text()
     console.log('📝 Request body length:', body.length)
 
-    const headersList = await headers()
-    const signature = headersList.get('stripe-signature')
-    console.log('🔐 Stripe signature present:', !!signature)
+    // Verify webhook signature
+    let event: Stripe.Event
+    try {
+      const headersList = await headers()
+      const signature = headersList.get('stripe-signature')
+      if (!signature) {
+        console.error('[Stripe Webhook] Missing stripe-signature header')
+        return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+      }
 
-    if (!signature) {
-      console.error('Missing Stripe signature')
-      return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+      console.log(`[Stripe Webhook] Event received: ${event.type} (${event.id})`)
+    } catch (err) {
+      console.error('[Stripe Webhook] Signature verification failed:', err)
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
 
-    let event: Stripe.Event
+    // IDEMPOTENCY CHECK: Verify if event has already been processed
+    const existingEvent = await prisma.processedStripeEvent.findUnique({
+      where: { id: event.id },
+    })
 
-    try {
-      console.log('🔍 Verifying webhook signature...')
-      event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
-      console.log('✅ Webhook signature verified successfully')
-    } catch (err) {
-      console.error('❌ Webhook signature verification failed:', err)
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    if (existingEvent) {
+      console.log(`[Stripe Webhook] Event ${event.id} already processed, skipping`)
+      return NextResponse.json({ received: true, skipped: true, reason: 'already_processed' })
     }
 
     console.log('📋 Processing Stripe webhook event:', event.type, 'ID:', event.id)
@@ -50,6 +58,16 @@ export async function POST(request: NextRequest) {
         default:
           console.log(`Unhandled event type: ${event.type}`)
       }
+
+      // Mark event as processed after successful handling
+      await prisma.processedStripeEvent.create({
+        data: {
+          id: event.id,
+          type: event.type,
+          processed: true,
+        },
+      })
+      console.log(`[Stripe Webhook] Event ${event.id} marked as processed`)
     } catch (handlerError) {
       console.error(`Error handling ${event.type} event:`, handlerError)
 

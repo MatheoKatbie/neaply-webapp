@@ -81,16 +81,16 @@ enum Platform {
  * ============================
  */
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
-  email        String   @unique
-  passwordHash String? // Peut être null pour les utilisateurs OAuth
-  displayName  String
-  avatarUrl    String?
-  isSeller     Boolean  @default(false)
-  isAdmin      Boolean  @default(false)
+  id               String   @id @default(uuid()) @db.Uuid
+  email            String   @unique
+  passwordHash     String? // Peut être null pour les utilisateurs OAuth
+  displayName      String
+  avatarUrl        String?
+  isSeller         Boolean  @default(false)
+  isAdmin          Boolean  @default(false)
   stripeCustomerId String? // Stripe Customer ID for saved payment methods
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   sellerProfile          SellerProfile?
   workflows              Workflow[]
@@ -272,15 +272,15 @@ model Order {
 }
 
 model OrderItem {
-  id             String  @id @default(uuid()) @db.Uuid
-  orderId        String  @db.Uuid
-  workflowId     String  @db.Uuid
+  id             String @id @default(uuid()) @db.Uuid
+  orderId        String @db.Uuid
+  workflowId     String @db.Uuid
   unitPriceCents Int
-  quantity       Int     @default(1)
+  quantity       Int    @default(1)
   subtotalCents  Int
 
-  order    Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  workflow Workflow  @relation(fields: [workflowId], references: [id], onDelete: Restrict)
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
   @@index([workflowId])
@@ -378,18 +378,18 @@ model Report {
   id          String       @id @default(uuid()) @db.Uuid
   reporterId  String?      @db.Uuid
   workflowId  String?      @db.Uuid
-  storeId     String?      @db.Uuid  // New field for store reports
+  storeId     String?      @db.Uuid // New field for store reports
   reason      String
-  description String?      // Optional additional details
+  description String? // Optional additional details
   status      ReportStatus @default(open)
   createdAt   DateTime     @default(now())
   resolvedAt  DateTime?
   resolvedBy  String?      @db.Uuid
 
-  reporter  User?         @relation("UserReports", fields: [reporterId], references: [id], onDelete: SetNull)
-  resolver  User?         @relation("UserResolvedReports", fields: [resolvedBy], references: [id], onDelete: SetNull)
-  workflow  Workflow?     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  store     SellerProfile? @relation(fields: [storeId], references: [userId], onDelete: Cascade)
+  reporter User?          @relation("UserReports", fields: [reporterId], references: [id], onDelete: SetNull)
+  resolver User?          @relation("UserResolvedReports", fields: [resolvedBy], references: [id], onDelete: SetNull)
+  workflow Workflow?      @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  store    SellerProfile? @relation(fields: [storeId], references: [userId], onDelete: Cascade)
 
   @@index([workflowId, storeId, status, createdAt])
 }
@@ -491,11 +491,11 @@ model WorkflowPackTag {
 }
 
 model PackOrderItem {
-  id             String  @id @default(uuid()) @db.Uuid
-  orderId        String  @db.Uuid
-  packId         String  @db.Uuid
+  id             String @id @default(uuid()) @db.Uuid
+  orderId        String @db.Uuid
+  packId         String @db.Uuid
   unitPriceCents Int
-  quantity       Int     @default(1)
+  quantity       Int    @default(1)
   subtotalCents  Int
 
   order Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -596,7 +596,22 @@ model CartItem {
 
   workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
+  @@unique([cartId, workflowId])
   @@index([cartId])
   @@index([cartId, workflowId])
-  @@unique([cartId, workflowId])
+}
+
+/**
+ * ============================
+ * Webhook Idempotency
+ * ============================
+ */
+model ProcessedStripeEvent {
+  id        String   @id // Stripe event ID
+  type      String
+  processed Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([id])
+  @@index([createdAt]) // For cleanup of old events
 }
