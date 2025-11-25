@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
+import { ratelimit, checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +21,21 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    }
+
+    // Apply rate limiting (10 uploads per hour)
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const identifier = getRateLimitIdentifier(user.id, ip)
+    const rateLimitResult = await checkRateLimit(ratelimit.upload, identifier)
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many upload attempts. Please try again later.',
+          retryAfter: rateLimitResult.reset,
+        },
+        { status: 429 }
+      )
     }
 
     // Validate file size (5MB max for hero images)

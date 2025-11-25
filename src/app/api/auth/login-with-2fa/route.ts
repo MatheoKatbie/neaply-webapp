@@ -4,6 +4,7 @@ import { Secret, TOTP } from 'otpauth'
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase-server'
+import { ratelimit, checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit'
 
 /**
  * Secure login endpoint for users with 2FA enabled
@@ -24,6 +25,28 @@ export async function POST(request: NextRequest) {
 
     if (!totpCode && !backupCode) {
       return NextResponse.json({ error: 'TOTP code or backup code is required' }, { status: 400 })
+    }
+
+    // Apply rate limiting (5 attempts per 15 minutes)
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const identifier = getRateLimitIdentifier(email, ip)
+    const rateLimitResult = await checkRateLimit(ratelimit.auth, identifier)
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many login attempts. Please try again later.',
+          retryAfter: rateLimitResult.reset,
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimitResult.limit?.toString() || '5',
+            'X-RateLimit-Remaining': rateLimitResult.remaining?.toString() || '0',
+            'X-RateLimit-Reset': rateLimitResult.reset?.toString() || '',
+          },
+        }
+      )
     }
 
     // Create admin client to check user metadata without creating a session

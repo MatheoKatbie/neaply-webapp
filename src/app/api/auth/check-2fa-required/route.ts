@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { ratelimit, checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit'
 
 /**
  * Check if an email has 2FA enabled WITHOUT creating a session
@@ -14,6 +15,20 @@ export async function POST(request: NextRequest) {
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+    }
+
+    // Apply rate limiting to prevent user enumeration
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const identifier = getRateLimitIdentifier(undefined, ip)
+    const rateLimitResult = await checkRateLimit(ratelimit.api, identifier)
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests. Please try again later.',
+        },
+        { status: 429 }
+      )
     }
 
     // Create an admin client to query user metadata without authentication

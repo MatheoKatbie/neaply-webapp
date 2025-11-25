@@ -39,6 +39,8 @@
     "@types/country-list": "^2.1.4",
     "@types/jszip": "^3.4.0",
     "@types/qrcode": "^1.5.5",
+    "@upstash/ratelimit": "^2.0.7",
+    "@upstash/redis": "^1.35.6",
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
