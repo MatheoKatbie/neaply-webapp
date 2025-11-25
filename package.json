@@ -46,6 +46,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "country-list": "^2.3.0",
+    "file-type": "^21.1.1",
     "framer-motion": "^12.23.12",
     "jszip": "^3.10.1",
     "lucide-react": "^0.540.0",

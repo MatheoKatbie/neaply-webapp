@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 import { ratelimit, checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit'
+import { fileTypeFromBuffer } from 'file-type'
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,18 +45,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
     }
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Only JPG, PNG, GIF, and WebP files are allowed' }, { status: 400 })
+    // Step 1: Validate MIME type (first line of defense)
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowedMimeTypes.includes(file.type)) {
+      return NextResponse.json({ error: 'Invalid file type. Only JPG, PNG, GIF, and WebP files are allowed' }, { status: 400 })
     }
 
-    // Generate unique filename
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${user.id}-${Date.now()}.${fileExt}`
+    // Step 2: Validate file extension
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+    const fileExt = `.${file.name.split('.').pop()?.toLowerCase()}`
+    if (!allowedExtensions.includes(fileExt)) {
+      return NextResponse.json({ error: 'Invalid file extension' }, { status: 400 })
+    }
+
+    // Step 3: Validate magic bytes (file signature) - most secure check
+    const buffer = await file.arrayBuffer()
+    const fileType = await fileTypeFromBuffer(Buffer.from(buffer))
+
+    if (!fileType || !['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(fileType.mime)) {
+      console.warn(`[SECURITY] File upload rejected: declared type ${file.type}, actual type ${fileType?.mime || 'unknown'}`)
+      return NextResponse.json(
+        { error: 'File content does not match declared type. Upload rejected for security reasons.' },
+        { status: 400 }
+      )
+    }
+
+    // Generate unique filename using validated extension
+    const fileName = `${user.id}-${Date.now()}${fileExt}`
+
+    // Convert buffer back to Blob for upload
+    const validatedFile = new Blob([buffer], { type: fileType.mime })
 
     // Upload to Supabase storage
-    const { data, error } = await supabase.storage.from('hero-images').upload(fileName, file, {
+    const { data, error } = await supabase.storage.from('hero-images').upload(fileName, validatedFile, {
       cacheControl: '3600',
       upsert: false,
     })
