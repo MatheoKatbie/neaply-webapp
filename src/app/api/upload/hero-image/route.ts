@@ -86,8 +86,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'No filename provided' }, { status: 400 })
     }
 
-    // Only allow deletion if filename belongs to current user
-    if (!fileName.includes(user.id)) {
+    // Verify file ownership with strict prefix check
+    // Files must start with "{userId}-" to prevent unauthorized deletion
+    if (!fileName.startsWith(`${user.id}-`)) {
+      console.warn(`[SECURITY] Unauthorized deletion attempt: user ${user.id} tried to delete ${fileName}`)
       return NextResponse.json({ error: 'Unauthorized to delete this file' }, { status: 403 })
     }
 

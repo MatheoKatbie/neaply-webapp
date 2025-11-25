@@ -89,9 +89,9 @@ export async function POST(request: NextRequest) {
         secret: secret,
       })
 
-      // Strict verification: only accept current token (no window for previous/next)
-      const currentToken = totp.generate()
-      isValidCode = totpCode === currentToken
+      // Verify with window of 2 (accepts tokens from ±1 time period)
+      const delta = totp.validate({ token: totpCode, window: 2 })
+      isValidCode = delta !== null
     }
 
     if (!isValidCode) {
