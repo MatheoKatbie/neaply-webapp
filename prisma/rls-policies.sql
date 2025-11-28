@@ -246,3 +246,41 @@ CREATE POLICY "Sellers can manage own workflow compatibility" ON "WorkflowCompat
             AND "Workflow"."sellerId"::text = auth.uid()::text
         )
     );
+
+-- ============================
+-- Notification Policies
+-- ============================
+
+-- Enable RLS on Notification table
+ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
+
+-- Users can only view their own notifications
+CREATE POLICY "Users can view own notifications" ON "Notification"
+    FOR SELECT USING (auth.uid()::text = "userId"::text);
+
+-- Users can update their own notifications (mark as read)
+CREATE POLICY "Users can update own notifications" ON "Notification"
+    FOR UPDATE USING (auth.uid()::text = "userId"::text);
+
+-- Users can delete their own notifications
+CREATE POLICY "Users can delete own notifications" ON "Notification"
+    FOR DELETE USING (auth.uid()::text = "userId"::text);
+
+-- Only the system (service role) can insert notifications
+-- This is handled by using service_role key in API routes
+-- Regular users cannot insert notifications directly
+CREATE POLICY "Service role can insert notifications" ON "Notification"
+    FOR INSERT WITH CHECK (
+        -- Allow insert if the request comes from service role
+        -- or if the current user is an admin
+        current_setting('request.jwt.claims', true)::json->>'role' = 'service_role'
+        OR EXISTS (
+            SELECT 1 FROM "User" 
+            WHERE "User".id = auth.uid() 
+            AND "User"."isAdmin" = true
+        )
+    );
+
+-- Enable Realtime for Notification table
+-- Run this to allow Supabase Realtime to broadcast changes
+ALTER PUBLICATION supabase_realtime ADD TABLE "Notification";
