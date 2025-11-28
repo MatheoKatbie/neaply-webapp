@@ -93,7 +93,7 @@ export function ReportDialog({ entityType, entityId, entityName, trigger, classN
   }
 
   const defaultTrigger = (
-    <Button variant="destructive" size="sm" className={className}>
+    <Button variant="destructive" className={className}>
       <Flag className="w-4 h-4 mr-2" />
       Report
     </Button>

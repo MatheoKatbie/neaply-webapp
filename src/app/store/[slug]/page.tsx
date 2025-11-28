@@ -4,7 +4,9 @@ import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { ReportDialog } from '@/components/ui/report-dialog'
-import { ArrowLeft, Calendar, Download, Globe, Mail, Package, Star } from 'lucide-react'
+import { FollowStoreButton } from '@/components/FollowStoreButton'
+import { useStoreFollow } from '@/hooks/useStoreFollow'
+import { ArrowLeft, Calendar, Download, Globe, Mail, Package, Star, Users } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -632,6 +634,12 @@ export default function StorePage() {
                 {/* Contact Seller Button */}
                 <div className="mt-6 pt-4 border-t border-[#9DA2B3]/25">
                   <div className="flex flex-col sm:flex-row gap-3">
+                    <FollowStoreButton
+                      sellerId={store.user.id}
+                      sellerSlug={store.slug}
+                      variant="default"
+                      showCount={true}
+                    />
                     <ContactSellerButton
                       seller={{
                         displayName: store.user.displayName,
@@ -641,7 +649,6 @@ export default function StorePage() {
                         countryCode: store.countryCode,
                         avatarUrl: store.user.avatarUrl,
                       }}
-                      size='sm'
                       className="w-full sm:w-auto"
                     />
                     <ReportDialog className='w-full sm:w-auto' entityType="store" entityId={store.user.id} entityName={store.storeName} />

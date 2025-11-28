@@ -18,6 +18,8 @@ import {
   PartyPopper,
   Megaphone,
   X,
+  UserPlus,
+  Sparkles,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -33,6 +35,8 @@ const notificationIcons: Record<string, typeof Bell> = {
   workflow_rejected: AlertCircle,
   welcome: PartyPopper,
   system: Megaphone,
+  new_follower: UserPlus,
+  store_new_workflow: Sparkles,
 }
 
 const notificationColors: Record<string, string> = {
@@ -47,6 +51,8 @@ const notificationColors: Record<string, string> = {
   workflow_rejected: 'text-red-400 bg-red-500/20',
   welcome: 'text-purple-400 bg-purple-500/20',
   system: 'text-blue-400 bg-blue-500/20',
+  new_follower: 'text-cyan-400 bg-cyan-500/20',
+  store_new_workflow: 'text-pink-400 bg-pink-500/20',
 }
 
 function NotificationItem({

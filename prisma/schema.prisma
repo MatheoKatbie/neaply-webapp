@@ -88,6 +88,10 @@ enum NotificationType {
   payout_sent          // Payout was sent
   workflow_approved    // Workflow approved by admin
   workflow_rejected    // Workflow rejected by admin
+  new_follower         // Someone followed your store
+  
+  // Follow notifications
+  store_new_workflow   // A store you follow published a new workflow
   
   // General
   welcome              // Welcome to platform
@@ -130,6 +134,8 @@ model User {
   bugReports             BugReport[]             @relation("UserBugReports")
   resolvedBugReports     BugReport[]             @relation("UserResolvedBugReports")
   notifications          Notification[]
+  storeFollows           StoreFollow[]           @relation("UserFollows")
+  followers              StoreFollow[]           @relation("SellerFollowers")
 
   @@index([email])
 }
@@ -674,4 +680,22 @@ model Notification {
 
   @@index([userId, isRead, createdAt])
   @@index([userId, createdAt])
+}
+
+/**
+ * ============================
+ * Store Follows
+ * ============================
+ */
+model StoreFollow {
+  id         String   @id @default(uuid()) @db.Uuid
+  followerId String   @db.Uuid // User who is following
+  follower   User     @relation("UserFollows", fields: [followerId], references: [id], onDelete: Cascade)
+  sellerId   String   @db.Uuid // Seller being followed
+  seller     User     @relation("SellerFollowers", fields: [sellerId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([followerId, sellerId]) // User can only follow a store once
+  @@index([sellerId])
+  @@index([followerId])
 }

@@ -19,7 +19,9 @@ import {
   CheckCheck,
   ArrowLeft,
   Loader2,
-  Filter
+  Filter,
+  UserPlus,
+  Sparkles
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -52,6 +54,10 @@ function getNotificationIcon(type: string) {
       return <Bell {...iconProps} className="w-5 h-5 text-blue-400" />
     case 'system':
       return <Info {...iconProps} className="w-5 h-5 text-orange-400" />
+    case 'new_follower':
+      return <UserPlus {...iconProps} className="w-5 h-5 text-cyan-400" />
+    case 'store_new_workflow':
+      return <Sparkles {...iconProps} className="w-5 h-5 text-pink-400" />
     default:
       return <Bell {...iconProps} className="w-5 h-5 text-[#9DA2B3]" />
   }
@@ -78,6 +84,10 @@ function getNotificationBgColor(type: string): string {
       return 'bg-blue-500/10'
     case 'system':
       return 'bg-orange-500/10'
+    case 'new_follower':
+      return 'bg-cyan-500/10'
+    case 'store_new_workflow':
+      return 'bg-pink-500/10'
     default:
       return 'bg-[#40424D]/50'
   }

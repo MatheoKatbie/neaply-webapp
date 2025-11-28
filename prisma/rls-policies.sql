@@ -284,3 +284,22 @@ CREATE POLICY "Service role can insert notifications" ON "Notification"
 -- Enable Realtime for Notification table
 -- Run this to allow Supabase Realtime to broadcast changes
 ALTER PUBLICATION supabase_realtime ADD TABLE "Notification";
+
+-- ============================
+-- StoreFollow Policies
+-- ============================
+
+-- Enable RLS on StoreFollow table
+ALTER TABLE "StoreFollow" ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can view follow counts (for displaying follower counts)
+CREATE POLICY "Anyone can view store follows" ON "StoreFollow"
+    FOR SELECT USING (true);
+
+-- Users can follow stores (insert their own follows)
+CREATE POLICY "Users can follow stores" ON "StoreFollow"
+    FOR INSERT WITH CHECK (auth.uid()::text = "followerId"::text);
+
+-- Users can unfollow stores (delete their own follows)
+CREATE POLICY "Users can unfollow stores" ON "StoreFollow"
+    FOR DELETE USING (auth.uid()::text = "followerId"::text);

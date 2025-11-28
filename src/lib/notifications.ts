@@ -218,3 +218,75 @@ export async function notifyAllBuyersWorkflowUpdated({
 
   return Promise.all(notifications)
 }
+
+/**
+ * Create a notification when someone follows a store
+ */
+export async function notifySellerNewFollower({
+  sellerId,
+  followerName,
+  followerId,
+  storeSlug,
+}: {
+  sellerId: string
+  followerName: string
+  followerId: string
+  storeSlug: string
+}) {
+  return createNotification({
+    userId: sellerId,
+    type: 'new_follower',
+    title: 'Nouveau follower ! 👥',
+    message: `${followerName} suit maintenant votre store`,
+    link: `/store/${storeSlug}`,
+    metadata: { followerId, followerName },
+  })
+}
+
+/**
+ * Notify all followers of a store when a new workflow is published
+ */
+export async function notifyFollowersNewWorkflow({
+  sellerId,
+  storeName,
+  storeSlug,
+  workflowId,
+  workflowTitle,
+  workflowSlug,
+}: {
+  sellerId: string
+  storeName: string
+  storeSlug: string
+  workflowId: string
+  workflowTitle: string
+  workflowSlug: string
+}) {
+  // Get all followers of this store
+  const followers = await prisma.storeFollow.findMany({
+    where: { sellerId },
+    select: { followerId: true },
+  })
+
+  if (followers.length === 0) return []
+
+  // Create notifications for all followers
+  const notifications = followers.map((follow) =>
+    createNotification({
+      userId: follow.followerId,
+      type: 'store_new_workflow',
+      title: `Nouveau workflow de ${storeName} 🆕`,
+      message: `"${workflowTitle}" vient d'être publié`,
+      link: `/workflow/${workflowSlug}`,
+      metadata: {
+        sellerId,
+        storeName,
+        storeSlug,
+        workflowId,
+        workflowTitle,
+        workflowSlug,
+      },
+    })
+  )
+
+  return Promise.all(notifications)
+}
