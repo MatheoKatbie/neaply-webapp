@@ -14,9 +14,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
 
-  // Hide navbar and footer on auth pages and admin pages
+  // Hide navbar and footer on auth pages, admin pages, and status pages
   const isAuthPage = pathname?.startsWith('/auth/')
   const isAdminPage = pathname?.startsWith('/admin/')
+  const isStatusPage = pathname === '/maintenance' || pathname === '/coming-soon'
+  const hideNavAndFooter = isAuthPage || isAdminPage || isStatusPage
 
   useEffect(() => {
     setMounted(true)
@@ -29,9 +31,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen flex flex-col">
       <LanguageInitializer />
-      {!isAuthPage && !isAdminPage && <Navbar />}
+      {!hideNavAndFooter && <Navbar />}
       <main className="flex-1">{children}</main>
-      {!isAuthPage && !isAdminPage && <Footer />}
+      {!hideNavAndFooter && <Footer />}
       <Toaster 
         position="bottom-right" 
         richColors 

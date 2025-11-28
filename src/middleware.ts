@@ -1,9 +1,59 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import {
+  isMaintenanceModeActive,
+  isComingSoonModeActive,
+  isIPWhitelisted,
+} from '@/lib/maintenance'
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  // ============================================
+  // SITE STATUS CHECK (Coming Soon / Maintenance)
+  // ============================================
+  
+  // Skip status check for static files and Next.js internals
+  const isStaticOrInternal = 
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api/webhooks') ||
+    pathname.startsWith('/api/health') ||
+    pathname.includes('.') // Files with extensions (images, etc.)
+
+  if (!isStaticOrInternal) {
+    // Get client IP for whitelist check
+    const clientIP =
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('x-real-ip') ||
+      null
+    const isAllowedIP = isIPWhitelisted(clientIP)
+
+    // COMING SOON MODE (takes priority over maintenance)
+    if (isComingSoonModeActive()) {
+      if (pathname === '/coming-soon') {
+        return NextResponse.next()
+      }
+      if (!isAllowedIP) {
+        return NextResponse.redirect(new URL('/coming-soon', req.url))
+      }
+    }
+    // MAINTENANCE MODE
+    else if (isMaintenanceModeActive()) {
+      if (pathname === '/maintenance') {
+        return NextResponse.next()
+      }
+      if (!isAllowedIP) {
+        return NextResponse.redirect(new URL('/maintenance', req.url))
+      }
+    }
+    // Redirect away from status pages if modes are OFF
+    else {
+      if (pathname === '/maintenance' || pathname === '/coming-soon') {
+        return NextResponse.redirect(new URL('/', req.url))
+      }
+    }
+  }
   
   // Pour les routes API, on veut toujours retourner du JSON, jamais des redirects HTML
   const isApiRoute = pathname.startsWith('/api/')
@@ -79,6 +129,8 @@ export async function middleware(req: NextRequest) {
     '/sitemap.xml',
     '/checkout/success', // Allow checkout success page without auth
     '/checkout/cancelled', // Allow checkout cancelled page without auth
+    '/maintenance', // Maintenance page
+    '/coming-soon', // Coming soon page
   ]
 
   // Routes dynamiques publiques (patterns)
