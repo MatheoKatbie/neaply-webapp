@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { useFormValidation, type WorkflowFormData } from '@/hooks/useFormValidation'
-import { safeDecrypt } from '@/lib/encryption'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -978,7 +977,7 @@ export default function SellerDashboard() {
           currency: fullWorkflow.currency,
           status: fullWorkflow.status as any,
           platform: fullWorkflow.platform || '',
-          jsonContent: latestVersion?.jsonContent ? safeDecrypt(latestVersion.jsonContent) : undefined,
+          jsonContent: latestVersion?.jsonContent || undefined,
           jsonFile: undefined,
           n8nMinVersion: latestVersion?.n8nMinVersion || '',
           n8nMaxVersion: latestVersion?.n8nMaxVersion || '',

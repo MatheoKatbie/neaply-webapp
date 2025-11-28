@@ -4,6 +4,8 @@ import crypto from 'crypto'
 // CRITICAL: Encryption key MUST be set in environment variables
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
 
+console.log('ENCRYPTION_KEY length:', ENCRYPTION_KEY ? ENCRYPTION_KEY.length : 'undefined')
+
 if (!ENCRYPTION_KEY) {
   throw new Error('FATAL: ENCRYPTION_KEY must be set in environment variables. Generate one with: openssl rand -hex 32')
 }
