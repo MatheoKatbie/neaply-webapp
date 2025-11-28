@@ -38,6 +38,8 @@ interface StoreData {
   storeName: string
   slug: string
   bio?: string
+  logoUrl?: string
+  bannerUrl?: string
   websiteUrl?: string
   supportEmail?: string
   phoneNumber?: string
@@ -323,8 +325,23 @@ export default function StorePage() {
     })
   }
 
-  const generateStoreHero = (storeName: string, storeId: string) => {
-    // Generate a unique gradient based on store name/id
+  const generateStoreHero = (storeName: string, storeId: string, bannerUrl?: string) => {
+    // If custom banner exists, use it
+    if (bannerUrl) {
+      return (
+        <div className="relative h-64 w-full overflow-hidden">
+          <img
+            src={bannerUrl}
+            alt={`${storeName} banner`}
+            className="w-full h-full object-cover"
+          />
+          {/* Dark gradient overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        </div>
+      )
+    }
+
+    // Generate a unique gradient based on store name/id (fallback)
     const hash = storeId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
     const hue1 = (hash * 137.5) % 360
     const hue2 = (hue1 + 60) % 360
@@ -460,7 +477,7 @@ export default function StorePage() {
             </p>
             <button
               onClick={() => router.push('/')}
-              className="font-aeonikpro bg-white text-black hover:bg-[#40424D]/30 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
+              className="font-aeonikpro bg-white text-black hover:bg-white/70 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Marketplace
@@ -519,22 +536,28 @@ export default function StorePage() {
           style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
         >
           {/* Hero Section */}
-          {generateStoreHero(store.storeName, store.id)}
+          {generateStoreHero(store.storeName, store.id, store.bannerUrl)}
 
           {/* Store Info */}
           <div className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row md:items-start gap-6">
-              {/* Store Avatar */}
+              {/* Store Avatar/Logo */}
               <div className="flex-shrink-0">
                 <div
-                  className="w-20 h-20 rounded-xl flex items-center justify-center border-4 shadow-lg -mt-16 relative z-10"
+                  className="w-20 h-20 rounded-xl flex items-center justify-center border-4 shadow-lg -mt-16 relative z-10 overflow-hidden"
                   style={{ borderColor: '#08080A', backgroundColor: 'rgba(120, 153, 168, 0.3)' }}
                 >
-                  {store.user.avatarUrl ? (
+                  {store.logoUrl ? (
+                    <img
+                      src={store.logoUrl}
+                      alt={store.storeName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : store.user.avatarUrl ? (
                     <img
                       src={store.user.avatarUrl}
                       alt={store.storeName}
-                      className="w-full h-full rounded-lg object-cover"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <Package className="w-8 h-8 text-blue-400" />

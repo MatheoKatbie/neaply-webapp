@@ -16,9 +16,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SellerDashboardSkeleton } from '@/components/seller/SellerDashboardSkeleton'
 import { SellerOverviewTab } from '@/components/seller/SellerOverviewTab'
 import { SellerWorkflowsTab } from '@/components/seller/SellerWorkflowsTab'
+import { StoreCustomization } from '@/components/seller/StoreCustomization'
 import type { Category, Tag, Workflow } from '@/types/workflow'
 
 import { Button } from '@/components/ui/button'
+
+interface SellerProfileData {
+  storeName: string
+  logoUrl: string | null
+  bannerUrl: string | null
+}
 
 interface CurrentMonthEarnings {
   totalGross: number
@@ -87,6 +94,7 @@ export default function SellerDashboard() {
     currency: string
   } | null>(null)
   const [balanceLoading, setBalanceLoading] = useState(false)
+  const [sellerProfile, setSellerProfile] = useState<SellerProfileData | null>(null)
 
   const [analyticsOverview, setAnalyticsOverview] = useState<{
     totalWorkflows: number
@@ -224,6 +232,25 @@ export default function SellerDashboard() {
     }
   }, [])
 
+  // Fetch seller profile for store customization
+  const fetchSellerProfile = useCallback(async () => {
+    try {
+      const response = await fetch('/api/seller')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.data) {
+          setSellerProfile({
+            storeName: data.data.storeName,
+            logoUrl: data.data.logoUrl,
+            bannerUrl: data.data.bannerUrl,
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch seller profile:', error)
+    }
+  }, [])
+
   // Fetch analytics overview (includes packs + workflows)
   const fetchAnalyticsOverview = useCallback(async () => {
     try {
@@ -282,6 +309,7 @@ export default function SellerDashboard() {
       fetchCurrentMonthEarnings()
       fetchStripeStatus()
       fetchBalance()
+      fetchSellerProfile()
     }
   }, [
     user?.isSeller,
@@ -292,6 +320,7 @@ export default function SellerDashboard() {
     fetchCurrentMonthEarnings,
     fetchStripeStatus,
     fetchBalance,
+    fetchSellerProfile,
   ])
 
   // Show tooltip when user has no workflows and Stripe is configured
@@ -1179,9 +1208,10 @@ export default function SellerDashboard() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 bg-transparent">
-          <TabsList className="grid w-full grid-cols-4 bg-transparent border-b border-[#9DA2B3]/25">
+          <TabsList className="grid w-full grid-cols-5 bg-transparent border-b border-[#9DA2B3]/25">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="workflows">Workflows ({workflows.length})</TabsTrigger>
+            <TabsTrigger value="store">Store</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
           </TabsList>
@@ -1231,6 +1261,26 @@ export default function SellerDashboard() {
               onDocumentationRemove={handleDocumentationRemove}
               onCreateWorkflow={handleCreateWorkflow}
             />
+          </TabsContent>
+
+          <TabsContent value="store" className="space-y-6">
+            {sellerProfile ? (
+              <StoreCustomization
+                initialData={sellerProfile}
+                onUpdate={(data) => {
+                  setSellerProfile((prev) => (prev ? { ...prev, ...data } : null))
+                }}
+              />
+            ) : (
+              <div className="animate-pulse space-y-4">
+                <div className="h-8 w-48 bg-[#40424D]/50 rounded" />
+                <div className="h-40 bg-[#40424D]/30 rounded-xl" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="h-48 bg-[#40424D]/30 rounded-xl" />
+                  <div className="h-48 bg-[#40424D]/30 rounded-xl" />
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">

@@ -146,6 +146,8 @@ model SellerProfile {
   storeName    String              @unique
   slug         String              @unique
   bio          String?
+  logoUrl      String?             // Store logo image URL
+  bannerUrl    String?             // Store banner image URL
   websiteUrl   String?
   supportEmail String?
   phoneNumber  String?
