@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { AnimatedHeart } from './animated-heart'
 import { Badge } from './badge'
+import { FollowingBadge } from '@/components/FollowingBadge'
 
 interface WorkflowCardProps {
   id: string
@@ -22,6 +23,8 @@ interface WorkflowCardProps {
   categories?: string[]
   tags?: string[]
   seller?: string
+  sellerId?: string
+  sellerSlug?: string
   sellerAvatarUrl?: string | null
   isFake?: boolean
 }
@@ -56,6 +59,8 @@ export function WorkflowCard({
   categories = [],
   tags = [],
   seller,
+  sellerId,
+  sellerSlug,
   sellerAvatarUrl,
   isFake = false,
 }: WorkflowCardProps) {
@@ -206,7 +211,10 @@ export function WorkflowCard({
         {/* Seller info - only show if provided */}
         {seller && (
           <div className="flex items-center justify-between text-xs mb-3">
-            <span className="text-[#999999] truncate">by {seller}</span>
+            <div className="flex items-center gap-2 truncate">
+              <span className="text-[#999999] truncate">by {seller}</span>
+              {sellerId && <FollowingBadge sellerId={sellerId} />}
+            </div>
             <div className="flex items-center gap-1 text-[#777777]">
               <Download className="w-3 h-3" />
               <span className="font-medium">{salesCount} sales</span>

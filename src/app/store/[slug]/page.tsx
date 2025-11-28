@@ -273,6 +273,12 @@ export default function StorePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Get follow status and followers count - will only fetch when store.user.id is available
+  const { isLoading: followLoading, followersCount } = useStoreFollow(store?.user?.id || '')
+
+  // Page is loading until both store data AND follow status are loaded
+  const pageLoading = loading || (store?.user?.id && followLoading)
+
   useEffect(() => {
     const fetchStore = async () => {
       try {
@@ -362,7 +368,7 @@ export default function StorePage() {
     )
   }
 
-  if (loading) {
+  if (pageLoading) {
     return (
       <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#08080A' }}>
         {/* Decorative ellipses */}
@@ -603,6 +609,20 @@ export default function StorePage() {
                       </div>
                       <div className="font-aeonikpro text-sm mt-1" style={{ color: '#9DA2B3' }}>
                         Sales
+                      </div>
+                    </div>
+                    <div
+                      className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                    >
+                      <div className="flex items-center gap-1 mb-1 justify-center">
+                        <Users className="w-4 h-4 text-cyan-400" />
+                        <span className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                          {followersCount}
+                        </span>
+                      </div>
+                      <div className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                        Followers
                       </div>
                     </div>
                     <div

@@ -3,7 +3,7 @@
 import { useStoreFollow } from '@/hooks/useStoreFollow'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import { UserPlus, UserMinus, Loader2, Users } from 'lucide-react'
+import { UserPlus, UserMinus, Loader2, Users, UserCheck } from 'lucide-react'
 
 interface FollowStoreButtonProps {
   sellerId: string
@@ -52,15 +52,29 @@ export function FollowStoreButton({
     return count.toString()
   }
 
+  // Skeleton loading state - matches the size of the actual button
   if (isLoading) {
+    if (variant === 'icon-only') {
+      return (
+        <div className={`p-2 rounded-lg bg-[#40424D]/50 animate-pulse ${className}`}>
+          <div className="w-5 h-5" />
+        </div>
+      )
+    }
+    if (variant === 'compact') {
+      return (
+        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#40424D]/50 animate-pulse ${className}`}>
+          <div className="w-3.5 h-3.5 rounded bg-[#9DA2B3]/30" />
+          <div className="w-14 h-4 rounded bg-[#9DA2B3]/30" />
+        </div>
+      )
+    }
+    // Default variant skeleton
     return (
-      <button
-        disabled
-        className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#40424D]/50 text-[#9DA2B3] ${className}`}
-      >
-        <Loader2 className="w-4 h-4 animate-spin" />
-        {variant !== 'icon-only' && <span>Loading...</span>}
-      </button>
+      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#40424D]/50 animate-pulse ${className}`}>
+        <div className="w-4 h-4 rounded bg-[#9DA2B3]/30" />
+        <div className="w-24 h-4 rounded bg-[#9DA2B3]/30" />
+      </div>
     )
   }
 

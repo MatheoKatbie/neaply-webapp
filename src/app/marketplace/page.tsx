@@ -24,6 +24,8 @@ interface WorkflowCardData {
   currency: string
   platform?: string
   seller: string
+  sellerId?: string
+  sellerSlug?: string
   sellerAvatarUrl?: string | null
   rating: number
   ratingCount: number
@@ -328,6 +330,8 @@ export default function MarketplacePage() {
                   categories={workflow.categories}
                   tags={workflow.tags}
                   seller={workflow.seller}
+                  sellerId={workflow.sellerId}
+                  sellerSlug={workflow.sellerSlug}
                   sellerAvatarUrl={workflow.sellerAvatarUrl}
                 />
               ))}
