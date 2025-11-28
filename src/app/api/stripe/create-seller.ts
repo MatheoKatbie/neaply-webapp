@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
       websiteUrl: dbUser.sellerProfile.websiteUrl || undefined,
       hideWebsiteField: false, // Set to true if you want to force hide website field
       customMcc: '5399', // Computer Software Stores - adapt to your activity
-      customSupportUrl: 'https://flowmarket.fr/support',
-      customSupportEmail: 'support@flowmarket.fr',
+      customSupportUrl: 'https://neaply.fr/support',
+      customSupportEmail: 'support@neaply.fr',
     })
 
     // 1) Create or update the Express account

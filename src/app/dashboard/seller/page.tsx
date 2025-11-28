@@ -1163,7 +1163,7 @@ export default function SellerDashboard() {
             <AnimatedTooltip
               show={showTooltip}
               title="Time to create your first workflow!"
-              description="Your account and payout information have been verified. You can now add your first workflow to FlowMarket."
+              description="Your account and payout information have been verified. You can now add your first workflow to neaply."
               position="bottom"
             >
               <Button onClick={handleCreateWorkflow} className="bg-opacity-30 font-aeonikpro">

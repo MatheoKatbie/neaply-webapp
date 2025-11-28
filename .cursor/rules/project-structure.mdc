@@ -1,11 +1,11 @@
 ---
 alwaysApply: true
-description: FlowMarket project structure and architecture guidelines
+description: neaply project structure and architecture guidelines
 ---
 
-# FlowMarket Project Structure
+# neaply Project Structure
 
-FlowMarket is a Next.js 15 marketplace for n8n workflows using the App Router pattern with Supabase authentication and Prisma ORM.
+neaply is a Next.js 15 marketplace for n8n workflows using the App Router pattern with Supabase authentication and Prisma ORM.
 
 ## Project Architecture
 

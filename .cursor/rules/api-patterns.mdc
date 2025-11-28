@@ -5,7 +5,7 @@ globs: **/api/**,**/route.ts
 
 # API Route Patterns
 
-FlowMarket uses Next.js 15 App Router API routes with consistent patterns for authentication, error handling, and data validation.
+neaply uses Next.js 15 App Router API routes with consistent patterns for authentication, error handling, and data validation.
 
 ## File Structure
 

@@ -1,11 +1,11 @@
 ---
-description: Authentication patterns and Supabase integration for FlowMarket
+description: Authentication patterns and Supabase integration for neaply
 globs: **/auth/**,**/hooks/useAuth*,**/middleware*
 ---
 
 # Authentication Patterns
 
-FlowMarket uses Supabase Authentication with a custom AuthProvider pattern for state management.
+neaply uses Supabase Authentication with a custom AuthProvider pattern for state management.
 
 ## Core Authentication Files
 

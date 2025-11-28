@@ -1,6 +1,6 @@
 ---
 globs: *.ts,*.tsx
-description: TypeScript coding standards and conventions for FlowMarket
+description: TypeScript coding standards and conventions for neaply
 ---
 
 # TypeScript Standards

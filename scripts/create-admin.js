@@ -20,7 +20,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 })
 
 async function createAdminUser() {
-    const adminEmail = 'admin@flowmarket.com'
+    const adminEmail = 'admin@neaply.com'
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
 
     try {
@@ -104,7 +104,7 @@ async function createAdminUser() {
 
 // Vérifier si l'utilisateur existe déjà
 async function checkExistingUser() {
-    const adminEmail = 'admin@flowmarket.com'
+    const adminEmail = 'admin@neaply.com'
 
     try {
         const { data: users, error } = await supabase.auth.admin.listUsers()
@@ -145,7 +145,7 @@ async function checkExistingUser() {
 }
 
 async function main() {
-    console.log('🚀 FlowMarket Admin Account Creator')
+    console.log('🚀 neaply Admin Account Creator')
     console.log('=====================================')
     console.log('')
 

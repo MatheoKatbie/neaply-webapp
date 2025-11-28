@@ -1,4 +1,4 @@
-# Configuration de l'authentification FlowMarket
+# Configuration de l'authentification neaply
 
 ## Étapes de configuration
 

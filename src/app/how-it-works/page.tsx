@@ -118,7 +118,7 @@ export default function HowItWorksPage() {
               </h1>
               <div className="w-24 h-1 bg-white rounded-full mb-6"></div>
               <p className="text-xl text-[#999999] max-w-2xl leading-relaxed font-aeonikpro">
-                Whether you're looking to automate your workflow or monetize your expertise, FlowMarket makes it simple and secure.
+                Whether you're looking to automate your workflow or monetize your expertise, neaply makes it simple and secure.
               </p>
             </div>
           </div>
@@ -262,7 +262,7 @@ export default function HowItWorksPage() {
             {/* Additional Info for Sellers */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg p-6">
-                <h4 className="text-lg font-semibold text-white mb-3 font-aeonikpro">Why Sell on FlowMarket?</h4>
+                <h4 className="text-lg font-semibold text-white mb-3 font-aeonikpro">Why Sell on neaply?</h4>
                 <ul className="space-y-2">
                   <li className="text-sm text-[#999999] flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-white flex-shrink-0 mt-0.5" />
@@ -374,7 +374,7 @@ export default function HowItWorksPage() {
           <div className="bg-[#1a1a1a] border border-[#3a3a3a] rounded-xl p-12 text-center">
             <h2 className="text-3xl font-bold text-white mb-4 font-space-grotesk">Ready to Get Started?</h2>
             <p className="text-lg text-[#999999] mb-8 max-w-2xl mx-auto">
-              Join thousands of users and creators on FlowMarket. Automate your business or start earning from your expertise today.
+              Join thousands of users and creators on neaply. Automate your business or start earning from your expertise today.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/marketplace">

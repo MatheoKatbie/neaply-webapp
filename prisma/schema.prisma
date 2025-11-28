@@ -601,11 +601,6 @@ model CartItem {
   @@index([cartId, workflowId])
 }
 
-/**
- * ============================
- * Webhook Idempotency
- * ============================
- */
 model ProcessedStripeEvent {
   id        String   @id // Stripe event ID
   type      String

@@ -574,7 +574,7 @@ export default function Home() {
             <div className="absolute z-0 top-[350px] left-0 right-0 w-full pointer-events-none">
               <img
                 src="/images/hero/hero-bg.png"
-                alt="FlowMarket Hero Background"
+                alt="neaply Hero Background"
                 className="w-full h-auto object-contain opacity-50"
               />
             </div>

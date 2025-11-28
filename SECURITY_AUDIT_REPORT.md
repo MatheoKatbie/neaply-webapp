@@ -1,4 +1,4 @@
-# 🔒 RAPPORT D'AUDIT DE SÉCURITÉ - FlowMarket
+# 🔒 RAPPORT D'AUDIT DE SÉCURITÉ - neaply
 
 **Date de l'audit :** 1er novembre 2025  
 **Version de l'application :** Dev Branch  

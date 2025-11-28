@@ -1,6 +1,6 @@
-# Stripe Integration Setup for FlowMarket
+# Stripe Integration Setup for neaply
 
-This document provides instructions for setting up Stripe payments in FlowMarket.
+This document provides instructions for setting up Stripe payments in neaply.
 
 ## Environment Variables
 
@@ -151,7 +151,7 @@ For Stripe-specific issues:
 - [Stripe Documentation](https://stripe.com/docs)
 - [Stripe Support](https://support.stripe.com)
 
-For FlowMarket integration issues:
+For neaply integration issues:
 
 - Check the application logs
 - Review the webhook event logs in Stripe Dashboard
