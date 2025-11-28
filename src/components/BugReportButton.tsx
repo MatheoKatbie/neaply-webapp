@@ -167,7 +167,6 @@ export function BugReportButton() {
           <Button
             variant="outline"
             onClick={() => setIsOpen(false)}
-            className="border-[#9DA2B3]/25 text-[#9DA2B3] hover:text-[#EDEFF7]"
           >
             Cancel
           </Button>
