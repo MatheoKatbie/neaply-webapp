@@ -70,9 +70,9 @@ function NotificationItem({
       }`}
       onClick={onClick}
     >
-      <div className="flex gap-3">
+      <div className="flex gap-3 items-center">
         {/* Icon */}
-        <div className={`flex-shrink-0 p-2 rounded-lg ${colorClass}`}>
+        <div className={`flex items-center justify-center p-3 rounded-lg ${colorClass}`}>
           <Icon className="w-4 h-4" />
         </div>
 
