@@ -75,6 +75,25 @@ enum Platform {
   airtable_script
 }
 
+enum NotificationType {
+  // Buyer notifications
+  order_confirmed      // Order payment confirmed
+  order_refunded       // Order was refunded
+  workflow_updated     // A purchased workflow was updated
+  
+  // Seller notifications
+  new_sale             // Someone bought your workflow
+  new_review           // Someone reviewed your workflow
+  review_response      // Response to your review
+  payout_sent          // Payout was sent
+  workflow_approved    // Workflow approved by admin
+  workflow_rejected    // Workflow rejected by admin
+  
+  // General
+  welcome              // Welcome to platform
+  system               // System announcement
+}
+
 /**
  * ============================
  * Users & Sellers
@@ -110,6 +129,7 @@ model User {
   carts                  Cart[]
   bugReports             BugReport[]             @relation("UserBugReports")
   resolvedBugReports     BugReport[]             @relation("UserResolvedBugReports")
+  notifications          Notification[]
 
   @@index([email])
 }
@@ -633,4 +653,25 @@ model ProcessedStripeEvent {
 
   @@index([id])
   @@index([createdAt]) // For cleanup of old events
+}
+
+/**
+ * ============================
+ * Notifications
+ * ============================
+ */
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  link      String?          // Optional link to navigate to
+  metadata  Json?            // Additional data (orderId, workflowId, etc.)
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead, createdAt])
+  @@index([userId, createdAt])
 }

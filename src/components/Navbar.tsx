@@ -1,6 +1,7 @@
 'use client'
 
 import CartSlider from '@/components/CartSlider'
+import { NotificationDropdown } from '@/components/NotificationDropdown'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Trans } from '@/components/ui/Trans'
@@ -304,6 +305,10 @@ export default function Navbar() {
             ) : user ? (
               // Logged in user
               <div className="flex items-center space-x-3">
+                {/* Notifications */}
+                <NotificationDropdown />
+
+                {/* Cart */}
                 {user && (
                   <button
                     onClick={handleCartClick}
