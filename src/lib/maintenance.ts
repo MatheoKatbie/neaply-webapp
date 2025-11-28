@@ -10,7 +10,7 @@
  */
 
 // ⚠️ COMING SOON MODE - Set to true if the site is not launched yet
-export const COMING_SOON_MODE = true
+export const COMING_SOON_MODE = false
 
 // ⚠️ MAINTENANCE MODE - Set to true for temporary maintenance
 export const MAINTENANCE_MODE = false

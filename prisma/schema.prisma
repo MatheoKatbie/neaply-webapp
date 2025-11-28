@@ -108,6 +108,8 @@ model User {
   packReports            PackReport[]            @relation("UserPackReports")
   packReviewHelpfulVotes PackReviewHelpfulVote[]
   carts                  Cart[]
+  bugReports             BugReport[]             @relation("UserBugReports")
+  resolvedBugReports     BugReport[]             @relation("UserResolvedBugReports")
 
   @@index([email])
 }
@@ -392,6 +394,28 @@ model Report {
   store    SellerProfile? @relation(fields: [storeId], references: [userId], onDelete: Cascade)
 
   @@index([workflowId, storeId, status, createdAt])
+}
+
+model BugReport {
+  id          String       @id @default(uuid()) @db.Uuid
+  reporterId  String?      @db.Uuid
+  category    String       // ui, performance, functional, security, other
+  title       String
+  description String
+  pageUrl     String?      // URL where the bug was encountered
+  userAgent   String?      // Browser/device info
+  screenshot  String?      // Optional screenshot URL
+  status      ReportStatus @default(open)
+  priority    String?      // low, medium, high, critical
+  createdAt   DateTime     @default(now())
+  resolvedAt  DateTime?
+  resolvedBy  String?      @db.Uuid
+
+  reporter User? @relation("UserBugReports", fields: [reporterId], references: [id], onDelete: SetNull)
+  resolver User? @relation("UserResolvedBugReports", fields: [resolvedBy], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([category, status])
 }
 
 model AuditLog {
