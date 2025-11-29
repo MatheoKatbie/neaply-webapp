@@ -249,6 +249,7 @@ export function WorkflowForm({
                 touched={touched}
                 onBlur={onBlur}
                 showErrors={showErrors}
+                workflowId={editingWorkflow?.id}
               />
             </CardContent>
           </Card>

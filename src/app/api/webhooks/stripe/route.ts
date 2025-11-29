@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
+import { notifySellerNewOrder, notifyBuyerOrderConfirmed, notifyBuyerOrderRefunded } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -441,6 +442,60 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
         console.log('Audit log created successfully')
         console.log('Successfully processed checkout session completed for order:', orderId)
+
+        // Send notifications (outside transaction to not block payment processing)
+        try {
+          // Get buyer info for notifications
+          const buyer = await tx.user.findUnique({
+            where: { id: userId },
+            select: { displayName: true },
+          })
+          const buyerName = buyer?.displayName || 'Un utilisateur'
+
+          // Notify each seller about new sales
+          const sellerIds = new Set<string>()
+          
+          for (const item of updatedOrder.items) {
+            if (item.workflow && !sellerIds.has(item.workflow.sellerId)) {
+              sellerIds.add(item.workflow.sellerId)
+              await notifySellerNewOrder({
+                sellerId: item.workflow.sellerId,
+                buyerName,
+                workflowTitle: item.workflow.title,
+                amount: item.unitPriceCents / 100,
+                orderId,
+              })
+            }
+          }
+
+          for (const packItem of updatedOrder.packItems) {
+            if (packItem.pack && !sellerIds.has(packItem.pack.sellerId)) {
+              sellerIds.add(packItem.pack.sellerId)
+              await notifySellerNewOrder({
+                sellerId: packItem.pack.sellerId,
+                buyerName,
+                workflowTitle: packItem.pack.title,
+                amount: packItem.unitPriceCents / 100,
+                orderId,
+              })
+            }
+          }
+
+          // Notify buyer about order confirmation
+          const firstItemTitle = updatedOrder.items[0]?.workflow?.title || 
+                                 updatedOrder.packItems[0]?.pack?.title || 
+                                 'Votre achat'
+          await notifyBuyerOrderConfirmed({
+            buyerId: userId,
+            workflowTitle: firstItemTitle,
+            orderId,
+          })
+
+          console.log('Notifications sent successfully')
+        } catch (notifError) {
+          // Don't fail the webhook if notifications fail
+          console.error('Error sending notifications:', notifError)
+        }
       } else {
         console.log('Order already paid, skipping duplicate processing:', orderId)
       }
@@ -463,7 +518,20 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
       include: {
         order: {
           include: {
-            items: true,
+            items: {
+              include: {
+                workflow: {
+                  select: {
+                    title: true,
+                  },
+                },
+              },
+            },
+            user: {
+              select: {
+                id: true,
+              },
+            },
           },
         },
       },
@@ -525,6 +593,25 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
         },
       })
     })
+
+    // Notify buyer about the refund
+    try {
+      const workflowTitles = payment.order.items
+        .map((item) => item.workflow?.title)
+        .filter(Boolean)
+        .join(', ')
+
+      await notifyBuyerOrderRefunded({
+        buyerId: payment.order.user.id,
+        orderId: payment.orderId,
+        amount: refundAmount / 100, // Convert cents to dollars/euros
+        workflowTitle: workflowTitles || 'Votre commande',
+      })
+      console.log('📧 Refund notification sent to buyer:', payment.order.user.id)
+    } catch (notifError) {
+      console.error('Failed to send refund notification:', notifError)
+      // Don't throw - notification failure shouldn't fail the refund processing
+    }
 
     console.log('Successfully processed charge refunded for order:', payment.orderId)
   } catch (error) {

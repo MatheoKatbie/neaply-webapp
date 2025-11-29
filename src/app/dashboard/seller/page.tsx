@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button'
 
 interface SellerProfileData {
   storeName: string
+  storeSlug: string
   logoUrl: string | null
   bannerUrl: string | null
 }
@@ -241,6 +242,7 @@ export default function SellerDashboard() {
         if (data.data) {
           setSellerProfile({
             storeName: data.data.storeName,
+            storeSlug: data.data.slug,
             logoUrl: data.data.logoUrl,
             bannerUrl: data.data.bannerUrl,
           })

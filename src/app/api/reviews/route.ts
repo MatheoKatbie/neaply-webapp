@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
 import { z } from 'zod'
+import { notifySellerNewReview } from '@/lib/notifications'
 
 // Schema for creating a review
 const createReviewSchema = z.object({
@@ -89,11 +90,32 @@ export async function POST(req: NextRequest) {
             avatarUrl: true,
           },
         },
+        workflow: {
+          select: {
+            title: true,
+            slug: true,
+            sellerId: true,
+          },
+        },
       },
     })
 
     // Update workflow rating statistics
     await updateWorkflowRatingStats(validatedData.workflowId)
+
+    // Notify the seller about the new review
+    try {
+      await notifySellerNewReview({
+        sellerId: review.workflow.sellerId,
+        reviewerName: review.user.displayName || 'Un utilisateur',
+        workflowTitle: review.workflow.title,
+        rating: review.rating,
+        reviewId: review.id,
+      })
+    } catch (notifError) {
+      console.error('Failed to send review notification:', notifError)
+      // Don't fail the request if notification fails
+    }
 
     return NextResponse.json({
       data: {

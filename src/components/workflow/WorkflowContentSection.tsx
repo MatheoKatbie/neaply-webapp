@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input'
 import { JsonInput } from '@/components/ui/json-input'
 import { Label } from '@/components/ui/label'
 import { PlatformSelect } from '@/components/ui/platform-select'
-import { AlertCircle, CheckCircle, Info } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { SimilarityAlert } from '@/components/SimilarityAlert'
+import { useSimilarityCheck } from '@/hooks/useSimilarityCheck'
+import { AlertCircle, CheckCircle, Info, Loader2 } from 'lucide-react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 
 interface WorkflowContentSectionProps {
   platform: string
@@ -25,6 +27,8 @@ interface WorkflowContentSectionProps {
   touched: Record<string, boolean>
   onBlur: (field: string) => void
   showErrors?: boolean
+  workflowId?: string // For edit mode - exclude from similarity check
+  onSimilarityWarning?: (hasSimilarity: boolean) => void // Callback when similarity is detected
 }
 
 // Simplified platform configuration
@@ -71,12 +75,19 @@ export function WorkflowContentSection({
   touched,
   onBlur,
   showErrors = false,
+  workflowId,
+  onSimilarityWarning,
 }: WorkflowContentSectionProps) {
   const [jsonValidation, setJsonValidation] = useState<{ isValid: boolean; error: string | null }>({
     isValid: true,
     error: null,
   })
   const [showVersions, setShowVersions] = useState(false)
+  const [similarityDismissed, setSimilarityDismissed] = useState(false)
+  const [similarityConfirmed, setSimilarityConfirmed] = useState(false)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const { checkSimilarity, isChecking, result: similarityResult, clearResult } = useSimilarityCheck()
 
   const currentPlatform = platformConfig[platform as keyof typeof platformConfig]
 
@@ -109,6 +120,42 @@ export function WorkflowContentSection({
       setJsonValidation({ isValid: true, error: null })
     }
   }, [platform, jsonContent, currentPlatform])
+
+  // Check similarity when JSON content changes (debounced)
+  useEffect(() => {
+    // Only check for n8n workflows with valid JSON
+    if (platform !== 'n8n' || !jsonContent || typeof jsonContent !== 'object') {
+      clearResult()
+      return
+    }
+
+    // Reset dismissed/confirmed state when content changes
+    setSimilarityDismissed(false)
+    setSimilarityConfirmed(false)
+
+    // Debounce the similarity check
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      checkSimilarity(jsonContent, workflowId)
+    }, 1500) // Wait 1.5s after user stops typing
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [platform, jsonContent, workflowId, checkSimilarity, clearResult])
+
+  // Notify parent about similarity warning
+  useEffect(() => {
+    if (onSimilarityWarning) {
+      const hasSimilarity = similarityResult?.isSimilar && !similarityConfirmed
+      onSimilarityWarning(hasSimilarity || false)
+    }
+  }, [similarityResult, similarityConfirmed, onSimilarityWarning])
 
   const handleJsonChange = (content: any, isValid: boolean) => {
     onUpdate('jsonContent', content)
@@ -219,6 +266,12 @@ export function WorkflowContentSection({
                   <span className="text-sm text-green-600">
                     Valid {currentPlatform?.name === 'Airtable Script' ? 'JavaScript code' : 'workflow format'}
                   </span>
+                  {isChecking && (
+                    <span className="flex items-center gap-1 text-sm text-gray-400 ml-2">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Vérification des similarités...
+                    </span>
+                  )}
                 </>
               ) : (
                 <>
@@ -226,6 +279,23 @@ export function WorkflowContentSection({
                   <span className="text-sm text-red-600">{jsonValidation.error}</span>
                 </>
               )}
+            </div>
+          )}
+
+          {/* Similarity Alert */}
+          {platform === 'n8n' && similarityResult && similarityResult.similarityScore >= 50 && !similarityDismissed && (
+            <div className="mt-4">
+              <SimilarityAlert
+                similarityScore={similarityResult.similarityScore}
+                warning={similarityResult.warning}
+                matchedWorkflows={similarityResult.matchedWorkflows}
+                onDismiss={() => setSimilarityDismissed(true)}
+                onConfirm={() => {
+                  setSimilarityConfirmed(true)
+                  setSimilarityDismissed(true)
+                }}
+                showActions={similarityResult.isSimilar}
+              />
             </div>
           )}
 

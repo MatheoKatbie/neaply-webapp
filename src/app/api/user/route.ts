@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
+import { notifyWelcome } from '@/lib/notifications'
 
 export async function GET(request: NextRequest) {
   try {
@@ -36,6 +37,17 @@ export async function GET(request: NextRequest) {
           isAdmin: false,
         },
       })
+
+      // Send welcome notification for new users
+      try {
+        await notifyWelcome({
+          userId: dbUser.id,
+          userName: dbUser.displayName || 'Nouveau membre',
+        })
+      } catch (notifError) {
+        console.error('Failed to send welcome notification:', notifError)
+        // Don't fail the request if notification fails
+      }
     } else if (oauthAvatarUrl && oauthAvatarUrl !== dbUser.avatarUrl) {
       // Synchronize OAuth avatar to database if different
       dbUser = await prisma.user.update({

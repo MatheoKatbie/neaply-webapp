@@ -290,3 +290,117 @@ export async function notifyFollowersNewWorkflow({
 
   return Promise.all(notifications)
 }
+
+/**
+ * Create a notification when an order is refunded
+ */
+export async function notifyBuyerOrderRefunded({
+  buyerId,
+  workflowTitle,
+  orderId,
+  amount,
+}: {
+  buyerId: string
+  workflowTitle: string
+  orderId: string
+  amount: number
+}) {
+  return createNotification({
+    userId: buyerId,
+    type: 'order_refunded',
+    title: 'Remboursement effectué 💸',
+    message: `Votre achat de "${workflowTitle}" a été remboursé (${amount.toFixed(2)}€)`,
+    link: `/orders`,
+    metadata: { orderId, workflowTitle, amount },
+  })
+}
+
+/**
+ * Create a notification when a seller responds to a review
+ */
+export async function notifyBuyerReviewResponse({
+  buyerId,
+  sellerName,
+  workflowTitle,
+  reviewId,
+}: {
+  buyerId: string
+  sellerName: string
+  workflowTitle: string
+  reviewId: string
+}) {
+  return createNotification({
+    userId: buyerId,
+    type: 'review_response',
+    title: 'Réponse à votre avis 💬',
+    message: `${sellerName} a répondu à votre avis sur "${workflowTitle}"`,
+    link: `/workflow/${reviewId}`,
+    metadata: { reviewId, sellerName, workflowTitle },
+  })
+}
+
+/**
+ * Create a notification when a workflow is approved by admin
+ */
+export async function notifySellerWorkflowApproved({
+  sellerId,
+  workflowTitle,
+  workflowSlug,
+}: {
+  sellerId: string
+  workflowTitle: string
+  workflowSlug: string
+}) {
+  return createNotification({
+    userId: sellerId,
+    type: 'workflow_approved',
+    title: 'Workflow approuvé ✅',
+    message: `"${workflowTitle}" a été approuvé et est maintenant visible sur le marketplace`,
+    link: `/workflow/${workflowSlug}`,
+    metadata: { workflowTitle, workflowSlug },
+  })
+}
+
+/**
+ * Create a notification when a workflow is rejected by admin
+ */
+export async function notifySellerWorkflowRejected({
+  sellerId,
+  workflowTitle,
+  reason,
+}: {
+  sellerId: string
+  workflowTitle: string
+  reason?: string
+}) {
+  return createNotification({
+    userId: sellerId,
+    type: 'workflow_rejected',
+    title: 'Workflow refusé ❌',
+    message: reason 
+      ? `"${workflowTitle}" n'a pas été approuvé : ${reason}` 
+      : `"${workflowTitle}" n'a pas été approuvé. Vérifiez les guidelines.`,
+    link: `/dashboard/seller`,
+    metadata: { workflowTitle, reason },
+  })
+}
+
+/**
+ * Create a welcome notification for new users
+ */
+export async function notifyWelcome({
+  userId,
+  userName,
+}: {
+  userId: string
+  userName: string
+}) {
+  return createNotification({
+    userId,
+    type: 'welcome',
+    title: `Bienvenue ${userName} ! 🎉`,
+    message: 'Découvrez les meilleurs workflows d\'automatisation sur Neaply',
+    link: '/marketplace',
+    metadata: { userName },
+  })
+}
