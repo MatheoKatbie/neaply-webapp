@@ -10,6 +10,8 @@
 
 import { PrismaClient } from '@prisma/client'
 import { Resend } from 'resend'
+import { render } from '@react-email/render'
+import * as React from 'react'
 
 const prisma = new PrismaClient()
 
@@ -20,6 +22,15 @@ if (!process.env.RESEND_API_KEY) {
 }
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const FROM_EMAIL = process.env.EMAIL_FROM || 'Neaply <onboarding@resend.dev>'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://neaply.fr'
+
+// Import the email component dynamically to avoid JSX issues
+async function getEmailHtml(email: string): Promise<string> {
+  const { WaitlistLaunchEmail } = await import('../src/emails/WaitlistLaunchEmail')
+  const element = React.createElement(WaitlistLaunchEmail, { email })
+  return await render(element)
+}
 
 // Parse command line arguments
 const args = process.argv.slice(2)
@@ -76,14 +87,14 @@ async function main() {
           console.log(`  📧 Would send to: ${entry.email} (position #${entry.position})`)
           sent++
         } else {
-          // Import email template dynamically
-          const { WaitlistLaunchEmail } = await import('../src/emails/WaitlistLaunchEmail')
+          // Generate HTML using the React Email component
+          const html = await getEmailHtml(entry.email)
           
           const { error } = await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Neaply <hello@neaply.com>',
+            from: FROM_EMAIL,
             to: entry.email,
             subject: '🚀 Neaply is Live! Start exploring now',
-            react: WaitlistLaunchEmail({ email: entry.email }),
+            html,
           })
 
           if (error) {
