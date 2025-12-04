@@ -5,7 +5,6 @@ import {
   Hr,
   Text,
   Section,
-  Link,
 } from '@react-email/components'
 import { EmailLayout } from './components/EmailLayout'
 
@@ -16,12 +15,11 @@ interface WaitlistWelcomeEmailProps {
 
 export function WaitlistWelcomeEmail({ email, position }: WaitlistWelcomeEmailProps) {
   return (
-    <EmailLayout preview="Welcome to the Neaply waitlist! 🚀">
+    <EmailLayout preview="Welcome to the Neaply waitlist">
       {/* Hero Section */}
       <Section style={heroSection}>
-        <Text style={emoji}>🎉</Text>
         <Heading style={heading}>
-          You&apos;re on the list!
+          You&apos;re on the list
         </Heading>
         <Text style={subheading}>
           Welcome to the Neaply waitlist
@@ -32,60 +30,53 @@ export function WaitlistWelcomeEmail({ email, position }: WaitlistWelcomeEmailPr
 
       {/* Main Message */}
       <Text style={paragraph}>
-        Hey there!
+        Hello,
       </Text>
       <Text style={paragraph}>
-        Thank you for joining the Neaply waitlist! We&apos;re thrilled to have you as part of our 
-        early community of automation enthusiasts.
+        Thank you for joining the Neaply waitlist. We&apos;re glad to have you as part of our 
+        early community.
       </Text>
 
       {position && (
         <Section style={positionBox}>
           <Text style={positionLabel}>Your position</Text>
           <Text style={positionNumber}>#{position}</Text>
-          <Text style={positionHint}>
-            Share with friends to move up the list!
-          </Text>
         </Section>
       )}
 
-      <Text style={paragraph}>
-        <strong style={highlight}>What is Neaply?</strong>
-        <br />
-        Neaply is the marketplace where you can discover, buy, and sell automation workflows 
-        for tools like n8n, Zapier, Make, and more. Whether you&apos;re looking to automate your 
-        business or monetize your automation skills, Neaply is the place for you.
-      </Text>
+      <Section style={infoBox}>
+        <Text style={infoTitle}>What is Neaply?</Text>
+        <Text style={infoText}>
+          Neaply is the marketplace where you can discover, buy, and sell automation workflows 
+          for tools like n8n, Zapier, Make, and more.
+        </Text>
+      </Section>
 
-      <Text style={paragraph}>
-        <strong style={highlight}>What happens next?</strong>
-      </Text>
-      <ul style={list}>
-        <li style={listItem}>We&apos;ll notify you as soon as we launch</li>
-        <li style={listItem}>Early access members get exclusive perks</li>
-        <li style={listItem}>You&apos;ll be among the first to explore the marketplace</li>
-      </ul>
+      <Section style={infoBox}>
+        <Text style={infoTitle}>What happens next?</Text>
+        <Text style={infoText}>• We&apos;ll notify you when we launch</Text>
+        <Text style={infoText}>• Early access members get exclusive perks</Text>
+        <Text style={infoText}>• You&apos;ll be among the first to explore the marketplace</Text>
+      </Section>
 
       <Hr style={divider} />
 
       {/* CTA */}
       <Section style={ctaSection}>
         <Text style={ctaText}>
-          In the meantime, follow us on Twitter for updates:
+          Follow us on Twitter for updates
         </Text>
-        <Link
+        <Button
           href="https://twitter.com/neaplydev"
           style={button}
         >
           Follow @neaplydev
-        </Link>
+        </Button>
       </Section>
 
       {/* Signature */}
       <Text style={signature}>
-        See you soon! 👋
-        <br />
-        <span style={signatureName}>The Neaply Team</span>
+        — The Neaply Team
       </Text>
 
       <Hr style={divider} />
@@ -99,88 +90,83 @@ export function WaitlistWelcomeEmail({ email, position }: WaitlistWelcomeEmailPr
   )
 }
 
-// Styles
+// Styles - Sober grayscale design
 const heroSection = {
   textAlign: 'center' as const,
-  padding: '20px 0',
-}
-
-const emoji = {
-  fontSize: '48px',
-  margin: '0 0 16px',
+  padding: '24px 0',
 }
 
 const heading = {
   color: '#EDEFF7',
   fontSize: '28px',
-  fontWeight: '700',
+  fontWeight: '600',
   margin: '0 0 8px',
-  letterSpacing: '-0.5px',
+  letterSpacing: '-0.3px',
 }
 
 const subheading = {
   color: '#9DA2B3',
-  fontSize: '16px',
+  fontSize: '15px',
   margin: '0',
 }
 
 const divider = {
-  borderColor: 'rgba(157, 162, 179, 0.15)',
+  borderColor: 'rgba(157, 162, 179, 0.12)',
   margin: '24px 0',
 }
 
 const paragraph = {
-  color: '#D1D5DB',
+  color: '#B8BCC8',
   fontSize: '15px',
   lineHeight: '24px',
   margin: '0 0 16px',
 }
 
-const highlight = {
-  color: '#EDEFF7',
-}
-
 const positionBox = {
-  backgroundColor: 'rgba(99, 102, 241, 0.1)',
-  borderRadius: '12px',
+  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+  borderRadius: '8px',
   padding: '24px',
   textAlign: 'center' as const,
   margin: '24px 0',
-  border: '1px solid rgba(99, 102, 241, 0.2)',
+  border: '1px solid rgba(157, 162, 179, 0.1)',
 }
 
 const positionLabel = {
   color: '#9DA2B3',
-  fontSize: '12px',
+  fontSize: '11px',
   textTransform: 'uppercase' as const,
   letterSpacing: '1px',
-  margin: '0 0 4px',
+  margin: '0 0 8px',
 }
 
 const positionNumber = {
-  color: '#818CF8',
-  fontSize: '48px',
-  fontWeight: '700',
+  color: '#EDEFF7',
+  fontSize: '36px',
+  fontWeight: '600',
   margin: '0',
   lineHeight: '1',
 }
 
-const positionHint = {
-  color: '#6B7280',
-  fontSize: '13px',
-  margin: '12px 0 0',
+const infoBox = {
+  backgroundColor: 'rgba(255, 255, 255, 0.02)',
+  borderRadius: '8px',
+  padding: '16px 20px',
+  margin: '0 0 12px',
+  border: '1px solid rgba(157, 162, 179, 0.08)',
 }
 
-const list = {
-  color: '#D1D5DB',
-  fontSize: '15px',
-  lineHeight: '24px',
-  paddingLeft: '20px',
-  margin: '0 0 16px',
+const infoTitle = {
+  color: '#EDEFF7',
+  fontSize: '14px',
+  fontWeight: '600',
+  margin: '0 0 8px',
 }
 
-const listItem = {
-  marginBottom: '8px',
+const infoText = {
+  color: '#B8BCC8',
+  fontSize: '14px',
+  lineHeight: '22px',
+  margin: '0 0 4px',
 }
 
 const ctaSection = {
@@ -195,11 +181,11 @@ const ctaText = {
 }
 
 const button = {
-  backgroundColor: '#fcfbfc',
-  borderRadius: '8px',
-  color: '#000000',
+  backgroundColor: '#EDEFF7',
+  borderRadius: '6px',
+  color: '#0D0D0F',
   fontSize: '14px',
-  fontWeight: '600',
+  fontWeight: '500',
   textDecoration: 'none',
   textAlign: 'center' as const,
   padding: '12px 24px',
@@ -207,15 +193,9 @@ const button = {
 }
 
 const signature = {
-  color: '#D1D5DB',
-  fontSize: '15px',
-  lineHeight: '24px',
+  color: '#9DA2B3',
+  fontSize: '14px',
   margin: '24px 0 0',
-}
-
-const signatureName = {
-  color: '#EDEFF7',
-  fontWeight: '600',
 }
 
 const footerNote = {
@@ -223,6 +203,7 @@ const footerNote = {
   fontSize: '12px',
   lineHeight: '18px',
   margin: '0',
+  textAlign: 'center' as const,
 }
 
 export default WaitlistWelcomeEmail
