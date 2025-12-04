@@ -483,9 +483,9 @@ function LoginContent() {
             
             {/* 3D Logo with subtle transparency */}
             <img 
-              src="/images/neaply/neaply3D2.png" 
+              src="/images/neaply/neaply3D.png" 
               alt="Neaply 3D Logo" 
-              className="w-[85%] relative z-10 opacity-80 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)] hover:opacity-100 hover:drop-shadow-[0_0_70px_rgba(255,255,255,0.35)] transition-all duration-300 cursor-pointer" 
+              className="w-[85%] relative z-10 opacity-100 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)]" 
             />
           </div>
         </div>
@@ -494,7 +494,7 @@ function LoginContent() {
             <img
               src="/images/hero/hero-bg.png"
               alt="Neaply Background"
-              className="w-full h-full object-cover opacity-30"
+              className="w-full h-full object-cover opacity-20"
             />
           </div>
 
