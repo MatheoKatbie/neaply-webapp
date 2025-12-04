@@ -377,7 +377,7 @@ export default function RegisterPage() {
             <img 
               src="/images/neaply/neaply3D2.png" 
               alt="Neaply 3D Logo" 
-              className="w-[85%] relative z-10 opacity-90 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)]" 
+              className="w-[85%] relative z-10 opacity-90 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)] hover:opacity-100 hover:drop-shadow-[0_0_70px_rgba(255,255,255,0.35)] transition-all duration-300 cursor-pointer" 
             />
           </div>
         </div>

@@ -468,16 +468,24 @@ function LoginContent() {
         </div>
 
         {/* Right side - Hero Image */}
-        <div className="hidden lg:block relative bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
+        <div className="hidden lg:block relative">
           {/* Logo Neaply en haut à droite */}
           <Link href="/" className="absolute top-8 right-8 z-20">
             <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
           </Link>
 
-          <div className="absolute inset-0">
-            <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />
-            {/* Dark gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/40 to-blue-800/50"></div>
+
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Animated glow rings behind logo */}
+            <div className="absolute w-[60%] aspect-square rounded-full bg-white/8 blur-3xl animate-pulse" />
+            <div className="absolute w-[45%] aspect-square rounded-full bg-white/5 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+            
+            {/* 3D Logo with subtle transparency */}
+            <img 
+              src="/images/neaply/neaply3D2.png" 
+              alt="Neaply 3D Logo" 
+              className="w-[85%] relative z-10 opacity-90 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)] hover:opacity-100 hover:drop-shadow-[0_0_70px_rgba(255,255,255,0.35)] transition-all duration-300 cursor-pointer" 
+            />
           </div>
         </div>
       </div>
