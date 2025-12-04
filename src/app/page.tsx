@@ -570,21 +570,21 @@ export default function Home() {
               </circle>
             </svg>
 
-            {/* Background Image */}
-            <div className="absolute z-0 top-[350px] left-0 right-0 w-full pointer-events-none">
+            {/* Background Image - Hero */}
+            <div className="absolute inset-0 z-0">
               <img
-                src="/images/hero/hero-bg.png"
+                src="/images/hero.png"
                 alt="neaply Hero Background"
-                className="w-full h-auto object-contain opacity-50"
+                className="w-full h-full object-cover opacity-60"
               />
+              {/* Dark gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#08080A] via-[#08080A]/50 to-transparent" />
             </div>
 
             {/* Content */}
-            <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 w-full">
-              {/* Two Column Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                {/* Left Column - Text Content */}
-                <div className="text-white">
+            <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 w-full text-center">
+              {/* Centered Hero Content */}
+              <div className="text-white">
                   <p className="font-aeonikpro text-[#BCBFCC] text-[16px] md:text-[18px] mb-4">
                     Welcome to the workflows marketplace — neaply
                   </p>
@@ -603,7 +603,7 @@ export default function Home() {
                   </p>
 
                   {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <Button
                       onClick={() => router.push('/register')}
                       variant="default"
@@ -622,24 +622,15 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Right Column - Workflow Preview Card */}
-                <div className="relative hidden lg:block">
-                  {/* Main workflow card */}
-                  <div className="relative z-10">
-                    <img src="/images/hero/hero-workflow.png" alt="Workflow Example" className="object-contain" />
-                  </div>
-                </div>
-              </div>
-
               {/* Explore by platforms section */}
               <div className="mt-20 mb-12">
-                <h2 className="font-aeonikpro text-white text-2xl font-medium mb-8 text-left">Explore by platforms</h2>
+                <h2 className="font-aeonikpro text-white text-2xl font-medium mb-8 text-center">Explore by platforms</h2>
 
-                <div className="flex flex-wrap justify-center gap-6">
+                <div className="flex justify-center gap-6">
                   {/* n8n Card */}
                   <div
                     onClick={() => router.push('/search?platform=n8n')}
-                    className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
+                    className="w-[25%] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
                       WebkitBackdropFilter: 'blur(10px)',
@@ -665,7 +656,7 @@ export default function Home() {
                   {/* Zapier Card */}
                   <div
                     onClick={() => router.push('/search?platform=zapier')}
-                    className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
+                    className="w-[25%] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
                       WebkitBackdropFilter: 'blur(10px)',
@@ -691,7 +682,7 @@ export default function Home() {
                   {/* Make Card */}
                   <div
                     onClick={() => router.push('/search?platform=make')}
-                    className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
+                    className="w-[25%] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
                       WebkitBackdropFilter: 'blur(10px)',
@@ -717,7 +708,7 @@ export default function Home() {
                   {/* Airtable Card */}
                   <div
                     onClick={() => router.push('/search?platform=airtable_script')}
-                    className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
+                    className="w-[25%] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
                       WebkitBackdropFilter: 'blur(10px)',
