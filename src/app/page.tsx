@@ -581,19 +581,22 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#08080A] via-[#08080A]/50 to-transparent" />
             </div>
 
+            {/* Hero BG decorative image */}
+      
+
             {/* Content */}
             <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 w-full text-center">
               {/* Centered Hero Content */}
-              <div className="text-white">
+              <div className="text-white flex flex-col justify-center items-center mx-auto max-w-3xl">
                   <p className="font-aeonikpro text-[#BCBFCC] text-[16px] md:text-[18px] mb-4">
                     Welcome to the workflows marketplace — neaply
                   </p>
 
                   {/* Main Heading */}
-                  <h1 className="font-aeonikpro text-3xl md:text-4xl lg:text-5xl xl:text-[64px] text-[#EDEFF7] leading-tight lg:leading-[1.2] tracking-tight mb-6">
+                  <h1 className="font-aeonikpro text-4xl md:text-5xl lg:text-6xl xl:text-[75px] text-[#EDEFF7] leading-tight lg:leading-[1.2] tracking-tight mb-6">
                     Automate your world,
                     <br />
-                    Elevate your workforce.
+                    <span className='font-merriweather italic text-3xl md:text-4xl lg:text-5xl xl:text-[65px] opacity-80'>Elevate your workforce.</span>
                   </h1>
 
                   {/* Subheading */}

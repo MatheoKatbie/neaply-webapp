@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter, Merriweather, Space_Grotesk } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
@@ -13,6 +13,12 @@ import Script from 'next/script'
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
+})
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+  variable: "--font-merriweather",
+  weight: ["300", "400", "700", "900"],
 })
 
 // AeonikPro local font configuration
@@ -278,7 +284,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${aeonikPro.variable} ${inter.className} antialiased`}
+        className={`${inter.variable} ${spaceGrotesk.variable} ${aeonikPro.variable} ${merriweather.variable} ${inter.className}  antialiased`}
         suppressHydrationWarning={true}
         style={{ backgroundColor: '#08080A' }}
       >

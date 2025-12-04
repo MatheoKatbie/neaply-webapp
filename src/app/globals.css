@@ -172,6 +172,10 @@
   font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
 }
 
+.font-merriweather {
+  font-family: var(--font-merriweather), ui-serif, Georgia, serif;
+}
+
 .font-sf-pro {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial,
     sans-serif;

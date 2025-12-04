@@ -220,7 +220,7 @@ function LoginContent() {
     <>
       <div className="h-screen grid lg:grid-cols-2 font-aeonikpro overflow-hidden">
         {/* Left side - Form */}
-        <div className="flex items-center justify-center bg-[#08080A] px-4 sm:px-6 lg:px-8 overflow-y-auto">
+        <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-y-auto">
           <div className="max-w-md w-full py-8">
             <div className="text-center mb-6">
               <h2 className="text-3xl font-aeonikpro text-[#EDEFF7]">Welcome to Neaply</h2>
@@ -229,7 +229,7 @@ function LoginContent() {
               </p>
             </div>
 
-            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
+            <Card className=" border-[#9DA2B3]/25">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-[#EDEFF7] font-aeonikpro">
                   {loginStep === '2fa' && <Shield className="h-5 w-5" />}
@@ -474,8 +474,9 @@ function LoginContent() {
             <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
           </Link>
 
+  
 
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center z-10">
             {/* Animated glow rings behind logo */}
             <div className="absolute w-[60%] aspect-square rounded-full bg-white/8 blur-3xl animate-pulse" />
             <div className="absolute w-[45%] aspect-square rounded-full bg-white/5 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
@@ -484,10 +485,19 @@ function LoginContent() {
             <img 
               src="/images/neaply/neaply3D2.png" 
               alt="Neaply 3D Logo" 
-              className="w-[85%] relative z-10 opacity-90 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)] hover:opacity-100 hover:drop-shadow-[0_0_70px_rgba(255,255,255,0.35)] transition-all duration-300 cursor-pointer" 
+              className="w-[85%] relative z-10 opacity-80 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)] hover:opacity-100 hover:drop-shadow-[0_0_70px_rgba(255,255,255,0.35)] transition-all duration-300 cursor-pointer" 
             />
           </div>
         </div>
+                {/* Background hero-bg decorative */}
+          <div className="absolute inset-0 top-60 -z-9999">
+            <img
+              src="/images/hero/hero-bg.png"
+              alt="Neaply Background"
+              className="w-full h-full object-cover opacity-30"
+            />
+          </div>
+
       </div>
     </>
   )
