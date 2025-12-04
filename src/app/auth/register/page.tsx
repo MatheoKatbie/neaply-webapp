@@ -373,11 +373,11 @@ export default function RegisterPage() {
             <div className="absolute w-[60%] aspect-square rounded-full bg-white/8 blur-3xl animate-pulse" />
             <div className="absolute w-[45%] aspect-square rounded-full bg-white/5 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
             
-            {/* 3D Logo with enhanced glow */}
+            {/* 3D Logo with subtle transparency */}
             <img 
               src="/images/neaply/neaply3D2.png" 
               alt="Neaply 3D Logo" 
-              className="w-[85%] relative z-10 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)]" 
+              className="w-[85%] relative z-10 opacity-90 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)]" 
             />
           </div>
         </div>
