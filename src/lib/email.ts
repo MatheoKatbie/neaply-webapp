@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { render } from '@react-email/render'
-import { WaitlistWelcomeEmail, WaitlistLaunchEmail } from '@/emails'
+import { WaitlistWelcomeEmail, WaitlistLaunchEmail, AdminBroadcastEmail } from '@/emails'
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -181,4 +181,67 @@ export function getEmailConfig() {
     replyTo: REPLY_TO,
     hasApiKey: !!process.env.RESEND_API_KEY,
   }
+}
+
+/**
+ * Send broadcast email to multiple users
+ */
+export async function sendBroadcastEmail({
+  emails,
+  subject,
+  content,
+  ctaText,
+  ctaUrl,
+}: {
+  emails: string[]
+  subject: string
+  content: string
+  ctaText?: string
+  ctaUrl?: string
+}): Promise<{ sent: number; failed: number; errors: string[] }> {
+  const results = {
+    sent: 0,
+    failed: 0,
+    errors: [] as string[],
+  }
+
+  // Pre-render the email template once
+  const html = await render(AdminBroadcastEmail({ subject, content, ctaText, ctaUrl }))
+
+  // Process in batches of 10 to avoid rate limits
+  const batchSize = 10
+  for (let i = 0; i < emails.length; i += batchSize) {
+    const batch = emails.slice(i, i + batchSize)
+    
+    const promises = batch.map(async (email) => {
+      try {
+        const { error } = await resend.emails.send({
+          from: FROM_EMAIL,
+          to: email,
+          replyTo: REPLY_TO,
+          subject,
+          html,
+        })
+
+        if (error) {
+          results.failed++
+          results.errors.push(`${email}: ${error.message}`)
+        } else {
+          results.sent++
+        }
+      } catch (err) {
+        results.failed++
+        results.errors.push(`${email}: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      }
+    })
+
+    await Promise.all(promises)
+    
+    // Small delay between batches to respect rate limits
+    if (i + batchSize < emails.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+  }
+
+  return results
 }

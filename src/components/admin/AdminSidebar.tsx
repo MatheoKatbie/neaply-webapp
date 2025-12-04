@@ -10,6 +10,7 @@ import {
     ShoppingCart,
     Flag,
     Bug,
+    Mail,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 
@@ -20,6 +21,7 @@ const navigation = [
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, description: 'View orders' },
     { name: 'Reports', href: '/admin/reports', icon: Flag, description: 'View reports' },
     { name: 'Bug Reports', href: '/admin/bug-reports', icon: Bug, description: 'View bug reports' },
+    { name: 'Emails', href: '/admin/emails', icon: Mail, description: 'Send emails to users' },
 ]
 
 export function AdminSidebar() {
