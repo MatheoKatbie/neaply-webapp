@@ -306,7 +306,7 @@ function LoginContent() {
                         <Separator className="w-full" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-[#08080A] px-2 text-[#9DA2B3] font-aeonikpro">Or continue with</span>
+                        <span className="  px-2 text-[#9DA2B3] font-aeonikpro">Or continue with</span>
                       </div>
                     </div>
 

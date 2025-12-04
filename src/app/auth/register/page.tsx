@@ -179,9 +179,8 @@ export default function RegisterPage() {
             </Link>
 
             <div className="absolute inset-0">
-              <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />
+              <img src="/images/neaply/neaply3D2.png" alt="Neaply Hero" className="w-full h-full object-cover" />
               {/* Dark gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/40 to-blue-800/50"></div>
             </div>
           </div>
         </div>
@@ -261,7 +260,7 @@ export default function RegisterPage() {
                     <Separator className="w-full" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#08080A] px-2 text-[#9DA2B3] font-aeonikpro">Or create with email</span>
+                    <span className="px-2 text-[#9DA2B3] font-aeonikpro">Or create with email</span>
                   </div>
                 </div>
 
@@ -363,16 +362,23 @@ export default function RegisterPage() {
         </div>
 
         {/* Right side - Hero Image */}
-        <div className="hidden lg:block relative bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
+        <div className="hidden lg:block relative ">
           {/* Logo Neaply en haut à droite */}
           <Link href="/" className="absolute top-8 right-8 z-20">
               <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
             </Link>
 
-          <div className="absolute inset-0">
-            <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />
-            {/* Dark gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/40 to-blue-800/50"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Animated glow rings behind logo */}
+            <div className="absolute w-[60%] aspect-square rounded-full bg-white/8 blur-3xl animate-pulse" />
+            <div className="absolute w-[45%] aspect-square rounded-full bg-white/5 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+            
+            {/* 3D Logo with enhanced glow */}
+            <img 
+              src="/images/neaply/neaply3D2.png" 
+              alt="Neaply 3D Logo" 
+              className="w-[85%] relative z-10 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)]" 
+            />
           </div>
         </div>
       </div>
