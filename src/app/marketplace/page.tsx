@@ -12,8 +12,25 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { WorkflowCard } from '@/components/ui/workflow-card'
-import { Search, X, SlidersHorizontal, ChevronDown } from 'lucide-react'
+import { Search, X, SlidersHorizontal, ChevronDown, Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
+
+// Platform options
+const PLATFORMS = [
+  { value: 'all', label: 'All Platforms' },
+  { value: 'n8n', label: 'n8n' },
+  { value: 'zapier', label: 'Zapier' },
+  { value: 'make', label: 'Make' },
+  { value: 'airtable_script', label: 'Airtable Script' },
+]
+
+// Rating options
+const RATINGS = [
+  { value: 0, label: 'All Ratings' },
+  { value: 4, label: '4+ Stars' },
+  { value: 3, label: '3+ Stars' },
+  { value: 2, label: '2+ Stars' },
+]
 
 interface WorkflowCardData {
   id: string
@@ -62,7 +79,10 @@ interface MarketplaceResponse {
 export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedPlatform, setSelectedPlatform] = useState('all')
+  const [minRating, setMinRating] = useState(0)
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
+  const [showFreeOnly, setShowFreeOnly] = useState(false)
   const [sortBy, setSortBy] = useState('popular')
   const [workflows, setWorkflows] = useState<WorkflowCardData[]>([])
   const [loading, setLoading] = useState(true)
@@ -101,12 +121,24 @@ export default function MarketplacePage() {
         params.append('category', selectedCategory)
       }
 
-      if (priceRange.min) {
-        params.append('minPrice', priceRange.min)
+      if (selectedPlatform !== 'all') {
+        params.append('platform', selectedPlatform)
       }
 
-      if (priceRange.max) {
-        params.append('maxPrice', priceRange.max)
+      if (minRating > 0) {
+        params.append('minRating', minRating.toString())
+      }
+
+      if (showFreeOnly) {
+        params.append('maxPrice', '0')
+      } else {
+        if (priceRange.min) {
+          params.append('minPrice', priceRange.min)
+        }
+
+        if (priceRange.max) {
+          params.append('maxPrice', priceRange.max)
+        }
       }
 
       const response = await fetch(`/api/marketplace/workflows?${params.toString()}`)
@@ -147,17 +179,20 @@ export default function MarketplacePage() {
   // Fetch workflows on component mount and when filters change
   useEffect(() => {
     fetchWorkflows(1, false)
-  }, [searchQuery, selectedCategory, priceRange.min, priceRange.max, sortBy])
+  }, [searchQuery, selectedCategory, selectedPlatform, minRating, priceRange.min, priceRange.max, showFreeOnly, sortBy])
 
   // Workflows are already filtered and sorted by the API
   const sortedWorkflows = workflows
 
-  const hasActiveFilters = searchQuery || selectedCategory !== 'all' || priceRange.min || priceRange.max
+  const hasActiveFilters = searchQuery || selectedCategory !== 'all' || selectedPlatform !== 'all' || minRating > 0 || priceRange.min || priceRange.max || showFreeOnly
 
   const clearAllFilters = () => {
     setSearchQuery('')
     setSelectedCategory('all')
+    setSelectedPlatform('all')
+    setMinRating(0)
     setPriceRange({ min: '', max: '' })
+    setShowFreeOnly(false)
     setSortBy('popular')
   }
 
@@ -181,12 +216,34 @@ export default function MarketplacePage() {
         </div>
       </div>
 
+      {/* Platform Filter */}
+      <div>
+        <Label className="text-sm font-medium text-[#EDEFF7] mb-3 block">
+          Platform
+        </Label>
+        <div className="space-y-1">
+          {PLATFORMS.map((platform) => (
+            <button
+              key={platform.value}
+              onClick={() => setSelectedPlatform(platform.value)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                selectedPlatform === platform.value
+                  ? 'bg-[#EDEFF7]/10 text-[#EDEFF7]'
+                  : 'text-[#9DA2B3] hover:bg-[#EDEFF7]/5 hover:text-[#EDEFF7]'
+              }`}
+            >
+              {platform.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Categories */}
       <div>
         <Label className="text-sm font-medium text-[#EDEFF7] mb-3 block">
           Categories
         </Label>
-        <div className="space-y-1">
+        <div className="space-y-1 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
           <button
             onClick={() => setSelectedCategory('all')}
             className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
@@ -214,39 +271,102 @@ export default function MarketplacePage() {
         </div>
       </div>
 
+      {/* Rating Filter */}
+      <div>
+        <Label className="text-sm font-medium text-[#EDEFF7] mb-3 block">
+          Rating
+        </Label>
+        <div className="space-y-1">
+          {RATINGS.map((rating) => (
+            <button
+              key={rating.value}
+              onClick={() => setMinRating(rating.value)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
+                minRating === rating.value
+                  ? 'bg-[#EDEFF7]/10 text-[#EDEFF7]'
+                  : 'text-[#9DA2B3] hover:bg-[#EDEFF7]/5 hover:text-[#EDEFF7]'
+              }`}
+            >
+              {rating.value > 0 ? (
+                <>
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3 h-3 ${i < rating.value ? 'text-yellow-400 fill-yellow-400' : 'text-[#9DA2B3]/30'}`}
+                      />
+                    ))}
+                  </div>
+                  <span>& up</span>
+                </>
+              ) : (
+                <span>{rating.label}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Price Range */}
       <div>
         <Label className="text-sm font-medium text-[#EDEFF7] mb-3 block">
-          Price Range
+          Price
         </Label>
-        <div className="space-y-3">
-          <div>
-            <Label htmlFor="min-price" className="text-xs text-[#9DA2B3] mb-1 block">
-              Min Price ($)
-            </Label>
-            <Input
-              id="min-price"
-              type="number"
-              placeholder="0"
-              value={priceRange.min}
-              onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
-              className="bg-[#0D0D0F] border-[#9DA2B3]/20 focus:border-[#9DA2B3]/40"
-            />
+        
+        {/* Free Only Toggle */}
+        <label className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-[#EDEFF7]/5 transition-colors mb-3">
+          <input
+            type="checkbox"
+            checked={showFreeOnly}
+            onChange={(e) => setShowFreeOnly(e.target.checked)}
+            className="w-4 h-4 rounded border-[#9DA2B3]/30 bg-[#0D0D0F] text-[#EDEFF7] focus:ring-[#EDEFF7]/20"
+          />
+          <span className={`text-sm ${showFreeOnly ? 'text-[#EDEFF7]' : 'text-[#9DA2B3]'}`}>
+            Free only
+          </span>
+        </label>
+
+        {!showFreeOnly && (
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={priceRange.min}
+                  onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                  className="bg-[#0D0D0F] border-[#9DA2B3]/20 focus:border-[#9DA2B3]/40 text-sm"
+                />
+              </div>
+              <span className="text-[#9DA2B3] self-center">-</span>
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={priceRange.max}
+                  onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                  className="bg-[#0D0D0F] border-[#9DA2B3]/20 focus:border-[#9DA2B3]/40 text-sm"
+                />
+              </div>
+            </div>
+            {/* Quick price buttons */}
+            <div className="flex flex-wrap gap-1">
+              {[10, 25, 50, 100].map((price) => (
+                <button
+                  key={price}
+                  onClick={() => setPriceRange({ min: '', max: price.toString() })}
+                  className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                    priceRange.max === price.toString() && !priceRange.min
+                      ? 'bg-[#EDEFF7]/10 text-[#EDEFF7]'
+                      : 'text-[#9DA2B3] hover:bg-[#EDEFF7]/5'
+                  }`}
+                >
+                  Under ${price}
+                </button>
+              ))}
+            </div>
           </div>
-          <div>
-            <Label htmlFor="max-price" className="text-xs text-[#9DA2B3] mb-1 block">
-              Max Price ($)
-            </Label>
-            <Input
-              id="max-price"
-              type="number"
-              placeholder="500"
-              value={priceRange.max}
-              onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
-              className="bg-[#0D0D0F] border-[#9DA2B3]/20 focus:border-[#9DA2B3]/40"
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Clear Filters */}
@@ -267,16 +387,6 @@ export default function MarketplacePage() {
   return (
     <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
       <div className="max-w-[1400px] mx-auto px-3 md:px-6 py-6">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-[#EDEFF7] font-space-grotesk mb-2">
-            Marketplace
-          </h1>
-          <p className="text-[#9DA2B3] text-sm md:text-base max-w-2xl">
-            Discover powerful workflows to automate your business processes.
-          </p>
-        </div>
-
         {/* Mobile Filter Toggle */}
         <div className="lg:hidden mb-4">
           <Button
@@ -345,6 +455,33 @@ export default function MarketplacePage() {
                     onClick={() => setPriceRange({ min: '', max: '' })}
                   >
                     ${priceRange.min || '0'} - ${priceRange.max || '∞'} <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+                {selectedPlatform !== 'all' && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setSelectedPlatform('all')}
+                  >
+                    {PLATFORMS.find(p => p.value === selectedPlatform)?.label || selectedPlatform} <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+                {minRating > 0 && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setMinRating(0)}
+                  >
+                    {minRating}+ ★ <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+                {showFreeOnly && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setShowFreeOnly(false)}
+                  >
+                    Free Only <X className="w-3 h-3 ml-1" />
                   </Badge>
                 )}
               </div>

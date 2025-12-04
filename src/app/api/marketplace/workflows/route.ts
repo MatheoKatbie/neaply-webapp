@@ -12,6 +12,8 @@ const marketplaceQuerySchema = z.object({
   platform: z.string().optional(),
   minPrice: z.string().optional(),
   maxPrice: z.string().optional(),
+  minRating: z.string().optional(),
+  freeOnly: z.string().optional(),
   sortBy: z.enum(['popular', 'newest', 'rating', 'price-low', 'price-high']).optional().default('popular'),
 })
 
@@ -105,6 +107,21 @@ export async function GET(req: NextRequest) {
       }
       if (validatedParams.maxPrice) {
         where.basePriceCents.lte = parseInt(validatedParams.maxPrice) * 100
+      }
+    }
+
+    // Free only filter
+    if (validatedParams.freeOnly === 'true') {
+      where.basePriceCents = 0
+    }
+
+    // Minimum rating filter
+    if (validatedParams.minRating) {
+      const minRating = parseFloat(validatedParams.minRating)
+      if (minRating > 0) {
+        where.ratingAvg = {
+          gte: minRating
+        }
       }
     }
 
