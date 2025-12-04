@@ -15,6 +15,14 @@ import {
   TestTube,
   CheckCircle,
   AlertCircle,
+  FileText,
+  Sparkles,
+  Gift,
+  Megaphone,
+  Wrench,
+  Heart,
+  TrendingUp,
+  Calendar,
 } from 'lucide-react'
 
 type Audience = 'all' | 'sellers' | 'buyers' | 'waitlist'
@@ -36,6 +44,154 @@ interface SendResult {
   totalRecipients?: number
 }
 
+interface EmailTemplate {
+  id: string
+  name: string
+  icon: React.ElementType
+  subject: string
+  content: string
+  ctaText?: string
+  ctaUrl?: string
+  audience: Audience
+}
+
+const EMAIL_TEMPLATES: EmailTemplate[] = [
+  {
+    id: 'new-feature',
+    name: 'New Feature',
+    icon: Sparkles,
+    audience: 'all',
+    subject: 'New on Neaply: [Feature Name]',
+    content: `We're excited to announce a new feature on Neaply!
+
+[Describe the feature here and how it benefits users]
+
+This update is now available for all users. Log in to try it out.
+
+If you have any questions or feedback, don't hesitate to reach out.`,
+    ctaText: 'Try It Now',
+    ctaUrl: 'https://neaply.com',
+  },
+  {
+    id: 'maintenance',
+    name: 'Maintenance',
+    icon: Wrench,
+    audience: 'all',
+    subject: 'Scheduled Maintenance Notice',
+    content: `We'll be performing scheduled maintenance on Neaply.
+
+Date: [Date]
+Time: [Time] (UTC)
+Expected Duration: [Duration]
+
+During this time, the platform may be temporarily unavailable. We apologize for any inconvenience.
+
+Thank you for your patience.`,
+  },
+  {
+    id: 'seller-tips',
+    name: 'Seller Tips',
+    icon: TrendingUp,
+    audience: 'sellers',
+    subject: 'Tips to Boost Your Sales on Neaply',
+    content: `Want to increase your workflow sales? Here are some tips:
+
+1. Write clear, detailed descriptions
+2. Add high-quality screenshots and demos
+3. Respond quickly to buyer questions
+4. Keep your workflows updated
+5. Price competitively based on value
+
+The most successful sellers on Neaply follow these practices consistently.`,
+    ctaText: 'View Your Dashboard',
+    ctaUrl: 'https://neaply.com/dashboard',
+  },
+  {
+    id: 'special-offer',
+    name: 'Special Offer',
+    icon: Gift,
+    audience: 'all',
+    subject: 'Special Offer Just for You',
+    content: `We have a special offer for our valued users!
+
+[Describe the offer, discount, or promotion]
+
+This offer is valid until [date]. Don't miss out!`,
+    ctaText: 'Claim Offer',
+    ctaUrl: 'https://neaply.com/marketplace',
+  },
+  {
+    id: 'newsletter',
+    name: 'Newsletter',
+    icon: Megaphone,
+    audience: 'all',
+    subject: 'Neaply Newsletter - [Month Year]',
+    content: `Here's what's new at Neaply this month:
+
+New Features:
+• [Feature 1]
+• [Feature 2]
+
+Top Workflows This Month:
+• [Workflow 1]
+• [Workflow 2]
+
+Community Highlights:
+[Share community news or achievements]
+
+Thank you for being part of the Neaply community!`,
+    ctaText: 'Explore Marketplace',
+    ctaUrl: 'https://neaply.com/marketplace',
+  },
+  {
+    id: 'thank-you',
+    name: 'Thank You',
+    icon: Heart,
+    audience: 'all',
+    subject: 'Thank You for Being Part of Neaply',
+    content: `We just wanted to take a moment to say thank you.
+
+Your support means everything to us. Whether you're buying workflows, selling your creations, or just exploring what's possible with automation, you're helping build something special.
+
+We're committed to making Neaply the best platform for automation workflows, and we couldn't do it without you.
+
+Here's to building the future of automation together.`,
+  },
+  {
+    id: 'event',
+    name: 'Event',
+    icon: Calendar,
+    audience: 'all',
+    subject: 'You\'re Invited: [Event Name]',
+    content: `Join us for an upcoming event!
+
+Event: [Event Name]
+Date: [Date]
+Time: [Time] (UTC)
+Where: [Location / Online Platform]
+
+[Describe what the event is about and why users should attend]
+
+Space is limited, so register now to secure your spot.`,
+    ctaText: 'Register Now',
+    ctaUrl: 'https://neaply.com',
+  },
+  {
+    id: 'feedback',
+    name: 'Feedback Request',
+    icon: FileText,
+    audience: 'all',
+    subject: 'We\'d Love Your Feedback',
+    content: `Your opinion matters to us!
+
+We're always looking to improve Neaply and would love to hear your thoughts. Whether it's a feature request, a bug report, or just general feedback, we want to know.
+
+Take a few minutes to share your experience with us. Your input directly shapes the future of the platform.`,
+    ctaText: 'Share Feedback',
+    ctaUrl: 'https://neaply.com/help',
+  },
+]
+
 export default function AdminEmailsPage() {
   const [subject, setSubject] = useState('')
   const [content, setContent] = useState('')
@@ -43,11 +199,33 @@ export default function AdminEmailsPage() {
   const [ctaUrl, setCtaUrl] = useState('')
   const [audience, setAudience] = useState<Audience>('all')
   const [testEmail, setTestEmail] = useState('')
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
   
   const [audienceStats, setAudienceStats] = useState<AudienceStats | null>(null)
   const [loading, setLoading] = useState(false)
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<SendResult | null>(null)
+
+  // Apply template
+  const applyTemplate = (template: EmailTemplate) => {
+    setSubject(template.subject)
+    setContent(template.content)
+    setCtaText(template.ctaText || '')
+    setCtaUrl(template.ctaUrl || '')
+    setAudience(template.audience)
+    setSelectedTemplate(template.id)
+    setResult(null)
+  }
+
+  // Clear form
+  const clearForm = () => {
+    setSubject('')
+    setContent('')
+    setCtaText('')
+    setCtaUrl('')
+    setSelectedTemplate(null)
+    setResult(null)
+  }
 
   // Fetch audience stats
   useEffect(() => {
@@ -125,9 +303,47 @@ export default function AdminEmailsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-[#EDEFF7]">Email Broadcast</h1>
-        <p className="text-[#9DA2B3] mt-1">Send emails to your users</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-[#EDEFF7]">Email Broadcast</h1>
+          <p className="text-[#9DA2B3] mt-1">Send emails to your users</p>
+        </div>
+        {(subject || content) && (
+          <Button
+            variant="ghost"
+            onClick={clearForm}
+            className="text-[#9DA2B3] hover:text-[#EDEFF7]"
+          >
+            Clear Form
+          </Button>
+        )}
+      </div>
+
+      {/* Templates */}
+      <div className="space-y-3">
+        <label className="text-sm font-medium text-[#EDEFF7]">Quick Templates</label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+          {EMAIL_TEMPLATES.map((template) => {
+            const Icon = template.icon
+            const isSelected = selectedTemplate === template.id
+            return (
+              <button
+                key={template.id}
+                onClick={() => applyTemplate(template)}
+                className={`flex flex-col items-center gap-2 p-3 rounded-lg border transition-all ${
+                  isSelected
+                    ? 'bg-[#EDEFF7]/10 border-[#EDEFF7]/30'
+                    : 'bg-[#1E1E24] border-[#9DA2B3]/10 hover:border-[#9DA2B3]/20'
+                }`}
+              >
+                <Icon className={`w-5 h-5 ${isSelected ? 'text-[#EDEFF7]' : 'text-[#9DA2B3]'}`} />
+                <span className={`text-xs text-center ${isSelected ? 'text-[#EDEFF7]' : 'text-[#9DA2B3]'}`}>
+                  {template.name}
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -138,7 +354,7 @@ export default function AdminEmailsPage() {
             <label className="text-sm font-medium text-[#EDEFF7]">Subject</label>
             <Input
               value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+              onChange={(e) => { setSubject(e.target.value); setSelectedTemplate(null) }}
               placeholder="Enter email subject..."
               className="bg-[#1E1E24] border-[#9DA2B3]/20 text-[#EDEFF7] placeholder:text-[#9DA2B3]/50"
             />
@@ -149,7 +365,7 @@ export default function AdminEmailsPage() {
             <label className="text-sm font-medium text-[#EDEFF7]">Content</label>
             <Textarea
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => { setContent(e.target.value); setSelectedTemplate(null) }}
               placeholder="Write your email content here...&#10;&#10;Use line breaks to create new paragraphs."
               rows={12}
               className="bg-[#1E1E24] border-[#9DA2B3]/20 text-[#EDEFF7] placeholder:text-[#9DA2B3]/50 resize-none"

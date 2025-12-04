@@ -6,14 +6,21 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 
-type SubmitStatus = 'idle' | 'loading' | 'success' | 'already-exists' | 'error' | 'rate-limited'
+type SubmitStatus = 'idle' | 'loading' | 'success' | 'already-exists' | 'error' | 'rate-limited' | 'invalid-email'
 
 const WAITLIST_STORAGE_KEY = 'neaply_waitlist'
+
+// Email validation regex
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 interface WaitlistData {
   email: string
   position: number
   subscribedAt: string
+}
+
+function isValidEmail(email: string): boolean {
+  return EMAIL_REGEX.test(email.trim())
 }
 
 export default function ComingSoonPage() {
@@ -41,6 +48,12 @@ export default function ComingSoonPage() {
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      setStatus('invalid-email')
+      return
+    }
 
     setStatus('loading')
     setErrorMessage('')
@@ -167,6 +180,10 @@ export default function ComingSoonPage() {
               
               {status === 'error' && (
                 <p className="text-red-400/80 text-sm">{errorMessage}</p>
+              )}
+              
+              {status === 'invalid-email' && (
+                <p className="text-white/50 text-sm">Please enter a valid email address.</p>
               )}
               
               {status === 'rate-limited' && (
