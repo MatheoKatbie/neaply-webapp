@@ -37,7 +37,7 @@ export default function Home() {
   // Fake stores data for filling empty spaces
   const fakeStores = useMemo(
     () => [
-      {
+      /*{
         userId: 'fake-store-1',
         storeName: 'AutoFlow Solutions',
         slug: 'autoflow-solutions',
@@ -116,7 +116,7 @@ export default function Home() {
         bio: 'Advanced analytics and reporting automation for data-driven decisions',
         user: { displayName: 'Analytics Team', avatarUrl: null },
         workflowsCount: 20,
-      },
+      },*/
     ],
     []
   )
@@ -124,7 +124,7 @@ export default function Home() {
   // Fake workflows data for filling empty spaces - memoized to prevent recreation
   const fakeWorkflows = useMemo(
     () => [
-      {
+      /*{
         id: 'fake-1',
         title: 'Email Marketing Automation',
         description: 'Automate your email campaigns with advanced segmentation and personalization features',
@@ -219,7 +219,7 @@ export default function Home() {
         tags: ['invoice', 'payment', 'finance'],
         platform: 'airtable_script',
         isFake: true,
-      },
+      },*/
     ],
     []
   )
@@ -873,6 +873,9 @@ export default function Home() {
                         paddingRight: '1.5rem',
                       }}
                     >
+                      {fillStores(stores).length === 0 && (
+                        <p className="text-center w-screen text-[#9DA2B3]">No stores available at the moment. Please check back later!</p>
+                      )}
                       {fillStores(stores).map((s, index) => {
                         // Generate vibrant gradient colors like in the image
                         const gradients = [
@@ -1236,6 +1239,9 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {fillWorkflows(newestWorkflows, 10).length === 0 && (
+                      <p className="text-center text-[#9DA2B3] w-screen">No workflows available at the moment. Please check back later!</p>
+                    )}
                     {fillWorkflows(newestWorkflows, 10).map((wf) => (
                       <WorkflowCard
                         key={wf.id}
