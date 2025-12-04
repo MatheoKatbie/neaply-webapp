@@ -12,10 +12,17 @@ export default function ComingSoonPage() {
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Add your newsletter subscription logic here
     if (email) {
-      setSubscribed(true)
-      setEmail('')
+      const res = fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      }).then(() => {
+        setSubscribed(true)
+        setEmail('')
+      })
     }
   }
 

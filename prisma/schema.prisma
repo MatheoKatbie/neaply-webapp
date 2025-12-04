@@ -701,3 +701,25 @@ model StoreFollow {
   @@index([sellerId])
   @@index([followerId])
 }
+
+/**
+ * ============================
+ * Waitlist
+ * ============================
+ */
+model WaitlistEntry {
+  id        String    @id @default(uuid()) @db.Uuid
+  email     String    @unique @db.VarChar(255)
+  position  Int       @default(autoincrement())
+  source    String?   @db.VarChar(100) // Where did they sign up from (e.g., "homepage", "landing", "twitter")
+  referrer  String?   @db.VarChar(255) // Referrer URL or code
+  metadata  Json?     // Additional data (user agent, country, etc.)
+  emailSent Boolean   @default(false) // Was the welcome email sent?
+  launchEmailSent Boolean @default(false) // Was the launch email sent?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([email])
+  @@index([createdAt])
+  @@index([position])
+}

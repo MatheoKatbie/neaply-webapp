@@ -18,6 +18,7 @@ export async function middleware(req: NextRequest) {
   const isStaticOrInternal = 
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/webhooks') ||
+    pathname.startsWith('/api/waitlist') ||
     pathname.startsWith('/api/health') ||
     pathname.includes('.') // Files with extensions (images, etc.)
 
