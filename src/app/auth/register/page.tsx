@@ -260,7 +260,7 @@ export default function RegisterPage() {
                     <Separator className="w-full" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="px-2 text-[#9DA2B3] font-aeonikpro">Or create with email</span>
+                    <span className="bg-[rgb(22,23,26)] px-2 text-[#9DA2B3] font-aeonikpro">Or create with email</span>
                   </div>
                 </div>
 
