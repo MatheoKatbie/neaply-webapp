@@ -251,7 +251,7 @@ function WorkflowCard({
                 RATING
               </span>
               <div className="flex items-center gap-1">
-                <svg className="w-4 h-4 text-[#FF7700]" fill="#FF7700" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[#EDEFF7]" fill="#EDEFF7" viewBox="0 0 24 24">
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
                 <span className="text-lg font-aeonikpro" style={{ color: '#EDEFF7' }}>
@@ -560,7 +560,7 @@ export default function StorePage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Package className="w-8 h-8 text-blue-400" />
+                    <Package className="w-8 h-8 text-[#9DA2B3]" />
                   )}
                 </div>
               </div>
@@ -590,7 +590,7 @@ export default function StorePage() {
                             href={store.websiteUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                            className="text-[#EDEFF7] hover:text-white transition-colors underline underline-offset-2"
                           >
                             Website
                           </a>
@@ -601,7 +601,7 @@ export default function StorePage() {
                           <Mail className="w-4 h-4" />
                           <a
                             href={`mailto:${store.supportEmail}`}
-                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                            className="text-[#EDEFF7] hover:text-white transition-colors underline underline-offset-2"
                           >
                             Contact
                           </a>
@@ -614,7 +614,7 @@ export default function StorePage() {
                   <div className="flex flex-wrap gap-4">
                     <div
                       className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
                     >
                       <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
                         {store.stats.totalWorkflows}
@@ -625,7 +625,7 @@ export default function StorePage() {
                     </div>
                     <div
                       className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
                     >
                       <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
                         {store.stats.totalSales}
@@ -636,10 +636,10 @@ export default function StorePage() {
                     </div>
                     <div
                       className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
                     >
                       <div className="flex items-center gap-1 mb-1 justify-center">
-                        <Users className="w-4 h-4 text-cyan-400" />
+                        <Users className="w-4 h-4 text-[#EDEFF7]" />
                         <span className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
                           {followersCount}
                         </span>
@@ -650,10 +650,10 @@ export default function StorePage() {
                     </div>
                     <div
                       className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
                     >
                       <div className="flex items-center gap-1 mb-1 justify-center">
-                        <Star className="w-4 h-4 text-[#FF7700]" fill="#FF7700" />
+                        <Star className="w-4 h-4 text-[#EDEFF7]" fill="#EDEFF7" />
                         <span className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
                           {store.stats.avgRating.toFixed(1)}
                         </span>

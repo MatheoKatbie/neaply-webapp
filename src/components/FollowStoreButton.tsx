@@ -30,11 +30,19 @@ export function FollowStoreButton({
     toggle,
   } = useStoreFollow(sellerId)
 
+  // Check if the current user is the store owner
+  const isOwnStore = user?.id === sellerId
+
   const handleClick = async () => {
     if (!user) {
       // Redirect to login with return URL
       const returnUrl = sellerSlug ? `/store/${sellerSlug}` : window.location.pathname
       router.push(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`)
+      return
+    }
+
+    // Prevent self-following
+    if (isOwnStore) {
       return
     }
 
@@ -50,6 +58,11 @@ export function FollowStoreButton({
       return `${(count / 1000).toFixed(1)}K`
     }
     return count.toString()
+  }
+
+  // Don't render the follow button for own store
+  if (isOwnStore) {
+    return null
   }
 
   // Skeleton loading state - matches the size of the actual button

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 import {
   Upload,
   Trash2,
@@ -10,12 +11,14 @@ import {
   Store,
   Camera,
   AlertCircle,
+  ExternalLink,
 } from 'lucide-react'
 
 interface StoreAssetsData {
   logoUrl: string | null
   bannerUrl: string | null
   storeName: string
+  storeSlug?: string
 }
 
 interface StoreCustomizationProps {
@@ -123,13 +126,26 @@ export function StoreCustomization({ initialData, onUpdate }: StoreCustomization
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h2 className="text-xl font-semibold text-[#EDEFF7] font-aeonikpro">
-          Store Customization
-        </h2>
-        <p className="text-sm text-[#9DA2B3] mt-1">
-          Customize your store's appearance with a logo and banner image.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-[#EDEFF7] font-aeonikpro">
+            Store Customization
+          </h2>
+          <p className="text-sm text-[#9DA2B3] mt-1">
+            Customize your store's appearance with a logo and banner image.
+          </p>
+        </div>
+        {initialData.storeSlug && (
+          <Link
+            href={`/store/${initialData.storeSlug}`}
+            target="_blank"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#40424D]/50 hover:bg-[#40424D] text-[#EDEFF7] text-sm font-medium transition-colors"
+          >
+            <Store className="w-4 h-4" />
+            View Store
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        )}
       </div>
 
       {/* Preview */}
