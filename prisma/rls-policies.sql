@@ -1,3 +1,137 @@
+-- =====================================================
+-- Neaply RLS Policies - Synced from Production
+-- Last updated: 2025-12-05
+-- =====================================================
+
+-- =====================================================
+-- DROP ALL EXISTING POLICIES FIRST
+-- =====================================================
+
+-- User policies
+DROP POLICY IF EXISTS "Users can view own profile" ON "User";
+DROP POLICY IF EXISTS "Users can update own profile" ON "User";
+DROP POLICY IF EXISTS "Users can insert own profile" ON "User";
+
+-- SellerProfile policies
+DROP POLICY IF EXISTS "Users can view own seller profile" ON "SellerProfile";
+DROP POLICY IF EXISTS "Users can update own seller profile" ON "SellerProfile";
+DROP POLICY IF EXISTS "Users can insert own seller profile" ON "SellerProfile";
+DROP POLICY IF EXISTS "Anyone can view public seller profiles" ON "SellerProfile";
+DROP POLICY IF EXISTS "Admins can view all seller profiles" ON "SellerProfile";
+
+-- Workflow policies
+DROP POLICY IF EXISTS "Sellers can manage own workflows" ON "Workflow";
+DROP POLICY IF EXISTS "Anyone can view published workflows" ON "Workflow";
+DROP POLICY IF EXISTS "Admins can manage all workflows" ON "Workflow";
+
+-- WorkflowVersion policies
+DROP POLICY IF EXISTS "Sellers can manage own workflow versions" ON "WorkflowVersion";
+DROP POLICY IF EXISTS "Anyone can view published workflow versions" ON "WorkflowVersion";
+DROP POLICY IF EXISTS "Admins can manage all workflow versions" ON "WorkflowVersion";
+
+-- Category policies
+DROP POLICY IF EXISTS "Anyone can view categories" ON "Category";
+DROP POLICY IF EXISTS "Admins can manage categories" ON "Category";
+
+-- WorkflowCategory policies
+DROP POLICY IF EXISTS "Anyone can view published workflow categories" ON "WorkflowCategory";
+DROP POLICY IF EXISTS "Sellers can manage own workflow categories" ON "WorkflowCategory";
+DROP POLICY IF EXISTS "Admins can manage all workflow categories" ON "WorkflowCategory";
+
+-- Tag policies
+DROP POLICY IF EXISTS "Anyone can view tags" ON "Tag";
+DROP POLICY IF EXISTS "Admins can manage tags" ON "Tag";
+
+-- WorkflowTag policies
+DROP POLICY IF EXISTS "Anyone can view published workflow tags" ON "WorkflowTag";
+DROP POLICY IF EXISTS "Sellers can manage own workflow tags" ON "WorkflowTag";
+DROP POLICY IF EXISTS "Admins can manage all workflow tags" ON "WorkflowTag";
+
+-- Favorite policies
+DROP POLICY IF EXISTS "Users can manage own favorites" ON "Favorite";
+
+-- Cart policies
+DROP POLICY IF EXISTS "Users can manage own cart" ON "Cart";
+
+-- CartItem policies
+DROP POLICY IF EXISTS "Users can manage own cart items" ON "CartItem";
+
+-- Order policies
+DROP POLICY IF EXISTS "Users can view own orders" ON "Order";
+DROP POLICY IF EXISTS "Users can create own orders" ON "Order";
+DROP POLICY IF EXISTS "Admins can view all orders" ON "Order";
+
+-- OrderItem policies
+DROP POLICY IF EXISTS "Users can view own order items" ON "OrderItem";
+DROP POLICY IF EXISTS "Users can create own order items" ON "OrderItem";
+
+-- Payment policies
+DROP POLICY IF EXISTS "Users can view own payments" ON "Payment";
+DROP POLICY IF EXISTS "Admins can view all payments" ON "Payment";
+
+-- Review policies
+DROP POLICY IF EXISTS "Users can manage own reviews" ON "Review";
+DROP POLICY IF EXISTS "Anyone can view published reviews" ON "Review";
+DROP POLICY IF EXISTS "Admins can manage all reviews" ON "Review";
+
+-- ReviewHelpfulVote policies
+DROP POLICY IF EXISTS "Users can manage own helpful votes" ON "ReviewHelpfulVote";
+
+-- Payout policies
+DROP POLICY IF EXISTS "Sellers can view own payouts" ON "Payout";
+DROP POLICY IF EXISTS "Admins can view all payouts" ON "Payout";
+
+-- Report policies
+DROP POLICY IF EXISTS "Users can create reports" ON "Report";
+DROP POLICY IF EXISTS "Users can view own reports" ON "Report";
+DROP POLICY IF EXISTS "Admins can manage all reports" ON "Report";
+
+-- AuditLog policies
+DROP POLICY IF EXISTS "Users can view own audit logs" ON "AuditLog";
+DROP POLICY IF EXISTS "Admins can view all audit logs" ON "AuditLog";
+
+-- WorkflowCompatibility policies
+DROP POLICY IF EXISTS "Anyone can view published workflow compatibility" ON "WorkflowCompatibility";
+DROP POLICY IF EXISTS "Sellers can manage own workflow compatibility" ON "WorkflowCompatibility";
+
+-- WorkflowPack policies
+DROP POLICY IF EXISTS "Sellers can manage own workflow packs" ON "WorkflowPack";
+DROP POLICY IF EXISTS "Anyone can view published workflow packs" ON "WorkflowPack";
+DROP POLICY IF EXISTS "Admins can manage all workflow packs" ON "WorkflowPack";
+
+-- Notification policies
+DROP POLICY IF EXISTS "Users can view own notifications" ON "Notification";
+DROP POLICY IF EXISTS "Users can update own notifications" ON "Notification";
+DROP POLICY IF EXISTS "Users can delete own notifications" ON "Notification";
+DROP POLICY IF EXISTS "Service role can insert notifications" ON "Notification";
+
+-- StoreFollow policies
+DROP POLICY IF EXISTS "Anyone can view store follows" ON "StoreFollow";
+DROP POLICY IF EXISTS "Users can follow stores" ON "StoreFollow";
+DROP POLICY IF EXISTS "Users can unfollow stores" ON "StoreFollow";
+
+-- Storage policies
+DROP POLICY IF EXISTS "Public avatar access 1oj01fe_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can upload avatars 1oj01fe_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update avatars 1oj01fe_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete avatars 1oj01fe_0" ON storage.objects;
+DROP POLICY IF EXISTS "Anyone can view documents flreew_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can upload their own documents flreew_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own documents flreew_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own documents flreew_0" ON storage.objects;
+DROP POLICY IF EXISTS "Public can view hero images 1vxel63_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can upload hero images 1vxel63_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own hero images   1vxel63_0" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own hero images 1vxel63_0" ON storage.objects;
+DROP POLICY IF EXISTS "Public read access for store assets" ON storage.objects;
+DROP POLICY IF EXISTS "Users can upload their own store assets" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own store assets" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own store assets" ON storage.objects;
+
+-- =====================================================
+-- ENABLE ROW LEVEL SECURITY ON ALL TABLES
+-- =====================================================
+
 -- Enable Row Level Security on all tables
 ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "SellerProfile" ENABLE ROW LEVEL SECURITY;
@@ -7,121 +141,195 @@ ALTER TABLE "Category" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "WorkflowCategory" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Tag" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "WorkflowTag" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "PricingPlan" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Favorite" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Order" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "OrderItem" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Payment" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Review" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ReviewHelpfulVote" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Payout" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Report" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "WorkflowCompatibility" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "WorkflowPack" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Cart" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "CartItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "StoreFollow" ENABLE ROW LEVEL SECURITY;
 
 -- ============================
 -- User Policies
 -- ============================
 
--- Users can read their own profile
 CREATE POLICY "Users can view own profile" ON "User"
-    FOR SELECT USING (auth.uid() = id);
+    FOR SELECT USING ((auth.uid())::text = (id)::text);
 
--- Users can update their own profile
 CREATE POLICY "Users can update own profile" ON "User"
-    FOR UPDATE USING (auth.uid() = id);
+    FOR UPDATE USING ((auth.uid())::text = (id)::text);
 
--- Users can insert their own profile (during registration)
 CREATE POLICY "Users can insert own profile" ON "User"
-    FOR INSERT WITH CHECK (auth.uid() = id);
+    FOR INSERT WITH CHECK ((auth.uid())::text = (id)::text);
 
 -- ============================
 -- SellerProfile Policies
 -- ============================
 
--- Users can read their own seller profile
 CREATE POLICY "Users can view own seller profile" ON "SellerProfile"
-    FOR SELECT USING (auth.uid() = "userId");
+    FOR SELECT USING ((auth.uid())::text = ("userId")::text);
 
--- Users can update their own seller profile
 CREATE POLICY "Users can update own seller profile" ON "SellerProfile"
-    FOR UPDATE USING (auth.uid() = "userId");
+    FOR UPDATE USING ((auth.uid())::text = ("userId")::text);
 
--- Users can insert their own seller profile
 CREATE POLICY "Users can insert own seller profile" ON "SellerProfile"
-    FOR INSERT WITH CHECK (auth.uid() = "userId");
+    FOR INSERT WITH CHECK ((auth.uid())::text = ("userId")::text);
 
--- Anyone can read public seller profiles
 CREATE POLICY "Anyone can view public seller profiles" ON "SellerProfile"
-    FOR SELECT USING (status = 'active');
+    FOR SELECT USING (status = 'active'::"SellerProfileStatus");
+
+CREATE POLICY "Admins can view all seller profiles" ON "SellerProfile"
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
 
 -- ============================
 -- Workflow Policies
 -- ============================
 
--- Sellers can manage their own workflows
 CREATE POLICY "Sellers can manage own workflows" ON "Workflow"
-    FOR ALL USING (auth.uid() = "sellerId");
+    FOR ALL USING ((auth.uid())::text = ("sellerId")::text);
 
--- Anyone can view published workflows
 CREATE POLICY "Anyone can view published workflows" ON "Workflow"
-    FOR SELECT USING (status = 'published');
+    FOR SELECT TO anon, authenticated
+    USING (status = 'published'::"WorkflowStatus");
+
+CREATE POLICY "Admins can manage all workflows" ON "Workflow"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
 
 -- ============================
 -- WorkflowVersion Policies
 -- ============================
 
--- Sellers can manage versions of their workflows
 CREATE POLICY "Sellers can manage own workflow versions" ON "WorkflowVersion"
     FOR ALL USING (
         EXISTS (
             SELECT 1 FROM "Workflow" 
-            WHERE "Workflow".id = "WorkflowVersion"."workflowId" 
-            AND "Workflow"."sellerId"::text = auth.uid()::text
+            WHERE ("Workflow".id = "WorkflowVersion"."workflowId") 
+            AND (("Workflow"."sellerId")::text = (auth.uid())::text)
         )
     );
 
--- Anyone can view versions of published workflows
 CREATE POLICY "Anyone can view published workflow versions" ON "WorkflowVersion"
     FOR SELECT USING (
         EXISTS (
             SELECT 1 FROM "Workflow" 
-            WHERE "Workflow".id = "WorkflowVersion"."workflowId" 
-            AND "Workflow".status = 'published'
+            WHERE ("Workflow".id = "WorkflowVersion"."workflowId") 
+            AND ("Workflow".status = 'published'::"WorkflowStatus")
+        )
+    );
+
+CREATE POLICY "Admins can manage all workflow versions" ON "WorkflowVersion"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
         )
     );
 
 -- ============================
--- Category & Tag Policies
+-- Category Policies
 -- ============================
 
--- Anyone can read categories and tags
 CREATE POLICY "Anyone can view categories" ON "Category"
     FOR SELECT USING (true);
+
+CREATE POLICY "Admins can manage categories" ON "Category"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
+
+-- ============================
+-- WorkflowCategory Policies
+-- ============================
+
+CREATE POLICY "Anyone can view published workflow categories" ON "WorkflowCategory"
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM "Workflow"
+            WHERE ("Workflow".id = "WorkflowCategory"."workflowId") 
+            AND ("Workflow".status = 'published'::"WorkflowStatus")
+        )
+    );
+
+CREATE POLICY "Sellers can manage own workflow categories" ON "WorkflowCategory"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "Workflow"
+            WHERE ("Workflow".id = "WorkflowCategory"."workflowId") 
+            AND (("Workflow"."sellerId")::text = (auth.uid())::text)
+        )
+    );
+
+CREATE POLICY "Admins can manage all workflow categories" ON "WorkflowCategory"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
+
+-- ============================
+-- Tag Policies
+-- ============================
 
 CREATE POLICY "Anyone can view tags" ON "Tag"
     FOR SELECT USING (true);
 
--- ============================
--- PricingPlan Policies
--- ============================
-
--- Sellers can manage pricing plans for their workflows
-CREATE POLICY "Sellers can manage own pricing plans" ON "PricingPlan"
+CREATE POLICY "Admins can manage tags" ON "Tag"
     FOR ALL USING (
         EXISTS (
-            SELECT 1 FROM "Workflow" 
-            WHERE "Workflow".id = "PricingPlan"."workflowId" 
-            AND "Workflow"."sellerId"::text = auth.uid()::text
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
         )
     );
 
--- Anyone can view pricing plans for published workflows
-CREATE POLICY "Anyone can view published workflow pricing plans" ON "PricingPlan"
+-- ============================
+-- WorkflowTag Policies
+-- ============================
+
+CREATE POLICY "Anyone can view published workflow tags" ON "WorkflowTag"
     FOR SELECT USING (
         EXISTS (
-            SELECT 1 FROM "Workflow" 
-            WHERE "Workflow".id = "PricingPlan"."workflowId" 
-            AND "Workflow".status = 'published'
+            SELECT 1 FROM "Workflow"
+            WHERE ("Workflow".id = "WorkflowTag"."workflowId") 
+            AND ("Workflow".status = 'published'::"WorkflowStatus")
+        )
+    );
+
+CREATE POLICY "Sellers can manage own workflow tags" ON "WorkflowTag"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "Workflow"
+            WHERE ("Workflow".id = "WorkflowTag"."workflowId") 
+            AND (("Workflow"."sellerId")::text = (auth.uid())::text)
+        )
+    );
+
+CREATE POLICY "Admins can manage all workflow tags" ON "WorkflowTag"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
         )
     );
 
@@ -129,43 +337,66 @@ CREATE POLICY "Anyone can view published workflow pricing plans" ON "PricingPlan
 -- Favorite Policies
 -- ============================
 
--- Users can manage their own favorites
 CREATE POLICY "Users can manage own favorites" ON "Favorite"
-    FOR ALL USING (auth.uid()::text = "userId"::text);
+    FOR ALL USING ((auth.uid())::text = ("userId")::text);
+
+-- ============================
+-- Cart Policies
+-- ============================
+
+CREATE POLICY "Users can manage own cart" ON "Cart"
+    FOR ALL USING ((auth.uid())::text = ("userId")::text);
+
+-- ============================
+-- CartItem Policies
+-- ============================
+
+CREATE POLICY "Users can manage own cart items" ON "CartItem"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "Cart"
+            WHERE ("Cart".id = "CartItem"."cartId") 
+            AND (("Cart"."userId")::text = (auth.uid())::text)
+        )
+    );
 
 -- ============================
 -- Order Policies
 -- ============================
 
--- Users can view their own orders
 CREATE POLICY "Users can view own orders" ON "Order"
-    FOR SELECT USING (auth.uid()::text = "userId"::text);
+    FOR SELECT USING ((auth.uid())::text = ("userId")::text);
 
--- Users can create their own orders
 CREATE POLICY "Users can create own orders" ON "Order"
-    FOR INSERT WITH CHECK (auth.uid()::text = "userId"::text);
+    FOR INSERT WITH CHECK ((auth.uid())::text = ("userId")::text);
+
+CREATE POLICY "Admins can view all orders" ON "Order"
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
 
 -- ============================
 -- OrderItem Policies
 -- ============================
 
--- Users can view items from their own orders
 CREATE POLICY "Users can view own order items" ON "OrderItem"
     FOR SELECT USING (
         EXISTS (
             SELECT 1 FROM "Order" 
-            WHERE "Order".id = "OrderItem"."orderId" 
-            AND "Order"."userId"::text = auth.uid()::text
+            WHERE ("Order".id = "OrderItem"."orderId") 
+            AND (("Order"."userId")::text = (auth.uid())::text)
         )
     );
 
--- Users can create items for their own orders
 CREATE POLICY "Users can create own order items" ON "OrderItem"
     FOR INSERT WITH CHECK (
         EXISTS (
             SELECT 1 FROM "Order" 
-            WHERE "Order".id = "OrderItem"."orderId" 
-            AND "Order"."userId"::text = auth.uid()::text
+            WHERE ("Order".id = "OrderItem"."orderId") 
+            AND (("Order"."userId")::text = (auth.uid())::text)
         )
     );
 
@@ -173,13 +404,20 @@ CREATE POLICY "Users can create own order items" ON "OrderItem"
 -- Payment Policies
 -- ============================
 
--- Users can view payments for their own orders
 CREATE POLICY "Users can view own payments" ON "Payment"
     FOR SELECT USING (
         EXISTS (
             SELECT 1 FROM "Order" 
-            WHERE "Order".id = "Payment"."orderId" 
-            AND "Order"."userId"::text = auth.uid()::text
+            WHERE ("Order".id = "Payment"."orderId") 
+            AND (("Order"."userId")::text = (auth.uid())::text)
+        )
+    );
+
+CREATE POLICY "Admins can view all payments" ON "Payment"
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
         )
     );
 
@@ -187,63 +425,112 @@ CREATE POLICY "Users can view own payments" ON "Payment"
 -- Review Policies
 -- ============================
 
--- Users can manage their own reviews
 CREATE POLICY "Users can manage own reviews" ON "Review"
-    FOR ALL USING (auth.uid()::text = "userId"::text);
+    FOR ALL USING ((auth.uid())::text = ("userId")::text);
 
--- Anyone can view published reviews
 CREATE POLICY "Anyone can view published reviews" ON "Review"
-    FOR SELECT USING (status = 'published');
+    FOR SELECT USING (status = 'published'::"ReviewStatus");
+
+CREATE POLICY "Admins can manage all reviews" ON "Review"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
+
+-- ============================
+-- ReviewHelpfulVote Policies
+-- ============================
+
+CREATE POLICY "Users can manage own helpful votes" ON "ReviewHelpfulVote"
+    FOR ALL USING ((auth.uid())::text = ("userId")::text);
 
 -- ============================
 -- Payout Policies
 -- ============================
 
--- Sellers can view their own payouts
 CREATE POLICY "Sellers can view own payouts" ON "Payout"
-    FOR SELECT USING (auth.uid()::text = "sellerId"::text);
+    FOR SELECT USING ((auth.uid())::text = ("sellerId")::text);
+
+CREATE POLICY "Admins can view all payouts" ON "Payout"
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
 
 -- ============================
 -- Report Policies
 -- ============================
 
--- Users can create reports
 CREATE POLICY "Users can create reports" ON "Report"
-    FOR INSERT WITH CHECK (auth.uid()::text = "reporterId"::text);
+    FOR INSERT WITH CHECK ((auth.uid())::text = ("reporterId")::text);
 
--- Users can view their own reports
 CREATE POLICY "Users can view own reports" ON "Report"
-    FOR SELECT USING (auth.uid()::text = "reporterId"::text);
+    FOR SELECT USING ((auth.uid())::text = ("reporterId")::text);
+
+CREATE POLICY "Admins can manage all reports" ON "Report"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
 
 -- ============================
 -- AuditLog Policies
 -- ============================
 
--- Users can view their own audit logs
 CREATE POLICY "Users can view own audit logs" ON "AuditLog"
-    FOR SELECT USING (auth.uid()::text = "userId"::text);
+    FOR SELECT USING ((auth.uid())::text = ("userId")::text);
+
+CREATE POLICY "Admins can view all audit logs" ON "AuditLog"
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
+        )
+    );
 
 -- ============================
 -- WorkflowCompatibility Policies
 -- ============================
 
--- Anyone can view compatibility info for published workflows
 CREATE POLICY "Anyone can view published workflow compatibility" ON "WorkflowCompatibility"
     FOR SELECT USING (
         EXISTS (
             SELECT 1 FROM "Workflow" 
-            WHERE "Workflow".id = "WorkflowCompatibility"."workflowId" 
-            AND "Workflow".status = 'published'
+            WHERE ("Workflow".id = "WorkflowCompatibility"."workflowId") 
+            AND ("Workflow".status = 'published'::"WorkflowStatus")
         )
     );
 
--- Sellers can manage compatibility for their workflows
 CREATE POLICY "Sellers can manage own workflow compatibility" ON "WorkflowCompatibility"
     FOR ALL USING (
         EXISTS (
             SELECT 1 FROM "Workflow" 
-            WHERE "Workflow".id = "WorkflowCompatibility"."workflowId" 
-            AND "Workflow"."sellerId"::text = auth.uid()::text
+            WHERE ("Workflow".id = "WorkflowCompatibility"."workflowId") 
+            AND (("Workflow"."sellerId")::text = (auth.uid())::text)
+        )
+    );
+
+-- ============================
+-- WorkflowPack Policies
+-- ============================
+
+CREATE POLICY "Sellers can manage own workflow packs" ON "WorkflowPack"
+    FOR ALL USING ((auth.uid())::text = ("sellerId")::text);
+
+CREATE POLICY "Anyone can view published workflow packs" ON "WorkflowPack"
+    FOR SELECT USING (status = 'published'::"WorkflowStatus");
+
+CREATE POLICY "Admins can manage all workflow packs" ON "WorkflowPack"
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM "User"
+            WHERE (("User".id)::text = (auth.uid())::text) AND ("User"."isAdmin" = true)
         )
     );
 
@@ -251,55 +538,107 @@ CREATE POLICY "Sellers can manage own workflow compatibility" ON "WorkflowCompat
 -- Notification Policies
 -- ============================
 
--- Enable RLS on Notification table
-ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
-
--- Users can only view their own notifications
 CREATE POLICY "Users can view own notifications" ON "Notification"
-    FOR SELECT USING (auth.uid()::text = "userId"::text);
+    FOR SELECT USING ((auth.uid())::text = ("userId")::text);
 
--- Users can update their own notifications (mark as read)
 CREATE POLICY "Users can update own notifications" ON "Notification"
-    FOR UPDATE USING (auth.uid()::text = "userId"::text);
+    FOR UPDATE USING ((auth.uid())::text = ("userId")::text);
 
--- Users can delete their own notifications
 CREATE POLICY "Users can delete own notifications" ON "Notification"
-    FOR DELETE USING (auth.uid()::text = "userId"::text);
+    FOR DELETE USING ((auth.uid())::text = ("userId")::text);
 
--- Only the system (service role) can insert notifications
--- This is handled by using service_role key in API routes
--- Regular users cannot insert notifications directly
 CREATE POLICY "Service role can insert notifications" ON "Notification"
     FOR INSERT WITH CHECK (
-        -- Allow insert if the request comes from service role
-        -- or if the current user is an admin
-        current_setting('request.jwt.claims', true)::json->>'role' = 'service_role'
+        ((current_setting('request.jwt.claims'::text, true))::json ->> 'role'::text) = 'service_role'::text
         OR EXISTS (
             SELECT 1 FROM "User" 
-            WHERE "User".id = auth.uid() 
-            AND "User"."isAdmin" = true
+            WHERE ("User".id = auth.uid()) AND ("User"."isAdmin" = true)
         )
     );
 
 -- Enable Realtime for Notification table
--- Run this to allow Supabase Realtime to broadcast changes
 ALTER PUBLICATION supabase_realtime ADD TABLE "Notification";
 
 -- ============================
 -- StoreFollow Policies
 -- ============================
 
--- Enable RLS on StoreFollow table
-ALTER TABLE "StoreFollow" ENABLE ROW LEVEL SECURITY;
-
--- Anyone can view follow counts (for displaying follower counts)
 CREATE POLICY "Anyone can view store follows" ON "StoreFollow"
     FOR SELECT USING (true);
 
--- Users can follow stores (insert their own follows)
 CREATE POLICY "Users can follow stores" ON "StoreFollow"
-    FOR INSERT WITH CHECK (auth.uid()::text = "followerId"::text);
+    FOR INSERT WITH CHECK ((auth.uid())::text = ("followerId")::text);
 
--- Users can unfollow stores (delete their own follows)
 CREATE POLICY "Users can unfollow stores" ON "StoreFollow"
-    FOR DELETE USING (auth.uid()::text = "followerId"::text);
+    FOR DELETE USING ((auth.uid())::text = ("followerId")::text);
+
+-- =====================================================
+-- Storage Policies
+-- =====================================================
+
+-- Avatars bucket
+CREATE POLICY "Public avatar access 1oj01fe_0" ON storage.objects
+    FOR SELECT TO anon, authenticated
+    USING (bucket_id = 'avatars'::text);
+
+CREATE POLICY "Users can upload avatars 1oj01fe_0" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (bucket_id = 'avatars'::text);
+
+CREATE POLICY "Users can update avatars 1oj01fe_0" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (bucket_id = 'avatars'::text);
+
+CREATE POLICY "Users can delete avatars 1oj01fe_0" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (bucket_id = 'avatars'::text);
+
+-- Documents bucket
+CREATE POLICY "Anyone can view documents flreew_0" ON storage.objects
+    FOR SELECT TO anon, authenticated
+    USING (bucket_id = 'documents'::text);
+
+CREATE POLICY "Users can upload their own documents flreew_0" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (bucket_id = 'documents'::text);
+
+CREATE POLICY "Users can update their own documents flreew_0" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (bucket_id = 'documents'::text);
+
+CREATE POLICY "Users can delete their own documents flreew_0" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (bucket_id = 'documents'::text);
+
+-- Hero images bucket
+CREATE POLICY "Public can view hero images 1vxel63_0" ON storage.objects
+    FOR SELECT TO anon, authenticated
+    USING (bucket_id = 'hero-images'::text);
+
+CREATE POLICY "Users can upload hero images 1vxel63_0" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (bucket_id = 'hero-images'::text);
+
+CREATE POLICY "Users can update their own hero images   1vxel63_0" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (bucket_id = 'hero-images'::text);
+
+CREATE POLICY "Users can delete their own hero images 1vxel63_0" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (bucket_id = 'hero-images'::text);
+
+-- Store assets bucket
+CREATE POLICY "Public read access for store assets" ON storage.objects
+    FOR SELECT USING (bucket_id = 'store-assets'::text);
+
+CREATE POLICY "Users can upload their own store assets" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (bucket_id = 'store-assets'::text);
+
+CREATE POLICY "Users can update their own store assets" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (bucket_id = 'store-assets'::text);
+
+CREATE POLICY "Users can delete their own store assets" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (bucket_id = 'store-assets'::text);
