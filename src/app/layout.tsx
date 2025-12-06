@@ -3,6 +3,7 @@ import { Inter, Merriweather, Space_Grotesk } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
+import { Analytics } from "@vercel/analytics/next"
 import { CartProvider } from '@/hooks/useCart'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { LanguageProvider } from '@/contexts/LanguageContext'
@@ -288,6 +289,7 @@ export default function RootLayout({
         suppressHydrationWarning={true}
         style={{ backgroundColor: '#08080A' }}
       >
+        <Analytics />
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
