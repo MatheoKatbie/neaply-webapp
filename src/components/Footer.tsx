@@ -60,7 +60,7 @@ export default function Footer() {
               </svg>
             </Link>
             <Link
-              href="https://twitter.com/neaply"
+              href="https://twitter.com/neaplydev"
               className="text-[#EDEFF7] hover:text-primary-foreground transition-colors"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">

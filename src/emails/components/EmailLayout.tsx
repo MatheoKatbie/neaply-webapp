@@ -36,12 +36,12 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
           </Section>
 
           {/* Main Content */}
-          <Section bgcolor="#08080A" style={content}>
+          <Section style={content}>
             {children}
           </Section>
 
           {/* Footer */}
-          <Section bgcolor="#08080A" style={footer}>
+          <Section style={footer}>
             <Text style={footerText}>
               © {new Date().getFullYear()} Neaply. All rights reserved.
             </Text>
@@ -70,11 +70,13 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
 
 // Styles
 const main = {
+  background: 'linear-gradient(180deg, #08080A 0%, #09090B 100%)',
   backgroundColor: '#08080A',
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, sans-serif',
 }
 
 const container = {
+  background: 'linear-gradient(180deg, #0D0D0F 0%, #0E0E10 100%)',
   backgroundColor: '#0D0D0F',
   margin: '0 auto',
   padding: '20px 0 48px',
@@ -86,6 +88,7 @@ const container = {
 const header = {
   padding: '32px 48px 24px',
   borderBottom: '1px solid rgba(157, 162, 179, 0.1)',
+  background: 'linear-gradient(180deg, #0D0D0F 0%, #0E0E10 100%)',
 }
 
 const logoLink = {
@@ -99,12 +102,14 @@ const logo = {
 
 const content = {
   padding: '32px 48px',
+  background: 'linear-gradient(180deg, #0D0D0F 0%, #0E0E10 100%)',
 }
 
 const footer = {
   padding: '24px 48px 0',
   borderTop: '1px solid rgba(157, 162, 179, 0.1)',
   textAlign: 'center' as const,
+  background: 'linear-gradient(180deg, #0D0D0F 0%, #0E0E10 100%)',
 }
 
 const footerText = {

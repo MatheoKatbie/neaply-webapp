@@ -52,7 +52,7 @@ export default function MaintenancePage() {
         {/* Social Links */}
         <div className="flex items-center justify-center gap-3 pt-4">
           <Link
-            href="https://twitter.com/neaply"
+            href="https://twitter.com/neaplydev"
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-lg bg-white/10 text-white/60 hover:text-white hover:bg-white/20 transition-colors"

@@ -201,7 +201,7 @@ const organizationJsonLd = {
   url: siteConfig.url,
   logo: `${siteConfig.url}/images/neaply/logo.png`,
   sameAs: [
-    'https://twitter.com/neaply',
+    'https://twitter.com/neaplydev',
     'https://linkedin.com/company/neaply',
     'https://discord.gg/neaply',
   ],
