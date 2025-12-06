@@ -78,11 +78,6 @@ export function WaitlistForm({
             <h3 className="text-lg font-semibold text-[#EDEFF7]">
               {alreadyExists ? "You're already on the list!" : "You're on the list!"}
             </h3>
-            {position && (
-              <p className="text-[#9DA2B3] mt-1">
-                Your position: <span className="text-green-400 font-bold">#{position}</span>
-              </p>
-            )}
             <p className="text-sm text-[#9DA2B3] mt-2">
               We&apos;ll notify you as soon as we launch.
             </p>

@@ -137,17 +137,11 @@ export default function ComingSoonPage() {
           {status === 'success' ? (
             <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/80">
               <p className="font-medium">You&apos;re on the list</p>
-              {position && (
-                <p className="text-sm text-white/50 mt-1">Position #{position}</p>
-              )}
               <p className="text-sm text-white/50 mt-1">We&apos;ll notify you when we launch.</p>
             </div>
           ) : status === 'already-exists' ? (
             <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white/80">
               <p className="font-medium">You&apos;re already on the list</p>
-              {position && (
-                <p className="text-sm text-white/50 mt-1">Position #{position}</p>
-              )}
               <p className="text-sm text-white/50 mt-1">We&apos;ll notify you when we launch.</p>
             </div>
           ) : (

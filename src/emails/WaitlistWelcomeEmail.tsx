@@ -37,13 +37,6 @@ export function WaitlistWelcomeEmail({ email, position }: WaitlistWelcomeEmailPr
         early community.
       </Text>
 
-      {position && (
-        <Section style={positionBox}>
-          <Text style={positionLabel}>Your position</Text>
-          <Text style={positionNumber}>#{position}</Text>
-        </Section>
-      )}
-
       <Section style={infoBox}>
         <Text style={infoTitle}>What is Neaply?</Text>
         <Text style={infoText}>

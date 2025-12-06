@@ -22,7 +22,7 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
       <Head />
       <Preview>{preview}</Preview>
       <Body style={main}>
-        <Container style={container}>
+        <Container style={container} bgcolor="#08080A">
           {/* Header with Logo */}
           <Section style={header}>
             <Link href="https://neaply.com" style={logoLink}>
@@ -36,12 +36,12 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
           </Section>
 
           {/* Main Content */}
-          <Section style={content}>
+          <Section bgcolor="#08080A" style={content}>
             {children}
           </Section>
 
           {/* Footer */}
-          <Section style={footer}>
+          <Section bgcolor="#08080A" style={footer}>
             <Text style={footerText}>
               © {new Date().getFullYear()} Neaply. All rights reserved.
             </Text>
