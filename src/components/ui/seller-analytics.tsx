@@ -300,8 +300,8 @@ export function SellerAnalytics({ className }: AnalyticsProps) {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }: { name: string; percent?: number }) =>
-                      `${name}: ${((percent || 0) * 100).toFixed(1)}%`
+                    label={({ name, percent }) =>
+                      `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(1)}%`
                     }
                     outerRadius={80}
                     fill="#8884d8"
