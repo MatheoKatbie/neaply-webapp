@@ -168,7 +168,7 @@ export default function StripeConnectStatus() {
                 </Alert>
 
                 <div className="flex gap-2">
-                  <Button onClick={continueOnboarding} size="sm" className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
+                  <Button onClick={continueOnboarding} size="sm" className="bg-white font-aeonikpro">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Continue Setup
                   </Button>

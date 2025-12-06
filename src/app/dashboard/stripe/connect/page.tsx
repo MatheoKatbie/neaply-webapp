@@ -262,7 +262,7 @@ export default function StripeConnectPage() {
                     </AlertDescription>
                   </Alert>
 
-                  <Button onClick={continueOnboarding} className="w-full bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
+                  <Button onClick={continueOnboarding} className="w-full font-aeonikpro">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Continue Setup
                   </Button>

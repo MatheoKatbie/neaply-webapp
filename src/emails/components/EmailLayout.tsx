@@ -59,7 +59,7 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
               </Link>
             </Text>
             <Text style={footerAddress}>
-              Neaply - The AI Automation Marketplace
+              Neaply - The Automation Marketplace
             </Text>
           </Section>
         </Container>
