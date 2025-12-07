@@ -293,7 +293,7 @@ export function WorkflowForm({
       </Tabs>
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-6 border-t">
+      <div className="flex items-center justify-between pt-6 border-t border-[#9DA2B3]/40">
         <div className="flex items-center gap-4">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel

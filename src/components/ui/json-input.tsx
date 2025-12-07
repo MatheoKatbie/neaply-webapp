@@ -23,16 +23,43 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Update text content when value prop changes
+  // Ref pour suivre si c'est le premier rendu
+  const isInitialMount = useRef(true)
+  const lastValueRef = useRef(value)
+
+  // Update text content only on initial mount or when value changes externally (not from user input)
   useEffect(() => {
-    if (value) {
-      const formattedJson = JSON.stringify(value, null, 2)
-      setTextContent(formattedJson)
-      setParseError(null)
-    } else {
-      setTextContent('')
-      setParseError(null)
+    // Au premier rendu, initialiser avec la valeur
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      if (value) {
+        const formattedJson = JSON.stringify(value, null, 2)
+        setTextContent(formattedJson)
+        setParseError(null)
+      }
+      lastValueRef.current = value
+      return
     }
+
+    // Ne mettre à jour que si la valeur a changé ET que ce n'est pas null
+    // (null signifie généralement que l'utilisateur a fait une erreur de frappe)
+    if (value && value !== lastValueRef.current) {
+      // Vérifier si le contenu est différent pour éviter les boucles
+      try {
+        const currentParsed = JSON.parse(textContent)
+        if (JSON.stringify(currentParsed) !== JSON.stringify(value)) {
+          const formattedJson = JSON.stringify(value, null, 2)
+          setTextContent(formattedJson)
+          setParseError(null)
+        }
+      } catch {
+        // Si le textContent actuel n'est pas du JSON valide, mettre à jour avec la nouvelle valeur
+        const formattedJson = JSON.stringify(value, null, 2)
+        setTextContent(formattedJson)
+        setParseError(null)
+      }
+    }
+    lastValueRef.current = value
   }, [value])
 
   const validateAndParseJson = (jsonString: string) => {
@@ -92,30 +119,45 @@ export function JsonInput({ value, onChange, onFileSelect, placeholder, error }:
     const reader = new FileReader()
     reader.onload = (e) => {
       const content = e.target?.result as string
-      setTextContent(content)
       
-      // Valider et parser le JSON, puis appeler onChange directement
+      // Valider et parser le JSON
+      let parsed: any = null
+      let isValid = false
+      
       try {
-        const parsed = JSON.parse(content)
+        parsed = JSON.parse(content)
         if (parsed && typeof parsed === 'object') {
           setParseError(null)
-          onChange(parsed, true)
+          isValid = true
         } else {
           setParseError('JSON must be an object')
-          onChange(null, false)
         }
       } catch (err) {
         setParseError(`Invalid JSON: ${err instanceof Error ? err.message : 'Unknown error'}`)
-        onChange(null, false)
       }
       
+      // Mettre à jour le contenu texte
+      setTextContent(content)
+      
+      // Notifier le fichier sélectionné d'abord
       if (onFileSelect) {
         onFileSelect(file)
       }
+      
+      // Mettre à jour les états d'upload
       setIsUploading(false)
-      setUploadSuccess(true)
+      setUploadSuccess(isValid)
+      
+      // Appeler onChange EN DERNIER pour s'assurer que le parent reçoit la mise à jour
+      // Utiliser setTimeout pour forcer un nouveau cycle de rendu
+      setTimeout(() => {
+        onChange(parsed, isValid)
+      }, 0)
+      
       // Masquer le message de succès après 3 secondes
-      setTimeout(() => setUploadSuccess(false), 3000)
+      if (isValid) {
+        setTimeout(() => setUploadSuccess(false), 3000)
+      }
     }
     reader.onerror = () => {
       setParseError('Error reading file')

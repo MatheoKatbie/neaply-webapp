@@ -159,6 +159,11 @@ export function WorkflowContentSection({
 
   const handleJsonChange = (content: any, isValid: boolean) => {
     onUpdate('jsonContent', content)
+    
+    // Marquer le champ comme touché pour déclencher la validation
+    if (!touched.jsonContent) {
+      onBlur('jsonContent')
+    }
 
     if (platform && content) {
       const contentType = currentPlatform?.contentType || 'json'
@@ -252,6 +257,10 @@ export function WorkflowContentSection({
             onChange={handleJsonChange}
             onFileSelect={(file) => {
               onUpdate('jsonFile', file)
+              // Marquer jsonContent comme touché après upload de fichier
+              if (!touched.jsonContent) {
+                onBlur('jsonContent')
+              }
             }}
             placeholder={currentPlatform?.placeholder || 'Paste your workflow content here...'}
             error={errors.jsonContent || jsonValidation.error || undefined}
