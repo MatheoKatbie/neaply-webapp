@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
 
-// GET /api/favorites - Get user's favorite workflows
+export const runtime = 'nodejs';
+
 export async function GET() {
   try {
     const supabase = await createClient()

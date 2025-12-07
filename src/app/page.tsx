@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import Link from 'next/link'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
+import { WorkflowCard } from '@/components/ui/workflow-card'
 import { useAuth } from '@/hooks/useAuth'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 
 interface StoreCard {
   userId: string
@@ -37,7 +37,7 @@ export default function Home() {
   // Fake stores data for filling empty spaces
   const fakeStores = useMemo(
     () => [
-      {
+      /*{
         userId: 'fake-store-1',
         storeName: 'AutoFlow Solutions',
         slug: 'autoflow-solutions',
@@ -116,7 +116,7 @@ export default function Home() {
         bio: 'Advanced analytics and reporting automation for data-driven decisions',
         user: { displayName: 'Analytics Team', avatarUrl: null },
         workflowsCount: 20,
-      },
+      },*/
     ],
     []
   )
@@ -124,7 +124,7 @@ export default function Home() {
   // Fake workflows data for filling empty spaces - memoized to prevent recreation
   const fakeWorkflows = useMemo(
     () => [
-      {
+      /*{
         id: 'fake-1',
         title: 'Email Marketing Automation',
         description: 'Automate your email campaigns with advanced segmentation and personalization features',
@@ -219,7 +219,7 @@ export default function Home() {
         tags: ['invoice', 'payment', 'finance'],
         platform: 'airtable_script',
         isFake: true,
-      },
+      },*/
     ],
     []
   )
@@ -570,30 +570,33 @@ export default function Home() {
               </circle>
             </svg>
 
-            {/* Background Image */}
-            <div className="absolute z-0 top-[350px] left-0 right-0 w-full pointer-events-none">
+            {/* Background Image - Hero */}
+            <div className="absolute inset-0 z-0">
               <img
-                src="/images/hero/hero-bg.png"
-                alt="FlowMarket Hero Background"
-                className="w-full h-auto object-contain opacity-50"
+                src="/images/hero.png"
+                alt="neaply Hero Background"
+                className="w-full h-full object-cover opacity-60"
               />
+              {/* Dark gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#08080A] via-[#08080A]/50 to-transparent" />
             </div>
 
+            {/* Hero BG decorative image */}
+      
+
             {/* Content */}
-            <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 w-full">
-              {/* Two Column Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                {/* Left Column - Text Content */}
-                <div className="text-white">
+            <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 w-full text-center">
+              {/* Centered Hero Content */}
+              <div className="text-white flex flex-col justify-center items-center mx-auto max-w-3xl">
                   <p className="font-aeonikpro text-[#BCBFCC] text-[16px] md:text-[18px] mb-4">
                     Welcome to the workflows marketplace — neaply
                   </p>
 
                   {/* Main Heading */}
-                  <h1 className="font-aeonikpro text-3xl md:text-4xl lg:text-5xl xl:text-[64px] text-[#EDEFF7] leading-tight lg:leading-[1.2] tracking-tight mb-6">
+                  <h1 className="font-aeonikpro text-4xl md:text-5xl lg:text-6xl xl:text-[75px] text-[#EDEFF7] leading-tight lg:leading-[1.2] tracking-tight mb-6">
                     Automate your world,
                     <br />
-                    Elevate your workforce.
+                    <span className='font-merriweather italic text-3xl md:text-4xl lg:text-5xl xl:text-[65px] opacity-80'>Elevate your workforce.</span>
                   </h1>
 
                   {/* Subheading */}
@@ -603,13 +606,14 @@ export default function Home() {
                   </p>
 
                   {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                    <button
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Button
                       onClick={() => router.push('/register')}
-                      className="font-aeonikpro bg-white text-black hover:bg-gray-100 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                      variant="default"
+                      className="font-aeonikpro bg-white text-black hover:bg-white/90 py-6 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
                     >
                       Get started — it&apos;s free
-                    </button>
+                    </Button>
 
                     <button
                       onClick={() => router.push('/become-seller')}
@@ -621,23 +625,15 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Right Column - Workflow Preview Card */}
-                <div className="relative hidden lg:block">
-                  {/* Main workflow card */}
-                  <div className="relative z-10">
-                    <img src="/images/hero/hero-workflow.png" alt="Workflow Example" className="object-contain" />
-                  </div>
-                </div>
-              </div>
-
               {/* Explore by platforms section */}
               <div className="mt-20 mb-12">
-                <h2 className="font-aeonikpro text-white text-2xl font-medium mb-8 text-left">Explore by platforms</h2>
+                <h2 className="font-aeonikpro text-white text-2xl font-medium mb-8 text-center">Explore by platforms</h2>
 
-                <div className="flex flex-wrap justify-center gap-6">
+                <div className="flex justify-center gap-6">
                   {/* n8n Card */}
                   <div
-                    className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
+                    onClick={() => router.push('/search?platform=n8n')}
+                    className="w-[25%] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
                       WebkitBackdropFilter: 'blur(10px)',
@@ -662,7 +658,8 @@ export default function Home() {
 
                   {/* Zapier Card */}
                   <div
-                    className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
+                    onClick={() => router.push('/search?platform=zapier')}
+                    className="w-[25%] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
                       WebkitBackdropFilter: 'blur(10px)',
@@ -687,7 +684,8 @@ export default function Home() {
 
                   {/* Make Card */}
                   <div
-                    className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
+                    onClick={() => router.push('/search?platform=make')}
+                    className="w-[25%] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
                       WebkitBackdropFilter: 'blur(10px)',
@@ -712,7 +710,8 @@ export default function Home() {
 
                   {/* Airtable Card */}
                   <div
-                    className="w-[233px] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
+                    onClick={() => router.push('/search?platform=airtable_script')}
+                    className="w-[25%] h-[171px] border border-[#1E1E24] rounded-lg relative cursor-pointer transition-all duration-300 flex flex-col items-center justify-center hover:bg-[#D3D6E0] bg-[rgba(211,214,224,0.05)] group"
                     style={{
                       backdropFilter: 'blur(10px)',
                       WebkitBackdropFilter: 'blur(10px)',
@@ -868,6 +867,9 @@ export default function Home() {
                         paddingRight: '1.5rem',
                       }}
                     >
+                      {fillStores(stores).length === 0 && (
+                        <p className="text-center w-screen text-[#9DA2B3]">No stores available at the moment. Please check back later!</p>
+                      )}
                       {fillStores(stores).map((s, index) => {
                         // Generate vibrant gradient colors like in the image
                         const gradients = [
@@ -1231,167 +1233,37 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {fillWorkflows(newestWorkflows, 10).length === 0 && (
+                      <p className="text-center text-[#9DA2B3] w-screen">No workflows available at the moment. Please check back later!</p>
+                    )}
                     {fillWorkflows(newestWorkflows, 10).map((wf) => (
-                      <div key={wf.id} className="group h-full">
-                        <a
-                          href={wf.isFake ? '#' : `/workflow/${wf.id}`}
-                          onClick={
-                            wf.isFake
-                              ? (e) => {
-                                  e.preventDefault()
-                                  alert('This is a demo workflow. Real workflows will be available soon!')
-                                }
-                              : undefined
-                          }
-                          className="border border-[#9DA2B3]/15 rounded-xl overflow-hidden hover:border-[#9DA2B3]/30 transition-all duration-300 hover:scale-[1.02] h-[420px] flex flex-col"
-                          style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
-                        >
-                          {/* Header with custom thumbnail */}
-                          <div className="relative h-48 p-3">
-                            {(() => {
-                              // Define platform colors
-                              const platformColors = {
-                                zapier: 'bg-[#FF4A00]',
-                                n8n: 'bg-[#EA4B71]',
-                                make: 'bg-gradient-to-br from-[#6D00CC] to-[#F901FC]',
-                                airtable_script: 'bg-gradient-to-r from-blue-600 to-blue-800',
-                              }
-
-                              return (
-                                <div className="relative w-full h-full rounded-lg bg-[#1E1E24] dots-pattern p-4 flex flex-col justify-between overflow-hidden group">
-                                  {/* Platform logo - centered and larger */}
-                                  <div className="absolute inset-0 z-10 flex items-center justify-center">
-                                    {(() => {
-                                      const platformLogos = {
-                                        zapier: {
-                                          gray: '/images/hero/zapier-grey.png',
-                                          color: '/images/hero/zapier-color.png',
-                                        },
-                                        n8n: {
-                                          gray: '/images/hero/n8n-grey.png',
-                                          color: '/images/hero/n8n-color.png',
-                                        },
-                                        make: {
-                                          gray: '/images/hero/make-grey.png',
-                                          color: '/images/hero/make-color.png',
-                                        },
-                                        airtable_script: {
-                                          gray: '/images/hero/airtable-grey.png',
-                                          color: '/images/hero/airtable-color.png',
-                                        },
-                                      }
-
-                                      const platformLogo = platformLogos[wf.platform as keyof typeof platformLogos]
-
-                                      if (platformLogo) {
-                                        return (
-                                          <div className="relative w-16 h-16">
-                                            <img
-                                              src={platformLogo.color}
-                                              alt={wf.platform}
-                                              className="w-full h-full object-contain"
-                                            />
-                                          </div>
-                                        )
-                                      }
-                                      return null
-                                    })()}
-                                  </div>
-
-                                  {/* Sales count badge */}
-                                  <div
-                                    className="absolute top-2 right-2 z-20 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full font-aeonikpro"
-                                    style={{ backgroundColor: '#FFF', color: '#40424D' }}
-                                  >
-                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                                      />
-                                    </svg>
-                                    <span className="font-medium">{wf.salesCount || 0} sales</span>
-                                  </div>
-
-                                  {/* Dark gradient overlay from bottom to top */}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-transparent rounded-lg z-5" />
-                                </div>
-                              )
-                            })()}
-                          </div>
-
-                          {/* Content section */}
-                          <div className="px-4 py-1 flex-1 flex flex-col">
-                            {/* Title */}
-                            <h3 className="font-aeonikpro text-lg line-clamp-2 mb-2" style={{ color: '#EDEFF7' }}>
-                              {wf.title}
-                            </h3>
-
-                            {/* Description */}
-                            <p className="text-sm line-clamp-2 flex-1 font-aeonikpro" style={{ color: '#9DA2B3' }}>
-                              {wf.description}
-                            </p>
-
-                            {/* Footer with price and rating */}
-                            <div className="mt-4 pt-4 border-t border-[#9DA2B3]/25">
-                              <div className="flex items-start justify-between">
-                                {/* Price section */}
-                                <div className="flex flex-col">
-                                  <span
-                                    className="text-xs font-aeonikpro uppercase tracking-wide"
-                                    style={{ color: '#9DA2B3' }}
-                                  >
-                                    PRICE
-                                  </span>
-                                  <span className="text-lg font-aeonikpro font-bold" style={{ color: '#EDEFF7' }}>
-                                    {wf.price === 0
-                                      ? 'Free'
-                                      : new Intl.NumberFormat('en-US', {
-                                          style: 'currency',
-                                          currency: 'USD',
-                                        }).format(wf.price / 100)}
-                                  </span>
-                                </div>
-
-                                {/* Rating section */}
-                                <div className="flex flex-col items-end">
-                                  <span
-                                    className="text-xs font-aeonikpro uppercase tracking-wide"
-                                    style={{ color: '#9DA2B3' }}
-                                  >
-                                    RATING
-                                  </span>
-                                  <div className="flex items-center gap-1">
-                                    <svg className="w-4 h-4 text-[#FF7700]" fill="#FF7700" viewBox="0 0 24 24">
-                                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                    </svg>
-                                    <span className="text-lg font-aeonikpro" style={{ color: '#EDEFF7' }}>
-                                      {wf.rating?.toFixed(1) || '0.0'}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </a>
-                      </div>
+                      <WorkflowCard
+                        key={wf.id}
+                        id={wf.id}
+                        title={wf.title}
+                        description={wf.description}
+                        price={wf.price}
+                        currency="USD"
+                        platform={wf.platform}
+                        rating={wf.rating}
+                        salesCount={wf.salesCount}
+                        isFake={wf.isFake}
+                      />
                     ))}
                     {/* Loading skeleton for new workflows */}
                     {isLoadingNewest &&
                       Array.from({ length: 4 }).map((_, i) => (
                         <div key={`loading-${i}`} className="group h-[420px]">
                           <div
-                            className="border border-[#9DA2B3]/15 rounded-xl overflow-hidden shadow-lg h-full flex flex-col"
-                            style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+                            className="border border-[#2a2a2a] rounded-xl overflow-hidden h-full flex flex-col bg-[#0a0a0a] animate-pulse"
                           >
                             <div
-                              className="h-48 p-3 animate-pulse"
-                              style={{ backgroundColor: 'rgba(30, 30, 36, 0.8)' }}
+                              className="h-48 p-3"
+                              style={{ backgroundColor: '#1a1a1a' }}
                             >
                               <div
                                 className="h-full rounded-lg animate-pulse"
-                                style={{ backgroundColor: 'rgba(157, 162, 179, 0.15)' }}
+                                style={{ backgroundColor: '#2a2a2a' }}
                               ></div>
                             </div>
                             <div className="px-4 py-1 flex-1 flex flex-col">

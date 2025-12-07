@@ -130,7 +130,7 @@ export default function FavoritesPage() {
               <Heart className="w-8 h-8 text-red-400" />
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">Error Loading Favorites</h3>
-            <p className="text-gray-400 mb-4">{error}</p>
+            <p className="text-[#9DA2B3] mb-4">{error}</p>
             <Button onClick={fetchFavorites} className="bg-secondary hover:bg-white/10 text-white rounded-full">
               Try Again
             </Button>
@@ -151,7 +151,7 @@ export default function FavoritesPage() {
             <Heart className="w-8 h-8 text-red-500" />
             <h1 className="text-white font-space-grotesk text-3xl">My Favorites</h1>
           </div>
-          <p className="text-lg text-gray-400">
+          <p className="text-lg text-[#9DA2B3]">
             Your collection of saved workflows ({favorites.length} workflow{favorites.length !== 1 ? 's' : ''})
           </p>
         </div>
@@ -160,10 +160,10 @@ export default function FavoritesPage() {
         {favorites.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-gray-400" />
+              <Heart className="w-8 h-8 text-[#9DA2B3]" />
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">No Favorites Yet</h3>
-            <p className="text-gray-400 max-w-md mx-auto mb-6">
+            <p className="text-[#9DA2B3] max-w-md mx-auto mb-6">
               Start exploring workflows in the marketplace and click the heart icon to save your favorites here.
             </p>
             <Button

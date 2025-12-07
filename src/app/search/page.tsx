@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Search } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 
 type SearchResult = {
   id: string
@@ -32,6 +32,7 @@ type SearchResult = {
 export default function SearchPage() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') || ''
+  const platformParam = searchParams.get('platform') || ''
 
   const [allResults, setAllResults] = useState<SearchResult[]>([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -41,22 +42,34 @@ export default function SearchPage() {
 
   // Filtres côté front
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
-  const [workflowTypeFilter, setWorkflowTypeFilter] = useState<string>('all')
+  const [workflowTypeFilter, setWorkflowTypeFilter] = useState<string>(platformParam || 'all')
   const [priceRangeFilter, setPriceRangeFilter] = useState<string>('all')
   const [recentlyAddedFilter, setRecentlyAddedFilter] = useState<string>('all')
 
   const loadSearchResults = async (page: number = 1, append: boolean = false) => {
-    if (!query.trim()) return
-
     const loadingState = page === 1 ? setIsLoading : setIsLoadingMore
     loadingState(true)
 
     try {
       const qs = new URLSearchParams()
-      qs.set('q', query)
+      
+      // Add search query if present
+      if (query.trim()) {
+        qs.set('q', query)
+      } else if (workflowTypeFilter === 'all') {
+        // If no query and no platform filter, don't load
+        loadingState(false)
+        return
+      }
+      
       qs.set('page', page.toString())
       qs.set('limit', '50') // Load more at once for client-side filtering
       qs.set('type', 'workflows') // Only workflows, no packs
+      
+      // Add platform filter if selected
+      if (workflowTypeFilter !== 'all') {
+        qs.set('platform', workflowTypeFilter)
+      }
 
       const response = await fetch(`/api/search?${qs.toString()}`)
       const data = await response.json()
@@ -79,11 +92,11 @@ export default function SearchPage() {
   }
 
   useEffect(() => {
-    if (query.trim()) {
+    if (query.trim() || workflowTypeFilter !== 'all') {
       setCurrentPage(1)
       loadSearchResults(1, false)
     }
-  }, [query])
+  }, [query, workflowTypeFilter])
 
   const loadMore = () => {
     if (!hasMore || isLoadingMore) return

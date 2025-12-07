@@ -99,6 +99,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       storeName: sellerProfile.storeName,
       slug: sellerProfile.slug,
       bio: sellerProfile.bio,
+      logoUrl: sellerProfile.logoUrl,
+      bannerUrl: sellerProfile.bannerUrl,
       websiteUrl: sellerProfile.websiteUrl,
       supportEmail: sellerProfile.supportEmail,
       phoneNumber: sellerProfile.phoneNumber,

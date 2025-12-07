@@ -45,14 +45,31 @@ export function WorkflowAnalysisPreview({ className, workflowId }: WorkflowAnaly
         const response = await fetch(`/api/workflows/${workflowId}/analysis`)
 
         if (!response.ok) {
-          throw new Error('Failed to load workflow analysis')
+          // Check if it's an HTML error page (auth redirect, etc)
+          const contentType = response.headers.get('content-type')
+          if (contentType?.includes('text/html')) {
+            setError('Please sign in to view technical analysis')
+          } else {
+            setError('Failed to load workflow analysis')
+          }
+          return
+        }
+
+        const contentType = response.headers.get('content-type')
+        if (!contentType?.includes('application/json')) {
+          setError('Invalid response format. Please try again.')
+          return
         }
 
         const data = await response.json()
-        setAnalysis(data.data)
+        setAnalysis(data.data || data)
       } catch (error) {
         console.error('Error fetching workflow analysis:', error)
-        setError('Failed to load analysis')
+        if (error instanceof SyntaxError) {
+          setError('Failed to parse response. Please sign in to view analysis.')
+        } else {
+          setError('Failed to load analysis')
+        }
       } finally {
         setLoading(false)
       }

@@ -22,6 +22,7 @@ interface ReportDialogProps {
   entityId: string
   entityName: string
   trigger?: React.ReactNode
+  className?: string
 }
 
 const REPORT_REASONS = {
@@ -45,7 +46,7 @@ const REPORT_REASONS = {
   ],
 }
 
-export function ReportDialog({ entityType, entityId, entityName, trigger }: ReportDialogProps) {
+export function ReportDialog({ entityType, entityId, entityName, trigger, className }: ReportDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedReason, setSelectedReason] = useState('')
   const [description, setDescription] = useState('')
@@ -92,7 +93,7 @@ export function ReportDialog({ entityType, entityId, entityName, trigger }: Repo
   }
 
   const defaultTrigger = (
-    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
+    <Button variant="destructive" className={className}>
       <Flag className="w-4 h-4 mr-2" />
       Report
     </Button>
@@ -103,20 +104,20 @@ export function ReportDialog({ entityType, entityId, entityName, trigger }: Repo
       <DialogTrigger asChild>
         {trigger || defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-[#1E1E24] border-[#9DA2B3]/25 max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-[#EDEFF7]">
             <AlertTriangle className="w-5 h-5 text-orange-500" />
             Report {entityType === 'workflow' ? 'Workflow' : 'Store'}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-[#9DA2B3]">
             You're reporting "{entityName}". Please select the reason that best describes the issue.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Reason for reporting</Label>
+            <Label className="text-sm font-medium text-[#EDEFF7]">Reason for reporting</Label>
             <RadioGroup value={selectedReason} onValueChange={setSelectedReason}>
               {reasons.map((reason) => (
                 <div key={reason.value} className="flex items-start space-x-2">
@@ -124,11 +125,11 @@ export function ReportDialog({ entityType, entityId, entityName, trigger }: Repo
                   <div className="grid gap-1.5 leading-none">
                     <Label
                       htmlFor={reason.value}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-[#EDEFF7]"
                     >
                       {reason.label}
                     </Label>
-                    <p className="text-xs text-muted-foreground">{reason.description}</p>
+                    <p className="text-xs text-[#9DA2B3]">{reason.description}</p>
                   </div>
                 </div>
               ))}
@@ -136,7 +137,7 @@ export function ReportDialog({ entityType, entityId, entityName, trigger }: Repo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium">
+            <Label htmlFor="description" className="text-sm font-medium text-[#EDEFF7]">
               Additional details (optional)
             </Label>
             <Textarea
@@ -146,16 +147,17 @@ export function ReportDialog({ entityType, entityId, entityName, trigger }: Repo
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               maxLength={500}
+              className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-[#9DA2B3]">
               {description.length}/500 characters
             </p>
           </div>
 
-          <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
+          <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-3">
             <div className="flex items-start space-x-2">
-              <AlertTriangle className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-orange-800">
+              <AlertTriangle className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-orange-200">
                 <p className="font-medium">Important</p>
                 <p className="text-xs mt-1">
                   False reports may result in restrictions on your account. Only report content that genuinely violates our community guidelines.
@@ -166,10 +168,10 @@ export function ReportDialog({ entityType, entityId, entityName, trigger }: Repo
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
+          <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isSubmitting} className="">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!selectedReason || isSubmitting}>
+          <Button onClick={handleSubmit} disabled={!selectedReason || isSubmitting} className="">
             {isSubmitting ? 'Submitting...' : 'Submit Report'}
           </Button>
         </DialogFooter>

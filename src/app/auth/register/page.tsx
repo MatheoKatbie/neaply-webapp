@@ -10,10 +10,10 @@ import type { RegisterFormData } from '@/types/auth'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function RegisterPage() {
-  const { signUp, signInWithProvider, error } = useAuth()
+  const { signUp, signInWithProvider, error: globalError, clearError } = useAuth()
   const router = useRouter()
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
@@ -23,18 +23,71 @@ export default function RegisterPage() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
+  const [emailExists, setEmailExists] = useState(false)
+  const [rejectedEmails, setRejectedEmails] = useState<Set<string>>(new Set())
+
+  // Clear global error when component mounts and use only local errors
+  useEffect(() => {
+    clearError()
+  }, [clearError])
+
+  // Use only local error, ignore global error completely
+  const displayError = localError
+
+  // Reset emailExists when email changes
+  useEffect(() => {
+    // Check cache first
+    if (rejectedEmails.has(formData.email)) {
+      setEmailExists(true)
+    } else {
+      setEmailExists(false)
+    }
+  }, [formData.email, rejectedEmails])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting new registration attempt
+    setEmailExists(false)
 
     try {
+      // First, check if email already exists
+      let emailAlreadyExists = false
+      try {
+        const checkResponse = await fetch('/api/auth/check-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email })
+        }).then(res => {
+          return res.json();
+        });
+        emailAlreadyExists = checkResponse.exists;
+      } catch (fetchErr) {
+        console.warn('Email check error:', fetchErr)
+        // Continue with signup anyway if email check fails
+      }
+
+      if (emailAlreadyExists) {
+        setEmailExists(true)
+        setRejectedEmails(prev => new Set([...prev, formData.email]))
+        setLocalError('This email is already registered. Please sign in or use a different email.')
+        setIsLoading(false)
+        return
+      }
+
+      // If email doesn't exist, proceed with signup
       const { error } = await signUp(formData)
+      if (error) {
+        setLocalError(error)
+        return
+      }
       if (!error) {
         setRegistrationSuccess(true)
       }
     } catch (err) {
       console.error('Registration error:', err)
+      setLocalError('An error occurred during registration')
     } finally {
       setIsLoading(false)
     }
@@ -42,10 +95,15 @@ export default function RegisterPage() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting OAuth
     try {
-      await signInWithProvider('google')
+      const { error } = await signInWithProvider('google')
+      if (error) {
+        setLocalError(error)
+      }
     } catch (err) {
       console.error('Google login error:', err)
+      setLocalError('An error occurred during Google authentication')
     } finally {
       setIsLoading(false)
     }
@@ -53,10 +111,15 @@ export default function RegisterPage() {
 
   const handleGitHubSignIn = async () => {
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting OAuth
     try {
-      await signInWithProvider('github')
+      const { error } = await signInWithProvider('github')
+      if (error) {
+        setLocalError(error)
+      }
     } catch (err) {
       console.error('GitHub login error:', err)
+      setLocalError('An error occurred during GitHub authentication')
     } finally {
       setIsLoading(false)
     }
@@ -74,15 +137,15 @@ export default function RegisterPage() {
       <>
         <div className="h-screen grid lg:grid-cols-2 font-aeonikpro">
           {/* Left side - Success message */}
-          <div className="flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8 overflow-y-auto">
+          <div className="flex items-center justify-center bg-[#08080A] px-4 sm:px-6 lg:px-8 overflow-y-auto">
             <div className="max-w-md w-full py-8">
-              <Card>
+              <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <CardHeader>
                   <CardTitle className="text-center text-green-600">Registration successful!</CardTitle>
-                  <CardDescription className="text-center">Check your email to confirm your account</CardDescription>
+                  <CardDescription className="text-center text-[#9DA2B3] font-aeonikpro">Check your email to confirm your account</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="text-center p-6 bg-green-50 rounded-lg">
+                  <div className="text-center p-6 bg-primary rounded-lg">
                     <svg
                       className="mx-auto h-12 w-12 text-green-600 mb-4"
                       fill="none"
@@ -96,7 +159,7 @@ export default function RegisterPage() {
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                       A confirmation email has been sent to <strong>{formData.email}</strong>. Click the link in the
                       email to activate your account.
                     </p>
@@ -110,17 +173,25 @@ export default function RegisterPage() {
           </div>
 
           {/* Right side - Hero Image */}
-          <div className="hidden lg:block relative bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
+          <div className="hidden lg:block relative">
             {/* Logo Neaply en haut à droite */}
-            <div className="absolute top-8 right-8 z-20">
+            <Link href="/" className="absolute top-8 right-8 z-20">
               <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
-            </div>
+            </Link>
 
-            <div className="absolute inset-0">
-              <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />
-              {/* Dark gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/40 to-blue-800/50"></div>
-            </div>
+ 
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            {/* Animated glow rings behind logo */}
+            <div className="absolute w-[60%] aspect-square rounded-full bg-white/8 blur-3xl animate-pulse" />
+            <div className="absolute w-[45%] aspect-square rounded-full bg-white/5 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+            
+            {/* 3D Logo with subtle transparency */}
+            <img 
+              src="/images/neaply/neaply3D.png" 
+              alt="Neaply 3D Logo" 
+              className="w-[85%] relative z-10 opacity-100 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)] " 
+            />
+          </div>
           </div>
         </div>
       </>
@@ -131,28 +202,28 @@ export default function RegisterPage() {
     <>
       <div className="h-screen grid lg:grid-cols-2 font-aeonikpro overflow-hidden">
         {/* Left side - Form */}
-        <div className="flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8 overflow-y-auto">
+        <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-y-auto">
           <div className="max-w-md w-full py-8">
             <div className="text-center mb-6">
               <h2 className="text-3xl font-aeonikpro text-foreground">Create an account</h2>
               <p className="mt-2 text-sm text-muted-foreground">Join Neaply today</p>
             </div>
 
-            <Card>
+            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
               <CardHeader>
                 <CardTitle>Registration</CardTitle>
-                <CardDescription>Create your account to get started</CardDescription>
+                <CardDescription className="text-[#9DA2B3] font-aeonikpro">Create your account to get started</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Message d'erreur */}
-                {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+                {displayError && <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">{displayError}</div>}
 
                 {/* Boutons OAuth */}
                 <div className="space-y-3">
                   <Button
                     type="button"
-                    variant="outline"
-                    className="w-full"
+                    variant="default"
+                    className="w-full border-1 border-secondary/10 hover:border-secondary/20"
                     onClick={handleGoogleSignIn}
                     disabled={isLoading}
                   >
@@ -179,8 +250,8 @@ export default function RegisterPage() {
 
                   <Button
                     type="button"
-                    variant="outline"
-                    className="w-full"
+                    variant="default"
+                    className="w-full border-1 border-secondary/10 hover:border-secondary/20"
                     onClick={handleGitHubSignIn}
                     disabled={isLoading}
                   >
@@ -199,18 +270,19 @@ export default function RegisterPage() {
                     <Separator className="w-full" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Or create with email</span>
+                    <span className="bg-[rgb(22,23,26)] px-2 text-[#9DA2B3] font-aeonikpro">Or create with email</span>
                   </div>
                 </div>
 
                 {/* Formulaire d'inscription */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full name</Label>
+                    <Label htmlFor="name" className="text-[#EDEFF7] font-aeonikpro">Full name</Label>
                     <Input
-                      id="name"
-                      name="name"
-                      type="text"
+                          id="name"
+                          name="name"
+                          type="text"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                       autoComplete="name"
                       required
                       value={formData.name}
@@ -220,25 +292,32 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-[#EDEFF7] font-aeonikpro">Email</Label>
                     <Input
-                      id="email"
-                      name="email"
-                      type="email"
+                          id="email"
+                          name="email"
+                          type="email"
+                          className={`bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro ${
+                            emailExists ? 'border-red-500/50 border-2' : ''
+                          }`}
                       autoComplete="email"
                       required
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="your@email.com"
                     />
+                    {emailExists && (
+                      <p className="text-xs text-red-400 font-aeonikpro">This email is already registered</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-[#EDEFF7] font-aeonikpro">Password</Label>
                     <Input
-                      id="password"
-                      name="password"
-                      type="password"
+                          id="password"
+                          name="password"
+                          type="password"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                       autoComplete="new-password"
                       required
                       value={formData.password}
@@ -250,11 +329,12 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm password</Label>
+                    <Label htmlFor="confirmPassword" className="text-[#EDEFF7] font-aeonikpro">Confirm password</Label>
                     <Input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type="password"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                       autoComplete="new-password"
                       required
                       value={formData.confirmPassword}
@@ -263,13 +343,13 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Creating...' : 'Create account'}
+                  <Button type="submit" variant="outline" className="w-full border-1 border-secondary/10 hover:border-secondary/20"  disabled={isLoading || emailExists}>
+                    {isLoading ? 'Creating...' : emailExists ? 'Email already registered' : 'Create account'}
                   </Button>
                 </form>
 
                 <div className="text-center text-sm">
-                  <span className="text-muted-foreground">Already have an account? </span>
+                  <span className="text-[#9DA2B3] font-aeonikpro">Already have an account? </span>
                   <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
                     Sign in
                   </Link>
@@ -292,18 +372,33 @@ export default function RegisterPage() {
         </div>
 
         {/* Right side - Hero Image */}
-        <div className="hidden lg:block relative bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
+        <div className="hidden lg:block relative ">
           {/* Logo Neaply en haut à droite */}
-          <div className="absolute top-8 right-8 z-20">
-            <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
-          </div>
+          <Link href="/" className="absolute top-8 right-8 z-20">
+              <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
+            </Link>
 
-          <div className="absolute inset-0">
-            <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />
-            {/* Dark gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/40 to-blue-800/50"></div>
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            {/* Animated glow rings behind logo */}
+            <div className="absolute w-[60%] aspect-square rounded-full bg-white/8 blur-3xl animate-pulse" />
+            <div className="absolute w-[45%] aspect-square rounded-full bg-white/5 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+            
+            {/* 3D Logo with subtle transparency */}
+            <img 
+              src="/images/neaply/neaply3D.png" 
+              alt="Neaply 3D Logo" 
+              className="w-[85%] relative z-10 opacity-100 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)] " 
+            />
           </div>
         </div>
+                        {/* Background hero-bg decorative */}
+          <div className="absolute inset-0 top-60 -z-9999">
+            <img
+              src="/images/hero/hero-bg.png"
+              alt="Neaply Background"
+              className="w-full h-full object-cover opacity-20"
+            />
+          </div>
       </div>
     </>
   )

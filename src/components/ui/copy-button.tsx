@@ -12,7 +12,7 @@ interface CopyButtonProps {
   showText?: boolean
 }
 
-export function CopyButton({ workflowId, size = 'sm', className = '', showText = true }: CopyButtonProps) {
+export function CopyButton({ workflowId, size = 'default', className = '', showText = true }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -34,7 +34,6 @@ export function CopyButton({ workflowId, size = 'sm', className = '', showText =
       size={size}
       onClick={handleCopy}
       disabled={loading}
-      variant='outline'
       className={`${className}`}
     >
       {copied ? (

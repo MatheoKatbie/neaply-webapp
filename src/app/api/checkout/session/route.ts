@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { stripe, STRIPE_CONNECT_CONFIG } from '@/lib/stripe'
+import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase-server'
+import { ratelimit, checkRateLimit, getRateLimitIdentifier } from '@/lib/rate-limit'
 import type { CreateCheckoutSessionRequest, CreateCheckoutSessionResponse } from '@/types/payment'
 
 const createCheckoutSessionSchema = z.object({
@@ -22,6 +24,21 @@ export async function POST(request: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Apply rate limiting (20 checkout attempts per hour)
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const identifier = getRateLimitIdentifier(user.id, ip)
+    const rateLimitResult = await checkRateLimit(ratelimit.checkout, identifier)
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many checkout attempts. Please try again later.',
+          retryAfter: rateLimitResult.reset,
+        },
+        { status: 429 }
+      )
     }
 
     // Parse and validate request body

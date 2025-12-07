@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Loader2 } from 'lucide-react'
+import { ShoppingCart, Loader2, AlertCircle } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -25,17 +26,34 @@ export function AddToCartButton({
   size = 'default',
   children,
 }: AddToCartButtonProps) {
+  const router = useRouter()
+  const pathname = usePathname()
   const { addToCart, hasItem } = useCart()
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<{ text: string; type: 'error' } | null>(null)
 
   const isInCart = hasItem(workflowId)
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
+
+  const showMessage = (text: string, type: 'error' = 'error') => {
+    setMessage({ text, type })
+  }
 
   const handleAddToCart = async () => {
     if (disabled || loading || isInCart) return
 
     if (!user) {
-      alert('Please login to add items to cart')
+      // Rediriger vers la page de login avec le chemin actuel comme paramètre de retour
+      router.push(`/auth/login?redirectTo=${encodeURIComponent(pathname)}`)
       return
     }
 
@@ -46,7 +64,7 @@ export function AddToCartButton({
       })
     } catch (error) {
       console.error('Error adding to cart:', error)
-      alert(error instanceof Error ? error.message : 'Failed to add item to cart')
+      showMessage(error instanceof Error ? error.message : 'Failed to add item to cart', 'error')
     } finally {
       setLoading(false)
     }
@@ -64,6 +82,20 @@ export function AddToCartButton({
       <Button size={size} className={className} disabled>
         <ShoppingCart className="w-4 h-4 mr-2" />
         Already in Cart
+      </Button>
+    )
+  }
+
+  // Afficher le message d'erreur dans le bouton
+  if (message) {
+    return (
+      <Button
+        size={size}
+        className={`${className} transition-all duration-300 bg-red-500/30 hover:bg-red-600 text-white border-red-500`}
+        disabled
+      >
+        <AlertCircle className="w-4 h-4 mr-2" />
+        {message.text}
       </Button>
     )
   }

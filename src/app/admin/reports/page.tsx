@@ -1,7 +1,7 @@
-import { prisma } from '@/lib/prisma'
 import { AdminPagination } from '@/components/admin/AdminPagination'
-import { AdminSearchFilters } from '@/components/admin/AdminSearchFilters'
 import { AdminReportsClient } from '@/components/admin/AdminReportsClient'
+import { AdminSearchFilters } from '@/components/admin/AdminSearchFilters'
+import { prisma } from '@/lib/prisma'
 
 async function getReports(
   page: number = 1,
@@ -146,10 +146,10 @@ export default async function AdminReports({
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-foreground font-space-grotesk">Reports Management</h1>
-        <p className="text-muted-foreground">Review and handle user reports</p>
+        <h1 className="text-4xl font-bold text-[#EDEFF7] font-space-grotesk mb-2">Reports Management</h1>
+        <p className="text-[#9DA2B3] text-lg">Review and handle user reports and violations</p>
       </div>
 
       <AdminSearchFilters

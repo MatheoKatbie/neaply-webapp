@@ -20,7 +20,7 @@ import { toast } from 'sonner'
 
 // Component that uses searchParams - needs to be wrapped in Suspense
 function LoginContent() {
-  const { signIn, signInWithProvider, loading, error } = useAuth()
+  const { signIn, signInWithProvider, loading, error: globalError, clearError } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState<LoginFormData>({
@@ -29,6 +29,7 @@ function LoginContent() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [resetEmailSent, setResetEmailSent] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
 
   // 2FA States
   const [loginStep, setLoginStep] = useState<'credentials' | '2fa'>('credentials')
@@ -40,6 +41,14 @@ function LoginContent() {
   const [use2FATab, setUse2FATab] = useState<'totp' | 'backup'>('totp')
 
   const callbackError = searchParams.get('error')
+  
+  // Clear global error when component mounts and use only local errors
+  useEffect(() => {
+    clearError()
+  }, [clearError])
+  
+  // Use only local error, ignore global error completely
+  const displayError = localError
 
   // Generate device fingerprint on mount
   useEffect(() => {
@@ -53,34 +62,51 @@ function LoginContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting new login attempt
 
     try {
-      // First, check if device is remembered (but only after auth attempt)
-      const { error } = await signIn(formData)
-      if (!error) {
-        // Check if 2FA is required for this user
-        if (deviceFingerprint) {
-          const deviceCheckResponse = await fetch('/api/auth/devices/check', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fingerprint: deviceFingerprint }),
-          })
+      // First, check if 2FA is required BEFORE creating a session
+      const check2FAResponse = await fetch('/api/auth/check-2fa-required', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: formData.email,
+          fingerprint: deviceFingerprint 
+        }),
+      })
 
-          if (deviceCheckResponse.ok) {
-            const deviceData = await deviceCheckResponse.json()
-            if (deviceData.requiresTwoFA) {
-              setRequiresTwoFA(true)
-              setLoginStep('2fa')
-              return
-            }
-          }
-        }
-
-        // If no 2FA required, redirect
-        router.push('/')
+      if (!check2FAResponse.ok) {
+        setLocalError('Failed to check authentication requirements')
+        return
       }
+
+      const { requires2FA, exists } = await check2FAResponse.json()
+
+      if (!exists) {
+        setLocalError('Invalid email or password')
+        return
+      }
+
+      // If 2FA is required, do NOT create a session yet
+      if (requires2FA) {
+        setRequiresTwoFA(true)
+        setLoginStep('2fa')
+        return
+      }
+
+      // If no 2FA required, proceed with normal sign in
+      const { error } = await signIn(formData)
+      if (error) {
+        setLocalError(error)
+        return
+      }
+
+      // If no 2FA required, redirect to the original page or home
+      const redirectTo = searchParams.get('redirectTo') || '/'
+      router.push(redirectTo)
     } catch (err) {
       console.error('Login error:', err)
+      setLocalError('An error occurred during login')
     } finally {
       setIsLoading(false)
     }
@@ -97,10 +123,13 @@ function LoginContent() {
         toast.error('Code Required', {
           description: `Please enter a ${use2FATab === 'totp' ? '6-digit' : 'backup'} code`,
         })
+        setIsLoading(false)
         return
       }
 
       const requestBody = {
+        email: formData.email,
+        password: formData.password,
         ...(use2FATab === 'totp' ? { totpCode: code } : { backupCode: code }),
         rememberDevice,
         deviceInfo: rememberDevice
@@ -112,17 +141,26 @@ function LoginContent() {
           : undefined,
       }
 
-      const response = await fetch('/api/auth/verify-2fa', {
+      // Use the secure login-with-2fa endpoint that verifies credentials + 2FA
+      // and only creates a session if both are valid
+      const response = await fetch('/api/auth/login-with-2fa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
       })
 
       if (response.ok) {
+        const data = await response.json()
+        
+        // Session is now created on the server, we need to refresh the auth state
+        // The useAuth hook will automatically pick up the new session
         toast.success('Login Successful', {
           description: 'Two-factor authentication verified successfully.',
         })
-        router.push('/')
+        
+        // Redirect to the original page or home
+        const redirectTo = searchParams.get('redirectTo') || '/'
+        window.location.href = redirectTo
       } else {
         const error = await response.json()
         toast.error('Verification Failed', {
@@ -141,10 +179,15 @@ function LoginContent() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting OAuth
     try {
-      await signInWithProvider('google')
+      const { error } = await signInWithProvider('google')
+      if (error) {
+        setLocalError(error)
+      }
     } catch (err) {
       console.error('Google login error:', err)
+      setLocalError('An error occurred during Google authentication')
     } finally {
       setIsLoading(false)
     }
@@ -152,10 +195,15 @@ function LoginContent() {
 
   const handleGitHubSignIn = async () => {
     setIsLoading(true)
+    setLocalError(null) // Clear local error when starting OAuth
     try {
-      await signInWithProvider('github')
+      const { error } = await signInWithProvider('github')
+      if (error) {
+        setLocalError(error)
+      }
     } catch (err) {
       console.error('GitHub login error:', err)
+      setLocalError('An error occurred during GitHub authentication')
     } finally {
       setIsLoading(false)
     }
@@ -172,22 +220,22 @@ function LoginContent() {
     <>
       <div className="h-screen grid lg:grid-cols-2 font-aeonikpro overflow-hidden">
         {/* Left side - Form */}
-        <div className="flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8 overflow-y-auto">
+        <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-y-auto">
           <div className="max-w-md w-full py-8">
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-aeonikpro">Welcome to Neaply</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <h2 className="text-3xl font-aeonikpro text-[#EDEFF7]">Welcome to Neaply</h2>
+              <p className="mt-2 text-sm text-[#9DA2B3] font-aeonikpro">
                 {loginStep === 'credentials' ? 'Sign in to your account' : 'Enter your verification code'}
               </p>
             </div>
 
-            <Card>
+            <Card className=" border-[#9DA2B3]/25">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-[#EDEFF7] font-aeonikpro">
                   {loginStep === '2fa' && <Shield className="h-5 w-5" />}
                   {loginStep === 'credentials' ? 'Sign In' : 'Two-Factor Authentication'}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-[#9DA2B3] font-aeonikpro">
                   {loginStep === 'credentials'
                     ? 'Enter your credentials to access your account'
                     : 'Verify your identity with your authenticator app or backup code'}
@@ -196,13 +244,13 @@ function LoginContent() {
               <CardContent className="space-y-6">
                 {/* Message d'erreur de callback */}
                 {callbackError === 'callback_error' && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                  <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">
                     An error occurred during authentication. Please try again.
                   </div>
                 )}
 
                 {/* Message d'erreur général */}
-                {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
+                {displayError && <div className="bg-red-500/10 border border-red-500/50 text-red-300 px-4 py-3 rounded">{displayError}</div>}
 
                 {loginStep === 'credentials' && (
                   <>
@@ -210,8 +258,8 @@ function LoginContent() {
                     <div className="space-y-3">
                       <Button
                         type="button"
-                        variant="outline"
-                        className="w-full"
+                        variant="default"
+                        className="w-full border-1 border-secondary/10 hover:border-secondary/20"
                         onClick={handleGoogleSignIn}
                         disabled={isLoading}
                       >
@@ -238,8 +286,8 @@ function LoginContent() {
 
                       <Button
                         type="button"
-                        variant="outline"
-                        className="w-full"
+                        variant="default"
+                        className="w-full border-1 border-secondary/10 hover:border-secondary/20"
                         onClick={handleGitHubSignIn}
                         disabled={isLoading}
                       >
@@ -258,18 +306,19 @@ function LoginContent() {
                         <Separator className="w-full" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                        <span className="bg-[rgb(22,23,26)]  px-2 text-[#9DA2B3] font-aeonikpro">Or continue with</span>
                       </div>
                     </div>
 
                     {/* Formulaire de connexion */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="text-[#EDEFF7] font-aeonikpro">Email</Label>
                         <Input
                           id="email"
                           name="email"
                           type="email"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                           autoComplete="email"
                           required
                           value={formData.email}
@@ -279,11 +328,12 @@ function LoginContent() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password" className="text-[#EDEFF7] font-aeonikpro">Password</Label>
                         <Input
                           id="password"
                           name="password"
                           type="password"
+                          className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                           autoComplete="current-password"
                           required
                           value={formData.password}
@@ -292,7 +342,7 @@ function LoginContent() {
                         />
                       </div>
 
-                      <Button type="submit" className="w-full" disabled={isLoading}>
+                      <Button type="submit" variant="outline" className="w-full border-1 border-secondary/10 hover:border-secondary/20"  disabled={isLoading}>
                         {isLoading ? 'Signing in...' : 'Sign In'}
                       </Button>
                     </form>
@@ -315,13 +365,13 @@ function LoginContent() {
 
                       <TabsContent value="totp" className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="totpCode">Verification Code</Label>
+                          <Label htmlFor="totpCode" className="text-[#EDEFF7] font-aeonikpro">Verification Code</Label>
                           <Input
                             id="totpCode"
+                            className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                             value={totpCode}
                             onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                             placeholder="000000"
-                            className="text-center text-lg font-mono tracking-wider"
                             maxLength={6}
                             autoComplete="one-time-code"
                           />
@@ -333,9 +383,10 @@ function LoginContent() {
 
                       <TabsContent value="backup" className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="backupCode">Backup Code</Label>
+                          <Label htmlFor="backupCode" className="text-[#EDEFF7] font-aeonikpro">Backup Code</Label>
                           <Input
                             id="backupCode"
+                            className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                             value={backupCode}
                             onChange={(e) =>
                               setBackupCode(
@@ -346,10 +397,9 @@ function LoginContent() {
                               )
                             }
                             placeholder="XXXXXXXX"
-                            className="text-center text-lg font-mono tracking-wider"
                             maxLength={8}
                           />
-                          <p className="text-sm text-muted-foreground">Enter one of your 8-character backup codes</p>
+                          <p className="text-sm text-[#9DA2B3] font-aeonikpro">Enter one of your 8-character backup codes</p>
                         </div>
                       </TabsContent>
                     </Tabs>
@@ -361,9 +411,9 @@ function LoginContent() {
                       </Label>
                     </div>
 
-                    <Alert>
-                      <Shield className="h-4 w-4" />
-                      <AlertDescription>
+                    <Alert className="bg-blue-500/10 border-blue-500/50">
+                    <Shield color='white' className="h-4 w-4" />
+                    <AlertDescription className="text-blue-300 font-aeonikpro">
                         {rememberDevice
                           ? "This device will be remembered and won't require 2FA for 30 days."
                           : "You'll need to verify your identity each time you sign in from this device."}
@@ -373,6 +423,7 @@ function LoginContent() {
                     <div className="space-y-2">
                       <Button
                         type="submit"
+                        variant="outline"
                         className="w-full"
                         disabled={isLoading || (use2FATab === 'totp' ? totpCode.length !== 6 : backupCode.length !== 8)}
                       >
@@ -381,7 +432,7 @@ function LoginContent() {
 
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="default"
                         className="w-full"
                         onClick={() => {
                           setLoginStep('credentials')
@@ -404,7 +455,7 @@ function LoginContent() {
                       </Link>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Don't have an account? </span>
+                      <span className="text-[#9DA2B3] font-aeonikpro">Don't have an account? </span>
                       <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
                         Create account
                       </Link>
@@ -417,18 +468,36 @@ function LoginContent() {
         </div>
 
         {/* Right side - Hero Image */}
-        <div className="hidden lg:block relative bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
+        <div className="hidden lg:block relative">
           {/* Logo Neaply en haut à droite */}
-          <div className="absolute top-8 right-8 z-20">
+          <Link href="/" className="absolute top-8 right-8 z-20">
             <Image src="/images/neaply/logo-light.png" alt="Neaply Logo" width={120} height={40} priority />
-          </div>
+          </Link>
 
-          <div className="absolute inset-0">
-            <img src="/images/hero.png" alt="Neaply Hero" className="w-full h-full object-cover" />
-            {/* Dark gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-purple-900/40 to-blue-800/50"></div>
+  
+
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            {/* Animated glow rings behind logo */}
+            <div className="absolute w-[60%] aspect-square rounded-full bg-white/8 blur-3xl animate-pulse" />
+            <div className="absolute w-[45%] aspect-square rounded-full bg-white/5 blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+            
+            {/* 3D Logo with subtle transparency */}
+            <img 
+              src="/images/neaply/neaply3D.png" 
+              alt="Neaply 3D Logo" 
+              className="w-[85%] relative z-10 opacity-100 drop-shadow-[0_0_60px_rgba(255,255,255,0.25)]" 
+            />
           </div>
         </div>
+                {/* Background hero-bg decorative */}
+          <div className="absolute inset-0 top-60 -z-9999">
+            <img
+              src="/images/hero/hero-bg.png"
+              alt="Neaply Background"
+              className="w-full h-full object-cover opacity-20"
+            />
+          </div>
+
       </div>
     </>
   )

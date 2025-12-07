@@ -49,21 +49,21 @@ export function OrderDetailsDialog({ order, trigger }: Props) {
                     <DialogTitle>Order #{order.id}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3">
-                    <div className="text-sm text-muted-foreground">
-                        <div>Customer: <span className="text-foreground font-medium">{order.user.displayName}</span> ({order.user.email})</div>
-                        <div>Created: {formatDate(order.createdAt)}</div>
-                        {order.paidAt && <div>Paid: {formatDate(order.paidAt)}</div>}
-                        <div>Provider: {order.provider || '—'}</div>
-                        <div>Total: <span className="text-foreground font-medium">{formatCurrency(order.totalCents)}</span></div>
-                        <div>Status: {order.status}</div>
+                    <div className="text-sm text-primary-foreground font-aeonikpro font-bold">
+                        <div>Customer: <span className="text-primary-foreground/70 font-medium">{order.user.displayName} ({order.user.email})</span></div>
+                        <div>Created: <span className="text-primary-foreground/70">{formatDate(order.createdAt)}</span> </div>
+                        {order.paidAt && <div>Paid: <span className="text-primary-foreground/70">{formatDate(order.paidAt)}</span></div>}
+                        <div>Provider: <span className="text-primary-foreground/70">{order.provider || '—'}</span></div>
+                        <div>Total: <span className="text-primary-foreground/70 font-medium">{formatCurrency(order.totalCents)}</span></div>
+                        <div>Status: <span className="text-primary-foreground/70">{order.status}</span></div>
                     </div>
                     <div className="space-y-2">
                         <div className="font-medium">Items</div>
                         <div className="space-y-1">
                             {order.items.map((item) => (
-                                <div key={item.id} className="text-sm text-muted-foreground">
-                                    <span className="text-foreground">{item.workflow.title}</span>
-                                    <span> by {item.workflow.seller.displayName}</span>
+                                <div key={item.id} className="text-sm text-primary-foreground">
+                                    <span>{item.workflow.title}</span>
+                                    <span> by <span>{item.workflow.seller.displayName}</span></span>
                                     <span> • {formatCurrency(item.unitPriceCents)}</span>
                                 </div>
                             ))}

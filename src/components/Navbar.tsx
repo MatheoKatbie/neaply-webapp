@@ -1,18 +1,18 @@
 'use client'
 
+import CartSlider from '@/components/CartSlider'
+import { NotificationDropdown } from '@/components/NotificationDropdown'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ShoppingCart } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { Trans } from '@/components/ui/Trans'
 import { useAuth } from '@/hooks/useAuth'
 import { useCart } from '@/hooks/useCart'
 import { useTranslation } from '@/hooks/useTranslation'
-import { Heart, Search, User, ArrowRight, Command } from 'lucide-react'
+import { Heart, Search, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Input } from '@/components/ui/input'
-import CartSlider from '@/components/CartSlider'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -34,6 +34,7 @@ export default function Navbar() {
   const isHomepage = pathname === '/'
   const isMarketplacePage = pathname === '/' || pathname === '/marketplace'
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMac, setIsMac] = useState(false)
 
   // Debug effect for search focus
   useEffect(() => {
@@ -74,6 +75,11 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Detect if the user is on Mac OS
+  useEffect(() => {
+    setIsMac(navigator.platform.toUpperCase().includes('MAC'))
   }, [])
 
   // Fetch seller profile to get store slug
@@ -200,7 +206,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] font-aeonikpro w-full max-w-7xl mx-auto px-4">
+      <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9998] font-aeonikpro w-full max-w-7xl mx-auto px-4">
         <div
           className="flex items-center px-6"
           style={{
@@ -226,7 +232,7 @@ export default function Navbar() {
               <div className="relative w-full">
                 <form onSubmit={handleSearch} className="w-full">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#9DA2B3] w-4 h-4" />
                     <Input
                       ref={searchRef}
                       type="text"
@@ -235,11 +241,11 @@ export default function Navbar() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setIsSearchFocused(true)}
                       onKeyDown={handleKeyDown}
-                      className="pl-10 pr-12 h-9 text-sm bg-white/10 border-white/20 text-white placeholder-gray-400 focus:bg-white/20 focus:border-white/40 rounded-full"
+                      className="pl-10 pr-12 h-9 text-sm bg-[#40424D]/60 border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 focus:bg-[#40424D]/80 focus:border-[#9DA2B3]/50 rounded-full font-aeonikpro"
                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                      <kbd className="px-1.5 py-0.5 text-xs font-mono bg-white/20 text-gray-300 rounded border border-white/30">
-                        ⌘K
+                      <kbd className="px-1.5 py-0.5 text-xs font-mono bg-[#40424D]/70 text-[#9DA2B3] rounded border border-[#9DA2B3]/25 font-aeonikpro">
+                        {isMac ? '⌘K' : 'Ctrl+K'}
                       </kbd>
                     </div>
                   </div>
@@ -249,18 +255,18 @@ export default function Navbar() {
                 {isSearchFocused && (
                   <div
                     ref={searchDropdownRef}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-80 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-2 bg-[rgba(30,30,36,0.95)] rounded-lg shadow-lg border border-[#9DA2B3]/25 z-50 max-h-80 overflow-y-auto backdrop-blur-md"
                   >
                     <div className="p-2">
-                      <div className="text-xs font-medium text-gray-500 mb-2 px-2">Quick searches</div>
+                      <div className="text-xs font-medium text-[#9DA2B3] mb-2 px-2 font-aeonikpro">Quick searches</div>
                       {searchSuggestions.map((suggestion, index) => (
                         <button
                           key={index}
                           onClick={() => handleSuggestionClick(suggestion.query)}
-                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                          className="w-full text-left px-3 py-2 text-sm text-[#9DA2B3] hover:bg-[#40424D]/30 hover:text-[#EDEFF7] rounded-md transition-colors duration-200 font-aeonikpro"
                         >
                           <div className="flex items-center gap-2">
-                            <Search className="w-3 h-3 text-gray-400" />
+                            <Search className="w-3 h-3 text-[#9DA2B3]" />
                             <span>{suggestion.text}</span>
                           </div>
                         </button>
@@ -276,7 +282,7 @@ export default function Navbar() {
             {/* Navigation Links - Before auth buttons */}
             <div className="flex items-center space-x-8 font-aeonikpro">
               <Link
-                href="/"
+                href="/marketplace"
                 className="relative font-medium transition-colors duration-200 group"
                 style={{ color: '#EDEFF7' }}
               >
@@ -299,6 +305,10 @@ export default function Navbar() {
             ) : user ? (
               // Logged in user
               <div className="flex items-center space-x-3">
+                {/* Notifications */}
+                <NotificationDropdown />
+
+                {/* Cart */}
                 {user && (
                   <button
                     onClick={handleCartClick}
@@ -317,9 +327,9 @@ export default function Navbar() {
                 <button
                   className="font-aeonikpro inline-flex items-center justify-center h-10 px-6 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer text-black"
                   style={{ backgroundColor: '#D3D6E0' }}
-                  onClick={() => router.push('/dashboard/seller')}
+                  onClick={() => router.push(user.isSeller ? '/dashboard/seller' : '/become-seller')}
                 >
-                  Get started
+                  {user.isSeller ? 'Dashboard' : 'Get started'}
                 </button>
 
                 {/* User Dropdown */}
@@ -337,9 +347,9 @@ export default function Navbar() {
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-[rgba(30,30,36,0.95)] rounded-lg shadow-lg border border-[#9DA2B3]/25 z-50 backdrop-blur-md">
                       {/* User Info Section */}
-                      <div className="px-4 py-3 border-b border-gray-200">
+                      <div className="px-4 py-3 border-b border-[#9DA2B3]/25">
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage
@@ -347,24 +357,42 @@ export default function Navbar() {
                               alt={user.displayName}
                               className="object-cover"
                             />
-                            <AvatarFallback className="bg-gray-100 text-gray-600 text-sm font-medium">
+                            <AvatarFallback className="bg-[#1E1E24] text-[#9DA2B3] text-sm font-medium">
                               {user.displayName.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-black truncate">{user.displayName}</p>
-                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                            <p className="text-sm font-medium text-[#EDEFF7] truncate font-aeonikpro">{user.displayName}</p>
+                            <p className="text-xs text-[#9DA2B3] truncate font-aeonikpro">{user.email}</p>
                           </div>
                         </div>
                       </div>
 
                       <div className="py-1">
+                        {user.isAdmin && (
+                          <>
+                            <button
+                              onClick={() => {
+                                router.push('/admin')
+                                setIsDropdownOpen(false)
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 transition-colors duration-200 cursor-pointer font-aeonikpro flex items-center gap-2"
+                            >
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              Admin Panel
+                            </button>
+                            <div className="border-t border-[#9DA2B3]/25 my-1"></div>
+                          </>
+                        )}
                         <button
                           onClick={() => {
                             router.push('/orders')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-[#9DA2B3] hover:bg-[#40424D]/30 hover:text-[#EDEFF7] transition-colors duration-200 cursor-pointer font-aeonikpro"
                         >
                           Orders History
                         </button>
@@ -373,7 +401,7 @@ export default function Navbar() {
                             router.push('/help')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-[#9DA2B3] hover:bg-[#40424D]/30 hover:text-[#EDEFF7] transition-colors duration-200 cursor-pointer font-aeonikpro"
                         >
                           Help & Support
                         </button>
@@ -382,14 +410,14 @@ export default function Navbar() {
                             router.push('/settings')
                             setIsDropdownOpen(false)
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-[#9DA2B3] hover:bg-[#40424D]/30 hover:text-[#EDEFF7] transition-colors duration-200 cursor-pointer font-aeonikpro"
                         >
                           Settings
                         </button>
-                        <div className="border-t border-gray-200 my-1"></div>
+                        <div className="border-t border-[#9DA2B3]/25 my-1"></div>
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200 cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors duration-200 cursor-pointer font-aeonikpro"
                         >
                           Logout
                         </button>
@@ -456,7 +484,7 @@ export default function Navbar() {
               </div>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:text-black transition-colors duration-200"
+                className="w-8 h-8 rounded-full bg-[#40424D]/30 flex items-center justify-center text-[#9DA2B3] hover:text-black transition-colors duration-200"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -541,8 +569,8 @@ export default function Navbar() {
               <div className="space-y-3">
                 {loading ? (
                   <div className="space-y-3">
-                    <div className="h-12 w-full bg-muted rounded-lg animate-pulse"></div>
-                    <div className="h-12 w-full bg-muted rounded-lg animate-pulse"></div>
+                    <div className="h-12 w-full bg-[#40424D]/40 rounded-lg animate-pulse"></div>
+                    <div className="h-12 w-full bg-[#40424D]/40 rounded-lg animate-pulse"></div>
                   </div>
                 ) : user ? (
                   // Logged in user - mobile

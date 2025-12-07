@@ -24,12 +24,12 @@ export default function CartPage() {
   // Redirect if not logged in
   if (!user) {
     return (
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
+      <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <ShoppingCart className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <h1 className="text-2xl font-bold mb-2">Please login to view your cart</h1>
-            <p className="text-muted-foreground mb-6">You need to be logged in to manage your cart.</p>
+            <ShoppingCart className="w-16 h-16 mx-auto text-[#9DA2B3] mb-4" />
+            <h1 className="text-2xl font-bold mb-2 text-[#EDEFF7] font-aeonikpro">Please login to view your cart</h1>
+            <p className="text-[#9DA2B3] mb-6 font-aeonikpro">You need to be logged in to manage your cart.</p>
             <Link href="/auth/login">
               <Button>Login</Button>
             </Link>
@@ -41,17 +41,17 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
+      <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-muted rounded w-48 mb-6"></div>
+            <div className="h-8 bg-[#40424D]/40 rounded w-48 mb-6"></div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-32 bg-muted rounded-lg"></div>
+                  <div key={i} className="h-32 bg-[#40424D]/40 rounded-lg"></div>
                 ))}
               </div>
-              <div className="h-64 bg-muted rounded-lg"></div>
+              <div className="h-64 bg-[#40424D]/40 rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -107,14 +107,14 @@ export default function CartPage() {
   // Show success message
   if (paymentSuccess) {
     return (
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
+      <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CreditCard className="w-8 h-8 text-green-600" />
+            <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CreditCard className="w-8 h-8 text-emerald-400" />
             </div>
-            <h1 className="text-2xl font-bold mb-2 text-green-600">Payment Successful!</h1>
-            <p className="text-muted-foreground mb-4">
+            <h1 className="text-2xl font-bold mb-2 text-emerald-400 font-aeonikpro">Payment Successful!</h1>
+            <p className="text-[#9DA2B3] mb-4 font-aeonikpro">
               All your payments have been processed successfully. Redirecting to success page...
             </p>
           </div>
@@ -124,8 +124,8 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background ">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#08080A]">
+      <div className="max-w-6xl mx-auto px-4 py-8 pt-24">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
@@ -136,8 +136,8 @@ export default function CartPage() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Shopping Cart</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-3xl font-bold mb-2 text-[#EDEFF7] font-aeonikpro">Shopping Cart</h1>
+              <p className="text-[#9DA2B3] font-aeonikpro">
                 {cart?.items.length || 0} {cart?.items.length === 1 ? 'item' : 'items'} in your cart
               </p>
             </div>
@@ -153,9 +153,9 @@ export default function CartPage() {
         {!cart || cart.items.length === 0 ? (
           // Empty cart
           <div className="text-center py-16">
-            <ShoppingCart className="w-24 h-24 mx-auto text-muted-foreground mb-6" />
-            <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
-            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+            <ShoppingCart className="w-24 h-24 mx-auto text-[#9DA2B3] mb-6" />
+            <h2 className="text-2xl font-semibold mb-2 text-[#EDEFF7] font-aeonikpro">Your cart is empty</h2>
+            <p className="text-[#9DA2B3] mb-8 max-w-md mx-auto font-aeonikpro">
               Looks like you haven't added any workflows to your cart yet. Browse our marketplace to find amazing
               workflows.
             </p>
@@ -177,18 +177,18 @@ export default function CartPage() {
                   }, 0)
 
                   return (
-                    <div key={sellerId} className="border rounded-lg p-6">
+                    <div key={sellerId} className="border border-[#9DA2B3]/25 rounded-lg p-6 bg-[#1E1E24]/30">
                       {/* Seller header */}
-                      <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                      <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#9DA2B3]/25">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
+                          <div className="w-8 h-8 bg-[#9DA2B3]/20 rounded-full flex items-center justify-center text-[#9DA2B3] font-semibold text-sm font-aeonikpro">
                             {(seller.sellerProfile?.storeName || seller.displayName).charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-lg">
+                            <h3 className="font-semibold text-lg text-[#EDEFF7] font-aeonikpro">
                               {seller.sellerProfile?.storeName || seller.displayName}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                               {sellerItems.length} {sellerItems.length === 1 ? 'item' : 'items'} • $
                               {(sellerTotal / 100).toFixed(2)}
                             </p>
@@ -207,7 +207,7 @@ export default function CartPage() {
                 })}
               </div>
 
-              <Separator className="my-6" />
+              <Separator className="my-6 bg-[#9DA2B3]/25" />
 
               {/* Unified checkout for all cases */}
               <Card className="mb-6">
@@ -247,16 +247,16 @@ export default function CartPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <span>Subtotal:</span>
-                        <span>${(totalAmount / 100).toFixed(2)}</span>
+                      <div className="flex justify-between text-[#EDEFF7]">
+                        <span className="font-aeonikpro">Subtotal:</span>
+                        <span className="font-aeonikpro">${(totalAmount / 100).toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between font-semibold text-lg">
-                        <span>Total:</span>
-                        <span>${(totalAmount / 100).toFixed(2)}</span>
+                      <div className="flex justify-between font-semibold text-lg text-[#EDEFF7]">
+                        <span className="font-aeonikpro">Total:</span>
+                        <span className="font-aeonikpro">${(totalAmount / 100).toFixed(2)}</span>
                       </div>
                       {hasMultipleSellers && (
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-[#9DA2B3] font-aeonikpro">
                           Payment will be distributed to{' '}
                           {new Set(cart.items.map((item) => item.workflow.sellerId)).size} sellers
                         </div>

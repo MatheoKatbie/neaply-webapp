@@ -1,19 +1,38 @@
 'use client'
 
-import { AnimatedHeart } from '@/components/ui/animated-heart'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { PlatformBadge } from '@/components/ui/platform-badge'
-import { Separator } from '@/components/ui/separator'
-import { Download, Filter, Search, Star } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { WorkflowCard } from '@/components/ui/workflow-card'
+import { Search, X, SlidersHorizontal, ChevronDown, Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-interface WorkflowCardProps {
+// Platform options
+const PLATFORMS = [
+  { value: 'all', label: 'All Platforms' },
+  { value: 'n8n', label: 'n8n' },
+  { value: 'zapier', label: 'Zapier' },
+  { value: 'make', label: 'Make' },
+  { value: 'airtable_script', label: 'Airtable Script' },
+]
+
+// Rating options
+const RATINGS = [
+  { value: 0, label: 'All Ratings' },
+  { value: 4, label: '4+ Stars' },
+  { value: 3, label: '3+ Stars' },
+  { value: 2, label: '2+ Stars' },
+]
+
+interface WorkflowCardData {
   id: string
   title: string
   description: string
@@ -21,6 +40,8 @@ interface WorkflowCardProps {
   currency: string
   platform?: string
   seller: string
+  sellerId?: string
+  sellerSlug?: string
   sellerAvatarUrl?: string | null
   rating: number
   ratingCount: number
@@ -43,7 +64,7 @@ interface CategoryData {
 }
 
 interface MarketplaceResponse {
-  data: WorkflowCardProps[]
+  data: WorkflowCardData[]
   categories: CategoryData[]
   pagination: {
     page: number
@@ -55,201 +76,19 @@ interface MarketplaceResponse {
   }
 }
 
-function WorkflowCard({
-  id,
-  title,
-  description,
-  price,
-  currency,
-  platform,
-  seller,
-  sellerAvatarUrl,
-  rating,
-  ratingCount,
-  salesCount,
-  heroImage,
-  categories,
-  tags,
-  isFavorite = false,
-  isNew = false,
-  isTrending = false,
-}: WorkflowCardProps) {
-  const router = useRouter()
-  const [favorite, setFavorite] = useState(isFavorite)
-
-  const handleCardClick = () => {
-    router.push(`/workflow/${id}`)
-  }
-
-  const handleFavoriteClick = async (e?: React.MouseEvent) => {
-    e?.stopPropagation()
-
-    try {
-      if (favorite) {
-        // Remove from favorites
-        const response = await fetch('/api/favorites', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ workflowId: id }),
-        })
-
-        if (response.ok) {
-          setFavorite(false)
-        }
-      } else {
-        // Add to favorites
-        const response = await fetch('/api/favorites', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ workflowId: id }),
-        })
-
-        if (response.ok) {
-          setFavorite(true)
-        }
-      }
-    } catch (error) {
-      console.error('Error updating favorites:', error)
-      // Revert the state if there was an error
-      // setFavorite(!favorite) - don't revert since we'll show the original state
-    }
-  }
-
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-    }).format(price / 100)
-  }
-
-  return (
-    <Card
-      className="cursor-pointer hover:shadow-lg transition-all duration-300 group relative overflow-hidden py-0 pb-6"
-      onClick={handleCardClick}
-    >
-      {/* Favorite button */}
-      <div className="absolute top-3 right-3 z-10">
-        <AnimatedHeart
-          isFavorite={favorite}
-          onToggle={(e) => handleFavoriteClick(e)}
-          className="bg-background/80 hover:bg-background/90"
-          size="md"
-        />
-      </div>
-
-      {/* Hero image */}
-      <div className="h-48 relative overflow-hidden">
-        {heroImage ? (
-          <img
-            src={heroImage}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <AutoThumbnail
-            workflow={{
-              id,
-              title,
-              shortDesc: description,
-              longDescMd: '',
-              categories: categories.map((cat) => ({ category: { id: '', name: cat, slug: '' } })),
-              tags: tags.map((tag) => ({ tag: { id: '', name: tag, slug: '' } })),
-              platform,
-            }}
-            size="md"
-            className="w-full h-full"
-            authorAvatarUrl={sellerAvatarUrl || undefined}
-          />
-        )}
-
-        {/* Rating - top left */}
-        <div className="absolute top-3 left-3 z-10">
-          <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs font-medium text-white">({rating.toFixed(1)})</span>
-          </div>
-        </div>
-
-        {/* Price - top right */}
-        <div className="absolute top-3 right-3 z-10">
-          <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
-            <span className="text-xs font-bold text-green-400">{formatPrice(price, currency)}</span>
-          </div>
-        </div>
-
-        {/* Platform badge - moved to bottom left */}
-        {platform && (
-          <div className="absolute bottom-3 left-3 z-10">
-            <PlatformBadge platform={platform} size="sm" variant="default" className="shadow-sm" />
-          </div>
-        )}
-      </div>
-
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold text-card-foreground group-hover:text-foreground transition-colors">
-          {title}
-        </CardTitle>
-        <CardDescription className="text-sm text-muted-foreground line-clamp-2">{description}</CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {/* Categories and tags */}
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-1">
-            {categories.slice(0, 2).map((category) => (
-              <Badge key={category} variant="secondary" className="text-xs">
-                {category}
-              </Badge>
-            ))}
-            {categories.length > 2 && (
-              <Badge variant="outline" className="text-xs">
-                +{categories.length - 2}
-              </Badge>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs text-muted-foreground">
-                #{tag}
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* Seller and stats */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">by {seller}</span>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Download className="w-3 h-3" />
-              <span>{salesCount} sales</span>
-            </div>
-          </div>
-        </div>
-        <Button className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90">
-          View Workflow
-        </Button>
-      </CardContent>
-    </Card>
-  )
-}
-
 export default function MarketplacePage() {
-  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedPlatform, setSelectedPlatform] = useState('all')
+  const [minRating, setMinRating] = useState(0)
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
+  const [showFreeOnly, setShowFreeOnly] = useState(false)
   const [sortBy, setSortBy] = useState('popular')
-  const [workflows, setWorkflows] = useState<WorkflowCardProps[]>([])
+  const [workflows, setWorkflows] = useState<WorkflowCardData[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [categories, setCategories] = useState<CategoryData[]>([])
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [pagination, setPagination] = useState({
     page: 1,
     totalCount: 0,
@@ -282,12 +121,24 @@ export default function MarketplacePage() {
         params.append('category', selectedCategory)
       }
 
-      if (priceRange.min) {
-        params.append('minPrice', priceRange.min)
+      if (selectedPlatform !== 'all') {
+        params.append('platform', selectedPlatform)
       }
 
-      if (priceRange.max) {
-        params.append('maxPrice', priceRange.max)
+      if (minRating > 0) {
+        params.append('minRating', minRating.toString())
+      }
+
+      if (showFreeOnly) {
+        params.append('maxPrice', '0')
+      } else {
+        if (priceRange.min) {
+          params.append('minPrice', priceRange.min)
+        }
+
+        if (priceRange.max) {
+          params.append('maxPrice', priceRange.max)
+        }
       }
 
       const response = await fetch(`/api/marketplace/workflows?${params.toString()}`)
@@ -299,10 +150,8 @@ export default function MarketplacePage() {
       const data: MarketplaceResponse = await response.json()
 
       if (append) {
-        // Append new workflows to existing list
         setWorkflows((prev) => [...prev, ...(data.data || [])])
       } else {
-        // Replace workflows (for new searches/filters)
         setWorkflows(data.data || [])
       }
 
@@ -330,198 +179,399 @@ export default function MarketplacePage() {
   // Fetch workflows on component mount and when filters change
   useEffect(() => {
     fetchWorkflows(1, false)
-  }, [searchQuery, selectedCategory, priceRange.min, priceRange.max, sortBy])
+  }, [searchQuery, selectedCategory, selectedPlatform, minRating, priceRange.min, priceRange.max, showFreeOnly, sortBy])
 
   // Workflows are already filtered and sorted by the API
   const sortedWorkflows = workflows
 
-  return (
-    <>
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Page Header */}
-          <div className="text-center mb-10">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Workflow Marketplace</h1>
-            </div>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Discover powerful n8n workflows to automate your business processes. From marketing automation to data
-              processing, find the perfect workflow for your needs.
-            </p>
-          </div>
+  const hasActiveFilters = searchQuery || selectedCategory !== 'all' || selectedPlatform !== 'all' || minRating > 0 || priceRange.min || priceRange.max || showFreeOnly
 
-          {/* Search and Filter Section */}
-          <div className="bg-card rounded-xl border border-border shadow-sm p-8 mb-8">
-            <div className="space-y-6">
-              {/* Main Search and Primary Filters */}
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Search */}
-                <div className="lg:col-span-2">
-                  <Label htmlFor="search" className="text-sm font-medium text-card-foreground mb-2 block">
-                    Search Workflows
-                  </Label>
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <Input
-                      id="search"
-                      placeholder="Search workflows, tags, or categories..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-12 h-12 text-base border-border focus:border-gray-400 focus:ring-gray-400"
-                    />
-                  </div>
-                </div>
+  const clearAllFilters = () => {
+    setSearchQuery('')
+    setSelectedCategory('all')
+    setSelectedPlatform('all')
+    setMinRating(0)
+    setPriceRange({ min: '', max: '' })
+    setShowFreeOnly(false)
+    setSortBy('popular')
+  }
 
-                {/* Category Filter */}
-                <div>
-                  <Label htmlFor="category" className="text-sm font-medium text-card-foreground mb-2 block">
-                    Category
-                  </Label>
-                  <select
-                    id="category"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full h-12 px-4 py-3 text-base border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all"
-                  >
-                    <option value="all">All Categories</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.slug}>
-                        {category.name} ({category.count})
-                      </option>
+  // Sidebar filter content (reused for mobile and desktop)
+  const FilterContent = () => (
+    <div className="space-y-6">
+      {/* Search */}
+      <div>
+        <Label htmlFor="search" className="text-sm font-medium text-[#EDEFF7] mb-2 block">
+          Search
+        </Label>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#9DA2B3] w-4 h-4" />
+          <Input
+            id="search"
+            placeholder="Search workflows..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 bg-[#0D0D0F] border-[#9DA2B3]/20 focus:border-[#9DA2B3]/40"
+          />
+        </div>
+      </div>
+
+      {/* Platform Filter */}
+      <div>
+        <Label className="text-sm font-medium text-[#EDEFF7] mb-3 block">
+          Platform
+        </Label>
+        <div className="space-y-1">
+          {PLATFORMS.map((platform) => (
+            <button
+              key={platform.value}
+              onClick={() => setSelectedPlatform(platform.value)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                selectedPlatform === platform.value
+                  ? 'bg-[#EDEFF7]/10 text-[#EDEFF7]'
+                  : 'text-[#9DA2B3] hover:bg-[#EDEFF7]/5 hover:text-[#EDEFF7]'
+              }`}
+            >
+              {platform.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Categories */}
+      <div>
+        <Label className="text-sm font-medium text-[#EDEFF7] mb-3 block">
+          Categories
+        </Label>
+        <div className="space-y-1 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
+          <button
+            onClick={() => setSelectedCategory('all')}
+            className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+              selectedCategory === 'all'
+                ? 'bg-[#EDEFF7]/10 text-[#EDEFF7]'
+                : 'text-[#9DA2B3] hover:bg-[#EDEFF7]/5 hover:text-[#EDEFF7]'
+            }`}
+          >
+            All Categories
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.slug)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between ${
+                selectedCategory === category.slug
+                  ? 'bg-[#EDEFF7]/10 text-[#EDEFF7]'
+                  : 'text-[#9DA2B3] hover:bg-[#EDEFF7]/5 hover:text-[#EDEFF7]'
+              }`}
+            >
+              <span>{category.name}</span>
+              <span className="text-xs opacity-60">{category.count}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Rating Filter */}
+      <div>
+        <Label className="text-sm font-medium text-[#EDEFF7] mb-3 block">
+          Rating
+        </Label>
+        <div className="space-y-1">
+          {RATINGS.map((rating) => (
+            <button
+              key={rating.value}
+              onClick={() => setMinRating(rating.value)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
+                minRating === rating.value
+                  ? 'bg-[#EDEFF7]/10 text-[#EDEFF7]'
+                  : 'text-[#9DA2B3] hover:bg-[#EDEFF7]/5 hover:text-[#EDEFF7]'
+              }`}
+            >
+              {rating.value > 0 ? (
+                <>
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3 h-3 ${i < rating.value ? 'text-yellow-400 fill-yellow-400' : 'text-[#9DA2B3]/30'}`}
+                      />
                     ))}
-                  </select>
-                </div>
+                  </div>
+                  <span>& up</span>
+                </>
+              ) : (
+                <span>{rating.label}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
 
-                {/* Sort */}
-                <div>
-                  <Label htmlFor="sort" className="text-sm font-medium text-card-foreground mb-2 block">
-                    Sort By
-                  </Label>
-                  <select
-                    id="sort"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full h-12 px-4 py-3 text-base border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all"
-                  >
-                    <option value="popular">Most Popular</option>
-                    <option value="newest">Newest</option>
-                    <option value="rating">Highest Rated</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                  </select>
-                </div>
+      {/* Price Range */}
+      <div>
+        <Label className="text-sm font-medium text-[#EDEFF7] mb-3 block">
+          Price
+        </Label>
+        
+        {/* Free Only Toggle */}
+        <label className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-[#EDEFF7]/5 transition-colors mb-3">
+          <input
+            type="checkbox"
+            checked={showFreeOnly}
+            onChange={(e) => setShowFreeOnly(e.target.checked)}
+            className="w-4 h-4 rounded border-[#9DA2B3]/30 bg-[#0D0D0F] text-[#EDEFF7] focus:ring-[#EDEFF7]/20"
+          />
+          <span className={`text-sm ${showFreeOnly ? 'text-[#EDEFF7]' : 'text-[#9DA2B3]'}`}>
+            Free only
+          </span>
+        </label>
+
+        {!showFreeOnly && (
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={priceRange.min}
+                  onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                  className="bg-[#0D0D0F] border-[#9DA2B3]/20 focus:border-[#9DA2B3]/40 text-sm"
+                />
               </div>
-
-              {/* Price Range and Clear Filters */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end pt-4 border-t border-border">
-                <div>
-                  <Label htmlFor="min-price" className="text-sm font-medium text-card-foreground mb-2 block">
-                    Min Price (€)
-                  </Label>
-                  <Input
-                    id="min-price"
-                    type="number"
-                    placeholder="0"
-                    value={priceRange.min}
-                    onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
-                    className="h-12 text-base border-border focus:border-gray-400 focus:ring-gray-400"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="max-price" className="text-sm font-medium text-card-foreground mb-2 block">
-                    Max Price (€)
-                  </Label>
-                  <Input
-                    id="max-price"
-                    type="number"
-                    placeholder="1000"
-                    value={priceRange.max}
-                    onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
-                    className="h-12 text-base border-border focus:border-gray-400 focus:ring-gray-400"
-                  />
-                </div>
-                <div className="lg:col-span-3 flex items-end gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setSearchQuery('')
-                      setSelectedCategory('all')
-                      setPriceRange({ min: '', max: '' })
-                      setSortBy('popular')
-                    }}
-                    className="flex-1 h-12 border-border hover:border-border/80 hover:bg-accent bg-background text-foreground"
-                  >
-                    <Filter className="w-4 h-4 mr-2" />
-                    Clear Filters
-                  </Button>
-                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground h-12 px-8">
-                    <Search className="w-4 h-4 mr-2" />
-                    Search
-                  </Button>
-                </div>
+              <span className="text-[#9DA2B3] self-center">-</span>
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={priceRange.max}
+                  onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                  className="bg-[#0D0D0F] border-[#9DA2B3]/20 focus:border-[#9DA2B3]/40 text-sm"
+                />
               </div>
             </div>
-          </div>
-
-          {/* Results Section */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold text-foreground">{pagination.totalCount} workflows found</h2>
-              {searchQuery && <Badge variant="outline">Search: "{searchQuery}"</Badge>}
-              {selectedCategory !== 'all' && <Badge variant="outline">Category: {selectedCategory}</Badge>}
-            </div>
-          </div>
-
-          {/* Workflow Grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-muted"></div>
-                  <CardHeader>
-                    <div className="h-6 bg-muted rounded"></div>
-                    <div className="h-4 bg-muted rounded w-3/4"></div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-muted rounded w-1/2"></div>
-                      <div className="h-4 bg-muted rounded w-3/4"></div>
-                    </div>
-                  </CardContent>
-                </Card>
+            {/* Quick price buttons */}
+            <div className="flex flex-wrap gap-1">
+              {[10, 25, 50, 100].map((price) => (
+                <button
+                  key={price}
+                  onClick={() => setPriceRange({ min: '', max: price.toString() })}
+                  className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                    priceRange.max === price.toString() && !priceRange.min
+                      ? 'bg-[#EDEFF7]/10 text-[#EDEFF7]'
+                      : 'text-[#9DA2B3] hover:bg-[#EDEFF7]/5'
+                  }`}
+                >
+                  Under ${price}
+                </button>
               ))}
             </div>
-          ) : sortedWorkflows.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedWorkflows.map((workflow) => (
-                <WorkflowCard key={workflow.id} {...workflow} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">No workflows found</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Try adjusting your search criteria or explore different categories to find the perfect workflow.
-              </p>
-            </div>
-          )}
+          </div>
+        )}
+      </div>
 
-          {/* Load More Button */}
-          {sortedWorkflows.length > 0 && !loading && pagination.hasNext && (
-            <div className="text-center mt-12">
-              <Button variant="outline" size="lg" onClick={loadMoreWorkflows} disabled={loadingMore}>
-                {loadingMore ? 'Loading...' : 'Load More Workflows'}
-              </Button>
-              <p className="text-sm text-muted-foreground mt-2">
-                Showing {sortedWorkflows.length} of {pagination.totalCount} workflows
-              </p>
+      {/* Clear Filters */}
+      {hasActiveFilters && (
+        <Button
+          variant="outline"
+          onClick={clearAllFilters}
+          className="w-full"
+          size="sm"
+        >
+          <X className="w-4 h-4 mr-2" />
+          Clear All Filters
+        </Button>
+      )}
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
+      <div className="max-w-[1400px] mx-auto px-3 md:px-6 py-6">
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="w-full justify-between"
+          >
+            <span className="flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4" />
+              Filters
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="ml-2 bg-[#EDEFF7]/10">
+                  Active
+                </Badge>
+              )}
+            </span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${showMobileFilters ? 'rotate-180' : ''}`} />
+          </Button>
+          
+          {/* Mobile Filters Panel */}
+          {showMobileFilters && (
+            <div className="mt-4 p-4 rounded-xl bg-[#0D0D0F] border border-[#9DA2B3]/15">
+              <FilterContent />
             </div>
           )}
         </div>
+
+        <div className="flex gap-6">
+          {/* Desktop Sidebar */}
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className="sticky top-28 p-4 rounded-xl bg-[#0D0D0F] border border-[#9DA2B3]/15">
+              <FilterContent />
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0">
+            {/* Results Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-[#EDEFF7] font-medium">
+                  {pagination.totalCount} workflows
+                </span>
+                {searchQuery && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setSearchQuery('')}
+                  >
+                    "{searchQuery}" <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+                {selectedCategory !== 'all' && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setSelectedCategory('all')}
+                  >
+                    {categories.find(c => c.slug === selectedCategory)?.name || selectedCategory} <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+                {(priceRange.min || priceRange.max) && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setPriceRange({ min: '', max: '' })}
+                  >
+                    ${priceRange.min || '0'} - ${priceRange.max || '∞'} <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+                {selectedPlatform !== 'all' && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setSelectedPlatform('all')}
+                  >
+                    {PLATFORMS.find(p => p.value === selectedPlatform)?.label || selectedPlatform} <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+                {minRating > 0 && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setMinRating(0)}
+                  >
+                    {minRating}+ ★ <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+                {showFreeOnly && (
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-[#EDEFF7]/10 text-[#EDEFF7] hover:bg-[#EDEFF7]/15 cursor-pointer"
+                    onClick={() => setShowFreeOnly(false)}
+                  >
+                    Free Only <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                )}
+              </div>
+              
+              {/* Sort Dropdown */}
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[180px] bg-[#0D0D0F] border-[#9DA2B3]/20">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="popular">Most Popular</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="rating">Highest Rated</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Workflow Grid */}
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {[...Array(9)].map((_, i) => (
+                  <div key={i} className="rounded-xl h-80 bg-[rgba(64,66,77,0.15)] animate-pulse border border-[#9DA2B3]/10" />
+                ))}
+              </div>
+            ) : sortedWorkflows.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {sortedWorkflows.map((workflow) => (
+                  <WorkflowCard
+                    key={workflow.id}
+                    id={workflow.id}
+                    title={workflow.title}
+                    description={workflow.description}
+                    price={workflow.price}
+                    currency={workflow.currency}
+                    platform={workflow.platform}
+                    rating={workflow.rating}
+                    salesCount={workflow.salesCount}
+                    isFavorite={workflow.isFavorite}
+                    onFavoriteChange={(fav) => {
+                      setWorkflows((prev) =>
+                        prev.map((wf) => (wf.id === workflow.id ? { ...wf, isFavorite: fav } : wf))
+                      )
+                    }}
+                    heroImage={workflow.heroImage}
+                    categories={workflow.categories}
+                    tags={workflow.tags}
+                    seller={workflow.seller}
+                    sellerId={workflow.sellerId}
+                    sellerSlug={workflow.sellerSlug}
+                    sellerAvatarUrl={workflow.sellerAvatarUrl}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-[rgba(64,66,77,0.25)] rounded-full flex items-center justify-center mx-auto mb-4 border border-[#9DA2B3]/15">
+                  <Search className="w-8 h-8 text-[#9DA2B3]" />
+                </div>
+                <h3 className="text-xl font-semibold text-[#EDEFF7] mb-2">No workflows found</h3>
+                <p className="text-[#9DA2B3] text-sm max-w-md mx-auto mb-4">
+                  Try adjusting your search or filters to find what you're looking for.
+                </p>
+                {hasActiveFilters && (
+                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                    Clear All Filters
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* Load More Button */}
+            {sortedWorkflows.length > 0 && !loading && pagination.hasNext && (
+              <div className="text-center mt-10">
+                <Button 
+                  variant="outline" 
+                  onClick={loadMoreWorkflows} 
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? 'Loading...' : 'Load More'}
+                </Button>
+                <p className="text-xs text-[#9DA2B3] mt-3">
+                  Showing {sortedWorkflows.length} of {pagination.totalCount}
+                </p>
+              </div>
+            )}
+          </main>
+        </div>
       </div>
-    </>
+    </div>
   )
 }

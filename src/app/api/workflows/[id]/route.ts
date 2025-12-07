@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { updateWorkflowVersion } from '@/lib/workflow-version'
 import { safeDecrypt } from '@/lib/encryption'
+import { notifyFollowersNewWorkflow } from '@/lib/notifications'
 
 // Helper function to compare semantic versions
 function compareVersions(version1: string, version2: string): number {
@@ -334,6 +335,27 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     })
 
     const updatedWorkflow = result!
+
+    // If workflow was just published (status changed from non-published to published), notify followers
+    if (
+      validatedData.status === 'published' &&
+      existingWorkflow.status !== 'published'
+    ) {
+      try {
+        await notifyFollowersNewWorkflow({
+          sellerId: seller.id,
+          storeName: seller.sellerProfile?.storeName || seller.displayName || 'Un vendeur',
+          storeSlug: seller.sellerProfile?.slug || '',
+          workflowId: updatedWorkflow.id,
+          workflowTitle: updatedWorkflow.title,
+          workflowSlug: updatedWorkflow.slug,
+        })
+        console.log('📧 Followers notified about new workflow:', updatedWorkflow.title)
+      } catch (notifError) {
+        console.error('Failed to notify followers:', notifError)
+        // Don't fail the request if notification fails
+      }
+    }
 
     // UUIDs are already strings, no conversion needed
     return NextResponse.json({

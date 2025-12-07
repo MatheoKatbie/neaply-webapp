@@ -105,7 +105,7 @@ export function SellerWorkflowsTab({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Your Workflows</h2>
+        <h2 className="text-xl font-semibold text-[#EDEFF7] font-aeonikpro">Your Workflows</h2>
       </div>
 
       {showCreateForm && (
@@ -233,9 +233,9 @@ export function SellerWorkflowsTab({
               <Card>
                 <CardContent className="p-12 text-center">
                   <div className="space-y-4">
-                    <div className="mx-auto h-12 w-12 bg-muted rounded-lg flex items-center justify-center">
+                    <div className="mx-auto h-12 w-12 bg-[#40424D]/30 rounded-lg flex items-center justify-center">
                       <svg
-                        className="h-6 w-6 text-muted-foreground"
+                        className="h-6 w-6 text-[#9DA2B3]"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -248,8 +248,8 @@ export function SellerWorkflowsTab({
                         />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-medium text-foreground">No workflows yet</h3>
-                    <p className="text-muted-foreground">Get started by creating your first workflow.</p>
+                    <h3 className="text-lg font-medium text-[#EDEFF7] font-aeonikpro">No workflows yet</h3>
+                    <p className="text-[#9DA2B3] font-aeonikpro">Get started by creating your first workflow.</p>
                     <Button onClick={onCreateWorkflow}>Create Your First Workflow</Button>
                   </div>
                 </CardContent>

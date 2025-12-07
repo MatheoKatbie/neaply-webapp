@@ -91,7 +91,7 @@ export function AdminPagination({
     return (
         <div className="flex flex-col items-center gap-4">
             {/* Items info */}
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-[#9DA2B3] font-aeonikpro">
                 Showing {startItem} to {endItem} of {totalItems} items
             </div>
 

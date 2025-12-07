@@ -95,17 +95,17 @@ export default function OrderDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-500/20 text-green-400'
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-yellow-500/20 text-yellow-400'
       case 'failed':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-500/20 text-red-400'
       case 'refunded':
-        return 'bg-muted text-gray-800'
+        return 'bg-[#40424D]/40 text-[#9DA2B3]'
       case 'cancelled':
-        return 'bg-muted text-gray-800'
+        return 'bg-[#40424D]/40 text-[#9DA2B3]'
       default:
-        return 'bg-muted text-gray-800'
+        return 'bg-[#40424D]/40 text-[#9DA2B3]'
     }
   }
 
@@ -160,11 +160,11 @@ export default function OrderDetailPage() {
   if (loading) {
     return (
       <>
-        <div className="min-h-screen bg-background pt-20 md:pt-24">
+        <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="animate-pulse">
-              <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
-              <div className="h-64 bg-muted rounded-lg"></div>
+              <div className="h-8 bg-[#40424D]/40 rounded w-1/4 mb-6"></div>
+              <div className="h-64 bg-[#40424D]/40 rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -175,15 +175,15 @@ export default function OrderDetailPage() {
   if (error || !order) {
     return (
       <>
-        <div className="min-h-screen bg-background pt-20 md:pt-24">
+        <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
           <div className="max-w-4xl mx-auto px-4 py-8">
-            <Card className="text-center py-12">
+            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25 text-center py-12">
               <CardContent>
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <AlertCircle className="w-8 h-8 text-red-500" />
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-8 h-8 text-red-400" />
                 </div>
-                <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
-                <p className="text-muted-foreground mb-6">
+                <h2 className="text-xl font-semibold mb-2 text-[#EDEFF7] font-aeonikpro">Order Not Found</h2>
+                <p className="text-[#9DA2B3] mb-6 font-aeonikpro">
                   {error || "The order you're looking for could not be found."}
                 </p>
                 <div className="space-x-4">
@@ -203,7 +203,7 @@ export default function OrderDetailPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-background pt-20 md:pt-24">
+      <div className="min-h-screen bg-[#08080A] pt-20 md:pt-24">
         <div className="max-w-4xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="mb-6">
@@ -214,16 +214,16 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Order Header */}
-          <Card className="mb-6">
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25 mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Package className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <Package className="w-6 h-6 text-blue-400" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl">Order #{order.id.slice(-8)}</CardTitle>
-                    <p className="text-muted-foreground mt-1">Placed on {formatDate(order.createdAt)}</p>
+                    <CardTitle className="text-2xl text-[#EDEFF7] font-aeonikpro">Order #{order.id.slice(-8)}</CardTitle>
+                    <p className="text-[#9DA2B3] mt-1 font-aeonikpro">Placed on {formatDate(order.createdAt)}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -239,9 +239,9 @@ export default function OrderDetailPage() {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Order Items */}
-              <Card>
+              <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <CardHeader>
-                  <CardTitle>Items Purchased</CardTitle>
+                  <CardTitle className="text-[#EDEFF7] font-aeonikpro">Items Purchased</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -249,7 +249,7 @@ export default function OrderDetailPage() {
                     {order.items && order.items.length > 0 && (
                       <>
                         {order.items.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
+                          <div key={item.id} className="flex items-center justify-between p-4 bg-[#1E1E24] border border-[#9DA2B3]/25 rounded-lg">
                             <div className="flex items-center space-x-4">
                               {item.workflow.heroImageUrl ? (
                                 <img
@@ -258,16 +258,16 @@ export default function OrderDetailPage() {
                                   className="w-16 h-16 object-cover rounded-lg"
                                 />
                               ) : (
-                                <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
-                                  <FileText className="w-8 h-8 text-blue-600" />
+                                <div className="w-16 h-16 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                  <FileText className="w-8 h-8 text-blue-400" />
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-medium text-gray-900 truncate">{item.workflow.title}</h4>
-                                <p className="text-xs text-muted-foreground mb-2">
+                                <h4 className="text-sm font-medium text-[#EDEFF7] font-aeonikpro truncate">{item.workflow.title}</h4>
+                                <p className="text-xs text-[#9DA2B3] font-aeonikpro mb-2">
                                   by {item.workflow.seller.displayName}
                                 </p>
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-sm font-medium text-green-400 font-aeonikpro">
                                   {formatPrice(item.unitPriceCents, order.currency)}
                                 </p>
                               </div>
@@ -278,22 +278,21 @@ export default function OrderDetailPage() {
                                 <div className="flex gap-2">
                                   <CopyButton workflowId={item.workflowId} />
                                   <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
-                                  >
-                                    <Download className="w-4 h-4 mr-2" />
-                                    ZIP
-                                  </Button>
-                                </div>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="outline"
                                 onClick={() => router.push(`/workflow/${item.workflowId}`)}
                               >
                                 View Details
                               </Button>
+                                </div>
+                              )}
+                              <Button
+                                    variant="outline"
+                                    size="default"
+                                    onClick={() => handleDownloadZip(item.workflowId, item.workflow.title)}
+                                  >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Download ZIP
+                                  </Button>
+
                             </div>
                           </div>
                         ))}
@@ -306,18 +305,18 @@ export default function OrderDetailPage() {
                         {order.packItems.map((packItem) => (
                           <div
                             key={packItem.id}
-                            className="flex items-center justify-between p-4 bg-background rounded-lg"
+                            className="flex items-center justify-between p-4 bg-[#1E1E24] border border-[#9DA2B3]/25 rounded-lg"
                           >
                             <div className="flex items-center space-x-4">
-                              <div className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <Package className="w-8 h-8 text-purple-600" />
+                              <div className="w-16 h-16 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                <Package className="w-8 h-8 text-purple-400" />
                               </div>
                               <div className="flex-1">
-                                <h4 className="font-medium text-foreground">{packItem.pack.title}</h4>
-                                <p className="text-sm text-muted-foreground">by {packItem.pack.seller.displayName}</p>
+                                <h4 className="font-medium text-[#EDEFF7] font-aeonikpro">{packItem.pack.title}</h4>
+                                <p className="text-sm text-[#9DA2B3] font-aeonikpro">by {packItem.pack.seller.displayName}</p>
                                 <div className="flex items-center space-x-4 mt-2">
-                                  <span className="text-sm text-muted-foreground">Quantity: {packItem.quantity}</span>
-                                  <span className="text-sm font-medium text-green-600">
+                                  <span className="text-sm text-[#9DA2B3] font-aeonikpro">Quantity: {packItem.quantity}</span>
+                                  <span className="text-sm font-medium text-green-400">
                                     {formatPrice(packItem.unitPriceCents, order.currency)}
                                   </span>
                                 </div>
@@ -353,9 +352,9 @@ export default function OrderDetailPage() {
                     {/* Show message if no items found */}
                     {(!order.items || order.items.length === 0) &&
                       (!order.packItems || order.packItems.length === 0) && (
-                        <div className="text-center py-8 text-muted-foreground">
-                          <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                          <p>No items found for this order.</p>
+                        <div className="text-center py-8 text-[#9DA2B3]">
+                          <Package className="w-12 h-12 mx-auto mb-4 text-[#9DA2B3]" />
+                          <p className="font-aeonikpro">No items found for this order.</p>
                         </div>
                       )}
                   </div>
@@ -364,36 +363,36 @@ export default function OrderDetailPage() {
 
               {/* Payment Information */}
               {order.payments && order.payments.length > 0 && (
-                <Card>
+                <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                   <CardHeader>
-                    <CardTitle>Payment Information</CardTitle>
+                    <CardTitle className="text-[#EDEFF7] font-aeonikpro">Payment Information</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {order.payments.map((payment) => (
-                        <div key={payment.id} className="p-4 bg-background rounded-lg">
+                        <div key={payment.id} className="p-4 bg-[#1E1E24] border border-[#9DA2B3]/25 rounded-lg">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium">Payment #{payment.id.slice(-8)}</span>
+                            <span className="font-medium text-[#EDEFF7] font-aeonikpro">Payment #{payment.id.slice(-8)}</span>
                             <Badge className={`${getStatusColor(payment.status)} border-0`}>{payment.status}</Badge>
                           </div>
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="text-muted-foreground">Amount:</span>
-                              <span className="ml-2 font-medium">
+                              <span className="text-[#9DA2B3] font-aeonikpro">Amount:</span>
+                              <span className="ml-2 font-medium text-[#EDEFF7]">
                                 {formatPrice(payment.amountCents, payment.currency)}
                               </span>
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Provider:</span>
-                              <span className="ml-2 font-medium capitalize">{payment.provider}</span>
+                              <span className="text-[#9DA2B3] font-aeonikpro">Provider:</span>
+                              <span className="ml-2 font-medium capitalize text-[#EDEFF7]">{payment.provider}</span>
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Processed:</span>
-                              <span className="ml-2 font-medium">{formatDate(payment.processedAt)}</span>
+                              <span className="text-[#9DA2B3] font-aeonikpro">Processed:</span>
+                              <span className="ml-2 font-medium text-[#EDEFF7]">{formatDate(payment.processedAt)}</span>
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Charge ID:</span>
-                              <span className="ml-2 font-mono text-xs">{payment.providerCharge}</span>
+                              <span className="text-[#9DA2B3] font-aeonikpro">Charge ID:</span>
+                              <span className="ml-2 font-mono text-xs text-[#EDEFF7]">{payment.providerCharge}</span>
                             </div>
                           </div>
                         </div>
@@ -407,41 +406,41 @@ export default function OrderDetailPage() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Order Summary */}
-              <Card>
+              <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+                  <CardTitle className="text-[#EDEFF7] font-aeonikpro">Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Order ID:</span>
-                      <span className="font-mono text-sm">{order.id.slice(-12)}</span>
+                      <span className="text-[#9DA2B3] font-aeonikpro">Order ID:</span>
+                      <span className="font-mono text-sm text-[#EDEFF7]">{order.id.slice(-12)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Total Amount:</span>
-                      <span className="font-semibold text-lg">{formatPrice(order.totalCents, order.currency)}</span>
+                      <span className="text-[#9DA2B3] font-aeonikpro">Total Amount:</span>
+                      <span className="font-semibold text-lg text-green-400">{formatPrice(order.totalCents, order.currency)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Currency:</span>
-                      <span className="font-medium">{order.currency.toUpperCase()}</span>
+                      <span className="text-[#9DA2B3] font-aeonikpro">Currency:</span>
+                      <span className="font-medium text-[#EDEFF7]">{order.currency.toUpperCase()}</span>
                     </div>
                     {order.provider && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Payment Method:</span>
-                        <span className="font-medium capitalize">{order.provider}</span>
+                        <span className="text-[#9DA2B3] font-aeonikpro">Payment Method:</span>
+                        <span className="font-medium capitalize text-[#EDEFF7]">{order.provider}</span>
                       </div>
                     )}
 
-                    <Separator />
+                    <Separator className="bg-[#9DA2B3]/25" />
 
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Created:</span>
-                      <span className="text-sm">{formatDate(order.createdAt)}</span>
+                      <span className="text-[#9DA2B3] font-aeonikpro">Created:</span>
+                      <span className="text-sm text-[#EDEFF7]">{formatDate(order.createdAt)}</span>
                     </div>
                     {order.paidAt && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Paid:</span>
-                        <span className="text-sm">{formatDate(order.paidAt)}</span>
+                        <span className="text-[#9DA2B3] font-aeonikpro">Paid:</span>
+                        <span className="text-sm text-[#EDEFF7]">{formatDate(order.paidAt)}</span>
                       </div>
                     )}
                   </div>
@@ -449,17 +448,17 @@ export default function OrderDetailPage() {
               </Card>
 
               {/* Quick Actions */}
-              <Card>
+              <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+                  <CardTitle className="text-[#EDEFF7] font-aeonikpro">Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <Button variant="outline" className="w-full">
+                    <Button className="w-full">
                       <CreditCard className="w-4 h-4 mr-2" />
                       Download Invoice
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <Button className="w-full">
                       Contact Support
                     </Button>
                   </div>

@@ -1,25 +1,20 @@
 'use client'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { AddToCartButton } from '@/components/ui/add-to-cart-button'
 import { AnimatedHeart } from '@/components/ui/animated-heart'
-import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { CopyButton } from '@/components/ui/copy-button'
-import { ReportDialog } from '@/components/ui/report-dialog'
-import { PlatformBadge } from '@/components/ui/platform-badge'
 import { PurchaseButton } from '@/components/ui/purchase-button'
+import { ReportDialog } from '@/components/ui/report-dialog'
 import { ReviewSystem } from '@/components/ui/review-system'
 import { WorkflowAnalysisModal } from '@/components/ui/workflow-analysis-modal'
 import { WorkflowAnalysisPreview } from '@/components/ui/workflow-analysis-preview'
 import { WorkflowCardMini } from '@/components/ui/workflow-card-mini'
 import { downloadWorkflowAsZip } from '@/lib/download-utils'
-import { ArrowLeft, BarChart3, CheckCircle, Download, Eye, FileText, ShoppingBag, Star, Users, Zap } from 'lucide-react'
+import { ArrowLeft, BarChart3, CheckCircle, Download, Eye, FileText, FileWarning, ShoppingBag, Star, Users, Zap } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
@@ -131,12 +126,22 @@ export default function WorkflowDetailPage() {
       try {
         const response = await fetch('/api/favorites')
         if (response.ok) {
+          const contentType = response.headers.get('content-type')
+          if (!contentType?.includes('application/json')) {
+            console.warn('Received non-JSON response when checking favorites')
+            return
+          }
           const data = await response.json()
           const isWorkflowFavorited = data.favorites.some((fav: any) => fav.id === workflowId)
           setIsFavorite(isWorkflowFavorited)
         }
       } catch (error) {
-        console.error('Error checking favorite status:', error)
+        // Silently ignore errors when checking favorites (e.g., when not authenticated)
+        if (error instanceof SyntaxError) {
+          console.debug('Could not parse favorites response - user may not be authenticated')
+        } else {
+          console.error('Error checking favorite status:', error)
+        }
       }
     }
 
@@ -288,7 +293,7 @@ export default function WorkflowDetailPage() {
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ backgroundColor: 'rgba(64, 66, 77, 0.5)' }}
             >
-              <Zap className="w-8 h-8" style={{ color: '#9DA2B3' }} />
+              <FileWarning className="w-8 h-8" style={{ color: '#9DA2B3' }} />
             </div>
             <h3 className="text-lg font-aeonikpro font-semibold mb-2" style={{ color: '#EDEFF7' }}>
               {error || 'Workflow not found'}
@@ -298,7 +303,7 @@ export default function WorkflowDetailPage() {
             </p>
             <button
               onClick={() => router.push('/')}
-              className="font-aeonikpro bg-white text-black hover:bg-gray-100 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer inline-flex items-center gap-2 cursor-pointer"
+              className="font-aeonikpro bg-white text-black hover:bg-white/80 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Marketplace
@@ -716,7 +721,7 @@ export default function WorkflowDetailPage() {
                       workflowId={workflowId}
                       price={workflow.price}
                       currency={workflow.currency}
-                      className="w-full bg-white text-black hover:bg-gray-100 py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
+                      className="w-full bg-white hover:bg-white/90 text-black py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
                     >
                       Buy Now
                     </PurchaseButton>
@@ -724,7 +729,7 @@ export default function WorkflowDetailPage() {
                       workflowId={workflowId}
                       price={workflow.price}
                       currency={workflow.currency}
-                      className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium border border-[#9DA2B3]/25 hover:bg-white transition-all duration-300 text-[#D3D6E0] bg-white/10 hover:text-black"
+                      className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium border border-[#9DA2B3]/25 transition-all duration-300 text-[#D3D6E0]"
                     />
                   </div>
                 )}
@@ -789,7 +794,7 @@ export default function WorkflowDetailPage() {
                   <div className="space-y-2">
                     <button
                       onClick={() => workflow.seller.slug && router.push(`/store/${workflow.seller.slug}`)}
-                      className="w-full py-2.5 px-4 rounded-full font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25 hover:bg-white/10 transition-all duration-300"
+                      className="w-full py-2.5 px-4 rounded-md cursor-pointer font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25 hover:bg-white/10 transition-all duration-300"
                       style={{ color: '#D3D6E0' }}
                     >
                       View Store
@@ -807,7 +812,7 @@ export default function WorkflowDetailPage() {
                       size="sm"
                       className="w-full"
                     />
-                    <ReportDialog entityType="workflow" entityId={workflow.id} entityName={workflow.title} />
+                    <ReportDialog className='w-full' entityType="workflow" entityId={workflow.id} entityName={workflow.title} />
                   </div>
                 </div>
               </div>

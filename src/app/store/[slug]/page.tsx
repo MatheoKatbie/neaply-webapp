@@ -4,7 +4,9 @@ import { AnimatedHeart } from '@/components/ui/animated-heart'
 import { AutoThumbnail } from '@/components/ui/auto-thumbnail'
 import { ContactSellerButton } from '@/components/ui/contact-seller-button'
 import { ReportDialog } from '@/components/ui/report-dialog'
-import { ArrowLeft, Calendar, Download, Globe, Mail, Package, Star } from 'lucide-react'
+import { FollowStoreButton } from '@/components/FollowStoreButton'
+import { useStoreFollow } from '@/hooks/useStoreFollow'
+import { ArrowLeft, Calendar, Download, Globe, Mail, Package, Star, Users } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -36,6 +38,8 @@ interface StoreData {
   storeName: string
   slug: string
   bio?: string
+  logoUrl?: string
+  bannerUrl?: string
   websiteUrl?: string
   supportEmail?: string
   phoneNumber?: string
@@ -247,7 +251,7 @@ function WorkflowCard({
                 RATING
               </span>
               <div className="flex items-center gap-1">
-                <svg className="w-4 h-4 text-[#FF7700]" fill="#FF7700" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[#EDEFF7]" fill="#EDEFF7" viewBox="0 0 24 24">
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
                 <span className="text-lg font-aeonikpro" style={{ color: '#EDEFF7' }}>
@@ -270,6 +274,12 @@ export default function StorePage() {
   const [store, setStore] = useState<StoreData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Get follow status and followers count - will only fetch when store.user.id is available
+  const { isLoading: followLoading, followersCount } = useStoreFollow(store?.user?.id || '')
+
+  // Page is loading until both store data AND follow status are loaded
+  const pageLoading = loading || (store?.user?.id && followLoading)
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -315,8 +325,23 @@ export default function StorePage() {
     })
   }
 
-  const generateStoreHero = (storeName: string, storeId: string) => {
-    // Generate a unique gradient based on store name/id
+  const generateStoreHero = (storeName: string, storeId: string, bannerUrl?: string) => {
+    // If custom banner exists, use it
+    if (bannerUrl) {
+      return (
+        <div className="relative h-64 w-full overflow-hidden">
+          <img
+            src={bannerUrl}
+            alt={`${storeName} banner`}
+            className="w-full h-full object-cover"
+          />
+          {/* Dark gradient overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        </div>
+      )
+    }
+
+    // Generate a unique gradient based on store name/id (fallback)
     const hash = storeId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
     const hue1 = (hash * 137.5) % 360
     const hue2 = (hue1 + 60) % 360
@@ -360,7 +385,7 @@ export default function StorePage() {
     )
   }
 
-  if (loading) {
+  if (pageLoading) {
     return (
       <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#08080A' }}>
         {/* Decorative ellipses */}
@@ -452,7 +477,7 @@ export default function StorePage() {
             </p>
             <button
               onClick={() => router.push('/')}
-              className="font-aeonikpro bg-white text-black hover:bg-gray-100 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
+              className="font-aeonikpro bg-white text-black hover:bg-white/70 py-3 px-6 text-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Marketplace
@@ -511,25 +536,31 @@ export default function StorePage() {
           style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
         >
           {/* Hero Section */}
-          {generateStoreHero(store.storeName, store.id)}
+          {generateStoreHero(store.storeName, store.id, store.bannerUrl)}
 
           {/* Store Info */}
           <div className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row md:items-start gap-6">
-              {/* Store Avatar */}
+              {/* Store Avatar/Logo */}
               <div className="flex-shrink-0">
                 <div
-                  className="w-20 h-20 rounded-xl flex items-center justify-center border-4 shadow-lg -mt-16 relative z-10"
+                  className="w-20 h-20 rounded-xl flex items-center justify-center border-4 shadow-lg -mt-16 relative z-10 overflow-hidden"
                   style={{ borderColor: '#08080A', backgroundColor: 'rgba(120, 153, 168, 0.3)' }}
                 >
-                  {store.user.avatarUrl ? (
+                  {store.logoUrl ? (
+                    <img
+                      src={store.logoUrl}
+                      alt={store.storeName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : store.user.avatarUrl ? (
                     <img
                       src={store.user.avatarUrl}
                       alt={store.storeName}
-                      className="w-full h-full rounded-lg object-cover"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Package className="w-8 h-8 text-blue-400" />
+                    <Package className="w-8 h-8 text-[#9DA2B3]" />
                   )}
                 </div>
               </div>
@@ -559,7 +590,7 @@ export default function StorePage() {
                             href={store.websiteUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                            className="text-[#EDEFF7] hover:text-white transition-colors underline underline-offset-2"
                           >
                             Website
                           </a>
@@ -570,7 +601,7 @@ export default function StorePage() {
                           <Mail className="w-4 h-4" />
                           <a
                             href={`mailto:${store.supportEmail}`}
-                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                            className="text-[#EDEFF7] hover:text-white transition-colors underline underline-offset-2"
                           >
                             Contact
                           </a>
@@ -583,7 +614,7 @@ export default function StorePage() {
                   <div className="flex flex-wrap gap-4">
                     <div
                       className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
                     >
                       <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
                         {store.stats.totalWorkflows}
@@ -594,7 +625,7 @@ export default function StorePage() {
                     </div>
                     <div
                       className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
                     >
                       <div className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
                         {store.stats.totalSales}
@@ -605,10 +636,24 @@ export default function StorePage() {
                     </div>
                     <div
                       className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
-                      style={{ backgroundColor: 'rgba(120, 153, 168, 0.1)' }}
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
                     >
                       <div className="flex items-center gap-1 mb-1 justify-center">
-                        <Star className="w-4 h-4 text-[#FF7700]" fill="#FF7700" />
+                        <Users className="w-4 h-4 text-[#EDEFF7]" />
+                        <span className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
+                          {followersCount}
+                        </span>
+                      </div>
+                      <div className="font-aeonikpro text-sm" style={{ color: '#9DA2B3' }}>
+                        Followers
+                      </div>
+                    </div>
+                    <div
+                      className="text-center p-4 rounded-xl border border-[#9DA2B3]/25"
+                      style={{ backgroundColor: 'rgba(64, 66, 77, 0.25)' }}
+                    >
+                      <div className="flex items-center gap-1 mb-1 justify-center">
+                        <Star className="w-4 h-4 text-[#EDEFF7]" fill="#EDEFF7" />
                         <span className="font-aeonikpro text-2xl font-bold" style={{ color: '#EDEFF7' }}>
                           {store.stats.avgRating.toFixed(1)}
                         </span>
@@ -632,6 +677,12 @@ export default function StorePage() {
                 {/* Contact Seller Button */}
                 <div className="mt-6 pt-4 border-t border-[#9DA2B3]/25">
                   <div className="flex flex-col sm:flex-row gap-3">
+                    <FollowStoreButton
+                      sellerId={store.user.id}
+                      sellerSlug={store.slug}
+                      variant="default"
+                      showCount={true}
+                    />
                     <ContactSellerButton
                       seller={{
                         displayName: store.user.displayName,
@@ -643,7 +694,7 @@ export default function StorePage() {
                       }}
                       className="w-full sm:w-auto"
                     />
-                    <ReportDialog entityType="store" entityId={store.user.id} entityName={store.storeName} />
+                    <ReportDialog className='w-full sm:w-auto' entityType="store" entityId={store.user.id} entityName={store.storeName} />
                   </div>
                 </div>
               </div>

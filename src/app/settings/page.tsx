@@ -26,6 +26,8 @@ import {
   Camera,
   CheckCircle,
   Copy,
+  Github,
+  Info,
   Key,
   MapPin,
   Monitor,
@@ -59,6 +61,10 @@ export default function SettingsPage() {
   const { user, refreshUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
+
+  // Detect if user is using OAuth provider
+  const isOAuthUser = user?.authProvider && user.authProvider !== 'email'
+  const oauthProviderName = user?.authProvider === 'google' ? 'Google' : user?.authProvider === 'github' ? 'GitHub' : user?.authProvider === 'discord' ? 'Discord' : null
 
   // Profile state
   const [profile, setProfile] = useState<UserProfile>({
@@ -575,38 +581,38 @@ export default function SettingsPage() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-[#08080A]">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
-          <p className="text-muted-foreground">Please sign in to access your settings.</p>
+          <h2 className="text-xl font-semibold mb-2 text-[#EDEFF7] font-aeonikpro">Authentication Required</h2>
+          <p className="text-[#9DA2B3] font-aeonikpro">Please sign in to access your settings.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl pt-24">
+    <div className="container mx-auto py-8 px-4 max-w-4xl pt-24 min-h-screen bg-[#08080A]">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Account Settings</h1>
-        <p className="text-muted-foreground">Manage your account, security, and preferences.</p>
+        <h1 className="text-3xl font-bold mb-2 text-[#EDEFF7] font-aeonikpro">Account Settings</h1>
+        <p className="text-[#9DA2B3] font-aeonikpro">Manage your account, security, and preferences.</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className={`grid w-full ${user.isSeller ? 'grid-cols-4' : 'grid-cols-3'}`}>
-          <TabsTrigger value="profile" className="flex items-center gap-2">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 bg-transparent">
+        <TabsList className={`grid w-full ${user.isSeller ? 'grid-cols-4' : 'grid-cols-3'} bg-transparent border-b border-[#9DA2B3]/25`}>
+          <TabsTrigger value="profile" className="flex items-center gap-2 bg-primary/20 hover:bg-primary/40">
             <User className="h-4 w-4" />
             Profile
           </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
+          <TabsTrigger value="security" className="flex items-center gap-2 bg-primary/20 hover:bg-primary/40">
             <Shield className="h-4 w-4" />
             Security
           </TabsTrigger>
-          <TabsTrigger value="devices" className="flex items-center gap-2">
+          <TabsTrigger value="devices" className="flex items-center gap-2 bg-primary/20 hover:bg-primary/40">
             <Monitor className="h-4 w-4" />
             Devices
           </TabsTrigger>
           {user.isSeller && (
-            <TabsTrigger value="store" className="flex items-center gap-2">
+            <TabsTrigger value="store" className="flex items-center gap-2 bg-primary/20 hover:bg-primary/40">
               <Store className="h-4 w-4" />
               Store
             </TabsTrigger>
@@ -615,22 +621,23 @@ export default function SettingsPage() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
-          <Card>
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
-              <CardDescription>Update your personal information and profile picture.</CardDescription>
+              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Profile Information</CardTitle>
+              <CardDescription className="text-[#9DA2B3] font-aeonikpro">Update your personal information and profile picture.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center space-x-4">
                 <Avatar className="h-20 w-20">
                   <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
-                  <AvatarFallback className="text-lg">{profile.displayName.charAt(0).toUpperCase()}</AvatarFallback>
+                  <AvatarFallback className="text-lg bg-[#1E1E24] text-[#9DA2B3]">{profile.displayName.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <Button
-                    variant="outline"
+
                     disabled={uploadingAvatar}
                     className="flex items-center gap-2"
+                    style={{ borderColor: '#9DA2B3/25', color: '#EDEFF7' }}
                     onClick={() => {
                       fileInputRef.current?.click()
                     }}
@@ -658,9 +665,9 @@ export default function SettingsPage() {
                       }
                     }}
                   />
-                  <p className="text-sm text-muted-foreground mt-1">JPG, PNG or GIF. Max size 2MB.</p>
+                  <p className="text-sm text-[#9DA2B3] mt-1 font-aeonikpro">JPG, PNG or GIF. Max size 2MB.</p>
                   <Button
-                    variant="ghost"
+
                     size="sm"
                     className="text-xs mt-2"
                     onClick={async () => {
@@ -693,39 +700,136 @@ export default function SettingsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
+                  <Label htmlFor="displayName" className="text-[#EDEFF7] font-aeonikpro">Display Name</Label>
                   <Input
                     id="displayName"
+                    className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                     value={profile.displayName}
                     onChange={(e) => setProfile((prev) => ({ ...prev, displayName: e.target.value }))}
                     placeholder="Enter your display name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" value={profile.email} disabled className="bg-background" />
-                  <p className="text-xs text-muted-foreground">Email cannot be changed. Contact support if needed.</p>
+                  <Label htmlFor="email" className="text-[#EDEFF7] font-aeonikpro">Email Address</Label>
+                  <Input id="email" value={profile.email} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
+                  <p className="text-xs text-[#9DA2B3] font-aeonikpro">Email cannot be changed. Contact support if needed.</p>
                 </div>
               </div>
 
-              <Button onClick={handleProfileUpdate} disabled={loading}>
+              <Button onClick={handleProfileUpdate} disabled={loading} className="font-aeonikpro">
                 {loading ? 'Updating...' : 'Update Profile'}
               </Button>
             </CardContent>
           </Card>
 
-          {/* Account Deletion Section */}
-          <Card className="border-destructive/50">
+        </TabsContent>
+
+        {/* Security Tab */}
+        <TabsContent value="security" className="space-y-6">
+          {/* OAuth Provider Badge */}
+          {isOAuthUser && oauthProviderName && (
+            <Alert className="bg-blue-500/10 border-blue-500/50">
+              <Info className="h-4 w-4 text-blue-400" />
+              <AlertDescription className="text-blue-300 font-aeonikpro">
+                <div className="flex items-center gap-2">
+                  <span>You are signed in with {oauthProviderName}.</span>
+                  {user?.authProvider === 'github' && <Github className="h-4 w-4" />}
+                  {user?.authProvider === 'google' && (
+                    <svg className="h-4 w-4" viewBox="0 0 24 24">
+                      <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                      <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                  )}
+                </div>
+                <span className="block text-xs text-blue-200 mt-1">Password and 2FA settings are managed by your {oauthProviderName} account.</span>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
             <CardHeader>
-              <CardTitle className="text-destructive">Delete Account</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Password</CardTitle>
+              <CardDescription className="text-[#9DA2B3] font-aeonikpro">
+                Change your password to keep your account secure.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!isOAuthUser && (
+                <Button onClick={() => setShowPasswordChangeModal(true)} className="flex items-center gap-2 font-aeonikpro">
+                  <Key className="h-4 w-4" />
+                  Change Password
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
+            <CardHeader>
+              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Two-Factor Authentication</CardTitle>
+              <CardDescription className="text-[#9DA2B3] font-aeonikpro">
+                Add an extra layer of security to your account with 2FA.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!isOAuthUser && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Shield className="h-5 w-5 text-[#9DA2B3]" />
+                      <span className="font-medium text-[#EDEFF7] font-aeonikpro">Two-Factor Authentication</span>
+                      {twoFA.enabled && (
+                        <Badge variant="default" className="flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" />
+                          Enabled
+                        </Badge>
+                      )}
+                    </div>
+                    <Switch checked={twoFA.enabled} onCheckedChange={handleToggle2FA} />
+                  </div>
+                  {twoFA.enabled && (
+                    <div className="space-y-3">
+                      <Alert className="bg-green-500/10 border-green-500/50">
+                        <CheckCircle color='#10B981' className="h-4 w-4 text-green-400" />
+                        <AlertDescription className="text-green-300 font-aeonikpro">
+                          Two-factor authentication is active on your account.
+                          {twoFA.enabledAt && (
+                            <span className="block text-xs text-green-200 mt-1 font-aeonikpro">
+                              Enabled on {new Date(twoFA.enabledAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowBackupCodesModal(true)}
+                        className="flex items-center gap-2 text-primary"
+                      >
+                        <Key className="h-4 w-4" />
+                        View Backup Codes
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Account Deletion Section */}
+          <Card className="bg-[rgba(64,66,77,0.25)] border-red-500/25">
+            <CardHeader>
+              <CardTitle className="text-red-400 font-aeonikpro">Delete Account</CardTitle>
+              <CardDescription className="text-[#9DA2B3] font-aeonikpro">
                 Permanently delete your account and all associated data. This action cannot be undone.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
+              <Alert className="bg-red-500/10 border-red-500/50" variant="destructive">
+                <AlertTriangle className="h-4 w-4 text-red-400" />
+                <AlertDescription className="text-red-300 font-aeonikpro">
                   <strong>Warning:</strong> This action will permanently delete your account, including:
                   <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
                     <li>All your workflows and workflow packs</li>
@@ -740,7 +844,6 @@ export default function SettingsPage() {
               <Button
                 variant="destructive"
                 onClick={() => setShowDeleteAccountModal(true)}
-                className="flex items-center gap-2"
               >
                 <Trash2 className="h-4 w-4" />
                 Delete My Account
@@ -749,106 +852,44 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Security Tab */}
-        <TabsContent value="security" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Password</CardTitle>
-              <CardDescription>Change your password to keep your account secure.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => setShowPasswordChangeModal(true)} className="flex items-center gap-2">
-                <Key className="h-4 w-4" />
-                Change Password
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Two-Factor Authentication</CardTitle>
-              <CardDescription>Add an extra layer of security to your account with 2FA.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5" />
-                  <span className="font-medium">Two-Factor Authentication</span>
-                  {twoFA.enabled && (
-                    <Badge variant="default" className="flex items-center gap-1">
-                      <CheckCircle className="h-3 w-3" />
-                      Enabled
-                    </Badge>
-                  )}
-                </div>
-                <Switch checked={twoFA.enabled} onCheckedChange={handleToggle2FA} />
-              </div>
-              {twoFA.enabled && (
-                <div className="space-y-3">
-                  <Alert>
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Two-factor authentication is active on your account.
-                      {twoFA.enabledAt && (
-                        <span className="block text-xs text-muted-foreground mt-1">
-                          Enabled on {new Date(twoFA.enabledAt).toLocaleDateString()}
-                        </span>
-                      )}
-                    </AlertDescription>
-                  </Alert>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowBackupCodesModal(true)}
-                    className="flex items-center gap-2"
-                  >
-                    <Key className="h-4 w-4" />
-                    View Backup Codes
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         {/* Devices Tab */}
         <TabsContent value="devices" className="space-y-6">
-          <Card>
+          <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
             <CardHeader>
-              <CardTitle>Remembered Devices</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-[#EDEFF7] font-aeonikpro">Remembered Devices</CardTitle>
+              <CardDescription className="text-[#9DA2B3] font-aeonikpro">
                 Manage devices that don't require two-factor authentication when signing in.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loadingDevices ? (
                 <div className="text-center py-8">
-                  <div className="text-sm text-muted-foreground">Loading devices...</div>
+                  <div className="text-sm text-[#9DA2B3] font-aeonikpro">Loading devices...</div>
                 </div>
               ) : rememberedDevices.length === 0 ? (
                 <div className="text-center py-8">
-                  <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">No Remembered Devices</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <Monitor className="h-12 w-12 text-[#9DA2B3] mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-[#EDEFF7] mb-2 font-aeonikpro">No Remembered Devices</h3>
+                  <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                     Devices you choose to remember during 2FA login will appear here.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {rememberedDevices.map((device) => (
-                    <div key={device.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={device.id} className="flex items-center justify-between p-4 border border-[#9DA2B3]/25 rounded-lg bg-[#1E1E24]">
                       <div className="flex items-start space-x-3">
-                        <Monitor className="h-5 w-5 text-gray-400 mt-0.5" />
+                        <Monitor className="h-5 w-5 text-[#9DA2B3] mt-0.5" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-medium text-foreground">{device.name}</h4>
-                            <Badge variant="secondary" className="text-xs">
+                            <h4 className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">{device.name}</h4>
+                            <Badge variant="default" className="text-xs text-black bg-green-400 hover:bg-green-400" >
+                              <CheckCircle color='black' className="h-3 w-3" />
                               Trusted
                             </Badge>
                           </div>
                           <div className="mt-1 space-y-1">
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-4 text-xs text-[#9DA2B3] font-aeonikpro">
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
                                 Last used: {new Date(device.lastUsed).toLocaleDateString()}
@@ -859,21 +900,20 @@ export default function SettingsPage() {
                               </div>
                             </div>
                             {device.ipAddress && (
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1 text-xs text-[#9DA2B3] font-aeonikpro">
                                 <MapPin className="h-3 w-3" />
                                 IP: {device.ipAddress}
                               </div>
                             )}
-                            <div className="text-xs text-gray-400 truncate">{device.userAgent}</div>
+                            <div className="text-xs text-[#9DA2B3] truncate font-aeonikpro">{device.userAgent}</div>
                           </div>
                         </div>
                       </div>
                       <Button
-                        variant="outline"
+                        variant="destructive"
                         size="sm"
                         onClick={() => removeDevice(device.id)}
                         disabled={loadingDevices}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -883,10 +923,10 @@ export default function SettingsPage() {
               )}
 
               {rememberedDevices.length > 0 && (
-                <div className="mt-6 pt-4 border-t">
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
+                <div className="mt-6 pt-4 border-t border-[#9DA2B3]/25">
+                  <Alert className="bg-orange-500/10 border-orange-500/50">
+                    <AlertTriangle color='#F59E0B' className="h-4 w-4 text-orange-400" />
+                    <AlertDescription className="text-orange-300 font-aeonikpro">
                       Removing a device will require two-factor authentication the next time you sign in from that
                       device.
                     </AlertDescription>
@@ -897,16 +937,16 @@ export default function SettingsPage() {
           </Card>
 
           {twoFA.enabled && (
-            <Card>
+            <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
               <CardHeader>
-                <CardTitle>Device Security</CardTitle>
-                <CardDescription>Settings related to device security and two-factor authentication.</CardDescription>
+                <CardTitle className="text-[#EDEFF7] font-aeonikpro">Device Security</CardTitle>
+                <CardDescription className="text-[#9DA2B3] font-aeonikpro">Settings related to device security and two-factor authentication.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <h4 className="text-sm font-medium">Two-Factor Authentication</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <h4 className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Two-Factor Authentication</h4>
+                    <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                       Protect your account with an additional security layer
                     </p>
                   </div>
@@ -918,20 +958,19 @@ export default function SettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <h4 className="text-sm font-medium">Remembered Devices</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <h4 className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Remembered Devices</h4>
+                    <p className="text-sm text-[#9DA2B3] font-aeonikpro">
                       {rememberedDevices.length} device{rememberedDevices.length !== 1 ? 's' : ''} trusted
                     </p>
                   </div>
                   {rememberedDevices.length > 0 && (
                     <Button
-                      variant="outline"
+                      variant="destructive"
                       size="sm"
                       onClick={() => {
                         rememberedDevices.forEach((device) => removeDevice(device.id))
                       }}
                       disabled={loadingDevices}
-                      className="text-red-600 hover:text-red-700"
                     >
                       Remove All
                     </Button>
@@ -943,77 +982,81 @@ export default function SettingsPage() {
         </TabsContent>
 
         {/* Store Tab (only for sellers) */}
-        {user.isSeller && (
-          <TabsContent value="store" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Store Information</CardTitle>
-                <CardDescription>Manage your store settings and information.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Store Name</Label>
-                    <Input value={storeInfo.storeName} disabled className="bg-background" />
+        {
+          user.isSeller && (
+            <TabsContent value="store" className="space-y-6">
+              <Card className="bg-[rgba(64,66,77,0.25)] border-[#9DA2B3]/25">
+                <CardHeader>
+                  <CardTitle className="text-[#EDEFF7] font-aeonikpro">Store Information</CardTitle>
+                  <CardDescription className="text-[#9DA2B3] font-aeonikpro">Manage your store settings and information.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[#EDEFF7] font-aeonikpro">Store Name</Label>
+                      <Input value={storeInfo.storeName} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[#EDEFF7] font-aeonikpro">Store URL</Label>
+                      <Input value={`neaply.com/store/${storeInfo.slug}`} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Store URL</Label>
-                    <Input value={`neaply.com/store/${storeInfo.slug}`} disabled className="bg-background" />
+                    <Label className="text-[#EDEFF7] font-aeonikpro">Bio</Label>
+                    <Input value={storeInfo.bio || 'No bio set'} disabled className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#9DA2B3]" />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Bio</Label>
-                  <Input value={storeInfo.bio || 'No bio set'} disabled className="bg-background" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="border-red-200">
-              <CardHeader>
-                <CardTitle className="text-red-600 flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" />
-                  Danger Zone
-                </CardTitle>
-                <CardDescription>Permanently delete your store and all associated data.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowDeleteStoreModal(true)}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete Store
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
-      </Tabs>
+              <Card className="bg-[rgba(64,66,77,0.25)] border-red-500/25">
+                <CardHeader>
+                  <CardTitle className="text-red-400 flex items-center gap-2 font-aeonikpro">
+                    <AlertTriangle className="h-5 w-5" />
+                    Danger Zone
+                  </CardTitle>
+                  <CardDescription className="text-[#9DA2B3] font-aeonikpro">Permanently delete your store and all associated data.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowDeleteStoreModal(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Store
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )
+        }
+      </Tabs >
 
       {/* Password Change Modal */}
-      <Dialog open={showPasswordChangeModal} onOpenChange={setShowPasswordChangeModal}>
-        <DialogContent className="sm:max-w-md">
+      < Dialog open={showPasswordChangeModal} onOpenChange={setShowPasswordChangeModal} >
+        <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>Enter your new password below. Make sure it's strong and secure.</DialogDescription>
+            <DialogTitle className="text-[#EDEFF7] font-aeonikpro">Change Password</DialogTitle>
+            <DialogDescription className="text-[#9DA2B3] font-aeonikpro">Enter your new password below. Make sure it's strong and secure.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword" className="text-[#EDEFF7] font-aeonikpro">New Password</Label>
               <Input
                 id="newPassword"
                 type="password"
+                className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Enter new password"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword" className="text-[#EDEFF7] font-aeonikpro">Confirm New Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
+                className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 font-aeonikpro"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
@@ -1021,52 +1064,52 @@ export default function SettingsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPasswordChangeModal(false)}>
+            <Button onClick={() => setShowPasswordChangeModal(false)} className="font-aeonikpro">
               Cancel
             </Button>
-            <Button onClick={handlePasswordChange} disabled={loading || !newPassword || !confirmPassword}>
+            <Button onClick={handlePasswordChange} disabled={loading || !newPassword || !confirmPassword} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
               {loading ? 'Updating...' : 'Update Password'}
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Delete Store Modal */}
-      <Dialog open={showDeleteStoreModal} onOpenChange={setShowDeleteStoreModal}>
-        <DialogContent className="sm:max-w-md">
+      < Dialog open={showDeleteStoreModal} onOpenChange={setShowDeleteStoreModal} >
+        <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
-            <DialogTitle className="text-red-600">Delete Store</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-red-600 font-aeonikpro">Delete Store</DialogTitle>
+            <DialogDescription className="text-[#9DA2B3] font-aeonikpro">
               Are you sure you want to permanently delete your store? This action cannot be undone. All your workflows,
               sales data, and store information will be permanently removed.
             </DialogDescription>
           </DialogHeader>
-          <Alert className="border-red-200 bg-red-50">
+          <Alert className="bg-red-500/10 border-red-500/50" variant="destructive">
             <AlertTriangle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
+            <AlertDescription className="text-red-800 font-aeonikpro">
               This action is irreversible. All store data will be permanently lost.
             </AlertDescription>
           </Alert>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteStoreModal(false)}>
+            <Button onClick={() => setShowDeleteStoreModal(false)} className="font-aeonikpro">
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteStore} disabled={loading}>
+            <Button variant="destructive" onClick={handleDeleteStore} disabled={loading} className="font-aeonikpro">
               {loading ? 'Deleting...' : 'Delete Store Permanently'}
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* 2FA Setup Modal */}
-      <Dialog open={show2FASetupModal} onOpenChange={setShow2FASetupModal}>
-        <DialogContent className="sm:max-w-lg">
+      < Dialog open={show2FASetupModal} onOpenChange={setShow2FASetupModal} >
+        <DialogContent className="sm:max-w-lg bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 font-aeonikpro text-[#EDEFF7]">
               <Shield className="h-5 w-5" />
               Setup Two-Factor Authentication
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-[#9DA2B3] font-aeonikpro">
               {setupStep === 'qr' && 'Scan the QR code with your authenticator app'}
               {setupStep === 'verify' && 'Enter the verification code from your authenticator app'}
               {setupStep === 'backup' && 'Save your backup codes in a secure location'}
@@ -1078,25 +1121,25 @@ export default function SettingsPage() {
             {setupStep === 'qr' && twoFA.setupData && (
               <div className="space-y-4">
                 <div className="text-center">
-                  <div className="bg-background p-4 rounded-lg border inline-block">
+                  <div className="bg-[#1E1E24] p-4 rounded-lg border border-[#9DA2B3]/25 inline-block">
                     <img src={twoFA.setupData.qrCode} alt="QR Code for 2FA setup" className="w-48 h-48" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Manual Entry Key</Label>
+                  <Label className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Manual Entry Key</Label>
                   <div className="flex items-center gap-2">
-                    <Input value={twoFA.setupData.secret} readOnly className="font-mono text-sm" />
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(twoFA.setupData!.secret)}>
+                    <Input value={twoFA.setupData.secret} readOnly className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] font-mono text-sm font-aeonikpro" />
+                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(twoFA.setupData!.secret)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Use this key if you can't scan the QR code</p>
+                  <p className="text-xs text-[#9DA2B3] font-aeonikpro">Use this key if you can't scan the QR code</p>
                 </div>
 
-                <Alert>
-                  <Smartphone className="h-4 w-4" />
-                  <AlertDescription>
+                <Alert className="bg-blue-500/10 border-blue-500/50">
+                  <Smartphone className="h-4 w-4 text-blue-400" />
+                  <AlertDescription className="text-blue-300 font-aeonikpro">
                     1. Install an authenticator app (Google Authenticator, Authy, etc.)
                     <br />
                     2. Scan the QR code or enter the key manually
@@ -1111,16 +1154,16 @@ export default function SettingsPage() {
             {setupStep === 'verify' && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="totpCode">Verification Code</Label>
+                  <Label htmlFor="totpCode" className="text-[#EDEFF7] font-aeonikpro">Verification Code</Label>
                   <Input
                     id="totpCode"
                     value={totpCode}
                     onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     placeholder="000000"
-                    className="text-center text-lg font-mono tracking-wider"
+                    className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 text-center text-lg font-mono tracking-wider font-aeonikpro"
                     maxLength={6}
                   />
-                  <p className="text-sm text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
+                  <p className="text-sm text-[#9DA2B3] font-aeonikpro">Enter the 6-digit code from your authenticator app</p>
                 </div>
               </div>
             )}
@@ -1128,20 +1171,20 @@ export default function SettingsPage() {
             {/* Backup Codes Step */}
             {setupStep === 'backup' && twoFA.backupCodes && (
               <div className="space-y-4">
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
+                <Alert className="bg-yellow-500/10 border-yellow-500/50">
+                  <AlertTriangle className="h-4 w-4 text-yellow-400" />
+                  <AlertDescription className="text-yellow-300 font-aeonikpro">
                     Save these backup codes in a secure location. You can use them to access your account if you lose
                     your device.
                   </AlertDescription>
                 </Alert>
 
-                <div className="bg-background p-4 rounded-lg">
+                <div className="bg-[#1E1E24] p-4 rounded-lg border border-[#9DA2B3]/25">
                   <div className="grid grid-cols-2 gap-2 font-mono text-sm">
                     {twoFA.backupCodes.map((code, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-background rounded border">
+                      <div key={index} className="flex items-center justify-between p-2 bg-[#0a0a0f] rounded border border-[#9DA2B3]/25 text-[#EDEFF7]">
                         <span>{code}</span>
-                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(code)} className="h-6 w-6 p-0">
+                        <Button variant="ghost" size="sm" onClick={() => copyToClipboard(code)} className="h-6 w-6 p-0 text-[#9DA2B3] hover:text-[#EDEFF7]">
                           <Copy className="h-3 w-3" />
                         </Button>
                       </div>
@@ -1152,7 +1195,7 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   onClick={() => copyToClipboard(twoFA.backupCodes!.join('\n'))}
-                  className="w-full"
+                  className="w-full border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro"
                 >
                   <Copy className="h-4 w-4 mr-2" />
                   Copy All Codes
@@ -1164,49 +1207,49 @@ export default function SettingsPage() {
           <DialogFooter>
             {setupStep === 'qr' && (
               <>
-                <Button variant="outline" onClick={() => setShow2FASetupModal(false)}>
+                <Button onClick={() => setShow2FASetupModal(false)} className="font-aeonikpro">
                   Cancel
                 </Button>
-                <Button onClick={() => setSetupStep('verify')}>Continue</Button>
+                <Button onClick={() => setSetupStep('verify')} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">Continue</Button>
               </>
             )}
 
             {setupStep === 'verify' && (
               <>
-                <Button variant="outline" onClick={() => setSetupStep('qr')}>
+                <Button variant="outline" onClick={() => setSetupStep('qr')} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro">
                   Back
                 </Button>
-                <Button onClick={verify2FASetup} disabled={loading || totpCode.length !== 6}>
+                <Button onClick={verify2FASetup} disabled={loading || totpCode.length !== 6} className="bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                   {loading ? 'Verifying...' : 'Verify & Enable'}
                 </Button>
               </>
             )}
 
             {setupStep === 'backup' && (
-              <Button onClick={complete2FASetup} className="w-full">
+              <Button onClick={complete2FASetup} className="w-full bg-white text-black hover:bg-[#40424D]/30 font-aeonikpro">
                 Complete Setup
               </Button>
             )}
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Backup Codes Modal */}
-      <Dialog open={showBackupCodesModal} onOpenChange={setShowBackupCodesModal}>
-        <DialogContent className="sm:max-w-md">
+      < Dialog open={showBackupCodesModal} onOpenChange={setShowBackupCodesModal} >
+        <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
-            <DialogTitle>Backup Codes</DialogTitle>
-            <DialogDescription>Use these codes to access your account if you lose your device.</DialogDescription>
+            <DialogTitle className="text-[#EDEFF7] font-aeonikpro">Backup Codes</DialogTitle>
+            <DialogDescription className="text-[#9DA2B3] font-aeonikpro">Use these codes to access your account if you lose your device.</DialogDescription>
           </DialogHeader>
 
           {twoFA.backupCodes && (
             <div className="space-y-4">
-              <div className="bg-background p-4 rounded-lg">
+              <div className="bg-[#1E1E24] p-4 rounded-lg border border-[#9DA2B3]/25">
                 <div className="grid grid-cols-1 gap-2 font-mono text-sm">
                   {twoFA.backupCodes.map((code, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-background rounded border">
+                    <div key={index} className="flex items-center justify-between p-2 bg-[#0a0a0f] rounded border border-[#9DA2B3]/25 text-[#EDEFF7]">
                       <span>{code}</span>
-                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(code)} className="h-6 w-6 p-0">
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(code)} className="h-6 w-6 p-0 text-[#9DA2B3] hover:text-[#EDEFF7]">
                         <Copy className="h-3 w-3" />
                       </Button>
                     </div>
@@ -1217,7 +1260,7 @@ export default function SettingsPage() {
               <Button
                 variant="outline"
                 onClick={() => copyToClipboard(twoFA.backupCodes!.join('\n'))}
-                className="w-full"
+                className="w-full border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro"
               >
                 <Copy className="h-4 w-4 mr-2" />
                 Copy All Codes
@@ -1226,71 +1269,71 @@ export default function SettingsPage() {
           )}
 
           <DialogFooter>
-            <Button onClick={() => setShowBackupCodesModal(false)}>Close</Button>
+            <Button onClick={() => setShowBackupCodesModal(false)} className="border-[#9DA2B3]/25 text-[#EDEFF7] hover:bg-[#1E1E24] font-aeonikpro" variant="outline">Close</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Delete Account Modal */}
-      <Dialog open={showDeleteAccountModal} onOpenChange={setShowDeleteAccountModal}>
-        <DialogContent className="sm:max-w-md">
+      < Dialog open={showDeleteAccountModal} onOpenChange={setShowDeleteAccountModal} >
+        <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
-            <DialogTitle className="text-red-600">Delete Account</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-red-600 font-aeonikpro">Delete Account</DialogTitle>
+            <DialogDescription className="text-[#9DA2B3] font-aeonikpro">
               Are you sure you want to permanently delete your account? This action cannot be undone. All your
               workflows, sales data, and profile information will be permanently removed.
             </DialogDescription>
           </DialogHeader>
-          <Alert className="border-red-200 bg-red-50">
+          <Alert className="bg-red-500/10 border-red-500/50" variant="destructive">
             <AlertTriangle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
+            <AlertDescription className="text-red-800 font-aeonikpro">
               This action is irreversible. All account data will be permanently lost.
             </AlertDescription>
           </Alert>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteAccountModal(false)}>
+            <Button onClick={() => setShowDeleteAccountModal(false)} className="font-aeonikpro">
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading}>
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading} className="bg-red-600 hover:bg-red-700 font-aeonikpro">
               {loading ? 'Deleting...' : 'Delete My Account Permanently'}
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* 2FA Disable Modal */}
-      <Dialog open={show2FADisableModal} onOpenChange={setShow2FADisableModal}>
-        <DialogContent className="sm:max-w-md">
+      < Dialog open={show2FADisableModal} onOpenChange={setShow2FADisableModal} >
+        <DialogContent className="sm:max-w-md bg-[rgba(30,30,36,0.95)] border-[#9DA2B3]/25">
           <DialogHeader>
-            <DialogTitle className="text-red-600">Disable Two-Factor Authentication</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-red-600 font-aeonikpro">Disable Two-Factor Authentication</DialogTitle>
+            <DialogDescription className="text-[#9DA2B3] font-aeonikpro">
               To disable two-factor authentication, please enter the verification code from your authenticator app.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="totpCodeDisable">Verification Code</Label>
+              <Label htmlFor="totpCodeDisable" className="text-[#EDEFF7] font-aeonikpro">Verification Code</Label>
               <Input
                 id="totpCodeDisable"
                 value={totpCode}
                 onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="000000"
-                className="text-center text-lg font-mono tracking-wider"
+                className="bg-[#1E1E24] border-[#9DA2B3]/25 text-[#EDEFF7] placeholder-[#9DA2B3]/50 text-center text-lg font-mono tracking-wider font-aeonikpro"
                 maxLength={6}
               />
-              <p className="text-sm text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
+              <p className="text-sm text-[#9DA2B3] font-aeonikpro">Enter the 6-digit code from your authenticator app</p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShow2FADisableModal(false)}>
+            <Button onClick={() => setShow2FADisableModal(false)} className="font-aeonikpro">
               Cancel
             </Button>
-            <Button onClick={handleDisable2FA} disabled={loading || totpCode.length !== 6}>
+            <Button onClick={handleDisable2FA} disabled={loading || totpCode.length !== 6} variant="destructive">
               {loading ? 'Disabling...' : 'Disable 2FA'}
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-    </div>
+      </Dialog >
+    </div >
   )
 }

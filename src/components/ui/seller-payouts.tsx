@@ -216,7 +216,7 @@ export function SellerPayouts() {
           <div className="text-center">
             {isStripeConnectError ? (
               <>
-                <div className="text-blue-600 mb-4">
+                <div className="text-[#EDEFF7] mb-4">
                   <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -226,8 +226,8 @@ export function SellerPayouts() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-foreground mb-2">Stripe Connect Setup Required</h3>
-                <p className="text-muted-foreground mb-4">
+                <h3 className="text-lg font-medium text-[#EDEFF7] mb-2 font-aeonikpro">Stripe Connect Setup Required</h3>
+                <p className="text-[#9DA2B3] mb-4 font-aeonikpro">
                   To view your earnings and receive payments, you need to connect your Stripe account first.
                 </p>
                 <div className="space-y-3">
@@ -262,7 +262,7 @@ export function SellerPayouts() {
               </>
             ) : (
               <>
-                <div className="text-red-600 mb-4">
+                <div className="text-red-400 mb-4">
                   <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -272,8 +272,8 @@ export function SellerPayouts() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-foreground mb-2">Error Loading Earnings</h3>
-                <p className="text-muted-foreground mb-4">{error}</p>
+                <h3 className="text-lg font-medium text-[#EDEFF7] mb-2 font-aeonikpro">Error Loading Earnings</h3>
+                <p className="text-[#9DA2B3] mb-4 font-aeonikpro">{error}</p>
                 <Button onClick={() => fetchEarnings(period)}>Try Again</Button>
               </>
             )}
@@ -288,7 +288,7 @@ export function SellerPayouts() {
       <Card>
         <CardContent className="p-6">
           <div className="text-center">
-            <p className="text-muted-foreground">No earnings data available</p>
+            <p className="text-[#9DA2B3] font-aeonikpro">No earnings data available</p>
           </div>
         </CardContent>
       </Card>
@@ -298,7 +298,7 @@ export function SellerPayouts() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Earnings & Payouts</h2>
+        <h2 className="text-2xl font-bold text-[#EDEFF7] font-aeonikpro">Earnings & Payouts</h2>
         <div className="flex items-center space-x-4">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-32">
@@ -343,35 +343,35 @@ export function SellerPayouts() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Total Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-[#EDEFF7]">
               {formatCurrency(earningsData.summary.totalGross, earningsData.summary.currency)}
             </div>
-            <p className="text-sm text-muted-foreground">{earningsData.summary.salesCount} sales</p>
+            <p className="text-sm text-[#9DA2B3] font-aeonikpro">{earningsData.summary.salesCount} sales</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Net Earnings</CardTitle>
+            <CardTitle className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Net Earnings</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-emerald-400">
               {formatCurrency(earningsData.summary.totalNet, earningsData.summary.currency)}
             </div>
-            <p className="text-sm text-muted-foreground">Your payout</p>
+            <p className="text-sm text-[#9DA2B3] font-aeonikpro">Your payout</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Transfers</CardTitle>
+            <CardTitle className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Transfers</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{earningsData.transfers.length}</div>
-            <p className="text-sm text-muted-foreground">Stripe transfers</p>
+            <div className="text-2xl font-bold text-[#EDEFF7]">{earningsData.transfers.length}</div>
+            <p className="text-sm text-[#9DA2B3] font-aeonikpro">Stripe transfers</p>
           </CardContent>
         </Card>
       </div>

@@ -5,7 +5,7 @@ globs: **/components/**,**/ui/**
 
 # UI Component Standards
 
-FlowMarket uses Shadcn UI, a design system built with Radix UI primitives, Tailwind CSS, and class-variance-authority for consistent styling.
+neaply uses Shadcn UI, a design system built with Radix UI primitives, Tailwind CSS, and class-variance-authority for consistent styling.
 
 ## Adding Shadcn UI Components
 

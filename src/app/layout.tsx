@@ -1,18 +1,25 @@
-import type { Metadata } from 'next'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import type { Metadata, Viewport } from 'next'
+import { Inter, Merriweather, Space_Grotesk } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 import { AuthProvider } from '@/hooks/useAuth'
+import { Analytics } from "@vercel/analytics/next"
 import { CartProvider } from '@/hooks/useCart'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import ClientLayout from './client-layout'
 import GoogleOneTapWrapper from '@/components/GoogleOneTapWrapper'
-import { int } from 'zod'
+import Script from 'next/script'
 
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
+})
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+  variable: "--font-merriweather",
+  weight: ["300", "400", "700", "900"],
 })
 
 // AeonikPro local font configuration
@@ -53,18 +60,66 @@ const aeonikPro = localFont({
   display: 'swap',
 })
 
+// Site configuration
+const siteConfig = {
+  name: 'Neaply',
+  description: 'The first marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows for Make, n8n, Zapier, and more.',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://neaply.com',
+  ogImage: '/images/neaply/discord/cover.jpg',
+  twitterHandle: '@neaply',
+  creator: 'Neaply Team',
+}
+
+// Viewport configuration (separate from metadata in Next.js 14+)
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#08080A' },
+  ],
+  colorScheme: 'dark light',
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://neaply.com'),
-  title: 'Neaply - Buy & Create Automation Workflows | Multi-Platform Marketplace',
-  description:
-    'The first marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows for Make, n8n, Zapier, and more. Create and sell your automation solutions to the global community.',
-  keywords:
-    'automation, workflows, marketplace, make, n8n, zapier, airtable, no-code automation, buy workflows, create workflows',
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: 'Neaply - Buy & Create Automation Workflows | Multi-Platform Marketplace',
+    template: '%s | Neaply',
+  },
+  description: siteConfig.description,
+  keywords: [
+    'automation',
+    'workflows',
+    'marketplace',
+    'make',
+    'n8n',
+    'zapier',
+    'airtable',
+    'no-code automation',
+    'buy workflows',
+    'create workflows',
+    'automation templates',
+    'workflow marketplace',
+    'business automation',
+    'digital products',
+    'SaaS integrations',
+  ],
+  authors: [{ name: siteConfig.creator, url: siteConfig.url }],
+  creator: siteConfig.creator,
+  publisher: siteConfig.name,
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },
       { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
-      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-32x32.ico', type: 'image/png', sizes: '32x32' },
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
     other: [
@@ -72,34 +127,126 @@ export const metadata: Metadata = {
       { rel: 'android-chrome', url: '/android-chrome-512x512.png' },
     ],
   },
+  manifest: '/site.webmanifest',
   openGraph: {
-    title: 'Neaply - Buy & Sell Automation Workflows',
-    description:
-      'The first marketplace for automation workflows across multiple platforms. Discover ready-to-use workflows or sell your own creations.',
     type: 'website',
-    url: 'https://neaply.com',
-    siteName: 'Neaply',
+    locale: 'en_US',
+    alternateLocale: ['fr_FR', 'es_ES', 'de_DE'],
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: 'Neaply - Buy & Sell Automation Workflows',
+    description: siteConfig.description,
     images: [
       {
-        url: '/images/neaply/discord/cover.jpg',
+        url: siteConfig.ogImage,
         width: 1200,
         height: 630,
         alt: 'Neaply - Multi-Platform Automation Marketplace',
+        type: 'image/jpeg',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
+    site: siteConfig.twitterHandle,
+    creator: siteConfig.twitterHandle,
     title: 'Neaply - Buy & Sell Automation Workflows',
-    description: 'The first marketplace for automation workflows across multiple platforms.',
-    images: ['/images/neaply/x/cover.jpg'],
+    description: siteConfig.description,
+    images: {
+      url: '/images/neaply/x/cover.jpg',
+      alt: 'Neaply - Multi-Platform Automation Marketplace',
+    },
   },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: siteConfig.url,
+    languages: {
+      'en-US': `${siteConfig.url}/en`,
+      'fr-FR': `${siteConfig.url}/fr`,
+    },
+  },
+  verification: {
+    // Add your verification codes here when you have them
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+    // yandex: 'your-yandex-verification',
+    // yahoo: 'your-yahoo-verification',
+    // other: { 'bing': 'your-bing-verification' },
+  },
+  category: 'technology',
+  classification: 'Business/E-commerce',
 }
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-space-grotesk',
   subsets: ['latin'],
 })
+
+// JSON-LD Structured Data for Organization
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: siteConfig.name,
+  description: siteConfig.description,
+  url: siteConfig.url,
+  logo: `${siteConfig.url}/images/neaply/logo.png`,
+  sameAs: [
+    'https://twitter.com/neaplydev',
+    'https://linkedin.com/company/neaply',
+    'https://discord.gg/neaply',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    availableLanguage: ['English', 'French'],
+  },
+}
+
+// JSON-LD Structured Data for Website
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteConfig.name,
+  description: siteConfig.description,
+  url: siteConfig.url,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${siteConfig.url}/search?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+}
+
+// JSON-LD Structured Data for WebApplication
+const webApplicationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: siteConfig.name,
+  description: siteConfig.description,
+  url: siteConfig.url,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'USD',
+    lowPrice: '0',
+    highPrice: '500',
+    offerCount: '1000+',
+  },
+}
 
 export default function RootLayout({
   children,
@@ -108,11 +255,41 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
+      <head>
+        {/* Preconnect to external domains for performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* DNS prefetch for commonly used external resources */}
+        <link rel="dns-prefetch" href="https://js.stripe.com" />
+        <link rel="dns-prefetch" href="https://api.stripe.com" />
+        
+        {/* JSON-LD Structured Data */}
+        <Script
+          id="organization-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          strategy="afterInteractive"
+        />
+        <Script
+          id="website-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          strategy="afterInteractive"
+        />
+        <Script
+          id="webapp-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationJsonLd) }}
+          strategy="afterInteractive"
+        />
+      </head>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${aeonikPro.variable} ${inter.className} antialiased`}
+        className={`${inter.variable} ${spaceGrotesk.variable} ${aeonikPro.variable} ${merriweather.variable} ${inter.className}  antialiased`}
         suppressHydrationWarning={true}
         style={{ backgroundColor: '#08080A' }}
       >
+        <Analytics />
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>

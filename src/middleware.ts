@@ -1,8 +1,64 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import {
+  isMaintenanceModeActive,
+  isComingSoonModeActive,
+  isIPWhitelisted,
+} from '@/lib/maintenance'
 
 export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
+
+  // ============================================
+  // SITE STATUS CHECK (Coming Soon / Maintenance)
+  // ============================================
+  
+  // Skip status check for static files and Next.js internals
+  const isStaticOrInternal = 
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api/webhooks') ||
+    pathname.startsWith('/api/waitlist') ||
+    pathname.startsWith('/api/health') ||
+    pathname.includes('.') // Files with extensions (images, etc.)
+
+  if (!isStaticOrInternal) {
+    // Get client IP for whitelist check
+    const clientIP =
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('x-real-ip') ||
+      null
+    const isAllowedIP = isIPWhitelisted(clientIP)
+
+    // COMING SOON MODE (takes priority over maintenance)
+    if (isComingSoonModeActive()) {
+      if (pathname === '/coming-soon') {
+        return NextResponse.next()
+      }
+      if (!isAllowedIP) {
+        return NextResponse.redirect(new URL('/coming-soon', req.url))
+      }
+    }
+    // MAINTENANCE MODE
+    else if (isMaintenanceModeActive()) {
+      if (pathname === '/maintenance') {
+        return NextResponse.next()
+      }
+      if (!isAllowedIP) {
+        return NextResponse.redirect(new URL('/maintenance', req.url))
+      }
+    }
+    // Redirect away from status pages if modes are OFF
+    else {
+      if (pathname === '/maintenance' || pathname === '/coming-soon') {
+        return NextResponse.redirect(new URL('/', req.url))
+      }
+    }
+  }
+  
+  // Pour les routes API, on veut toujours retourner du JSON, jamais des redirects HTML
+  const isApiRoute = pathname.startsWith('/api/')
+
   let response = NextResponse.next({
     request: {
       headers: req.headers,
@@ -11,7 +67,7 @@ export async function middleware(req: NextRequest) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
     {
       cookies: {
         get(name: string) {
@@ -69,10 +125,13 @@ export async function middleware(req: NextRequest) {
     '/',
     '/search',
     '/marketplace',
+    '/how-it-works',
     '/robots.txt',
     '/sitemap.xml',
     '/checkout/success', // Allow checkout success page without auth
     '/checkout/cancelled', // Allow checkout cancelled page without auth
+    '/maintenance', // Maintenance page
+    '/coming-soon', // Coming soon page
   ]
 
   // Routes dynamiques publiques (patterns)
@@ -92,8 +151,6 @@ export async function middleware(req: NextRequest) {
     '/admin/settings',
   ]
 
-  const { pathname } = req.nextUrl
-
   // Permettre l'accès aux routes publiques
   const isPublicRoute =
     publicRoutes.includes(pathname) ||
@@ -108,29 +165,60 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
+  // ============================================
+  // API ROUTES HANDLING
+  // ============================================
+  
   // Webhook routes should never require authentication
   if (pathname.startsWith('/api/webhooks/')) {
     return response
   }
 
-  // Public API routes for order access
-  if (pathname.startsWith('/api/orders/public/')) {
+  // Public API routes - allow without authentication
+  const publicApiPatterns = [
+    '/api/orders/public/',
+    '/api/auth/check-2fa-required',
+    '/api/auth/login-with-2fa',
+    '/api/auth/check-email',
+    '/api/marketplace/',
+    '/api/packs',
+    '/api/store/',
+    '/api/search',
+    '/api/categories',
+    '/api/tags',
+  ]
+
+  const isPublicApi = publicApiPatterns.some((pattern) => pathname.startsWith(pattern))
+
+  if (isPublicApi) {
     return response
   }
 
-  // Public API routes for marketplace and homepage
-  if (
-    pathname.startsWith('/api/marketplace/') ||
-    pathname.startsWith('/api/packs') ||
-    pathname.startsWith('/api/store/') ||
-    pathname.startsWith('/api/search') ||
-    pathname.startsWith('/api/categories') ||
-    pathname.startsWith('/api/tags')
-  ) {
+  // Protected API routes - let the API handle auth errors (return JSON 401, not redirect)
+  const protectedApiPatterns = [
+    '/api/favorites',
+    '/api/reviews',
+    '/api/auth/',
+    '/api/user',
+    '/api/workflows/',
+    '/api/orders/',
+    '/api/cart/',
+    '/api/checkout/',
+  ]
+
+  const isProtectedApi = protectedApiPatterns.some((pattern) => pathname.startsWith(pattern))
+
+  if (isProtectedApi || isApiRoute) {
+    // Pour les routes API protégées, on laisse l'API gérer l'authentification
+    // et retourner une erreur 401 JSON appropriée au lieu de rediriger
     return response
   }
 
-  // Vérifier si l'utilisateur est authentifié pour les routes protégées
+  // ============================================
+  // PAGE ROUTES HANDLING
+  // ============================================
+
+  // Vérifier si l'utilisateur est authentifié pour les routes de pages protégées
   if (!session) {
     // Rediriger vers la page de connexion avec l'URL de retour
     const redirectUrl = new URL('/auth/login', req.url)

@@ -38,7 +38,7 @@ export default function NotFound() {
 
                 {/* Floating Elements */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-20 left-10 w-20 h-20 bg-gray-200 rounded-full opacity-60 animate-float"></div>
+                    <div className="absolute top-20 left-10 w-20 h-20 bg-[#40424D]/40 rounded-full opacity-60 animate-float"></div>
                     <div className="absolute top-40 right-20 w-16 h-16 bg-gray-300 rounded-full opacity-50 animate-pulse"></div>
                     <div className="absolute bottom-32 left-20 w-12 h-12 bg-muted rounded-full opacity-40 animate-float"></div>
                     <div className="absolute bottom-20 right-10 w-24 h-24 bg-gray-400 rounded-full opacity-30 animate-pulse"></div>
@@ -53,7 +53,7 @@ export default function NotFound() {
                                 <h1 className="text-8xl sm:text-9xl lg:text-[12rem] font-space-grotesk font-bold tracking-tight leading-none text-foreground">
                                     <div className="relative inline-block">
                                         <span>404</span>
-                                        <div className="absolute -inset-4 bg-gray-200/30 blur-2xl -z-10 animate-pulse"></div>
+                                        <div className="absolute -inset-4 bg-[#40424D]/40/30 blur-2xl -z-10 animate-pulse"></div>
                                     </div>
                                 </h1>
                             </div>
