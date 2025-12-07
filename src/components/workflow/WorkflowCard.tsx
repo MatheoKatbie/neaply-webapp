@@ -141,7 +141,7 @@ export function WorkflowCard({ workflow, onEdit, onDelete, onPublishToggle, isEd
           <div className="flex space-x-2 ml-4">
             <Button
               size="sm"
-              variant={workflow.status === 'draft' ? 'default' : 'outline'}
+              variant={'default'}
               onClick={() => onPublishToggle(workflow)}
               disabled={workflow.status === 'admin_disabled'}
               title={workflow.status === 'admin_disabled' ? 'Disabled by admin' : undefined}
@@ -156,7 +156,6 @@ export function WorkflowCard({ workflow, onEdit, onDelete, onPublishToggle, isEd
             </Button>
             <Button
               size="sm"
-              variant="outline"
               onClick={() => onEdit(workflow)}
               disabled={workflow.status === 'admin_disabled'}
               title={workflow.status === 'admin_disabled' ? 'Cannot edit: workflow disabled by admin' : undefined}
@@ -165,7 +164,6 @@ export function WorkflowCard({ workflow, onEdit, onDelete, onPublishToggle, isEd
             </Button>
             <Button
               size="sm"
-              variant="outline"
               onClick={() => onDelete(workflow.id, workflow.title)}
               className="text-red-600 hover:text-red-700"
             >
