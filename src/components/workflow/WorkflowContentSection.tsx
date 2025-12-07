@@ -231,7 +231,7 @@ export function WorkflowContentSection({
 
       {/* Platform-specific information */}
       {platform && currentPlatform && (
-        <Alert>
+        <Alert variant={"default"}>
           <Info className="h-4 w-4" />
           <AlertDescription>
             <strong>{currentPlatform.name} Workflow</strong>

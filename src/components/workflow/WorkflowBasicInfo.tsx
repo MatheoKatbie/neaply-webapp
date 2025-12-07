@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -33,13 +34,34 @@ export function WorkflowBasicInfo({
   onBlur,
   showErrors = false,
 }: WorkflowBasicInfoProps) {
-  const formatPrice = (cents: number) => {
-    return (cents / 100).toFixed(2)
+  // État local pour permettre la saisie libre du prix
+  const [priceInput, setPriceInput] = useState(() => (basePriceCents / 100).toFixed(2))
+
+  // Synchroniser l'état local avec les props quand basePriceCents change de l'extérieur
+  useEffect(() => {
+    const formattedPrice = (basePriceCents / 100).toFixed(2)
+    // Ne mettre à jour que si la valeur est différente (évite de casser la saisie en cours)
+    if (parseFloat(priceInput) !== basePriceCents / 100) {
+      setPriceInput(formattedPrice)
+    }
+  }, [basePriceCents])
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // Autoriser la saisie libre de chiffres et point décimal
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setPriceInput(value)
+    }
   }
 
-  const parsePrice = (price: string) => {
-    const parsed = parseFloat(price)
-    return isNaN(parsed) ? 0 : Math.round(parsed * 100)
+  const handlePriceBlur = () => {
+    // Convertir en centimes et mettre à jour le parent
+    const parsed = parseFloat(priceInput)
+    const cents = isNaN(parsed) ? 0 : Math.round(parsed * 100)
+    onUpdate('basePriceCents', cents)
+    // Reformater l'affichage
+    setPriceInput((cents / 100).toFixed(2))
+    onBlur('basePriceCents')
   }
 
   return (
@@ -70,13 +92,11 @@ export function WorkflowBasicInfo({
           <Input
             id="basePriceCents"
             name="basePriceCents"
-            type="number"
-            step="0.01"
-            min="0"
-            max="10000"
-            value={formatPrice(basePriceCents)}
-            onChange={(e) => onUpdate('basePriceCents', parsePrice(e.target.value))}
-            onBlur={() => onBlur('basePriceCents')}
+            type="text"
+            inputMode="decimal"
+            value={priceInput}
+            onChange={handlePriceChange}
+            onBlur={handlePriceBlur}
             placeholder="0.00"
             className={showErrors && errors.basePriceCents ? 'border-red-500' : ''}
             required

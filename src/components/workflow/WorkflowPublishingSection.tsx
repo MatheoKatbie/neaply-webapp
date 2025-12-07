@@ -176,7 +176,7 @@ export function WorkflowPublishingSection({
 
       {/* Optional Fields */}
       {showOptionalFields && (
-        <div className="space-y-6 border-l-2 border-gray-200 pl-4">
+        <div className="space-y-6 border-l-2 border-[#9DA2B3]/25 pl-4">
           {/* Tags - Optional */}
           <div className="space-y-2">
             <Label>Tags (Optional)</Label>
@@ -210,10 +210,10 @@ export function WorkflowPublishingSection({
             </Label>
             <div className="space-y-4">
               {documentationUrl ? (
-                <div className="flex items-center gap-2 p-3 border rounded-lg bg-gray-50">
+                <div className="flex items-center gap-2 p-3 border border-[#9DA2B3]/25 rounded-lg bg-[#1E1E24]">
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Documentation uploaded</p>
-                    <p className="text-xs text-muted-foreground">{documentationUrl}</p>
+                    <p className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">Documentation uploaded</p>
+                    <p className="text-xs text-[#9DA2B3] font-aeonikpro">{documentationUrl}</p>
                   </div>
                   <Button
                     type="button"

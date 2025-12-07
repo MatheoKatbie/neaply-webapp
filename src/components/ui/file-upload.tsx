@@ -147,15 +147,15 @@ export function FileUpload({
     const extension = fileName.split('.').pop()?.toLowerCase()
     switch (extension) {
       case 'pdf':
-        return <FileText className="h-8 w-8 text-muted-foreground" />
+        return <FileText className="h-8 w-8 text-[#9DA2B3]" />
       case 'docx':
       case 'doc':
-        return <FileText className="h-8 w-8 text-muted-foreground" />
+        return <FileText className="h-8 w-8 text-[#9DA2B3]" />
       case 'txt':
       case 'md':
-        return <FileText className="h-8 w-8 text-muted-foreground" />
+        return <FileText className="h-8 w-8 text-[#9DA2B3]" />
       default:
-        return <File className="h-8 w-8 text-muted-foreground" />
+        return <File className="h-8 w-8 text-[#9DA2B3]" />
     }
   }
 
@@ -202,12 +202,12 @@ export function FileUpload({
       <div
         className={cn(
           'relative border-2 border-dashed rounded-lg transition-colors',
-          'min-h-[120px] flex items-center bg-card! justify-center cursor-pointer',
+          'min-h-[120px] flex items-center bg-[#1E1E24] justify-center cursor-pointer',
           {
-            'border-primary': isDragOver && !disabled,
-            'border-border hover:border-gray-400/20': !isDragOver && !disabled && !hasFile,
+            'border-blue-500 bg-blue-500/10': isDragOver && !disabled,
+            'border-[#9DA2B3]/25 hover:border-[#9DA2B3]/50': !isDragOver && !disabled && !hasFile,
             'border-red-500/50 bg-red-500/10': hasError && required && !isValid,
-            'border-border': disabled || hasFile,
+            'border-[#9DA2B3]/25': disabled || hasFile,
             'cursor-not-allowed opacity-50': disabled,
           }
         )}
@@ -220,10 +220,10 @@ export function FileUpload({
           <div className="relative w-full h-full group">
             <div className="flex items-center justify-center h-full p-4">
               <div className="flex items-center space-x-3">
-                <div className="text-muted-foreground">{getFileIcon(getDisplayFileName() || 'document')}</div>
+                <div className="text-[#9DA2B3]">{getFileIcon(getDisplayFileName() || 'document')}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{getDisplayFileName()}</p>
-                  <p className="text-xs text-muted-foreground">{getFileStatusText()}</p>
+                  <p className="text-sm font-medium text-[#EDEFF7] font-aeonikpro truncate">{getDisplayFileName()}</p>
+                  <p className="text-xs text-[#9DA2B3] font-aeonikpro">{getFileStatusText()}</p>
                 </div>
               </div>
             </div>
@@ -258,12 +258,12 @@ export function FileUpload({
           </div>
         ) : (
           <div className="text-center p-6">
-            <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <FileText className="mx-auto h-12 w-12 text-[#9DA2B3] mb-4" />
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">{placeholder}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm font-medium text-[#EDEFF7] font-aeonikpro">{placeholder}</p>
+              <p className="text-xs text-[#9DA2B3] font-aeonikpro">
                 {acceptedTypes.join(', ')} up to {maxSizeMB}MB
-                {required && <span className="text-destructive ml-1">*</span>}
+                {required && <span className="text-red-400 ml-1">*</span>}
               </p>
             </div>
           </div>
@@ -280,9 +280,9 @@ export function FileUpload({
         />
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p className="text-sm text-red-400 font-aeonikpro">{error}</p>}
 
-      {uploading && <div className="text-sm text-muted-foreground">Uploading document...</div>}
+      {uploading && <div className="text-sm text-[#9DA2B3] font-aeonikpro">Uploading document...</div>}
     </div>
   )
 }
