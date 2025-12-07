@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
         similarityScore: result.similarityScore,
         warning: result.warning,
         matchedWorkflows: result.matchedWorkflows.map(w => ({
+          id: w.workflowId,
           title: w.workflowTitle,
           slug: w.workflowSlug,
           sellerName: w.sellerName,

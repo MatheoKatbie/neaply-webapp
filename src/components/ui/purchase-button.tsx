@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 
 interface PurchaseButtonProps {
   workflowId: string
+  sellerId: string
   price: number
   currency: string
   disabled?: boolean
@@ -19,6 +20,7 @@ interface PurchaseButtonProps {
 
 export function PurchaseButton({
   workflowId,
+  sellerId,
   price,
   currency,
   disabled = false,
@@ -34,6 +36,7 @@ export function PurchaseButton({
   const [message, setMessage] = useState<{ text: string; type: 'error' } | null>(null)
 
   const isInCart = hasItem(workflowId)
+  const isOwner = user?.id === sellerId
 
   useEffect(() => {
     if (message) {
@@ -49,7 +52,7 @@ export function PurchaseButton({
   }
 
   const handlePurchase = async () => {
-    if (disabled || loading) return
+    if (disabled || loading || isOwner) return
 
     if (!user) {
       // Rediriger vers la page de login avec le chemin actuel
@@ -86,6 +89,11 @@ export function PurchaseButton({
       style: 'currency',
       currency: currency,
     }).format(priceCents / 100)
+  }
+
+  // Don't show the button if the user is the owner
+  if (isOwner) {
+    return null
   }
 
   // Afficher le message d'erreur dans le bouton

@@ -596,7 +596,7 @@ export default function Home() {
                   <h1 className="font-aeonikpro text-4xl md:text-5xl lg:text-6xl xl:text-[75px] text-[#EDEFF7] leading-tight lg:leading-[1.2] tracking-tight mb-6">
                     Automate your world,
                     <br />
-                    <span className='font-merriweather italic text-3xl md:text-4xl lg:text-5xl xl:text-[65px] opacity-80'>Elevate your workforce.</span>
+                    <span className='italic text-3xl md:text-4xl lg:text-5xl xl:text-[65px]'>Elevate your workforce.</span>
                   </h1>
 
                   {/* Subheading */}

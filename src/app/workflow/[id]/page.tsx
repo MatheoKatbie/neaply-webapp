@@ -22,6 +22,7 @@ import remarkGfm from 'remark-gfm'
 
 interface WorkflowDetail {
   id: string
+  sellerId: string
   title: string
   shortDesc: string
   longDescMd?: string
@@ -719,6 +720,7 @@ export default function WorkflowDetailPage() {
                   <div className="space-y-3">
                     <PurchaseButton
                       workflowId={workflowId}
+                      sellerId={workflow.sellerId}
                       price={workflow.price}
                       currency={workflow.currency}
                       className="w-full bg-white hover:bg-white/90 text-black py-3 px-6 font-aeonikpro font-medium rounded-full transition-all duration-300"
@@ -727,6 +729,7 @@ export default function WorkflowDetailPage() {
                     </PurchaseButton>
                     <AddToCartButton
                       workflowId={workflowId}
+                      sellerId={workflow.sellerId}
                       price={workflow.price}
                       currency={workflow.currency}
                       className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium border border-[#9DA2B3]/25 transition-all duration-300 text-[#D3D6E0]"

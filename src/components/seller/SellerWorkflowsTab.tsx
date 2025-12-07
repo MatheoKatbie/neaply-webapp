@@ -33,7 +33,6 @@ interface SellerWorkflowsTabProps {
   onSubmit: (e: React.FormEvent) => void
   onCancel: () => void
   onEdit: (workflow: Workflow) => void
-  onDelete: (workflowId: string, workflowTitle: string) => void
   onPublishToggle: (workflow: Workflow) => void
   onHeroImageUpload: (file: File | null, previewUrl?: string) => void
   onHeroImageRemove: () => void
@@ -63,7 +62,6 @@ export function SellerWorkflowsTab({
   onSubmit,
   onCancel,
   onEdit,
-  onDelete,
   onPublishToggle,
   onHeroImageUpload,
   onHeroImageRemove,
@@ -223,7 +221,6 @@ export function SellerWorkflowsTab({
                 key={workflow.id}
                 workflow={workflow}
                 onEdit={onEdit}
-                onDelete={onDelete}
                 onPublishToggle={onPublishToggle}
                 isEditing={false}
               />

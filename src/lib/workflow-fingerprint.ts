@@ -244,11 +244,11 @@ export async function checkWorkflowSimilarity(
   let warning: string | undefined
 
   if (highestSimilarity >= 90) {
-    warning = `⚠️ Ce workflow est très similaire (${highestSimilarity}%) à un workflow existant. Assurez-vous que c'est bien votre création originale.`
+    warning = `This workflow is highly similar (${highestSimilarity}%) to an existing workflow. Please ensure this is your original work.`
   } else if (highestSimilarity >= 70) {
-    warning = `⚡ Ce workflow partage des similitudes (${highestSimilarity}%) avec des workflows existants. Vérifiez qu'il s'agit bien de votre propre travail.`
+    warning = `This workflow shares similarities (${highestSimilarity}%) with existing workflows. Please verify that this is your own work.`
   } else if (highestSimilarity >= 50) {
-    warning = `ℹ️ Ce workflow a quelques points communs avec d'autres workflows sur la plateforme.`
+    warning = `This workflow has some common elements with other workflows on the platform.`
   }
 
   return {

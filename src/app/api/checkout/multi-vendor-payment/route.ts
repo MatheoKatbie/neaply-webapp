@@ -91,6 +91,14 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // Check if user is trying to buy their own workflow
+      if (item.workflow.sellerId === user.id) {
+        return NextResponse.json(
+          { error: `You cannot purchase your own workflow "${item.workflow.title}"` },
+          { status: 400 }
+        )
+      }
+
       if (!item.workflow.seller.sellerProfile?.stripeAccountId) {
         return NextResponse.json(
           {

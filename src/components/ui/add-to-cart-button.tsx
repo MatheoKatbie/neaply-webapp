@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth'
 
 interface AddToCartButtonProps {
   workflowId: string
+  sellerId: string
   price: number
   currency: string
   disabled?: boolean
@@ -19,6 +20,7 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({
   workflowId,
+  sellerId,
   price,
   currency,
   disabled = false,
@@ -34,6 +36,7 @@ export function AddToCartButton({
   const [message, setMessage] = useState<{ text: string; type: 'error' } | null>(null)
 
   const isInCart = hasItem(workflowId)
+  const isOwner = user?.id === sellerId
 
   useEffect(() => {
     if (message) {
@@ -49,7 +52,7 @@ export function AddToCartButton({
   }
 
   const handleAddToCart = async () => {
-    if (disabled || loading || isInCart) return
+    if (disabled || loading || isInCart || isOwner) return
 
     if (!user) {
       // Rediriger vers la page de login avec le chemin actuel comme paramètre de retour
@@ -75,6 +78,11 @@ export function AddToCartButton({
       style: 'currency',
       currency: currency,
     }).format(priceCents / 100)
+  }
+
+  // Don't show the button if the user is the owner
+  if (isOwner) {
+    return null
   }
 
   if (isInCart) {

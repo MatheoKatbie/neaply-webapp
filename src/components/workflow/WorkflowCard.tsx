@@ -10,12 +10,11 @@ import { formatPrice, getStatusColor, STATUS_LABELS } from '@/types/workflow'
 interface WorkflowCardProps {
   workflow: Workflow
   onEdit: (workflow: Workflow) => void
-  onDelete: (workflowId: string, workflowTitle: string) => void
   onPublishToggle: (workflow: Workflow) => void
   isEditing?: boolean
 }
 
-export function WorkflowCard({ workflow, onEdit, onDelete, onPublishToggle, isEditing = false }: WorkflowCardProps) {
+export function WorkflowCard({ workflow, onEdit, onPublishToggle, isEditing = false }: WorkflowCardProps) {
   if (isEditing) {
     return null // Don't render if this workflow is being edited
   }
@@ -161,13 +160,6 @@ export function WorkflowCard({ workflow, onEdit, onDelete, onPublishToggle, isEd
               title={workflow.status === 'admin_disabled' ? 'Cannot edit: workflow disabled by admin' : undefined}
             >
               Edit
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => onDelete(workflow.id, workflow.title)}
-              className="text-red-600 hover:text-red-700"
-            >
-              Delete
             </Button>
           </div>
         </div>

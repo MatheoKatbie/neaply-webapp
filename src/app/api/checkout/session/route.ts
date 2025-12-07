@@ -77,6 +77,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Workflow is not available for purchase' }, { status: 400 })
     }
 
+    // Check if user is trying to buy their own workflow
+    if (workflow.sellerId === user.id) {
+      return NextResponse.json({ error: 'You cannot purchase your own workflow' }, { status: 400 })
+    }
+
     // Check if seller has Stripe Connect account set up
     if (!workflow.seller.sellerProfile?.stripeAccountId) {
       return NextResponse.json(

@@ -108,6 +108,7 @@ export async function POST(req: NextRequest) {
       await notifySellerNewReview({
         sellerId: review.workflow.sellerId,
         reviewerName: review.user.displayName || 'Un utilisateur',
+        workflowId: review.workflowId,
         workflowTitle: review.workflow.title,
         rating: review.rating,
         reviewId: review.id,

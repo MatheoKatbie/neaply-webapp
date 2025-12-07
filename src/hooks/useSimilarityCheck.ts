@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 
 interface SimilarWorkflow {
+  id: string
   title: string
   slug: string
   sellerName: string

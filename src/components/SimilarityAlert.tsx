@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 interface SimilarWorkflow {
+  id: string
   title: string
   slug: string
   sellerName: string
@@ -70,9 +71,9 @@ export function SimilarityAlert({
       <Icon className={`h-5 w-5 ${config.iconClass}`} />
       
       <AlertTitle className={`${config.titleClass} font-semibold`}>
-        {severity === 'critical' && 'Workflow très similaire détecté'}
-        {severity === 'warning' && 'Similarités détectées'}
-        {severity === 'info' && 'Points communs détectés'}
+        {severity === 'critical' && 'Highly similar workflow detected'}
+        {severity === 'warning' && 'Similarities detected'}
+        {severity === 'info' && 'Common elements detected'}
       </AlertTitle>
       
       <AlertDescription className="mt-2 space-y-3">
@@ -80,12 +81,12 @@ export function SimilarityAlert({
         
         {matchedWorkflows.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm text-gray-400">Workflows similaires :</p>
+            <p className="text-sm text-gray-400">Similar workflows:</p>
             <ul className="space-y-1">
               {matchedWorkflows.slice(0, 3).map((workflow, index) => (
                 <li key={index} className="flex items-center justify-between text-sm">
                   <span className="text-gray-300">
-                    "{workflow.title}" par {workflow.sellerName}
+                    "{workflow.title}" by {workflow.sellerName}
                   </span>
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-0.5 rounded text-xs ${
@@ -95,10 +96,10 @@ export function SimilarityAlert({
                         ? 'bg-yellow-500/20 text-yellow-400'
                         : 'bg-blue-500/20 text-blue-400'
                     }`}>
-                      {workflow.similarityScore}%
+                      {workflow.similarityScore}% similar
                     </span>
                     <Link 
-                      href={`/workflow/${workflow.slug}`}
+                      href={`/workflow/${workflow.id}`}
                       target="_blank"
                       className="text-gray-400 hover:text-white transition-colors"
                     >
@@ -113,7 +114,7 @@ export function SimilarityAlert({
 
         {severity === 'critical' && (
           <p className="text-sm text-red-400/80 mt-2">
-            ⚠️ La publication de contenu copié peut entraîner la suspension de votre compte.
+            ⚠️ Publishing copied content may result in your account being suspended.
           </p>
         )}
 
@@ -121,24 +122,24 @@ export function SimilarityAlert({
           <div className="flex gap-2 mt-4">
             {onConfirm && (
               <Button
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={onConfirm}
-                className={severity === 'critical' ? 'border-red-500/50 hover:bg-red-500/10' : ''}
+                className={severity === 'critical' ? 'border-red-500/50 bg-red-500/10 hover:bg-red-500/20' : ''}
               >
                 {severity === 'critical' 
-                  ? "Je confirme que c'est mon travail original"
-                  : "Continuer quand même"
+                  ? "I confirm this is my original work"
+                  : "Continue anyway"
                 }
               </Button>
             )}
             {onDismiss && severity === 'critical' && (
               <Button
-                variant="ghost"
+              
                 size="sm"
                 onClick={onDismiss}
               >
-                Modifier mon workflow
+                Edit my workflow
               </Button>
             )}
           </div>
@@ -177,7 +178,7 @@ export function SimilarityBadge({ similarityScore }: { similarityScore: number }
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs border ${config.bgClass}`}>
       <Icon className="h-3 w-3" />
-      <span>{similarityScore}% similaire</span>
+      <span>{similarityScore}% similar</span>
     </span>
   )
 }

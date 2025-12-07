@@ -88,12 +88,14 @@ export async function notifyBuyerOrderConfirmed({
 export async function notifySellerNewReview({
   sellerId,
   reviewerName,
+  workflowId,
   workflowTitle,
   rating,
   reviewId,
 }: {
   sellerId: string
   reviewerName: string
+  workflowId: string
   workflowTitle: string
   rating: number
   reviewId: string
@@ -104,7 +106,7 @@ export async function notifySellerNewReview({
     type: 'new_review',
     title: 'Nouvel avis reçu',
     message: `${reviewerName} a laissé un avis ${stars} sur "${workflowTitle}"`,
-    link: `/dashboard/seller/reviews`,
+    link: `/dashboard/workflow/${workflowId}`,
     metadata: { reviewId, reviewerName, workflowTitle, rating },
   })
 }

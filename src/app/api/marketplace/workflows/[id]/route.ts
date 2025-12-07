@@ -133,6 +133,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     // Transform data for frontend
     const transformedWorkflow = {
       id: workflow.id,
+      sellerId: workflow.sellerId,
       title: workflow.title,
       shortDesc: workflow.shortDesc,
       longDescMd: workflow.longDescMd,

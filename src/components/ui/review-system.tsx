@@ -221,10 +221,10 @@ function ReviewForm({ workflowId, onReviewSubmitted }: { workflowId: string; onR
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium bg-white text-black hover:bg-[#40424D]/30 transition-all duration-300 flex items-center justify-center gap-2">
+        <Button variant={"outline"} className="w-full py-3 px-6 rounded-full font-aeonikpro font-medium flex items-center justify-center gap-2">
           <MessageSquare className="w-4 h-4" />
           Write a Review
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
@@ -269,21 +269,21 @@ function ReviewForm({ workflowId, onReviewSubmitted }: { workflowId: string; onR
             />
           </div>
           <DialogFooter>
-            <button
+            <Button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="py-2 px-4 rounded-full font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25 hover:bg-white/10 transition-all duration-300"
+              className="py-2 px-4 rounded-full font-aeonikpro text-sm font-medium border border-[#9DA2B3]/25"
               style={{ color: '#D3D6E0' }}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isSubmitting || formData.rating === 0}
-              className="py-2 px-4 rounded-full font-aeonikpro text-sm font-medium bg-white text-black hover:bg-[#40424D]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              className="py-2 px-4 rounded-full font-aeonikpro text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Review'}
-            </button>
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

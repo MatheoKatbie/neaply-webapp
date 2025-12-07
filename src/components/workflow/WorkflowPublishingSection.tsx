@@ -262,6 +262,13 @@ export function WorkflowPublishingSection({
           </ul>
         </AlertDescription>
       </Alert>
+      <Alert variant={"destructive"}>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Note:</strong> Once published, workflows cannot be deleted but can be disabled or set to unlisted.
+          Please review all information carefully before publishing.
+        </AlertDescription>
+      </Alert>
     </div>
   )
 }

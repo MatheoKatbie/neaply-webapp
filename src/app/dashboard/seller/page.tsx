@@ -1255,7 +1255,6 @@ export default function SellerDashboard() {
                 await fetchWorkflows()
               }}
               onEdit={handleEdit}
-              onDelete={handleDeleteClick}
               onPublishToggle={handlePublishToggle}
               onHeroImageUpload={handleHeroImageUpload}
               onHeroImageRemove={handleHeroImageRemove}

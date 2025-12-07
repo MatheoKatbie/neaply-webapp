@@ -1,0 +1,2 @@
+- Prévoir quelque chose pour les acheteurs si le vendeur supprime le workflow
+- 
