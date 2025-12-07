@@ -29,6 +29,8 @@ interface WorkflowContentSectionProps {
   showErrors?: boolean
   workflowId?: string // For edit mode - exclude from similarity check
   onSimilarityWarning?: (hasSimilarity: boolean) => void // Callback when similarity is detected
+  onSimilarityCheckingChange?: (isChecking: boolean) => void // Callback when similarity check starts/ends
+  onSimilarityConfirmed?: (score: number, severity: string) => void // Callback when user confirms despite similarity
 }
 
 // Simplified platform configuration
@@ -77,6 +79,8 @@ export function WorkflowContentSection({
   showErrors = false,
   workflowId,
   onSimilarityWarning,
+  onSimilarityCheckingChange,
+  onSimilarityConfirmed,
 }: WorkflowContentSectionProps) {
   const [jsonValidation, setJsonValidation] = useState<{ isValid: boolean; error: string | null }>({
     isValid: true,
@@ -156,6 +160,21 @@ export function WorkflowContentSection({
       onSimilarityWarning(hasSimilarity || false)
     }
   }, [similarityResult, similarityConfirmed, onSimilarityWarning])
+
+  // Notify parent about similarity checking state
+  useEffect(() => {
+    if (onSimilarityCheckingChange) {
+      onSimilarityCheckingChange(isChecking)
+    }
+  }, [isChecking, onSimilarityCheckingChange])
+
+  // Helper to determine severity based on score
+  const getSeverity = (score: number): string => {
+    if (score >= 90) return 'critical'
+    if (score >= 70) return 'warning'
+    if (score >= 50) return 'info'
+    return 'none'
+  }
 
   const handleJsonChange = (content: any, isValid: boolean) => {
     onUpdate('jsonContent', content)
@@ -278,7 +297,7 @@ export function WorkflowContentSection({
                   {isChecking && (
                     <span className="flex items-center gap-1 text-sm text-gray-400 ml-2">
                       <Loader2 className="h-3 w-3 animate-spin" />
-                      Vérification des similarités...
+                      Checking for similarities...
                     </span>
                   )}
                 </>
@@ -302,6 +321,11 @@ export function WorkflowContentSection({
                 onConfirm={() => {
                   setSimilarityConfirmed(true)
                   setSimilarityDismissed(true)
+                  // Notify parent about confirmed similarity for database storage
+                  if (onSimilarityConfirmed) {
+                    const severity = getSeverity(similarityResult.similarityScore)
+                    onSimilarityConfirmed(similarityResult.similarityScore, severity)
+                  }
                 }}
                 showActions={similarityResult.isSimilar}
               />

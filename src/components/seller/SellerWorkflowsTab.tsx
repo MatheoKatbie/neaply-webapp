@@ -39,6 +39,7 @@ interface SellerWorkflowsTabProps {
   onDocumentationUpload: (file: File | null, previewUrl?: string) => void
   onDocumentationRemove: () => void
   onCreateWorkflow: () => void
+  onSimilarityConfirmed?: (score: number, severity: string) => void
 }
 
 export function SellerWorkflowsTab({
@@ -68,6 +69,7 @@ export function SellerWorkflowsTab({
   onDocumentationUpload,
   onDocumentationRemove,
   onCreateWorkflow,
+  onSimilarityConfirmed,
 }: SellerWorkflowsTabProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6 // Show 6 workflows per page
@@ -206,6 +208,7 @@ export function SellerWorkflowsTab({
                 onDocumentationUpload={onDocumentationUpload}
                 onDocumentationRemove={onDocumentationRemove}
                 editingWorkflow={editingWorkflow}
+                onSimilarityConfirmed={onSimilarityConfirmed}
               />
             )}
           </CardContent>

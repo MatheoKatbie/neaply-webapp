@@ -116,6 +116,9 @@ interface WorkflowFormData {
   airtableScriptMaxVersion?: string
   categoryIds?: string[]
   tagIds?: string[]
+  // Plagiarism tracking - set when user confirms despite similarity warning
+  similarityScore?: number
+  similaritySeverity?: 'info' | 'warning' | 'critical'
 }
 
 export const useFormValidation = (formData: WorkflowFormData) => {

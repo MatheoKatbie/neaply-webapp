@@ -34,6 +34,7 @@ interface WorkflowFormProps {
   onDocumentationUpload: (file: File | null, previewUrl?: string) => void
   onDocumentationRemove: () => void
   editingWorkflow?: any
+  onSimilarityConfirmed?: (score: number, severity: string) => void
 }
 
 const tabs = ['basic', 'content', 'publishing'] as const
@@ -59,9 +60,11 @@ export function WorkflowForm({
   onDocumentationUpload,
   onDocumentationRemove,
   editingWorkflow,
+  onSimilarityConfirmed,
 }: WorkflowFormProps) {
   const [activeTab, setActiveTab] = useState('basic')
   const [showErrors, setShowErrors] = useState(false)
+  const [isSimilarityChecking, setIsSimilarityChecking] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   // Check if a tab is accessible based on form completion
@@ -250,6 +253,8 @@ export function WorkflowForm({
                 onBlur={onBlur}
                 showErrors={showErrors}
                 workflowId={editingWorkflow?.id}
+                onSimilarityCheckingChange={setIsSimilarityChecking}
+                onSimilarityConfirmed={onSimilarityConfirmed}
               />
             </CardContent>
           </Card>
@@ -327,8 +332,13 @@ export function WorkflowForm({
               {isSubmitting ? 'Saving...' : editingWorkflow ? 'Update Workflow' : 'Create Workflow'}
             </Button>
           ) : (
-            <Button type="button" onClick={goToNextTab} className="flex items-center gap-2">
-              Next
+            <Button
+              type="button"
+              onClick={goToNextTab}
+              disabled={activeTab === 'content' && isSimilarityChecking}
+              className="flex items-center gap-2"
+            >
+              {activeTab === 'content' && isSimilarityChecking ? 'Checking...' : 'Next'}
               <ChevronRight className="h-4 w-4" />
             </Button>
           )}

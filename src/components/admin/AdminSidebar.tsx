@@ -11,6 +11,7 @@ import {
     Flag,
     Bug,
     Mail,
+    ShieldAlert,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 
@@ -18,6 +19,7 @@ const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: BarChart3, description: 'Overview & statistics' },
     { name: 'Users', href: '/admin/users', icon: Users, description: 'Manage users' },
     { name: 'Workflows', href: '/admin/workflows', icon: Package, description: 'Manage workflows' },
+    { name: 'Plagiarism', href: '/admin/plagiarism', icon: ShieldAlert, description: 'Flagged content' },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, description: 'View orders' },
     { name: 'Reports', href: '/admin/reports', icon: Flag, description: 'View reports' },
     { name: 'Bug Reports', href: '/admin/bug-reports', icon: Bug, description: 'View bug reports' },

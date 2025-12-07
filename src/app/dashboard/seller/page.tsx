@@ -518,6 +518,15 @@ export default function SellerDashboard() {
     }
   }
 
+  // Handle similarity confirmation - store score and severity in form data
+  const handleSimilarityConfirmed = useCallback((score: number, severity: string) => {
+    setFormData(prev => ({
+      ...prev,
+      similarityScore: score,
+      similaritySeverity: severity as 'info' | 'warning' | 'critical',
+    }))
+  }, [])
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -690,6 +699,8 @@ export default function SellerDashboard() {
         airtableScriptMaxVersion: '',
         categoryIds: [],
         tagIds: [],
+        similarityScore: undefined,
+        similaritySeverity: undefined,
       })
       setShowCreateForm(false)
       setEditingWorkflow(null)
@@ -1261,6 +1272,7 @@ export default function SellerDashboard() {
               onDocumentationUpload={handleDocumentationUpload}
               onDocumentationRemove={handleDocumentationRemove}
               onCreateWorkflow={handleCreateWorkflow}
+              onSimilarityConfirmed={handleSimilarityConfirmed}
             />
           </TabsContent>
 

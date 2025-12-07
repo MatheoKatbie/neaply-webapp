@@ -54,6 +54,9 @@ const createWorkflowSchema = z
       .or(z.literal('')),
     categoryIds: z.array(z.string()).min(1, 'At least one category must be selected'),
     tagIds: z.array(z.string()).optional(),
+    // Plagiarism tracking fields - set when user confirms publishing despite similarity warning
+    similarityScore: z.number().min(0).max(100).optional(),
+    similaritySeverity: z.enum(['info', 'warning', 'critical']).optional(),
   })
   .refine(
     (data) => {
@@ -167,6 +170,9 @@ export async function POST(req: NextRequest) {
           currency: validatedData.currency,
           status: validatedData.status as any,
           platform: validatedData.platform || null,
+          // Store plagiarism data if user confirmed despite similarity warning
+          similarityScore: validatedData.similarityScore || null,
+          similaritySeverity: validatedData.similaritySeverity || null,
         },
       })
 
