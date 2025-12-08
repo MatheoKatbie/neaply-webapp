@@ -57,6 +57,12 @@ const createWorkflowSchema = z
     // Plagiarism tracking fields - set when user confirms publishing despite similarity warning
     similarityScore: z.number().min(0).max(100).optional(),
     similaritySeverity: z.enum(['info', 'warning', 'critical']).optional(),
+    similarityMatches: z.array(z.object({
+      workflowId: z.string(),
+      workflowTitle: z.string(),
+      workflowSlug: z.string(),
+      similarityScore: z.number(),
+    })).optional(),
   })
   .refine(
     (data) => {
@@ -173,6 +179,7 @@ export async function POST(req: NextRequest) {
           // Store plagiarism data if user confirmed despite similarity warning
           similarityScore: validatedData.similarityScore || null,
           similaritySeverity: validatedData.similaritySeverity || null,
+          similarityMatches: validatedData.similarityMatches ? validatedData.similarityMatches : undefined,
         },
       })
 
