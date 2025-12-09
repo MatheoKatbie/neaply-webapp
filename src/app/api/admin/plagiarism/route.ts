@@ -109,6 +109,7 @@ export async function GET(request: NextRequest) {
             status: workflow.status,
             similarityScore: workflow.similarityScore,
             similaritySeverity: workflow.similaritySeverity,
+            similarityMatches: workflow.similarityMatches as any[] | null,
             basePriceCents: workflow.basePriceCents,
             currency: workflow.currency,
             createdAt: workflow.createdAt,

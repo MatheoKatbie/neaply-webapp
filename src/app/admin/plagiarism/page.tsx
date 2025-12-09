@@ -23,9 +23,17 @@ import {
     User,
     Calendar,
     DollarSign,
+    Download,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+
+interface SimilarityMatch {
+    workflowId: string
+    workflowTitle: string
+    workflowSlug: string
+    similarityScore: number
+}
 
 interface FlaggedWorkflow {
     id: string
@@ -34,6 +42,7 @@ interface FlaggedWorkflow {
     status: string
     similarityScore: number | null
     similaritySeverity: string | null
+    similarityMatches: SimilarityMatch[] | null
     basePriceCents: number
     currency: string
     createdAt: string
@@ -118,6 +127,35 @@ export default function AdminPlagiarismPage() {
             toast.error('Failed to update workflow')
         } finally {
             setActionLoading(null)
+        }
+    }
+
+    // Download workflow JSON from the admin API
+    const handleDownloadWorkflow = async (workflowId: string, workflowTitle: string) => {
+        try {
+            const response = await fetch(`/api/admin/plagiarism/${workflowId}/download`)
+            if (!response.ok) {
+                throw new Error('Failed to download workflow')
+            }
+            
+            const data = await response.json()
+            const jsonContent = data.jsonContent || data
+            
+            // Create and download file
+            const blob = new Blob([JSON.stringify(jsonContent, null, 2)], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = `${workflowTitle.replace(/[^a-zA-Z0-9]/g, '_')}.json`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            URL.revokeObjectURL(url)
+            
+            toast.success(`Downloaded: ${workflowTitle}`)
+        } catch (error) {
+            console.error('Error downloading workflow:', error)
+            toast.error('Failed to download workflow')
         }
     }
 
@@ -372,6 +410,60 @@ export default function AdminPlagiarismPage() {
                                                     <span>{formatDate(workflow.createdAt)}</span>
                                                 </div>
                                             </div>
+
+                                            {/* Similar workflows section */}
+                                            {workflow.similarityMatches && workflow.similarityMatches.length > 0 && (
+                                                <div className="mt-4 pt-4 border-t border-[#9DA2B3]/25">
+                                                    <h4 className="text-sm font-medium text-[#EDEFF7] mb-3 flex items-center gap-2">
+                                                        <ShieldAlert className="h-4 w-4 text-orange-400" />
+                                                        Similar to these workflows:
+                                                    </h4>
+                                                    <div className="space-y-2">
+                                                        {workflow.similarityMatches.map((match, idx) => (
+                                                            <div 
+                                                                key={idx} 
+                                                                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-[#16161A] border border-[#9DA2B3]/20"
+                                                            >
+                                                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                                    <Link
+                                                                        href={`/workflow/${match.workflowId}`}
+                                                                        target="_blank"
+                                                                        className="text-sm text-[#EDEFF7] hover:text-blue-400 truncate flex items-center gap-1"
+                                                                    >
+                                                                        {match.workflowTitle}
+                                                                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                                                    </Link>
+                                                                    <Badge variant="outline" className="text-xs border-orange-500/50 text-orange-400 flex-shrink-0">
+                                                                        {match.similarityScore}% similar
+                                                                    </Badge>
+                                                                </div>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => handleDownloadWorkflow(match.workflowId, match.workflowTitle)}
+                                                                    className="text-[#9DA2B3] flex-shrink-0"
+                                                                >
+                                                                    <Download className="h-3 w-3 mr-1" />
+                                                                    Download
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    
+                                                    {/* Download both button */}
+                                                    <div className="mt-3 flex gap-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => handleDownloadWorkflow(workflow.id, workflow.title)}
+                                                            className="text-blue-400 border-blue-500/50 hover:bg-blue-500/10"
+                                                        >
+                                                            <Download className="h-3 w-3 mr-1" />
+                                                            Download flagged workflow
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Actions */}

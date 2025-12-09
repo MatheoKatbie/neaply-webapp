@@ -95,20 +95,21 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Send welcome email (async, don't block response)
-    sendWaitlistWelcomeEmail(email, position)
-      .then(async (result) => {
-        if (result.success) {
-          // Update entry to mark email as sent
-          await prisma.waitlistEntry.update({
-            where: { id: entry.id },
-            data: { emailSent: true },
-          })
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to send waitlist email:', error)
-      })
+    // Send welcome email and wait for it to complete
+    try {
+      const emailResult = await sendWaitlistWelcomeEmail(email, position)
+      if (emailResult.success) {
+        // Update entry to mark email as sent
+        await prisma.waitlistEntry.update({
+          where: { id: entry.id },
+          data: { emailSent: true },
+        })
+      } else {
+        console.error('Failed to send waitlist email:', emailResult.error)
+      }
+    } catch (error) {
+      console.error('Failed to send waitlist email:', error)
+    }
 
     return NextResponse.json({
       message: 'Welcome to the waitlist!',

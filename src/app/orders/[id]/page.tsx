@@ -7,13 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CopyButton } from '@/components/ui/copy-button'
 import { Separator } from '@/components/ui/separator'
 import { downloadWorkflowAsZip } from '@/lib/download-utils'
+import { generateInvoicePDF } from '@/lib/invoice-generator'
 import type { Order } from '@/types/payment'
 import {
   AlertCircle,
   ArrowLeft,
   CheckCircle,
   Clock,
-  CreditCard,
   Download,
   FileText,
   Package,
@@ -454,11 +454,18 @@ export default function OrderDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <Button className="w-full">
-                      <CreditCard className="w-4 h-4 mr-2" />
+                    <Button 
+                      className="w-full"
+                      onClick={() => generateInvoicePDF({ order })}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
                       Download Invoice
                     </Button>
-                    <Button className="w-full">
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={() => window.location.href = `mailto:support@neaply.com?subject=Order%20%23${order.id.slice(-8)}%20-%20Support%20Request`}
+                    >
                       Contact Support
                     </Button>
                   </div>

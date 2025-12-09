@@ -190,6 +190,7 @@ model Workflow {
   // Plagiarism detection fields
   similarityScore    Int?    // Score from 0-100 if workflow was flagged
   similaritySeverity String? // 'info', 'warning', 'critical' - set when user confirms despite similarity
+  similarityMatches  Json?   // Array of matched workflows [{workflowId, workflowTitle, workflowSlug, similarityScore}]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
