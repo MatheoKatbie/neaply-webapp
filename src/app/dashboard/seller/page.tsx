@@ -519,12 +519,11 @@ export default function SellerDashboard() {
   }
 
   // Handle similarity confirmation - store score and severity in form data
-  const handleSimilarityConfirmed = useCallback((score: number, severity: string, matchedWorkflows: { workflowId: string; workflowTitle: string; workflowSlug: string; similarityScore: number }[]) => {
+  const handleSimilarityConfirmed = useCallback((score: number, severity: string) => {
     setFormData(prev => ({
       ...prev,
       similarityScore: score,
       similaritySeverity: severity as 'info' | 'warning' | 'critical',
-      similarityMatches: matchedWorkflows,
     }))
   }, [])
 

@@ -119,12 +119,6 @@ interface WorkflowFormData {
   // Plagiarism tracking - set when user confirms despite similarity warning
   similarityScore?: number
   similaritySeverity?: 'info' | 'warning' | 'critical'
-  similarityMatches?: {
-    workflowId: string
-    workflowTitle: string
-    workflowSlug: string
-    similarityScore: number
-  }[]
 }
 
 export const useFormValidation = (formData: WorkflowFormData) => {

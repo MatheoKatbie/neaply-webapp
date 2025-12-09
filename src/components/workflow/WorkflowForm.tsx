@@ -34,7 +34,7 @@ interface WorkflowFormProps {
   onDocumentationUpload: (file: File | null, previewUrl?: string) => void
   onDocumentationRemove: () => void
   editingWorkflow?: any
-  onSimilarityConfirmed?: (score: number, severity: string, matchedWorkflows: { workflowId: string; workflowTitle: string; workflowSlug: string; similarityScore: number }[]) => void
+  onSimilarityConfirmed?: (score: number, severity: string) => void
 }
 
 const tabs = ['basic', 'content', 'publishing'] as const

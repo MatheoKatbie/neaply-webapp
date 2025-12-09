@@ -30,7 +30,7 @@ interface WorkflowContentSectionProps {
   workflowId?: string // For edit mode - exclude from similarity check
   onSimilarityWarning?: (hasSimilarity: boolean) => void // Callback when similarity is detected
   onSimilarityCheckingChange?: (isChecking: boolean) => void // Callback when similarity check starts/ends
-  onSimilarityConfirmed?: (score: number, severity: string, matchedWorkflows: { workflowId: string; workflowTitle: string; workflowSlug: string; similarityScore: number }[]) => void // Callback when user confirms despite similarity
+  onSimilarityConfirmed?: (score: number, severity: string) => void // Callback when user confirms despite similarity
 }
 
 // Simplified platform configuration
@@ -324,16 +324,7 @@ export function WorkflowContentSection({
                   // Notify parent about confirmed similarity for database storage
                   if (onSimilarityConfirmed) {
                     const severity = getSeverity(similarityResult.similarityScore)
-                    onSimilarityConfirmed(
-                      similarityResult.similarityScore,
-                      severity,
-                      similarityResult.matchedWorkflows.map(w => ({
-                        workflowId: w.id,
-                        workflowTitle: w.title,
-                        workflowSlug: w.slug,
-                        similarityScore: w.similarityScore,
-                      }))
-                    )
+                    onSimilarityConfirmed(similarityResult.similarityScore, severity)
                   }
                 }}
                 showActions={similarityResult.isSimilar}

@@ -39,7 +39,7 @@ interface SellerWorkflowsTabProps {
   onDocumentationUpload: (file: File | null, previewUrl?: string) => void
   onDocumentationRemove: () => void
   onCreateWorkflow: () => void
-  onSimilarityConfirmed?: (score: number, severity: string, matchedWorkflows: { workflowId: string; workflowTitle: string; workflowSlug: string; similarityScore: number }[]) => void
+  onSimilarityConfirmed?: (score: number, severity: string) => void
 }
 
 export function SellerWorkflowsTab({
