@@ -302,7 +302,6 @@ export default function AdminPlagiarismPage() {
                     size="sm"
                     onClick={fetchData}
                     disabled={loading}
-                    className="text-[#9DA2B3]"
                 >
                     <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                     Refresh
@@ -438,10 +437,9 @@ export default function AdminPlagiarismPage() {
                                                                     </Badge>
                                                                 </div>
                                                                 <Button
-                                                                    variant="outline"
+                                  
                                                                     size="sm"
                                                                     onClick={() => handleDownloadWorkflow(match.workflowId, match.workflowTitle)}
-                                                                    className="text-[#9DA2B3] flex-shrink-0"
                                                                 >
                                                                     <Download className="h-3 w-3 mr-1" />
                                                                     Download
@@ -456,7 +454,7 @@ export default function AdminPlagiarismPage() {
                                                             variant="outline"
                                                             size="sm"
                                                             onClick={() => handleDownloadWorkflow(workflow.id, workflow.title)}
-                                                            className="text-blue-400 border-blue-500/50 hover:bg-blue-500/10"
+    
                                                         >
                                                             <Download className="h-3 w-3 mr-1" />
                                                             Download flagged workflow

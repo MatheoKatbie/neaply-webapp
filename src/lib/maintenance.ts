@@ -9,10 +9,8 @@
  * - Add IP addresses to ALLOWED_IPS to whitelist admins/developers
  */
 
-// ⚠️ COMING SOON MODE - Set to true if the site is not launched yet
 export const COMING_SOON_MODE = false;
 
-// ⚠️ MAINTENANCE MODE - Set to true for temporary maintenance
 export const MAINTENANCE_MODE = false
 
 // Whitelisted IP addresses (these users can bypass coming soon/maintenance)
