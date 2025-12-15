@@ -138,14 +138,6 @@ export default function GoogleOneTap({
         // Initialiser Google One Tap
         window.google.accounts.id.initialize(config)
 
-        // Réinitialiser les préférences pour forcer l'affichage (en développement)
-        if (process.env.NODE_ENV === 'development') {
-          // Supprimer les cookies de préférence Google One Tap
-          document.cookie.split(";").forEach(function (c) {
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-          });
-        }
-
         // Afficher le prompt One Tap avec gestion détaillée des erreurs
         window.google.accounts.id.prompt((notification: any) => {
           if (notification.isNotDisplayed()) {
