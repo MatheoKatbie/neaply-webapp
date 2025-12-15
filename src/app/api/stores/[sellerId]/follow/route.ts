@@ -124,8 +124,8 @@ export async function POST(
       data: {
         userId: sellerId,
         type: 'new_follower',
-        title: 'Nouveau follower ! 👥',
-        message: `${follower?.displayName || 'Un utilisateur'} suit maintenant votre store`,
+        title: 'New follower! 👥',
+        message: `${follower?.displayName || 'A user'} started following your store`,
         link: `/store/${seller.sellerProfile.slug}`,
         metadata: {
           followerId: user.id,

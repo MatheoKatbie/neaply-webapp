@@ -450,7 +450,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             where: { id: userId },
             select: { displayName: true },
           })
-          const buyerName = buyer?.displayName || 'Un utilisateur'
+          const buyerName = buyer?.displayName || 'A user'
 
           // Notify each seller about new sales
           const sellerIds = new Set<string>()
@@ -484,7 +484,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           // Notify buyer about order confirmation
           const firstItemTitle = updatedOrder.items[0]?.workflow?.title || 
                                  updatedOrder.packItems[0]?.pack?.title || 
-                                 'Votre achat'
+                                 'Your purchase'
           await notifyBuyerOrderConfirmed({
             buyerId: userId,
             workflowTitle: firstItemTitle,

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       try {
         await notifyWelcome({
           userId: dbUser.id,
-          userName: dbUser.displayName || 'Nouveau membre',
+          userName: dbUser.displayName || 'New member',
         })
       } catch (notifError) {
         console.error('Failed to send welcome notification:', notifError)

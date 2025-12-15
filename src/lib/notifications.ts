@@ -53,8 +53,8 @@ export async function notifySellerNewOrder({
   return createNotification({
     userId: sellerId,
     type: 'new_sale',
-    title: 'Nouvelle vente ! 🎉',
-    message: `${buyerName} a acheté "${workflowTitle}" pour ${amount.toFixed(2)}€`,
+    title: 'New sale! 🎉',
+    message: `${buyerName} bought "${workflowTitle}" for €${amount.toFixed(2)}`,
     link: `/dashboard/seller/orders`,
     metadata: { orderId, buyerName, workflowTitle, amount },
   })
@@ -75,8 +75,8 @@ export async function notifyBuyerOrderConfirmed({
   return createNotification({
     userId: buyerId,
     type: 'order_confirmed',
-    title: 'Commande confirmée ✅',
-    message: `Votre achat de "${workflowTitle}" est confirmé. Vous pouvez maintenant le télécharger.`,
+    title: 'Order confirmed ✅',
+    message: `Your purchase of "${workflowTitle}" is confirmed. You can now download it.`,
     link: `/orders`,
     metadata: { orderId, workflowTitle },
   })
@@ -104,8 +104,8 @@ export async function notifySellerNewReview({
   return createNotification({
     userId: sellerId,
     type: 'new_review',
-    title: 'Nouvel avis reçu',
-    message: `${reviewerName} a laissé un avis ${stars} sur "${workflowTitle}"`,
+    title: 'New review received',
+    message: `${reviewerName} left a ${stars} review on "${workflowTitle}"`,
     link: `/dashboard/workflow/${workflowId}`,
     metadata: { reviewId, reviewerName, workflowTitle, rating },
   })
@@ -128,8 +128,8 @@ export async function notifyBuyerWorkflowUpdated({
   return createNotification({
     userId: buyerId,
     type: 'workflow_updated',
-    title: 'Mise à jour disponible 🔄',
-    message: `"${workflowTitle}" a été mis à jour (v${versionNumber}). Téléchargez la nouvelle version !`,
+    title: 'Update available 🔄',
+    message: `"${workflowTitle}" has been updated (v${versionNumber}). Download the new version!`,
     link: `/orders`,
     metadata: { workflowId, workflowTitle, versionNumber },
   })
@@ -173,8 +173,8 @@ export async function notifySellerPayoutProcessed({
   return createNotification({
     userId: sellerId,
     type: 'payout_sent',
-    title: 'Paiement envoyé 💰',
-    message: `Un virement de ${amount.toFixed(2)}€ a été initié vers votre compte bancaire.`,
+    title: 'Payout sent 💰',
+    message: `A transfer of €${amount.toFixed(2)} has been initiated to your bank account.`,
     link: `/dashboard/seller/payouts`,
     metadata: { payoutId, amount },
   })
@@ -238,8 +238,8 @@ export async function notifySellerNewFollower({
   return createNotification({
     userId: sellerId,
     type: 'new_follower',
-    title: 'Nouveau follower ! 👥',
-    message: `${followerName} suit maintenant votre store`,
+    title: 'New follower! 👥',
+    message: `${followerName} started following your store`,
     link: `/store/${storeSlug}`,
     metadata: { followerId, followerName },
   })
@@ -276,8 +276,8 @@ export async function notifyFollowersNewWorkflow({
     createNotification({
       userId: follow.followerId,
       type: 'store_new_workflow',
-      title: `Nouveau workflow de ${storeName} 🆕`,
-      message: `"${workflowTitle}" vient d'être publié`,
+      title: `New workflow from ${storeName} 🆕`,
+      message: `"${workflowTitle}" has just been published`,
       link: `/workflow/${workflowSlug}`,
       metadata: {
         sellerId,
@@ -310,8 +310,8 @@ export async function notifyBuyerOrderRefunded({
   return createNotification({
     userId: buyerId,
     type: 'order_refunded',
-    title: 'Remboursement effectué 💸',
-    message: `Votre achat de "${workflowTitle}" a été remboursé (${amount.toFixed(2)}€)`,
+    title: 'Refund processed 💸',
+    message: `Your purchase of "${workflowTitle}" has been refunded (€${amount.toFixed(2)})`,
     link: `/orders`,
     metadata: { orderId, workflowTitle, amount },
   })
@@ -334,8 +334,8 @@ export async function notifyBuyerReviewResponse({
   return createNotification({
     userId: buyerId,
     type: 'review_response',
-    title: 'Réponse à votre avis 💬',
-    message: `${sellerName} a répondu à votre avis sur "${workflowTitle}"`,
+    title: 'Response to your review 💬',
+    message: `${sellerName} replied to your review on "${workflowTitle}"`,
     link: `/workflow/${reviewId}`,
     metadata: { reviewId, sellerName, workflowTitle },
   })
@@ -356,8 +356,8 @@ export async function notifySellerWorkflowApproved({
   return createNotification({
     userId: sellerId,
     type: 'workflow_approved',
-    title: 'Workflow approuvé ✅',
-    message: `"${workflowTitle}" a été approuvé et est maintenant visible sur le marketplace`,
+    title: 'Workflow approved ✅',
+    message: `"${workflowTitle}" has been approved and is now visible on the marketplace`,
     link: `/workflow/${workflowSlug}`,
     metadata: { workflowTitle, workflowSlug },
   })
@@ -378,10 +378,10 @@ export async function notifySellerWorkflowRejected({
   return createNotification({
     userId: sellerId,
     type: 'workflow_rejected',
-    title: 'Workflow refusé ❌',
+    title: 'Workflow rejected ❌',
     message: reason 
-      ? `"${workflowTitle}" n'a pas été approuvé : ${reason}` 
-      : `"${workflowTitle}" n'a pas été approuvé. Vérifiez les guidelines.`,
+      ? `"${workflowTitle}" was not approved: ${reason}` 
+      : `"${workflowTitle}" was not approved. Please check the guidelines.`,
     link: `/dashboard/seller`,
     metadata: { workflowTitle, reason },
   })
@@ -400,8 +400,8 @@ export async function notifyWelcome({
   return createNotification({
     userId,
     type: 'welcome',
-    title: `Bienvenue ${userName} ! 🎉`,
-    message: 'Découvrez les meilleurs workflows d\'automatisation sur Neaply',
+    title: `Welcome ${userName}! 🎉`,
+    message: 'Discover the best automation workflows on Neaply',
     link: '/marketplace',
     metadata: { userName },
   })
